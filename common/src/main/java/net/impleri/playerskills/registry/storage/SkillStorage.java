@@ -1,27 +1,32 @@
 package net.impleri.playerskills.registry.storage;
 
+import net.impleri.playerskills.PlayerSkillsCore;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.List;
 import java.util.UUID;
 
 public class SkillStorage {
-  private static final SkillNbtStorage storage = new SkillNbtStorage();
+    private static final PersistentStorage storage = new SkillNbtStorage();
 
-  public static void setup(MinecraftServer server) {
-    SkillResourceFile.createInstance(server);
-  }
+    public static void setup(MinecraftServer server) {
+        SkillResourceFile.createInstance(server);
+    }
 
-  public static void write(UUID playerUuid, List<String> skills) {
-    storage.write(SkillResourceFile.forPlayer(playerUuid), skills);
-  }
+    public static void write(UUID playerUuid, List<String> skills) {
+        var file = SkillResourceFile.forPlayer(playerUuid);
+        PlayerSkillsCore.LOGGER.debug("Writing to {}", file.getPath());
+        storage.write(file, skills);
+    }
 
-  public static List<String> read(UUID playerUuid) {
-    List<String> skills = storage.read(SkillResourceFile.forPlayer(playerUuid));
+    public static List<String> read(UUID playerUuid) {
+        var file = SkillResourceFile.forPlayer(playerUuid);
+        PlayerSkillsCore.LOGGER.debug("Reading file {}", file.getPath());
+        List<String> skills = storage.read(file);
 
-    // write skill list back to file
-    write(playerUuid, skills);
+        // write skill list back to file
+        write(playerUuid, skills);
 
-    return skills;
-  }
+        return skills;
+    }
 }

@@ -74,7 +74,7 @@ public class PlayerSkillsCore {
 
         // And to register a skill
         var skillName = SkillResourceLocation.of("test");
-        SKILLS.register(skillName, () -> new BasicSkill(SkillResourceLocation.of("test")));
+        SKILLS.register(skillName, () -> new BasicSkill(skillName));
         SKILLS.register();
     }
 
@@ -91,6 +91,7 @@ public class PlayerSkillsCore {
     // Events while server running
 
     private void addPlayer(ServerPlayer player) {
+        LOGGER.info("Player {} joined, ensuring skills are synced", player.getName().getString());
         PlayerSkills.openPlayer(player.getUUID(), Skills.entries());
     }
 

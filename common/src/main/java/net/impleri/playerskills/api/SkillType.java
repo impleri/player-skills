@@ -14,8 +14,8 @@ import java.util.List;
  * 1. serialization to/from NBT
  * 2. Executing logic to determine if a skill value should be changed.
  */
-public class SkillType<T> {
-    private static final String valueSeparator = ";-;";
+abstract public class SkillType<T> {
+    private static final String valueSeparator = ";";
 
     /**
      * Get all Types
@@ -109,5 +109,21 @@ public class SkillType<T> {
      */
     public boolean can(Skill<T> skill, @Nullable T expectedValue) {
         return hasValue(skill, expectedValue);
+    }
+
+    @Nullable
+    abstract public T getPrevValue(Skill<T> skill, @Nullable T min, @Nullable T max);
+
+    @Nullable
+    public T getPrevValue(Skill<T> skill) {
+        return this.getPrevValue(skill, null, null);
+    }
+
+    @Nullable
+    abstract public T getNextValue(Skill<T> skill, @Nullable T min, @Nullable T max);
+
+    @Nullable
+    public T getNextValue(Skill<T> skill) {
+        return this.getNextValue(skill, null, null);
     }
 }

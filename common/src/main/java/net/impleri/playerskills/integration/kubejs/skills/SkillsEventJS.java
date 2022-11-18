@@ -4,6 +4,7 @@ import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes;
 import dev.latvian.mods.kubejs.event.EventJS;
 import dev.latvian.mods.kubejs.util.ConsoleJS;
 import dev.latvian.mods.rhino.util.HideFromJS;
+import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.SkillResourceLocation;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.registry.RegistryItemAlreadyExists;
@@ -45,7 +46,7 @@ public class SkillsEventJS extends EventJS {
         // Ensure we have a full ResourceLocation before casting to String
         var type = SkillResourceLocation.of(skillType).toString();
 
-        ConsoleJS.SERVER.info("Creating skill builder for " + name.toString() + " typed as " + type);
+        PlayerSkillsCore.LOGGER.debug("Creating skill builder for " + name.toString() + " typed as " + type);
         @Nullable RegistryObjectBuilderTypes.BuilderType<Skill<?>> builderType = types.get(type);
         if (builderType == null) {
             ConsoleJS.SERVER.error("Builder not found for skill type " + type);
@@ -76,7 +77,7 @@ public class SkillsEventJS extends EventJS {
 
         Skill<T> newSkill = builder.createObject();
         Skills.add(newSkill);
-        ConsoleJS.SERVER.info("Created skill " + name + " typed as " + type);
+        ConsoleJS.SERVER.info("Created " + type + " skill " + name);
 
         return true;
     }
@@ -104,7 +105,7 @@ public class SkillsEventJS extends EventJS {
 
         Skill<T> newSkill = builder.createObject();
         Skills.upsert(newSkill);
-        ConsoleJS.SERVER.info("Updated skill " + name + " typed as " + type);
+        ConsoleJS.SERVER.info("Updated " + type + " skill " + name);
 
         return false;
     }

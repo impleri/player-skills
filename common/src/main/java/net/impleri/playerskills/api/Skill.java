@@ -1,12 +1,16 @@
 package net.impleri.playerskills.api;
 
+import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.SkillResourceLocation;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.Skills;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Base generic skill. These are meant to be nothing more than
@@ -32,6 +36,18 @@ public class Skill<T> {
      */
     public static <V> Skill<V> find(ResourceLocation location) throws RegistryItemNotFound {
         return Skills.find(location);
+    }
+
+    @ApiStatus.Internal
+    private static <V> String dumpSkill(Skill<V> skill) {
+        return "" + skill.getName().toString() + "=" + Objects.requireNonNullElse(skill.getValue(), "null");
+    }
+
+    public static void logSkills(List<Skill<?>> skills, String description) {
+        var skillList = skills.stream()
+                .map(Skill::dumpSkill)
+                .collect(Collectors.joining(", "));
+        PlayerSkillsCore.LOGGER.debug("{}: {}", description, skillList);
     }
 
     protected ResourceLocation name;

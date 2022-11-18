@@ -13,4 +13,8 @@ class PlayerSkillsKubeJSWrapper {
     public List<SkillType<?>> getSkillTypes() {
         return SkillType.all();
     }
+
+    public List<SkillType<?>> getTypes() {
+        return getSkillTypes();
+    }
 }

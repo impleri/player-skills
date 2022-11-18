@@ -2,6 +2,7 @@ package net.impleri.playerskills.api;
 
 import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.SkillResourceLocation;
+import net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin;
 import net.impleri.playerskills.registry.PlayerSkills;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.Skills;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class PlayerSkill {
     /**
@@ -24,16 +26,28 @@ public abstract class PlayerSkill {
      */
     public static <T> Skill<T> getSkill(Player player, ResourceLocation name) throws RegistryItemNotFound {
         List<Skill<?>> playerSkills = getAllSkills(player);
+        Skill.logSkills(playerSkills, "All skills for " + player.getName().getString());
+
         @Nullable Skill<T> defaultSkill = Skills.find(name);
 
-        return playerSkills.stream()
-                .filter(skill -> skill.getName() == name)
+        Optional<Skill<T>> foundSkill = playerSkills.stream()
+                .filter(skill -> skill.getName().equals(name))
                 .map(skill -> {
                     @SuppressWarnings("unchecked") Skill<T> castSkill = (Skill<T>) skill;
                     return castSkill;
                 })
-                .findFirst()
-                .orElse(defaultSkill);
+                .findFirst();
+
+        if (foundSkill.isEmpty()) {
+            PlayerSkillsCore.LOGGER.warn("Could not find {} for player {}", name, player.getName().getString());
+            return defaultSkill;
+        }
+
+        return foundSkill.get();
+    }
+
+    public static <T> Skill<T> getSkill(Player player, String name) throws RegistryItemNotFound {
+        return getSkill(player, SkillResourceLocation.of(name));
     }
 
     /**
@@ -103,13 +117,21 @@ public abstract class PlayerSkill {
     /**
      * Upsert a Skill at the specified value (or its default if none provided) for a Player
      */
-    public static <T> boolean set(Player player, Skill<T> skill, @Nullable T newValue) {
+    public static <T> boolean set(Player player, Skill<T> skill, @Nullable T newValue) throws RegistryItemNotFound {
         T value = (newValue == null) ? skill.getValue() : newValue;
+
+        Skill<T> oldSkill = getSkill(player, skill.getName());
 
         Skill<T> newSkill = skill.copy();
         newSkill.setValue(value);
 
+        if (oldSkill.getValue() == newSkill.getValue()) {
+            return false;
+        }
+
         List<Skill<?>> newSkills = PlayerSkills.upsert(player.getUUID(), newSkill);
+
+        PlayerSkillsPlugin.onSkillChange(player, newSkill, oldSkill);
 
         // TODO: Sync to player client
 

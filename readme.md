@@ -101,7 +101,7 @@ Instead, we provide a function to determine if a player has a sufficient Skill:
 
 ```js
 BlockEvents.rightClicked('minecraft:dirt', event => {
-  if (event.entity.data.skills.cannot('skills:harvest', 2)) {
+  if (event.entity.data.skills.can('skills:harvest', 2)) {
     // If the player does have a harvest skill of 2 or greater, spawn a Green Guardian to plague them
     event.block.createEntity('green_guardian').spawn()
   }
@@ -137,7 +137,8 @@ BlockEvents.rightClicked('minecraft:dirt', event => {
   event.entity.data.skills.improve('skills:harvest', condition => condition.max(5));
   
   // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
-  event.entity.data.skills.improve('skills:undead_killer', condition => condition.can(KILLER_TIERS.iron)
+  event.entity.data.skills.improve('skills:undead_killer', condition => condition
+    .if(event.entity.data.skills.can('skills:undead_killer', KILLER_TIERS.iron))
     .max(KILLER_TIERS.gold)
     .unless(event.entity.data.skills.can('skills:crop_farmer'))
   );
@@ -146,8 +147,6 @@ BlockEvents.rightClicked('minecraft:dirt', event => {
 
 The following conditions are available in the second parameter callback:
 
-- `can`: If the player's skill is below the minimum, nothing will change. If it's at or above, it will increment
-  appropriately
 - `min`: If the player's skill is below the minimum, it will jump to the minimum value. If it's at or above, it will
   increment appropriately
 - `max`: If the player's skill is at or above the maximum value, nothing will change. Otherwise, increment the skill
@@ -179,10 +178,7 @@ Want to use this in a modpack? Great! This was designed with modpack developers 
 
 ## TODO
 
-- [] Player.can
-- [] Player.improve
-- [] Player.degrade
-- [] Player.reset
-- [] Send event when a player's skill is improved
-- [] Send event when a player's skill is degraded
-- [] Send event when a player's skill is reset
+- [] Numeric skill type
+    - Test min, max conditions
+- [] Tiered skill type
+- [] Specialization skill type

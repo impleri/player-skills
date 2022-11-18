@@ -1,12 +1,16 @@
 package net.impleri.playerskills.integration.kubejs.skills;
 
+import dev.latvian.mods.rhino.util.HideFromJS;
+import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.api.PlayerSkill;
 import net.impleri.playerskills.api.Skill;
-import net.minecraft.resources.ResourceLocation;
+import net.impleri.playerskills.api.SkillType;
+import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class PlayerDataJS {
     private final Player player;
@@ -15,23 +19,154 @@ public class PlayerDataJS {
         this.player = player;
     }
 
-    public <T> boolean can(ResourceLocation skill, @Nullable T expectedValue) {
-        return PlayerSkill.can(player, skill, expectedValue);
+    @Nullable
+    @HideFromJS
+    private <T> Skill<T> getSkill(String skillName) {
+        try {
+            return PlayerSkill.getSkill(player, skillName);
+        } catch (RegistryItemNotFound e) {
+            // TODO: handle error
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    public <T> boolean cannot(ResourceLocation skill, @Nullable T expectedValue) {
-        return !PlayerSkill.can(player, skill, expectedValue);
+    @Nullable
+    @HideFromJS
+    private <T> SkillType<T> getSkillType(@Nullable Skill<T> skill) {
+        if (skill == null) {
+            return null;
+        }
+
+        try {
+            return SkillType.forSkill(skill);
+        } catch (RegistryItemNotFound e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    public <T> boolean grant(ResourceLocation skill, @Nullable T newValue) {
-        return PlayerSkill.set(player, skill, newValue);
+    @Nullable
+    @HideFromJS
+    private <T> SkillConditionBuilderJS<T> getBuilderFor(Skill<T> skill, @Nullable Consumer<SkillConditionBuilderJS<T>> consumer) {
+        if (consumer == null) {
+            return null;
+        }
+
+        var builder = new SkillConditionBuilderJS<T>(skill, player);
+        consumer.accept(builder);
+
+        return builder;
     }
 
-    public boolean reset(ResourceLocation skill) {
-        return PlayerSkill.reset(player, skill);
+    @HideFromJS
+    private <T> boolean handleChange(Skill<T> skill, T newValue) {
+        if (newValue != null) {
+            PlayerSkillsCore.LOGGER.debug("Should change {} to {}", skill.getName(), newValue);
+            return PlayerSkill.set(player, skill.getName(), newValue);
+        }
+
+        return false;
     }
 
     public List<Skill<?>> getAll() {
         return PlayerSkill.getAllSkills(player);
+    }
+
+    public List<Skill<?>> getSkills() {
+        return getAll();
+    }
+
+    public <T> boolean can(String skillName, @Nullable T expectedValue) {
+        var skill = getSkill(skillName);
+
+        if (skill == null) {
+            return false;
+        }
+
+        return PlayerSkill.can(player, skill, expectedValue);
+    }
+
+    public <T> boolean can(String skill) {
+        return can(skill, null);
+    }
+
+    public <T> boolean cannot(String skill, @Nullable T expectedValue) {
+        return !can(skill, expectedValue);
+    }
+
+    public <T> boolean cannot(String skill) {
+        return cannot(skill, null);
+    }
+
+    public <T> boolean improve(String skillName, @Nullable Consumer<SkillConditionBuilderJS<T>> consumer) {
+        Skill<T> skill = getSkill(skillName);
+        SkillType<T> type = getSkillType(skill);
+        @Nullable SkillConditionBuilderJS<T> builder = getBuilderFor(skill, consumer);
+
+        if (type == null) {
+            return false;
+        }
+
+        @Nullable T newValue = type.getNextValue(skill);
+        if (builder != null) {
+            newValue = builder.calculateNext();
+        }
+
+        return handleChange(skill, newValue);
+    }
+
+    public <T> boolean improve(String skillName) {
+        return improve(skillName, null);
+    }
+
+    public <T> boolean degrade(String skillName, @Nullable Consumer<SkillConditionBuilderJS<T>> consumer) {
+        Skill<T> skill = getSkill(skillName);
+        SkillType<T> type = getSkillType(skill);
+        @Nullable SkillConditionBuilderJS<T> builder = getBuilderFor(skill, consumer);
+
+        if (type == null) {
+            return false;
+        }
+
+        @Nullable T newValue = type.getPrevValue(skill);
+        if (builder != null) {
+            newValue = builder.calculatePrev();
+        }
+
+        return handleChange(skill, newValue);
+    }
+
+    public <T> boolean degrade(String skillName) {
+        return degrade(skillName, null);
+    }
+
+    public <T> boolean reset(String skillName, @Nullable Consumer<SkillConditionBuilderJS<T>> consumer) throws RegistryItemNotFound {
+        Skill<T> skill = getSkill(skillName);
+        SkillType<T> type = getSkillType(skill);
+        @Nullable SkillConditionBuilderJS<T> builder = getBuilderFor(skill, consumer);
+
+        if (type == null) {
+            return false;
+        }
+
+        Skill<T> defaultSkill = Skill.find(skillName);
+        boolean shouldChange = skill.getValue() != defaultSkill.getValue();
+        if (builder != null) {
+            shouldChange = builder.shouldChange() && shouldChange;
+        }
+
+        if (shouldChange) {
+            PlayerSkillsCore.LOGGER.debug("Should reset {}.", skill.getName());
+            return PlayerSkill.reset(player, skill.getName());
+        }
+
+        return false;
+    }
+
+    public <T> boolean reset(String skill) throws RegistryItemNotFound {
+        return reset(skill, null);
     }
 }

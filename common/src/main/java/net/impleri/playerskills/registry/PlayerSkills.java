@@ -44,7 +44,14 @@ public abstract class PlayerSkills {
      * Read-through internal cache. Gets player's skills in cache map and reads from storage if not found in cache
      */
     private static List<Skill<?>> getFor(UUID playerUuid) {
-        return players.computeIfAbsent(playerUuid, PlayerSkills::readFromStorage);
+        var cachedSkills = players.get(playerUuid);
+
+        if (cachedSkills == null) {
+            PlayerSkillsCore.LOGGER.info("Pulling {}'s skills from the freezer", playerUuid);
+            return readFromStorage(playerUuid);
+        }
+
+        return cachedSkills;
     }
 
     /**
@@ -59,16 +66,32 @@ public abstract class PlayerSkills {
      * match the skill type in the Skills Registry as well as those which no longer exist at all in the Skills Registery
      */
     public static List<Skill<?>> openPlayer(UUID playerUuid, List<Skill<?>> registeredSkills) {
-        // Get all saved skills which still match name AND type of registered skills
-        Stream<Skill<?>> savedSkills = getFor(playerUuid).stream()
-                .filter(skill -> !registeredSkills.stream().filter(skill::equals).toList().isEmpty());
+        // Get all the names of the registered skills
+        List<ResourceLocation> registeredSkillNames = registeredSkills.stream()
+                .map(Skill::getName)
+                .toList();
 
-        // Get all registered skills not saved
-        List<Skill<?>> finalSavedSkills = savedSkills.toList();
-        Stream<Skill<?>> newSkills = registeredSkills.stream()
-                .filter(skill -> !finalSavedSkills.contains(skill));
+        var rawSkills = getFor(playerUuid);
+        Skill.logSkills(rawSkills, "Found saved skills for player");
 
-        List<Skill<?>> skills = Stream.concat(finalSavedSkills.stream(), newSkills).toList();
+        // Get an intersection of saved skills that are still registered
+        List<Skill<?>> savedSkills = rawSkills.stream()
+                .filter(skill -> registeredSkillNames.contains(skill.getName()))
+                .toList();
+
+        Skill.logSkills(savedSkills, "Saved skills still registered for player");
+
+        List<ResourceLocation> savedSkillNames = savedSkills.stream()
+                .map(Skill::getName)
+                .toList();
+
+        List<Skill<?>> newSkills = registeredSkills.stream()
+                .filter(skill -> !savedSkillNames.contains(skill.getName()))
+                .toList();
+
+        Skill.logSkills(newSkills, "Appending registerd skills for player");
+
+        List<Skill<?>> skills = Stream.concat(savedSkills.stream(), newSkills.stream()).toList();
 
         // Immediately sync in-memory cache AND persistent storage with updated skills set
         save(playerUuid, skills);
@@ -80,11 +103,11 @@ public abstract class PlayerSkills {
      * Helper function to upsert a skill for a player in memory only
      */
     private static List<Skill<?>> handleUpsert(UUID playerUuid, Skill<?> skill) {
-        List<Skill<?>> existingSkills = getFor(playerUuid);
+        List<Skill<?>> existingSkills = getAllForPlayer(playerUuid);
 
         // Only replace skill with same name AND type (edge case of same name but different type is handled in openPlayer)
-        List<Skill<?>> filteredSkills = existingSkills.stream()
-                .filter(skill::equals)
+        List<Skill<?>> filteredSkills = List.copyOf(existingSkills).stream()
+                .filter(existing -> !skill.getName().equals(existing.getName()))
                 .toList();
 
         List<Skill<?>> addedSkills = new ArrayList<>();
@@ -150,8 +173,15 @@ public abstract class PlayerSkills {
     /**
      * Save multiple players' skills to persistent storage then remove them from in-memory cache
      */
-    public static void closeAllPlayers() {
-        players.keySet().forEach(PlayerSkills::closePlayer);
+    public static Set<UUID> closeAllPlayers() {
+        Set<UUID> playerIds = players.keySet();
+        playerIds.forEach(PlayerSkills::closePlayer);
+
+        return playerIds;
+    }
+
+    public static void resyncPlayers(Set<UUID> players, List<Skill<?>> registeredSkills) {
+        players.forEach(player -> openPlayer(player, registeredSkills));
     }
 
     private static List<Skill<?>> readFromStorage(UUID playerUuid) {
@@ -162,11 +192,11 @@ public abstract class PlayerSkills {
     }
 
     private static @Nullable <T> Skill<T> transformFromStorage(String rawSkill) {
-        if (rawSkill == null || rawSkill == "") {
+        PlayerSkillsCore.LOGGER.debug("Unpacking skill {} from storage", rawSkill);
+
+        if (rawSkill == null || rawSkill.equals("")) {
             return null;
         }
-
-        PlayerSkillsCore.LOGGER.debug("Hydrating skill {} from storage", rawSkill);
 
         String[] elements = SkillType.splitRawSkill(rawSkill);
         String name = elements[0];
@@ -175,6 +205,7 @@ public abstract class PlayerSkills {
 
         try {
             SkillType<T> skillType = SkillTypes.find(SkillResourceLocation.of(type));
+            PlayerSkillsCore.LOGGER.debug("Hydrating {} skill named {}: {}", type, name, value);
             return skillType.unserialize(name, value);
         } catch (RegistryItemNotFound e) {
             PlayerSkillsCore.LOGGER.warn("No skill type {} in the registry to hydrate {}", type, name);
@@ -200,8 +231,9 @@ public abstract class PlayerSkills {
 
     private static <T> String serializeSkill(Skill<T> skill) throws RegistryItemNotFound {
         SkillType<T> type = SkillTypes.find(skill.getType());
+        String storage = type.serialize(skill);
 
-        PlayerSkillsCore.LOGGER.debug("Dehydrating skill {} for storage", skill.getName());
+        PlayerSkillsCore.LOGGER.debug("Dehydrating skill {} for storage: {}", skill.getName(), storage);
 
         return type.serialize(skill);
     }

@@ -63,6 +63,6 @@ public class PlayerSkillsLogger {
     }
 
     public void debug(String message, Object... params) {
-        instance.debug(addPrefix(message), Arrays.stream(params).toArray());
+        instance.info(addPrefix(message), Arrays.stream(params).toArray());
     }
 }
