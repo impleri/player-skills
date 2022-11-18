@@ -1,2 +1,3 @@
 net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin
 net.impleri.playerskills.integration.kubejs.basic.BasicSkillPlugin
+net.impleri.playerskills.integration.kubejs.numeric.NumericSkillPlugin

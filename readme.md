@@ -178,7 +178,5 @@ Want to use this in a modpack? Great! This was designed with modpack developers 
 
 ## TODO
 
-- [] Numeric skill type
-    - Test min, max conditions
 - [] Tiered skill type
 - [] Specialization skill type

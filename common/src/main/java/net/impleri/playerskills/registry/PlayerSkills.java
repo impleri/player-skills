@@ -58,7 +58,7 @@ public abstract class PlayerSkills {
      * Get all skills for a player from the in-memory cache
      */
     public static List<Skill<?>> getAllForPlayer(UUID playerUuid) {
-        return players.get(playerUuid);
+        return getFor(playerUuid);
     }
 
     /**

@@ -8,6 +8,7 @@ import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.basic.BasicSkill;
 import net.impleri.playerskills.basic.BasicSkillType;
+import net.impleri.playerskills.numeric.NumericSkillType;
 import net.impleri.playerskills.registry.PlayerSkills;
 import net.impleri.playerskills.registry.SkillTypes;
 import net.impleri.playerskills.registry.Skills;
@@ -70,6 +71,7 @@ public class PlayerSkillsCore {
 
         // All that is needed to register a skill type
         SKILL_TYPES.register(BasicSkillType.name, BasicSkillType::new);
+        SKILL_TYPES.register(NumericSkillType.name, NumericSkillType::new);
         SKILL_TYPES.register();
 
         // And to register a skill
