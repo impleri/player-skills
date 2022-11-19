@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public abstract class SkillTypes {
     public static final ResourceLocation REGISTRY_KEY = SkillResourceLocation.of("skill_types_registry");
@@ -48,21 +47,5 @@ public abstract class SkillTypes {
         }
 
         return type;
-    }
-
-    /**
-     * Adds a SkillType if it does not already exists
-     */
-    public static <T> int add(Supplier<SkillType<T>> type) throws RegistryItemAlreadyExists {
-        ResourceLocation skillName = type.get().getName();
-
-        SkillType<T> existing = maybeFind(skillName);
-        if (existing != null) {
-            throw new RegistryItemAlreadyExists();
-        }
-
-        registry.register(skillName, type);
-
-        return registry.entrySet().size();
     }
 }

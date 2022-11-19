@@ -230,6 +230,7 @@ public abstract class PlayerSkills {
     }
 
     private static <T> String serializeSkill(Skill<T> skill) throws RegistryItemNotFound {
+        PlayerSkillsCore.LOGGER.debug("Serializing skill {} with type {}", skill.getName(), skill.getType());
         SkillType<T> type = SkillTypes.find(skill.getType());
         String storage = type.serialize(skill);
 

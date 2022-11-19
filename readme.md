@@ -178,5 +178,4 @@ Want to use this in a modpack? Great! This was designed with modpack developers 
 
 ## TODO
 
-- [] Tiered skill type
 - [] Specialization skill type
