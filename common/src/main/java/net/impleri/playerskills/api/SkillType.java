@@ -1,12 +1,14 @@
 package net.impleri.playerskills.api;
 
+import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.SkillResourceLocation;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.SkillTypes;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,6 +18,9 @@ import java.util.List;
  */
 abstract public class SkillType<T> {
     private static final String valueSeparator = ";";
+    private static final String optionsSeparator = "!";
+    private static final String optionsValueEmpty = "[EMPTY]";
+    private static final String stringValueNone = "[NULL]";
 
     /**
      * Get all Types
@@ -23,7 +28,6 @@ abstract public class SkillType<T> {
     public static List<SkillType<?>> all() {
         return SkillTypes.entries();
     }
-
 
     /**
      * Find a SkillType by string
@@ -50,30 +54,48 @@ abstract public class SkillType<T> {
         String[] parts = value.split(valueSeparator);
         String skillName = parts[0];
         String skillType = parts[1];
-        String skillValue = String.join(valueSeparator, Arrays.stream(parts).toList().subList(2, parts.length));
+        String skillValue = parts[2].equals(stringValueNone) ? null : parts[2];
+        String skillChangesAllowed = parts[3];
+        String[] skillOptions = (parts[4].equals(optionsValueEmpty)) ? new String[]{} : parts[4].split(optionsSeparator);
 
-        return new String[]{skillName, skillType, skillValue};
+        String[] mainData = {skillName, skillType, skillValue, skillChangesAllowed};
+
+        return ArrayUtils.addAll(mainData, skillOptions);
     }
 
     public ResourceLocation getName() {
         return SkillResourceLocation.of("skill");
     }
 
+    @Nullable
+    protected String getDescriptionFor(ResourceLocation name) {
+        try {
+            return Skill.find(name).description;
+        } catch (RegistryItemNotFound e) {
+            PlayerSkillsCore.LOGGER.warn("Could not get description for sill {}", name);
+        }
+
+        return null;
+    }
+
     /**
      * Convert into string for NBT storage
      */
     public String serialize(Skill<T> skill) {
-        return serialize(skill, "");
+        return serialize(skill, "", new ArrayList<>());
     }
 
     /**
      * Helper serializer to ensure expected format when deserializing
      */
-    public String serialize(Skill<T> skill, String value) {
+    public String serialize(Skill<T> skill, String value, List<String> options) {
+        String serialOptions = String.join(optionsSeparator, options);
         String[] parts = {
                 skill.getName().toString(),
                 skill.getType().toString(),
-                value,
+                (value == null || value.equals("")) ? stringValueNone : value,
+                String.valueOf(skill.getChangesAllowed()),
+                (serialOptions.equals("")) ? optionsValueEmpty : serialOptions,
         };
 
         return String.join(valueSeparator, parts);
@@ -82,7 +104,7 @@ abstract public class SkillType<T> {
     /**
      * Convert from string in NBT storage
      */
-    public Skill<T> unserialize(String name, String value) {
+    public Skill<T> unserialize(String name, String value, int changesAllowed, List<String> options) {
         return new Skill<T>(SkillResourceLocation.of(name), this.getName());
     }
 

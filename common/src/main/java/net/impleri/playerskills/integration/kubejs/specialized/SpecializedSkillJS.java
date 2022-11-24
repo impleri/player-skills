@@ -1,11 +1,11 @@
-package net.impleri.playerskills.integration.kubejs.tiered;
+package net.impleri.playerskills.integration.kubejs.specialized;
 
 import net.impleri.playerskills.integration.kubejs.skills.GenericSkillBuilderJS;
-import net.impleri.playerskills.tiered.TieredSkill;
+import net.impleri.playerskills.specialized.SpecializedSkill;
 import net.minecraft.resources.ResourceLocation;
 
-public class TieredSkillJS extends TieredSkill {
-    public TieredSkillJS(Builder builder) {
+public class SpecializedSkillJS extends SpecializedSkill {
+    public SpecializedSkillJS(Builder builder) {
         super(builder.id, builder.options, builder.initialValue, builder.description, builder.changesAllowed);
     }
 
@@ -16,8 +16,8 @@ public class TieredSkillJS extends TieredSkill {
         }
 
         @Override
-        public TieredSkillJS createObject() {
-            return new TieredSkillJS(this);
+        public SpecializedSkillJS createObject() {
+            return new SpecializedSkillJS(this);
         }
     }
 }

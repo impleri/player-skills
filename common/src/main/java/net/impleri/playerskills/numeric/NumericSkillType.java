@@ -7,6 +7,9 @@ import net.impleri.playerskills.api.SkillType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Objects;
+
 public class NumericSkillType extends SkillType<Double> {
     public static ResourceLocation name = SkillResourceLocation.of("numeric");
 
@@ -15,24 +18,40 @@ public class NumericSkillType extends SkillType<Double> {
         return name;
     }
 
+    private String castToString(Double value) {
+        return (value == null) ? "" : value.toString();
+    }
+
+    private Double castToNumber(String value) {
+        try {
+            return (value == null || value.equals("")) ? null : Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            PlayerSkillsCore.LOGGER.error("Unable to parse {} into an integer", value);
+        }
+
+        return null;
+    }
+
     @Override
     public String serialize(Skill<Double> skill) {
-        String stringValue = (skill.getValue() == null) ? "" : skill.getValue().toString();
+        String stringValue = castToString(skill.getValue());
+        List<String> stringOptions = skill.getOptions().stream().map(this::castToString).toList();
 
-        return serialize(skill, stringValue);
+        return serialize(skill, stringValue, stringOptions);
     }
 
     @Override
     @Nullable
-    public Skill<Double> unserialize(String skillName, String skillValue) {
-        try {
-            @Nullable Double castValue = skillValue.equals("") ? null : Double.parseDouble(skillValue);
-            return new NumericSkill(SkillResourceLocation.of(skillName), castValue);
-        } catch (NumberFormatException e) {
-            PlayerSkillsCore.LOGGER.error("Unable to parse {} into an integer for {}", skillValue, skillName);
-        }
+    public Skill<Double> unserialize(String skillName, String skillValue, int changesAllowed, List<String> skillOptions) {
+        ResourceLocation name = SkillResourceLocation.of(skillName);
+        @Nullable Double value = castToNumber(skillValue);
+        @Nullable String description = getDescriptionFor(name);
+        List<Double> options = skillOptions.stream()
+                .map(this::castToNumber)
+                .filter(Objects::nonNull)
+                .toList();
 
-        return null;
+        return new NumericSkill(name, value, description, options, changesAllowed);
     }
 
     private double getNumericValue(Double value, @Nullable Double fallback) {
@@ -60,6 +79,10 @@ public class NumericSkillType extends SkillType<Double> {
     @Override
     @Nullable
     public Double getPrevValue(Skill<Double> skill, @Nullable Double min, @Nullable Double max) {
+        if (!skill.areChangesAllowed()) {
+            return null;
+        }
+
         double currentValue = getNumericValue(skill);
 
         // Ensure we jump down to the max value
@@ -75,6 +98,10 @@ public class NumericSkillType extends SkillType<Double> {
     @Override
     @Nullable
     public Double getNextValue(Skill<Double> skill, @Nullable Double min, @Nullable Double max) {
+        if (!skill.areChangesAllowed()) {
+            return null;
+        }
+
         double currentValue = getNumericValue(skill);
 
         // Ensure we jump up to the min value immediately

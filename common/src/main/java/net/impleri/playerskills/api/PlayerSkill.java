@@ -122,12 +122,21 @@ public abstract class PlayerSkill {
 
         Skill<T> oldSkill = getSkill(player, skill.getName());
 
-        Skill<T> newSkill = skill.copy();
-        newSkill.setValue(value);
-
-        if (oldSkill.getValue() == newSkill.getValue()) {
+        if (oldSkill.getValue() == value) {
             return false;
         }
+
+        if (!oldSkill.areChangesAllowed()) {
+            return false;
+        }
+
+        if (!skill.isAllowedValue(value)) {
+            return false;
+        }
+
+        Skill<T> newSkill = oldSkill.copy();
+        newSkill.setValue(value);
+        newSkill.consumeChange();
 
         List<Skill<?>> newSkills = PlayerSkills.upsert(player.getUUID(), newSkill);
 

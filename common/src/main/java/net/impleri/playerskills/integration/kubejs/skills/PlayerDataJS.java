@@ -63,7 +63,7 @@ public class PlayerDataJS {
 
     @HideFromJS
     private <T> boolean handleChange(Skill<T> skill, T newValue) {
-        if (newValue != null) {
+        if (newValue != null && skill.areChangesAllowed() && skill.isAllowedValue(newValue)) {
             PlayerSkillsCore.LOGGER.debug("Should change {} to {}", skill.getName(), newValue);
             return PlayerSkill.set(player, skill.getName(), newValue);
         }
@@ -99,6 +99,32 @@ public class PlayerDataJS {
 
     public <T> boolean cannot(String skill) {
         return cannot(skill, null);
+    }
+
+    public <T> boolean set(String skillName, T newValue, @Nullable Consumer<SkillConditionBuilderJS<T>> consumer) {
+        Skill<T> skill = getSkill(skillName);
+        SkillType<T> type = getSkillType(skill);
+
+        if (type == null) {
+            return false;
+        }
+
+        @Nullable SkillConditionBuilderJS<T> builder = getBuilderFor(skill, consumer);
+        boolean shouldChange = skill.getValue() != newValue;
+        if (builder != null) {
+            shouldChange = builder.shouldChange() && shouldChange;
+        }
+
+        if (shouldChange) {
+            PlayerSkillsCore.LOGGER.debug("Should set {} to {}.", skill.getName(), newValue);
+            return handleChange(skill, newValue);
+        }
+
+        return false;
+    }
+
+    public <T> boolean set(String skillName, T newValue) {
+        return set(skillName, newValue, null);
     }
 
     public <T> boolean improve(String skillName, @Nullable Consumer<SkillConditionBuilderJS<T>> consumer) {

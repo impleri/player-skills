@@ -6,8 +6,10 @@ import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.Skills;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
  * containers for data. All logic should be handled by the SkillType.
  */
 public class Skill<T> {
+    public static final int UNLIMITED_CHANGES = -1;
+
     /**
      * Get all registered Skills
      */
@@ -53,6 +57,8 @@ public class Skill<T> {
     protected ResourceLocation name;
     protected ResourceLocation type;
     protected T value;
+    protected List<T> options;
+    protected int changesAllowed;
     protected String description;
 
     public Skill(ResourceLocation name, ResourceLocation type) {
@@ -64,14 +70,24 @@ public class Skill<T> {
     }
 
     public Skill(ResourceLocation name, ResourceLocation type, T value, String description) {
+        this(name, type, value, description, new ArrayList<>());
+    }
+
+    public Skill(ResourceLocation name, ResourceLocation type, T value, String description, List<T> options) {
+        this(name, type, value, description, options, UNLIMITED_CHANGES);
+    }
+
+    public Skill(ResourceLocation name, ResourceLocation type, T value, String description, List<T> options, int changesAllowed) {
         this.name = name;
         this.type = type;
         this.value = value;
         this.description = description;
+        this.options = options;
+        this.changesAllowed = changesAllowed;
     }
 
     public Skill<T> copy() {
-        return new Skill<T>(name, type, value, description);
+        return new Skill<T>(name, type, value, description, options, changesAllowed);
     }
 
     public ResourceLocation getName() {
@@ -92,6 +108,19 @@ public class Skill<T> {
         return description;
     }
 
+    @NotNull
+    public List<T> getOptions() {
+        return options;
+    }
+
+    public int getChangesAllowed() {
+        return changesAllowed;
+    }
+
+    public boolean areChangesAllowed() {
+        return changesAllowed != 0;
+    }
+
     public void setName(ResourceLocation name) {
         this.name = name;
     }
@@ -104,8 +133,23 @@ public class Skill<T> {
         this.value = value;
     }
 
-    public void getDescription(@Nullable String description) {
+    public void setDescription(@Nullable String description) {
         this.description = description;
+    }
+
+    public void setOptions(@NotNull List<T> options) {
+        this.options = options;
+    }
+
+
+    public void consumeChange() {
+        if (changesAllowed > 0) {
+            changesAllowed--;
+        }
+    }
+
+    public boolean isAllowedValue(T nextVal) {
+        return options.size() == 0 || options.contains(nextVal);
     }
 
     public boolean isSameAs(Skill<?> that) {
@@ -115,6 +159,7 @@ public class Skill<T> {
     private <V> boolean canEquals(Skill<V> that) {
         return that.getClass().isInstance(this);
     }
+
 
     @Override
     public boolean equals(Object that) {

@@ -175,7 +175,3 @@ a `DeferredRegister` to ensure it is happens at the right time.
 ## Modpacks
 
 Want to use this in a modpack? Great! This was designed with modpack developers in mind. No need to ask.
-
-## TODO
-
-- [] Specialization skill type

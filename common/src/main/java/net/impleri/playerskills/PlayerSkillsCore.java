@@ -13,6 +13,7 @@ import net.impleri.playerskills.registry.PlayerSkills;
 import net.impleri.playerskills.registry.SkillTypes;
 import net.impleri.playerskills.registry.Skills;
 import net.impleri.playerskills.registry.storage.SkillStorage;
+import net.impleri.playerskills.specialized.SpecializedSkillType;
 import net.impleri.playerskills.tiered.TieredSkillType;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -74,6 +75,7 @@ public class PlayerSkillsCore {
         SKILL_TYPES.register(BasicSkillType.name, BasicSkillType::new);
         SKILL_TYPES.register(NumericSkillType.name, NumericSkillType::new);
         SKILL_TYPES.register(TieredSkillType.name, TieredSkillType::new);
+        SKILL_TYPES.register(SpecializedSkillType.name, SpecializedSkillType::new);
         SKILL_TYPES.register();
 
         // And to register a skill

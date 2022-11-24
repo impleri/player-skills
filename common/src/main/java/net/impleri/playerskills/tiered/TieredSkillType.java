@@ -7,10 +7,7 @@ import net.impleri.playerskills.api.SkillType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TieredSkillType extends SkillType<String> {
     public static ResourceLocation name = SkillResourceLocation.of("tiered");
@@ -28,30 +25,16 @@ public class TieredSkillType extends SkillType<String> {
 
     @Override
     public String serialize(Skill<String> skill) {
-        String stringValue = (skill.getValue() == null) ? stringValueNull : skill.getValue();
-
-        String elements = Stream.concat(
-                Stream.of(stringValue),
-                getOptions(skill).stream()
-        ).collect(Collectors
-                .joining(optionsSeparator));
-
-        return serialize(skill, elements);
+        return serialize(skill, skill.getValue(), skill.getOptions());
     }
 
     @Override
     @Nullable
-    public Skill<String> unserialize(String skillName, String skillValue) {
-        String[] elements = skillValue.split(optionsSeparator);
-        if (elements.length < 2) {
-            PlayerSkillsCore.LOGGER.warn("Unserializing tiered skill {} without any options", skillName);
-        }
-        String value = elements[0].equals(stringValueNull) ? null : elements[0];
-        List<String> options = Arrays.stream(elements)
-                .skip(1)
-                .toList();
+    public Skill<String> unserialize(String skillName, String skillValue, int changesAllowed, List<String> options) {
+        ResourceLocation name = SkillResourceLocation.of(skillName);
+        @Nullable String description = getDescriptionFor(name);
 
-        return new TieredSkill(SkillResourceLocation.of(skillName), options, value);
+        return new TieredSkill(name, options, skillValue, description, changesAllowed);
     }
 
     private int getActualIndexValue(@Nullable String value, List<String> options) {
@@ -92,6 +75,10 @@ public class TieredSkillType extends SkillType<String> {
     @Override
     @Nullable
     public String getPrevValue(Skill<String> skill, @Nullable String min, @Nullable String max) {
+        if (!skill.areChangesAllowed()) {
+            return null;
+        }
+
         int currentValue = getIndexValue(skill);
         int maxIndex = getIndexValue(max, getOptions(skill));
         int minIndex = getIndexValue(min, getOptions(skill));
@@ -111,6 +98,10 @@ public class TieredSkillType extends SkillType<String> {
     @Override
     @Nullable
     public String getNextValue(Skill<String> skill, @Nullable String min, @Nullable String max) {
+        if (!skill.areChangesAllowed()) {
+            return null;
+        }
+
         int currentValue = getIndexValue(skill);
         int maxIndex = getIndexValue(max, getOptions(skill));
         int minIndex = getIndexValue(min, getOptions(skill));

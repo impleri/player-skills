@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class NumericSkillJS extends NumericSkill {
     public NumericSkillJS(Builder builder) {
-        super(builder.id, builder.initialValue, builder.description);
+        super(builder.id, builder.initialValue, builder.description, builder.options, builder.changesAllowed);
     }
 
     public static class Builder extends GenericSkillBuilderJS<Double> {

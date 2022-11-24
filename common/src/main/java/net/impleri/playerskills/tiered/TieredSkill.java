@@ -2,7 +2,6 @@ package net.impleri.playerskills.tiered;
 
 import net.impleri.playerskills.api.Skill;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -19,21 +18,23 @@ public class TieredSkill extends Skill<String> {
     }
 
     public TieredSkill(ResourceLocation name, List<String> options, @Nullable String value, @Nullable String description) {
-        super(name, TieredSkillType.name, value, description);
-        this.options = options;
+        super(name, TieredSkillType.name, value, description, options);
     }
 
-    public void setOptions(@NotNull List<String> options) {
-        this.options = options;
+    public TieredSkill(ResourceLocation name, List<String> options, int changesAllowed) {
+        this(name, options, null, changesAllowed);
     }
 
-    @NotNull
-    public List<String> getOptions() {
-        return options;
+    public TieredSkill(ResourceLocation name, List<String> options, @Nullable String value, int changesAllowed) {
+        this(name, options, value, null, changesAllowed);
+    }
+
+    public TieredSkill(ResourceLocation name, List<String> options, @Nullable String value, @Nullable String description, int changesAllowed) {
+        super(name, TieredSkillType.name, value, description, options, changesAllowed);
     }
 
     @Override
     public Skill<String> copy() {
-        return new TieredSkill(name, options, value, description);
+        return new TieredSkill(name, options, value, description, changesAllowed);
     }
 }

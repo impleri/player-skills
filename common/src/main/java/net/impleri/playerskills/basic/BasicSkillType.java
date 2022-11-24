@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 public class BasicSkillType extends SkillType<Boolean> {
@@ -21,18 +22,34 @@ public class BasicSkillType extends SkillType<Boolean> {
         return name;
     }
 
-    @Override
-    public String serialize(Skill<Boolean> skill) {
-        String stringValue = (skill.getValue() == null) ? "" : (skill.getValue()) ? stringValTrue : stringValFalse;
+    private String castToString(Boolean value) {
+        return (value == null) ? "" : (value) ? stringValTrue : stringValFalse;
+    }
 
-        return serialize(skill, stringValue);
+    @Nullable
+    private Boolean castToBool(String value) {
+        return (value == null || value.equals("")) ? null : Objects.equals(value, stringValTrue);
     }
 
     @Override
-    public Skill<Boolean> unserialize(String skillName, String skillValue) {
-        @Nullable Boolean castValue = Objects.equals(skillValue, stringValTrue) || ((Objects.equals(skillValue, stringValFalse)) ? false : null);
+    public String serialize(Skill<Boolean> skill) {
+        String stringValue = castToString(skill.getValue());
+        List<String> stringOptions = skill.getOptions().stream().map(this::castToString).toList();
 
-        return new BasicSkill(SkillResourceLocation.of(skillName), castValue);
+        return serialize(skill, stringValue, stringOptions);
+    }
+
+    @Override
+    public Skill<Boolean> unserialize(String skillName, String skillValue, int changesAllowed, List<String> skillOptions) {
+        @Nullable Boolean castValue = castToBool(skillValue);
+        ResourceLocation name = SkillResourceLocation.of(skillName);
+        @Nullable String description = getDescriptionFor(name);
+        List<Boolean> options = skillOptions.stream()
+                .map(this::castToBool)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return new BasicSkill(SkillResourceLocation.of(skillName), castValue, description, options, changesAllowed);
     }
 
     @Override
@@ -47,12 +64,20 @@ public class BasicSkillType extends SkillType<Boolean> {
     @Override
     @Nullable
     public Boolean getPrevValue(Skill<Boolean> skill, @Nullable Boolean min, @Nullable Boolean max) {
+        if (!skill.areChangesAllowed()) {
+            return null;
+        }
+
         return BooleanUtils.toBoolean(skill.getValue()) ? false : null;
     }
 
     @Override
     @Nullable
     public Boolean getNextValue(Skill<Boolean> skill, @Nullable Boolean min, @Nullable Boolean max) {
+        if (!skill.areChangesAllowed()) {
+            return null;
+        }
+
         return BooleanUtils.toBoolean(skill.getValue()) ? null : true;
     }
 }

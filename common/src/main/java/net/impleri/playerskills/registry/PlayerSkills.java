@@ -202,11 +202,21 @@ public abstract class PlayerSkills {
         String name = elements[0];
         String type = elements[1];
         String value = elements[2];
+        int changesAllowed;
+
+        try {
+            changesAllowed = Integer.parseInt(elements[3]);
+        } catch (NumberFormatException e) {
+            PlayerSkillsCore.LOGGER.error("Unable to parse changesAllowed ({}) back into an integer, data possibly corrupted", elements[3]);
+            return null;
+        }
+
+        List<String> options = Arrays.stream(elements).skip(4).toList();
 
         try {
             SkillType<T> skillType = SkillTypes.find(SkillResourceLocation.of(type));
             PlayerSkillsCore.LOGGER.debug("Hydrating {} skill named {}: {}", type, name, value);
-            return skillType.unserialize(name, value);
+            return skillType.unserialize(name, value, changesAllowed, options);
         } catch (RegistryItemNotFound e) {
             PlayerSkillsCore.LOGGER.warn("No skill type {} in the registry to hydrate {}", type, name);
         }
