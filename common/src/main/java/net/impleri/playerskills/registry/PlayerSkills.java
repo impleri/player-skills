@@ -34,7 +34,7 @@ public abstract class PlayerSkills {
     }
 
     /**
-     * Get an IMMUTABLE copy of the in memory cache
+     * Get a copy of the in memory cache
      */
     public static Map<UUID, List<Skill<?>>> entries() {
         return new HashMap<>(players);
@@ -65,7 +65,7 @@ public abstract class PlayerSkills {
      * Instantiates the in-memory cache for a player. Note that this will automatically prune saved skills that do not
      * match the skill type in the Skills Registry as well as those which no longer exist at all in the Skills Registery
      */
-    public static List<Skill<?>> openPlayer(UUID playerUuid, List<Skill<?>> registeredSkills) {
+    public static void openPlayer(UUID playerUuid, List<Skill<?>> registeredSkills) {
         // Get all the names of the registered skills
         List<ResourceLocation> registeredSkillNames = registeredSkills.stream()
                 .map(Skill::getName)
@@ -95,8 +95,6 @@ public abstract class PlayerSkills {
 
         // Immediately sync in-memory cache AND persistent storage with updated skills set
         save(playerUuid, skills);
-
-        return skills;
     }
 
     /**

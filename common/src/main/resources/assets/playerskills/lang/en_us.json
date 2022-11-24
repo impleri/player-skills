@@ -1,3 +1,8 @@
 {
-  "item.examplemod.example_item": "Example Item"
+  "commands.playerskills.no_registered_types": "There are no types registered.",
+  "commands.playerskills.registered_types": "The following %d type(s) are registered:",
+  "commands.playerskills.no_registered_skills": "There are no skills registered.",
+  "commands.playerskills.registered_skills": "The following %d skill(s) are registered:",
+  "commands.playerskills.no_acquired_skills": "You have not acquired any skills!",
+  "commands.playerskills.acquired_skills": "The following %d skill(s) have been acquired:"
 }

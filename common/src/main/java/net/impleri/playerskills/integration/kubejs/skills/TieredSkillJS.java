@@ -1,6 +1,5 @@
-package net.impleri.playerskills.integration.kubejs.tiered;
+package net.impleri.playerskills.integration.kubejs.skills;
 
-import net.impleri.playerskills.integration.kubejs.skills.GenericSkillBuilderJS;
 import net.impleri.playerskills.tiered.TieredSkill;
 import net.minecraft.resources.ResourceLocation;
 

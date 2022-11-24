@@ -3,11 +3,12 @@ package net.impleri.playerskills;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
-import net.impleri.playerskills.basic.BasicSkill;
 import net.impleri.playerskills.basic.BasicSkillType;
+import net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin;
 import net.impleri.playerskills.numeric.NumericSkillType;
 import net.impleri.playerskills.registry.PlayerSkills;
 import net.impleri.playerskills.registry.SkillTypes;
@@ -19,19 +20,22 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import org.jetbrains.annotations.NotNull;
 
-public class PlayerSkillsCore {
+public class PlayerSkillsCore implements ResourceManagerReloadListener {
     public static final String MOD_ID = "playerskills";
 
     public static final PlayerSkillsLogger LOGGER = PlayerSkillsLogger.create(MOD_ID, "SKILLS");
 
     private static final PlayerSkillsCore eventHandler = new PlayerSkillsCore();
 
-    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skills.REGISTRY_KEY);
-    private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(MOD_ID, SKILL_REGISTRY);
-
     private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillTypes.REGISTRY_KEY);
     private static final DeferredRegister<SkillType<?>> SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY);
+
+    private static final ResourceKey<Registry<SkillType<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skills.REGISTRY_KEY);
 
     public static void init() {
 
@@ -49,6 +53,7 @@ public class PlayerSkillsCore {
         LifecycleEvent.SERVER_BEFORE_START.register(this::connectRegistryStorage);
         LifecycleEvent.SERVER_STOPPING.register(this::savePlayers);
         CommandRegistrationEvent.EVENT.register(PlayerSkillsCommands::register);
+        ReloadListenerRegistry.register(PackType.SERVER_DATA, this);
 
         PlayerEvent.PLAYER_JOIN.register(this::addPlayer);
         PlayerEvent.PLAYER_QUIT.register(this::removePlayer);
@@ -57,7 +62,6 @@ public class PlayerSkillsCore {
     }
 
     private void unregisterEventHandlers() {
-
         LifecycleEvent.SERVER_BEFORE_START.unregister(this::connectRegistryStorage);
         LifecycleEvent.SERVER_STOPPING.unregister(this::savePlayers);
         CommandRegistrationEvent.EVENT.unregister(PlayerSkillsCommands::register);
@@ -77,11 +81,16 @@ public class PlayerSkillsCore {
         SKILL_TYPES.register(TieredSkillType.name, TieredSkillType::new);
         SKILL_TYPES.register(SpecializedSkillType.name, SpecializedSkillType::new);
         SKILL_TYPES.register();
+    }
 
-        // And to register a skill
-        var skillName = SkillResourceLocation.of("test");
-        SKILLS.register(skillName, () -> new BasicSkill(skillName));
-        SKILLS.register();
+    @Override
+    public void onResourceManagerReload(@NotNull ResourceManager resourceManager) {
+        var players = PlayerSkills.closeAllPlayers();
+
+        Skills.resync();
+        PlayerSkillsPlugin.registerSkills();
+
+        PlayerSkills.resyncPlayers(players, Skill.all());
     }
 
     // Server lifecycle events
@@ -98,10 +107,11 @@ public class PlayerSkillsCore {
 
     private void addPlayer(ServerPlayer player) {
         LOGGER.info("Player {} joined, ensuring skills are synced", player.getName().getString());
-        PlayerSkills.openPlayer(player.getUUID(), Skills.entries());
+        PlayerSkills.openPlayer(player.getUUID(), Skill.all());
     }
 
     private void removePlayer(ServerPlayer player) {
         PlayerSkills.closePlayer(player.getUUID());
     }
+
 }

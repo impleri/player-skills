@@ -17,6 +17,8 @@ import java.util.List;
  * 2. Executing logic to determine if a skill value should be changed.
  */
 abstract public class SkillType<T> {
+    public static final ResourceLocation REGISTRY_KEY = SkillTypes.REGISTRY_KEY;
+
     private static final String valueSeparator = ";";
     private static final String optionsSeparator = "!";
     private static final String optionsValueEmpty = "[EMPTY]";

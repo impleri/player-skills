@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integration.kubejs.skills;
+package net.impleri.playerskills.integration.kubejs.events;
 
 import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes;
 import dev.latvian.mods.kubejs.event.EventJS;
@@ -7,6 +7,7 @@ import dev.latvian.mods.rhino.util.HideFromJS;
 import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.SkillResourceLocation;
 import net.impleri.playerskills.api.Skill;
+import net.impleri.playerskills.integration.kubejs.skills.GenericSkillBuilderJS;
 import net.impleri.playerskills.registry.RegistryItemAlreadyExists;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.Skills;
@@ -65,7 +66,7 @@ public class SkillsEventJS extends EventJS {
     /**
      * Add a new skill to the registry
      */
-    public <T> boolean add(String skillName, String type, Consumer<GenericSkillBuilderJS<T>> consumer) throws RegistryItemAlreadyExists {
+    public <T> boolean add(String skillName, String type, @Nullable Consumer<GenericSkillBuilderJS<T>> consumer) throws RegistryItemAlreadyExists {
         var name = SkillResourceLocation.of(skillName);
 
         GenericSkillBuilderJS<T> builder = getBuilder(type, name);
@@ -73,13 +74,19 @@ public class SkillsEventJS extends EventJS {
             return false;
         }
 
-        consumer.accept(builder);
+        if (consumer != null) {
+            consumer.accept(builder);
+        }
 
         Skill<T> newSkill = builder.createObject();
         Skills.add(newSkill);
         ConsoleJS.SERVER.info("Created " + type + " skill " + name);
 
         return true;
+    }
+
+    public <T> boolean add(String skillName, String type) throws RegistryItemAlreadyExists {
+        return add(skillName, type, null);
     }
 
     public <T> boolean modify(String name, Consumer<GenericSkillBuilderJS<T>> consumer) {

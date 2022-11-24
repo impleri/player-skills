@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
  * containers for data. All logic should be handled by the SkillType.
  */
 public class Skill<T> {
+    public static final ResourceLocation REGISTRY_KEY = Skills.REGISTRY_KEY;
+
     public static final int UNLIMITED_CHANGES = -1;
 
     /**

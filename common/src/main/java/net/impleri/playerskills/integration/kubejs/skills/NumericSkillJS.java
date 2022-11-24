@@ -1,6 +1,5 @@
-package net.impleri.playerskills.integration.kubejs.numeric;
+package net.impleri.playerskills.integration.kubejs.skills;
 
-import net.impleri.playerskills.integration.kubejs.skills.GenericSkillBuilderJS;
 import net.impleri.playerskills.numeric.NumericSkill;
 import net.minecraft.resources.ResourceLocation;
 

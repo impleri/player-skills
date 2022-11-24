@@ -172,6 +172,43 @@ Lastly, KubeJS scripts have access to a `PlayerSkills` object that provides the 
 Registering Skills and SkillTypes should happen during initialization (see `PlayerSkillsCore.registerCoreTypes`) using
 a `DeferredRegister` to ensure it is happens at the right time.
 
+```java
+package net.impleri.playerskills;
+
+import dev.architectury.registry.registries.DeferredRegister;
+import net.impleri.playerskills.basic.BasicSkill;
+import net.impleri.playerskills.basic.BasicSkillType;
+import net.impleri.playerskills.api.SkillType;
+import net.impleri.playerskills.api.Skill;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+
+public class ExampleMod {
+    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skill.REGISTRY_KEY);
+    private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(MOD_ID, SKILL_REGISTRY);
+
+    private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillType.REGISTRY_KEY);
+    private static final DeferredRegister<SkillType<?>> SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY);
+
+    public ExampleMod() {
+        // All that is needed to register a skill type
+        SKILL_TYPES.register(BasicSkillType.name, BasicSkillType::new);
+        SKILL_TYPES.register();
+
+        // And to register a skill
+        var skillName = SkillResourceLocation.of("test");
+        SKILLS.register(skillName, () -> new BasicSkill(skillName));
+        SKILLS.register();
+    }
+}
+
+```
+
+After registrations, classes in `net.impleri.playerskills.api` provide an exposed API. Probably most used should be
+`net.impleri.playerskills.api.PlayerSkill` which provides methods for checking player skills (`can`) as well as
+manipulating the skills a player has (e.g. `set`). It should be noted that the API layer does not have the convenience
+methods exposed to KubeJS (`improve`, `degrade`) nor the built-in checking for conditions.
+
 ## Modpacks
 
 Want to use this in a modpack? Great! This was designed with modpack developers in mind. No need to ask.

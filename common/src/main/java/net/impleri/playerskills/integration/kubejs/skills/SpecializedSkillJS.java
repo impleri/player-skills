@@ -1,6 +1,5 @@
-package net.impleri.playerskills.integration.kubejs.specialized;
+package net.impleri.playerskills.integration.kubejs.skills;
 
-import net.impleri.playerskills.integration.kubejs.skills.GenericSkillBuilderJS;
 import net.impleri.playerskills.specialized.SpecializedSkill;
 import net.minecraft.resources.ResourceLocation;
 

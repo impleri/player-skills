@@ -1,7 +1,6 @@
-package net.impleri.playerskills.integration.kubejs.basic;
+package net.impleri.playerskills.integration.kubejs.skills;
 
 import net.impleri.playerskills.basic.BasicSkill;
-import net.impleri.playerskills.integration.kubejs.skills.GenericSkillBuilderJS;
 import net.minecraft.resources.ResourceLocation;
 
 public class BasicSkillJS extends BasicSkill {

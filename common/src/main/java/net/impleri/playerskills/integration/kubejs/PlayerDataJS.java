@@ -1,10 +1,11 @@
-package net.impleri.playerskills.integration.kubejs.skills;
+package net.impleri.playerskills.integration.kubejs;
 
 import dev.latvian.mods.rhino.util.HideFromJS;
 import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.api.PlayerSkill;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
+import net.impleri.playerskills.integration.kubejs.skills.SkillConditionBuilderJS;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
