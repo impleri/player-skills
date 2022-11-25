@@ -24,12 +24,39 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
+      - name: Box Common JARs
+        uses: actions/upload-artifact@v3
+        with:
+          name: common
+          path: common/build/libs
+      - name: Box Fabric JARs
+        uses: actions/upload-artifact@v3
+        with:
+          name: fabric
+          path: fabric/build/libs
+      - name: Box Forge JARs
+        uses: actions/upload-artifact@v3
+        with:
+          name: forge
+          path: forge/build/libs
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
+      - name: Unbox common JARs
+        uses: actions/download-artifact@v3
+        with:
+          name: common
+      - name: Unbox Fabric JARs
+        uses: actions/download-artifact@v3
+        with:
+          name: fabric
+      - name: Unbox Forge JARs
+        uses: actions/download-artifact@v3
+        with:
+          name: forge
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
