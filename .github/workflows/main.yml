@@ -40,7 +40,7 @@ jobs:
           name: forge
           path: forge/build/libs
 
-  deploy:
+  deploy-github:
     needs: build
     runs-on: ubuntu-latest
 
@@ -63,7 +63,45 @@ jobs:
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
+          files-primary: "build/(common|forge|fabric)/!(*-(sources|dev|shadow)).jar"
+          files-secondary: "build/(common|forge|fabric)/*-(sources|dev|shadow).jar"
+
+  deploy-fabric:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Unbox Fabric JARs
+        uses: actions/download-artifact@v3
+        with:
+          name: fabric
+          path: build/fabric
+      - uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          loaders: fabric
           modrinth-id: rQf7vUve
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files-primary: "build/(forge|fabric)/!(*-(sources|dev|shadow)).jar"
-          files-secondary: "build/(forge|fabric)/*-(sources|dev|shadow).jar"
+          curseforge-id: 711489
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files-primary: "build/fabric/!(*-(sources|dev|shadow)).jar"
+          files-secondary: "build/fabric/*-(sources|dev|shadow).jar"
+
+  deploy-forge:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Unbox Forge JARs
+        uses: actions/download-artifact@v3
+        with:
+          name: forge
+          path: build/forge
+      - uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          loaders: forge
+          modrinth-id: rQf7vUve
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 711489
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files-primary: "build/forge/!(*-(sources|dev|shadow)).jar"
+          files-secondary: "build/forge/*-(sources|dev|shadow).jar"
