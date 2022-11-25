@@ -57,6 +57,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: forge
+      - run: ls forge/builds
+      - run: ls forge
+      - run: ls ./
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
