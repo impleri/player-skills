@@ -84,7 +84,6 @@ jobs:
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files-primary: "build/fabric/!(*-(sources|dev|shadow)).jar"
-          files-secondary: "build/fabric/*-(sources|dev|shadow).jar"
 
   deploy-forge:
     needs: build
@@ -104,4 +103,3 @@ jobs:
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files-primary: "build/forge/!(*-(sources|dev|shadow)).jar"
-          files-secondary: "build/forge/*-(sources|dev|shadow).jar"
