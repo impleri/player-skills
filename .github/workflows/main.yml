@@ -17,7 +17,5 @@ jobs:
           github-token: ${{ secrets.HUB_TOKEN }}
           modrinth-id: rQf7vUve
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          #          curseforge-id: nnnn
-          #          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files-primary: @(common|forge|fabric)/build/libs/!(*-@(dev|sources|javadoc)).jar
           files-secondary: @(common|forge|fabric)/build/libs/*-@(dev|sources|javadoc).jar
