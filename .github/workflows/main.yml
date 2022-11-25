@@ -1,0 +1,23 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: ./.github/workflows/pull-request.yml
+      - name: Publish
+        uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          github-token: ${{ secrets.HUB_TOKEN }}
+          modrinth-id: rQf7vUve
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          #          curseforge-id: nnnn
+          #          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files-primary: @(common|forge|fabric)/build/libs/!(*-@(dev|sources|javadoc)).jar
+          files-secondary: @(common|forge|fabric)/build/libs/*-@(dev|sources|javadoc).jar
