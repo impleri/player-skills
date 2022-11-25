@@ -49,21 +49,21 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: common
+          path: build/common
       - name: Unbox Fabric JARs
         uses: actions/download-artifact@v3
         with:
           name: fabric
+          path: build/fabric
       - name: Unbox Forge JARs
         uses: actions/download-artifact@v3
         with:
           name: forge
-      - run: ls ./
-      - run: ls forge
-      - run: ls forge/builds
+          path: build/forge
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
           modrinth-id: rQf7vUve
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files-primary: "(forge|fabric)/build/libs/!(*-(sources|dev|shadow)).jar"
-          files-secondary: "(forge|fabric)/build/libs/*-(sources|dev|shadow).jar"
+          files-primary: "build/(forge|fabric)/!(*-(sources|dev|shadow)).jar"
+          files-secondary: "build/(forge|fabric)/*-(sources|dev|shadow).jar"
