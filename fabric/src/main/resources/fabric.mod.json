@@ -3,15 +3,16 @@
   "id": "playerskills",
   "version": "${version}",
   "name": "Player Skills",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A library mod that provides a baseline implementation of player-specific skills",
   "authors": [
-    "Me!"
+    "impleri"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/impleri/player-skills",
+    "sources": "https://github.com/impleri/player-skills",
+    "issues": "https://github.com/impleri/player-skills/issues"
   },
-  "license": "Insert License Here",
+  "license": "MIT",
   "icon": "assets/playerskills/icon.png",
   "environment": "*",
   "entrypoints": {

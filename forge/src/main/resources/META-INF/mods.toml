@@ -1,15 +1,15 @@
 modLoader = "javafml"
-loaderVersion = "[41,)"
-#issueTrackerURL = ""
-license = "Insert License Here"
+loaderVersion = "[43,)"
+issueTrackerURL = "https://github.com/impleri/player-skills/issues"
+license = "MIT"
 
 [[mods]]
 modId = "playerskills"
 version = "${version}"
 displayName = "Player Skills"
-authors = "Me!"
+authors = "impleri"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+A library mod that provides a baseline implementation of player-specific skills.
 '''
 #logoFile = ""
 
