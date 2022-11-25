@@ -63,8 +63,8 @@ jobs:
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
-          files-primary: "build/(common|forge|fabric)/!(*-(sources|dev|shadow)).jar"
-          files-secondary: "build/(common|forge|fabric)/*-(sources|dev|shadow).jar"
+          files-primary: "build/common/!(*-(sources|transformProductionFabric|transformProductionForge)).jar"
+          files-secondary: "build/(forge|fabric)/!(*-(sources|dev|shadow|transformProductionFabric|transformProductionForge)).jar"
 
   deploy-fabric:
     needs: build
