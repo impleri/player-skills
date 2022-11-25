@@ -7,7 +7,8 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/pull-request.yml
+    steps:
+      uses: ./.github/workflows/pull-request.yml
 
   deploy:
     runs-on: ubuntu-latest
