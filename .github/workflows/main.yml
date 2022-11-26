@@ -24,8 +24,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
-      - name: Make common artifacts directory
-        run: mkdir build/libs
       - name: Move Fabric JARs
         run: mv fabric/build/libs/*{,-fabric}.jar
       - name: Move Forge JARs
