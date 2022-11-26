@@ -23,7 +23,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build
+          arguments: build publish
       - name: Remove Extra JARs
         run: rm -f {fabric,forge}/build/libs/*{sources,dev,shadow}*.jar
       - name: Move Fabric JARs
@@ -58,7 +58,7 @@ jobs:
           path: build/libs
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
-          github-token: ${{ secrets.HUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           github-generate-changelog: true
           files: "build/libs/*.jar"
 
