@@ -69,7 +69,7 @@ components.java {
 
 publishing {
     publications {
-        mavenFabric(MavenPublication) {
+        gpr(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }

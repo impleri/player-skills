@@ -64,7 +64,7 @@ components.java {
 
 publishing {
     publications {
-        mavenForge(MavenPublication) {
+        gpr(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }
