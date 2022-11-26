@@ -1,0 +1,48 @@
+name: 'Bump Package Version'
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+jobs:
+  merge_pr:
+    name: 'PR Merged'
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ORG_PAT }}
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Git config
+        run: |
+          git config --global user.email "${{ secrets.GH_EMAIL }}"
+          git config --global user.name "${{ secrets.GH_NAME }}"
+      - name: Apply version bump (major)
+        if: contains(github.event.pull_request.labels.*.name, 'major')
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: incrementSemanticVersion --major
+      - name: Apply version bump (minor)
+        if: contains(github.event.pull_request.labels.*.name, 'minor')
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: incrementSemanticVersion --minor
+      - name: Apply version bump (patch)
+        if: contains(github.event.pull_request.labels.*.name, 'patch')
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: incrementSemanticVersion --patch
+      - name: Commit version bump
+        run: |
+          git add version.properties
+          git commit "Version bump"
+          git push origin main --follow-tags --force

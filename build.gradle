@@ -1,4 +1,5 @@
 plugins {
+    id "com.glovoapp.semantic-versioning" version "1.1.10"
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
 }
@@ -26,7 +27,7 @@ allprojects {
     apply plugin: "maven-publish"
 
     archivesBaseName = rootProject.archives_base_name
-    version = rootProject.mod_version
+    version = rootProject.version
     group = rootProject.maven_group
 
     repositories {
@@ -36,7 +37,7 @@ allprojects {
                 includeGroup "dev.architectury"
             }
         }
-        maven { url 'https://maven.blamejared.com' }
+        maven { url "https://maven.blamejared.com" }
 
         maven {
             url = "https://maven.saps.dev/minecraft"
@@ -54,8 +55,6 @@ allprojects {
     }
 
     java {
-//        sourceCompatibility = "1.17"
-//        targetCompatibility = "1.17"
         withSourcesJar()
     }
 }
