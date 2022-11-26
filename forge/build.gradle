@@ -64,7 +64,7 @@ components.java {
 
 publishing {
     publications {
-        gpr(MavenPublication) {
+        mavenForge(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }
@@ -75,8 +75,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/impleri/player-skills")
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv("GH_USER")
+                password = System.getenv("GH_TOKEN")
             }
         }
     }
