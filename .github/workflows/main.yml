@@ -24,15 +24,12 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
+      - name: Remove Extra JARs
+        run: rm -f {fabric,forge}/build/libs/*{sources,dev,shadow}*.jar
       - name: Move Fabric JARs
         run: find . -name "fabric/build/libs/*.jar" -exec sh -c 'mv "$1" "${1%.jar}-fabric.jar"' _ {} \;
       - name: Move Forge JARs
         run: find . -name "forge/build/libs/*.jar" -exec sh -c 'mv "$1" "${1%.jar}-forge.jar"' _ {} \;
-      - name: Box Common JARs
-        uses: actions/upload-artifact@v3
-        with:
-          name: common
-          path: common/build/libs
       - name: Box Fabric JARs
         uses: actions/upload-artifact@v3
         with:
@@ -49,11 +46,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Unbox common JARs
-        uses: actions/download-artifact@v3
-        with:
-          name: common
-          path: build/libs
       - name: Unbox Fabric JARs
         uses: actions/download-artifact@v3
         with:
@@ -67,7 +59,7 @@ jobs:
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
-          files-primary: "build/libs/!(*-(sources|dev|shadow))-(fabric|forge).jar"
+          files-primary: "build/libs/*.jar"
 
   deploy-fabric:
     needs: build
@@ -78,7 +70,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: fabric
-          path: build/fabric
+          path: build/libs
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           loaders: fabric
@@ -86,7 +78,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: "build/libs/!(*-(sources|dev|shadow))-fabric.jar"
+          files-primary: "build/libs/*-fabric.jar"
 
   deploy-forge:
     needs: build
@@ -97,7 +89,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: forge
-          path: build/forge
+          path: build/libs
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           loaders: forge
@@ -105,4 +97,4 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: "build/libs/!(*-(sources|dev|shadow))-forge.jar"
+          files-primary: "build/libs/*-forge.jar"
