@@ -59,7 +59,8 @@ jobs:
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
-          files-primary: "build/libs/*.jar"
+          github-generate-changelog: true
+          files: "build/libs/*.jar"
 
   deploy-fabric:
     needs: build
@@ -78,7 +79,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: "build/libs/*-fabric.jar"
+          files: "build/libs/*-fabric.jar"
 
   deploy-forge:
     needs: build
@@ -97,4 +98,4 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: "build/libs/*-forge.jar"
+          files: "build/libs/*-forge.jar"
