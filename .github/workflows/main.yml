@@ -27,7 +27,7 @@ jobs:
       - name: Remove Extra JARs
         run: rm -f {fabric,forge}/build/libs/*{sources,dev,shadow}*.jar
       - name: Move Fabric JARs
-        run: ffor f in fabric/build/libs/*.jar; do mv "$f" "${f/.jar/-fabric.jar}"; done
+        run: for f in fabric/build/libs/*.jar; do mv "$f" "${f/.jar/-fabric.jar}"; done
       - name: Move Forge JARs
         run: for f in forge/build/libs/*.jar; do mv "$f" "${f/.jar/-forge.jar}"; done
       - name: Box Fabric JARs
