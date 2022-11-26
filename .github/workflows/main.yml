@@ -24,6 +24,12 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
+      - name: Make common artifacts directory
+        run: mkdir build/libs
+      - name: Move Fabric JARs
+        run: mv fabric/build/libs/*{,-fabric}.jar
+      - name: Move Forge JARs
+        run: mv forge/build/libs/*{,-forge}.jar
       - name: Box Common JARs
         uses: actions/upload-artifact@v3
         with:
@@ -49,21 +55,21 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: common
-          path: build/common
+          path: build/libs
       - name: Unbox Fabric JARs
         uses: actions/download-artifact@v3
         with:
           name: fabric
-          path: build/fabric
+          path: build/libs
       - name: Unbox Forge JARs
         uses: actions/download-artifact@v3
         with:
           name: forge
-          path: build/forge
+          path: build/libs
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           github-token: ${{ secrets.HUB_TOKEN }}
-          files-primary: "build/(forge|fabric)/!(*-(sources|dev|shadow)).jar"
+          files-primary: "build/libs/!(*-(sources|dev|shadow))-(fabric|forge).jar"
 
   deploy-fabric:
     needs: build
@@ -82,7 +88,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: "build/fabric/!(*-(sources|dev|shadow)).jar"
+          files-primary: "build/libs/!(*-(sources|dev|shadow))-fabric.jar"
 
   deploy-forge:
     needs: build
@@ -101,4 +107,4 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-id: 711489
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: "build/forge/!(*-(sources|dev|shadow)).jar"
+          files-primary: "build/libs/!(*-(sources|dev|shadow))-forge.jar"
