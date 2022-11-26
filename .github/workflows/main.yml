@@ -25,9 +25,9 @@ jobs:
         with:
           arguments: build
       - name: Move Fabric JARs
-        run: mv fabric/build/libs/*{,-fabric}.jar
+        run: find . -name "fabric/build/libs/*.jar" -exec sh -c 'mv "$1" "${1%.jar}-fabric.jar"' _ {} \;
       - name: Move Forge JARs
-        run: mv forge/build/libs/*{,-forge}.jar
+        run: find . -name "forge/build/libs/*.jar" -exec sh -c 'mv "$1" "${1%.jar}-forge.jar"' _ {} \;
       - name: Box Common JARs
         uses: actions/upload-artifact@v3
         with:
