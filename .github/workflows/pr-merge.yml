@@ -43,4 +43,4 @@ jobs:
         run: |
           git add version.properties
           git commit -m "Version bump"
-          git push origin main --follow-tags --force
+          git push
