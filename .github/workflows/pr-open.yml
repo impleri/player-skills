@@ -1,0 +1,15 @@
+name: 'Add Initial Label'
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+jobs:
+  add_label:
+    name: 'Add Comment'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: patch
