@@ -27,9 +27,9 @@ jobs:
       - name: Remove Extra JARs
         run: rm -f {fabric,forge}/build/libs/*{sources,dev,shadow}*.jar
       - name: Move Fabric JARs
-        run: find . -name "fabric/build/libs/*.jar" -exec sh -c 'mv "$1" "${1%.jar}-fabric.jar"' _ {} \;
+        run: ffor f in fabric/build/libs/*.jar; do mv "$f" "${f/.jar/-fabric.jar}"; done
       - name: Move Forge JARs
-        run: find . -name "forge/build/libs/*.jar" -exec sh -c 'mv "$1" "${1%.jar}-forge.jar"' _ {} \;
+        run: for f in forge/build/libs/*.jar; do mv "$f" "${f/.jar/-forge.jar}"; done
       - name: Box Fabric JARs
         uses: actions/upload-artifact@v3
         with:
