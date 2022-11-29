@@ -1,17 +1,19 @@
 name: Publish
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+    types:
+      - closed
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -20,10 +22,43 @@ jobs:
           cache: 'gradle'
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
-      - name: Build with Gradle
+      - name: Git config
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+      - name: Apply version bump (major)
+        if: contains(github.event.pull_request.labels.*.name, 'major')
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build publish
+          arguments: incrementSemanticVersion --major
+        env:
+          GH_USER: ${{ secrets.HUB_USER }}
+          GH_TOKEN: ${{ secrets.HUB_TOKEN }}
+      - name: Apply version bump (minor)
+        if: contains(github.event.pull_request.labels.*.name, 'minor')
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: incrementSemanticVersion --minor
+        env:
+          GH_USER: ${{ secrets.HUB_USER }}
+          GH_TOKEN: ${{ secrets.HUB_TOKEN }}
+      - name: Apply version bump (patch)
+        if: contains(github.event.pull_request.labels.*.name, 'patch')
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: incrementSemanticVersion --patch
+        env:
+          GH_USER: ${{ secrets.HUB_USER }}
+          GH_TOKEN: ${{ secrets.HUB_TOKEN }}
+      - name: Commit version bump
+        run: |
+          git add version.properties
+          git commit -m "Version bump"
+          git push
+      - name: Publish with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: publish
         env:
           GH_USER: ${{ secrets.GITHUB_ACTOR }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,9 +113,9 @@ jobs:
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           loaders: fabric
-          modrinth-id: rQf7vUve
+          modrinth-id: ${{ secrets.MODRINTH_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-id: 711489
+          curseforge-id: ${{ secrets.CURSEFORGE_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files: "build/libs/*-fabric.jar"
 
@@ -97,8 +132,8 @@ jobs:
       - uses: Kir-Antipov/mc-publish@v3.2
         with:
           loaders: forge
-          modrinth-id: rQf7vUve
+          modrinth-id: ${{ secrets.MODRINTH_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-id: 711489
+          curseforge-id: ${{ secrets.CURSEFORGE_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files: "build/libs/*-forge.jar"
