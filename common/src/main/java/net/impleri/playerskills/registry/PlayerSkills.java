@@ -9,6 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class PlayerSkills {
@@ -47,7 +49,6 @@ public abstract class PlayerSkills {
         var cachedSkills = players.get(playerUuid);
 
         if (cachedSkills == null) {
-            PlayerSkillsCore.LOGGER.info("Pulling {}'s skills from the freezer", playerUuid);
             return readFromStorage(playerUuid);
         }
 
@@ -61,11 +62,10 @@ public abstract class PlayerSkills {
         return getFor(playerUuid);
     }
 
-    /**
-     * Instantiates the in-memory cache for a player. Note that this will automatically prune saved skills that do not
-     * match the skill type in the Skills Registry as well as those which no longer exist at all in the Skills Registery
-     */
-    public static void openPlayer(UUID playerUuid, List<Skill<?>> registeredSkills) {
+    public static List<Skill<?>> handleOpenFor(UUID playerUuid) {
+        PlayerSkillsCore.LOGGER.info("Opening player {}, ensuring skills are synced", playerUuid);
+
+        var registeredSkills = Skills.entries();
         // Get all the names of the registered skills
         List<ResourceLocation> registeredSkillNames = registeredSkills.stream()
                 .map(Skill::getName)
@@ -91,10 +91,25 @@ public abstract class PlayerSkills {
 
         Skill.logSkills(newSkills, "Appending registerd skills for player");
 
-        List<Skill<?>> skills = Stream.concat(savedSkills.stream(), newSkills.stream()).toList();
+        return Stream.concat(savedSkills.stream(), newSkills.stream()).toList();
+    }
+
+    /**
+     * Instantiates the in-memory cache for a player. Note that this will automatically prune saved skills that do not
+     * match the skill type in the Skills Registry as well as those which no longer exist at all in the Skills Registery
+     */
+    public static void openPlayer(UUID playerUuid) {
+        var skills = handleOpenFor(playerUuid);
 
         // Immediately sync in-memory cache AND persistent storage with updated skills set
         save(playerUuid, skills);
+    }
+
+    public static void openPlayers(List<UUID> playerUuids) {
+        Map<UUID, List<Skill<?>>> skillsList = playerUuids.stream()
+                .collect(Collectors.toMap(Function.identity(), PlayerSkills::handleOpenFor));
+
+        players.putAll(skillsList);
     }
 
     /**
@@ -158,12 +173,17 @@ public abstract class PlayerSkills {
         return newSkills;
     }
 
+    private static void handleCloseFor(UUID playerUuid) {
+        PlayerSkillsCore.LOGGER.info("Closing player {}, ensuring skills are saved", playerUuid);
+        List<Skill<?>> skills = getFor(playerUuid);
+        writeToStorage(playerUuid, skills);
+    }
+
     /**
      * Save a player's skills to persistent storage then remove player from in-memory cache
      */
     public static void closePlayer(UUID playerUuid) {
-        List<Skill<?>> skills = getFor(playerUuid);
-        save(playerUuid, skills);
+        handleCloseFor(playerUuid);
 
         players.remove(playerUuid);
     }
@@ -171,18 +191,16 @@ public abstract class PlayerSkills {
     /**
      * Save multiple players' skills to persistent storage then remove them from in-memory cache
      */
-    public static Set<UUID> closeAllPlayers() {
-        Set<UUID> playerIds = players.keySet();
-        playerIds.forEach(PlayerSkills::closePlayer);
+    public static List<UUID> closeAllPlayers() {
+        List<UUID> playerIds = players.keySet().stream().toList();
+        playerIds.stream().sequential().forEach(PlayerSkills::handleCloseFor);
+        players.clear();
 
         return playerIds;
     }
 
-    public static void resyncPlayers(Set<UUID> players, List<Skill<?>> registeredSkills) {
-        players.forEach(player -> openPlayer(player, registeredSkills));
-    }
-
     private static List<Skill<?>> readFromStorage(UUID playerUuid) {
+        PlayerSkillsCore.LOGGER.debug("Restoring saved skills for {}", playerUuid);
         return SkillStorage.read(playerUuid).stream()
                 .<Skill<?>>map(PlayerSkills::transformFromStorage)
                 .filter(Objects::nonNull)
@@ -223,6 +241,7 @@ public abstract class PlayerSkills {
     }
 
     private static void writeToStorage(UUID playerUuid, List<Skill<?>> skills) {
+        PlayerSkillsCore.LOGGER.debug("Saving skills for {}", playerUuid);
         List<String> rawSkills = skills.stream().map(skill -> {
                     try {
                         return serializeSkill(skill);

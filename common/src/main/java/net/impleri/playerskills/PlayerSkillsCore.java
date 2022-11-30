@@ -5,7 +5,6 @@ import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
-import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.basic.BasicSkillType;
 import net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin;
@@ -24,6 +23,9 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.UUID;
 
 public class PlayerSkillsCore implements ResourceManagerReloadListener {
     public static final String MOD_ID = "playerskills";
@@ -85,12 +87,12 @@ public class PlayerSkillsCore implements ResourceManagerReloadListener {
 
     @Override
     public void onResourceManagerReload(@NotNull ResourceManager resourceManager) {
-        var players = PlayerSkills.closeAllPlayers();
+        List<UUID> players = PlayerSkills.closeAllPlayers();
 
         Skills.resync();
         PlayerSkillsPlugin.registerSkills();
 
-        PlayerSkills.resyncPlayers(players, Skill.all());
+        PlayerSkills.openPlayers(players);
     }
 
     // Server lifecycle events
@@ -106,8 +108,7 @@ public class PlayerSkillsCore implements ResourceManagerReloadListener {
     // Events while server running
 
     private void addPlayer(ServerPlayer player) {
-        LOGGER.info("Player {} joined, ensuring skills are synced", player.getName().getString());
-        PlayerSkills.openPlayer(player.getUUID(), Skill.all());
+        PlayerSkills.openPlayer(player.getUUID());
     }
 
     private void removePlayer(ServerPlayer player) {
