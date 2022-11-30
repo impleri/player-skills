@@ -24,7 +24,7 @@ class SkillNbtStorage implements PersistentStorage {
         }
 
         if (!tag.contains(SKILLS_TAG)) {
-            PlayerSkillsCore.LOGGER.warn("Player data file {} does not match the expected format", file.getPath());
+            PlayerSkillsCore.LOGGER.error("Player data file {} does not match the expected format", file.getPath());
             return skills;
         }
 
@@ -45,7 +45,7 @@ class SkillNbtStorage implements PersistentStorage {
         try {
             NbtIo.writeCompressed(storage, file);
         } catch (IOException e) {
-            PlayerSkillsCore.LOGGER.debug("Failed to write to {}", file.getPath());
+            PlayerSkillsCore.LOGGER.error("Failed to write to {}", file.getPath());
         }
     }
 }
