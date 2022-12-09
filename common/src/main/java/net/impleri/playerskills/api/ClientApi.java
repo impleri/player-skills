@@ -2,6 +2,7 @@ package net.impleri.playerskills.api;
 
 import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.SkillResourceLocation;
+import net.impleri.playerskills.events.ClientSkillsUpdatedEvent;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
@@ -17,12 +18,18 @@ public final class ClientApi {
 
     @ApiStatus.Internal
     public static void syncFromServer(List<Skill<?>> skills) {
+        var prev = playerSkills.stream().toList();
+
         playerSkills.clear();
+
         PlayerSkillsCore.LOGGER.debug("Syncing Client-side skills: {}", skills.stream().map(s -> {
             var value = s.getValue() == null ? "NULL" : s.getValue();
             return "" + s.getName() + "=" + value;
         }).collect(Collectors.joining(", ")));
+
         playerSkills.addAll(skills);
+
+        ClientSkillsUpdatedEvent.EVENT.invoker().act(new ClientSkillsUpdatedEvent(skills, prev));
     }
 
     /**
