@@ -1,12 +1,10 @@
 package net.impleri.playerskills.registry;
 
 import net.impleri.playerskills.PlayerSkillsCore;
-import net.impleri.playerskills.SkillResourceLocation;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.registry.storage.SkillStorage;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -63,7 +61,7 @@ public abstract class PlayerSkills {
     }
 
     public static List<Skill<?>> handleOpenFor(UUID playerUuid) {
-        PlayerSkillsCore.LOGGER.info("Opening player {}, ensuring skills are synced", playerUuid);
+        PlayerSkillsCore.LOGGER.info("Opening player {}, ensuring saved skills are still valid", playerUuid);
 
         var registeredSkills = Skills.entries();
         // Get all the names of the registered skills
@@ -202,67 +200,18 @@ public abstract class PlayerSkills {
     private static List<Skill<?>> readFromStorage(UUID playerUuid) {
         PlayerSkillsCore.LOGGER.debug("Restoring saved skills for {}", playerUuid);
         return SkillStorage.read(playerUuid).stream()
-                .<Skill<?>>map(PlayerSkills::transformFromStorage)
+                .<Skill<?>>map(SkillType::unserializeFromString)
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    private static @Nullable <T> Skill<T> transformFromStorage(String rawSkill) {
-        PlayerSkillsCore.LOGGER.debug("Unpacking skill {} from storage", rawSkill);
-
-        if (rawSkill == null || rawSkill.equals("")) {
-            return null;
-        }
-
-        String[] elements = SkillType.splitRawSkill(rawSkill);
-        String name = elements[0];
-        String type = elements[1];
-        String value = elements[2];
-        int changesAllowed;
-
-        try {
-            changesAllowed = Integer.parseInt(elements[3]);
-        } catch (NumberFormatException e) {
-            PlayerSkillsCore.LOGGER.error("Unable to parse changesAllowed ({}) back into an integer, data possibly corrupted", elements[3]);
-            return null;
-        }
-
-        List<String> options = Arrays.stream(elements).skip(4).toList();
-
-        try {
-            SkillType<T> skillType = SkillTypes.find(SkillResourceLocation.of(type));
-            PlayerSkillsCore.LOGGER.debug("Hydrating {} skill named {}: {}", type, name, value);
-            return skillType.unserialize(name, value, changesAllowed, options);
-        } catch (RegistryItemNotFound e) {
-            PlayerSkillsCore.LOGGER.warn("No skill type {} in the registry to hydrate {}", type, name);
-        }
-
-        return null;
-    }
-
     private static void writeToStorage(UUID playerUuid, List<Skill<?>> skills) {
         PlayerSkillsCore.LOGGER.debug("Saving skills for {}", playerUuid);
-        List<String> rawSkills = skills.stream().map(skill -> {
-                    try {
-                        return serializeSkill(skill);
-                    } catch (RegistryItemNotFound e) {
-                        PlayerSkillsCore.LOGGER.warn("No skill type {} in the registry to serialize {}", skill.getType(), skill.getName());
-                    }
-
-                    return null;
-                }).filter(Objects::nonNull)
+        List<String> rawSkills = skills.stream()
+                .map(SkillType::serializeToString)
+                .filter(s -> s.length() > 0)
                 .toList();
 
         SkillStorage.write(playerUuid, rawSkills);
-    }
-
-    private static <T> String serializeSkill(Skill<T> skill) throws RegistryItemNotFound {
-        PlayerSkillsCore.LOGGER.debug("Serializing skill {} with type {}", skill.getName(), skill.getType());
-        SkillType<T> type = SkillTypes.find(skill.getType());
-        String storage = type.serialize(skill);
-
-        PlayerSkillsCore.LOGGER.debug("Dehydrating skill {} for storage: {}", skill.getName(), storage);
-
-        return type.serialize(skill);
     }
 }

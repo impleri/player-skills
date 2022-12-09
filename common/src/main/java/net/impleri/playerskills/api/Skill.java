@@ -49,6 +49,7 @@ public class Skill<T> {
         return "" + skill.getName().toString() + "=" + Objects.requireNonNullElse(skill.getValue(), "null");
     }
 
+    @ApiStatus.Internal
     public static void logSkills(List<Skill<?>> skills, String description) {
         var skillList = skills.stream()
                 .map(Skill::dumpSkill)

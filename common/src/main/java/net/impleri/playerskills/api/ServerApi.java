@@ -2,7 +2,7 @@ package net.impleri.playerskills.api;
 
 import net.impleri.playerskills.PlayerSkillsCore;
 import net.impleri.playerskills.SkillResourceLocation;
-import net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin;
+import net.impleri.playerskills.events.SkillChangedEvent;
 import net.impleri.playerskills.registry.PlayerSkills;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.Skills;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class PlayerSkill {
+public final class ServerApi {
     /**
      * Get all Skills for a Player
      */
@@ -140,9 +140,7 @@ public abstract class PlayerSkill {
 
         List<Skill<?>> newSkills = PlayerSkills.upsert(player.getUUID(), newSkill);
 
-        PlayerSkillsPlugin.onSkillChange(player, newSkill, oldSkill);
-
-        // TODO: Sync to player client
+        SkillChangedEvent.EVENT.invoker().act(new SkillChangedEvent<T>(player, newSkill, oldSkill));
 
         return newSkills.contains(newSkill);
     }

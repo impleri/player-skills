@@ -6,9 +6,11 @@ import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.SkillTypes;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,6 +52,56 @@ abstract public class SkillType<T> {
      */
     public static <V> SkillType<V> forSkill(Skill<V> skill) throws RegistryItemNotFound {
         return find(skill.getType());
+    }
+
+    public static <V> String serializeToString(Skill<V> skill) {
+        PlayerSkillsCore.LOGGER.debug("Serializing skill {} with type {}", skill.getName(), skill.getType());
+        try {
+            SkillType<V> type = find(skill.getType());
+            String storage = type.serialize(skill);
+
+            PlayerSkillsCore.LOGGER.debug("Dehydrating skill {} for storage: {}", skill.getName(), storage);
+
+            return storage;
+        } catch (RegistryItemNotFound e) {
+            PlayerSkillsCore.LOGGER.warn("Attempted to serialize skill {} not found in registry", skill.getName());
+        }
+
+        return "";
+    }
+
+    @ApiStatus.Internal
+    public static @Nullable <V> Skill<V> unserializeFromString(String rawSkill) {
+        PlayerSkillsCore.LOGGER.debug("Unpacking skill {} from storage", rawSkill);
+
+        if (rawSkill == null || rawSkill.equals("")) {
+            return null;
+        }
+
+        String[] elements = SkillType.splitRawSkill(rawSkill);
+        String name = elements[0];
+        String type = elements[1];
+        String value = elements[2];
+        int changesAllowed;
+
+        try {
+            changesAllowed = Integer.parseInt(elements[3]);
+        } catch (NumberFormatException e) {
+            PlayerSkillsCore.LOGGER.error("Unable to parse changesAllowed ({}) back into an integer, data possibly corrupted", elements[3]);
+            return null;
+        }
+
+        List<String> options = Arrays.stream(elements).skip(4).toList();
+
+        try {
+            SkillType<V> skillType = SkillTypes.find(SkillResourceLocation.of(type));
+            PlayerSkillsCore.LOGGER.debug("Hydrating {} skill named {}: {}", type, name, value);
+            return skillType.unserialize(name, value, changesAllowed, options);
+        } catch (RegistryItemNotFound e) {
+            PlayerSkillsCore.LOGGER.warn("No skill type {} in the registry to hydrate {}", type, name);
+        }
+
+        return null;
     }
 
     public static String[] splitRawSkill(String value) {

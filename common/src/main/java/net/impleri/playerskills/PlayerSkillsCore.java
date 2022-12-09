@@ -7,7 +7,9 @@ import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.basic.BasicSkillType;
+import net.impleri.playerskills.events.SkillChangedEvent;
 import net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin;
+import net.impleri.playerskills.network.NetHandler;
 import net.impleri.playerskills.numeric.NumericSkillType;
 import net.impleri.playerskills.registry.PlayerSkills;
 import net.impleri.playerskills.registry.SkillTypes;
@@ -40,49 +42,35 @@ public class PlayerSkillsCore implements ResourceManagerReloadListener {
     private static final ResourceKey<Registry<SkillType<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skills.REGISTRY_KEY);
 
     public static void init() {
-
-        eventHandler.registerEventHandlers();
+        eventHandler.registerServerEvents();
+        eventHandler.registerCommonEvents();
 
         LOGGER.info("PlayerSkills Loaded");
         // NB: KubeJS bindings are managed via resources/kubejs.plugin.txt
     }
 
-    public static void end() {
-        eventHandler.unregisterEventHandlers();
-    }
+    private MinecraftServer serverInstance;
 
-    private void registerEventHandlers() {
-        LifecycleEvent.SERVER_BEFORE_START.register(this::connectRegistryStorage);
-        LifecycleEvent.SERVER_STOPPING.register(this::savePlayers);
+    private void registerCommonEvents() {
         CommandRegistrationEvent.EVENT.register(PlayerSkillsCommands::register);
-        ReloadListenerRegistry.register(PackType.SERVER_DATA, this);
 
-        PlayerEvent.PLAYER_JOIN.register(this::addPlayer);
-        PlayerEvent.PLAYER_QUIT.register(this::removePlayer);
-
-        registerCoreTypes();
-    }
-
-    private void unregisterEventHandlers() {
-        LifecycleEvent.SERVER_BEFORE_START.unregister(this::connectRegistryStorage);
-        LifecycleEvent.SERVER_STOPPING.unregister(this::savePlayers);
-        CommandRegistrationEvent.EVENT.unregister(PlayerSkillsCommands::register);
-
-        PlayerEvent.PLAYER_JOIN.unregister(this::addPlayer);
-        PlayerEvent.PLAYER_QUIT.unregister(this::removePlayer);
-    }
-
-    // Modloading lifecycle events
-
-    private void registerCoreTypes() {
-        LOGGER.info("Adding core types");
-
-        // All that is needed to register a skill type
         SKILL_TYPES.register(BasicSkillType.name, BasicSkillType::new);
         SKILL_TYPES.register(NumericSkillType.name, NumericSkillType::new);
         SKILL_TYPES.register(TieredSkillType.name, TieredSkillType::new);
         SKILL_TYPES.register(SpecializedSkillType.name, SpecializedSkillType::new);
         SKILL_TYPES.register();
+    }
+
+    private void registerServerEvents() {
+        LifecycleEvent.SERVER_BEFORE_START.register(this::beforeServerStart);
+        LifecycleEvent.SERVER_STOPPING.register(this::beforeSeverStops);
+
+        PlayerEvent.PLAYER_JOIN.register(this::addPlayer);
+        PlayerEvent.PLAYER_QUIT.register(this::removePlayer);
+
+        SkillChangedEvent.EVENT.register(NetHandler::syncPlayer);
+
+        ReloadListenerRegistry.register(PackType.SERVER_DATA, this);
     }
 
     @Override
@@ -93,15 +81,29 @@ public class PlayerSkillsCore implements ResourceManagerReloadListener {
         PlayerSkillsPlugin.registerSkills();
 
         PlayerSkills.openPlayers(players);
+
+        if (serverInstance != null) {
+            serverInstance.getPlayerList().getPlayers().forEach(NetHandler::syncPlayer);
+        }
     }
 
     // Server lifecycle events
+
+    private void beforeServerStart(MinecraftServer server) {
+        serverInstance = server;
+        connectRegistryStorage(server);
+    }
+
+    private void beforeSeverStops(MinecraftServer server) {
+        serverInstance = null;
+        savePlayers();
+    }
 
     private void connectRegistryStorage(MinecraftServer server) {
         SkillStorage.setup(server);
     }
 
-    private void savePlayers(MinecraftServer server) {
+    private void savePlayers() {
         PlayerSkills.closeAllPlayers();
     }
 
@@ -109,6 +111,7 @@ public class PlayerSkillsCore implements ResourceManagerReloadListener {
 
     private void addPlayer(ServerPlayer player) {
         PlayerSkills.openPlayer(player.getUUID());
+        NetHandler.syncPlayer(player);
     }
 
     private void removePlayer(ServerPlayer player) {
