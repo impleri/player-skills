@@ -2,58 +2,47 @@ package net.impleri.playerskills.integration.kubejs.events;
 
 import dev.latvian.mods.kubejs.server.ServerEventJS;
 import dev.latvian.mods.kubejs.util.UtilsJS;
-import dev.latvian.mods.rhino.util.HideFromJS;
 import net.impleri.playerskills.api.Skill;
-import net.impleri.playerskills.api.SkillType;
-import net.impleri.playerskills.registry.RegistryItemNotFound;
+import net.impleri.playerskills.events.SkillChangedEvent;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.Nullable;
 
 public class SkillChangedEventJS<T> extends ServerEventJS {
-    private final Skill<T> prev;
-    private final Skill<T> next;
-    private final Player player;
-    private SkillType<T> type;
+    private final SkillChangedEvent<T> event;
 
-    public SkillChangedEventJS(Player player, Skill<T> next, Skill<T> prev) {
+    public SkillChangedEventJS(SkillChangedEvent<T> event) {
         super(UtilsJS.staticServer);
-        this.prev = prev;
-        this.next = next;
-        this.player = player;
-        getSkillType();
-    }
-
-    @Nullable
-    @HideFromJS
-    private void getSkillType() {
-        try {
-            type = SkillType.forSkill(next);
-        } catch (RegistryItemNotFound e) {
-            e.printStackTrace();
-        }
+        this.event = event;
     }
 
     public boolean getIsImproved() {
-        return type.getNextValue(prev) == next.getValue();
+        var type = event.getType();
+
+        if (type == null) {
+            return false;
+        }
+
+        return type.getNextValue(event.getPrevious()) == event.getSkill().getValue();
     }
 
     public boolean getIsDegraded() {
-        return type.getPrevValue(prev) == next.getValue();
-    }
+        var type = event.getType();
 
-    public boolean getIsUnchanged() {
-        return prev.getValue() == next.getValue();
+        if (type == null) {
+            return false;
+        }
+
+        return type.getPrevValue(event.getPrevious()) == event.getSkill().getValue();
     }
 
     public Skill<T> getSkill() {
-        return next;
+        return event.getSkill();
     }
 
     public Skill<T> getPrevious() {
-        return prev;
+        return event.getPrevious();
     }
 
     public Player getPlayer() {
-        return player;
+        return event.getPlayer();
     }
 }

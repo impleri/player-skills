@@ -1,7 +1,7 @@
 package net.impleri.playerskills;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.impleri.playerskills.api.PlayerSkill;
+import net.impleri.playerskills.api.ServerApi;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.minecraft.commands.CommandBuildContext;
@@ -55,9 +55,9 @@ public class PlayerSkillsCommands {
             return 2;
         }
 
-        var skills = PlayerSkill.getAllSkills(player);
+        var skills = ServerApi.getAllSkills(player);
         var acquiredSkills = skills.stream()
-                .filter(skill -> PlayerSkill.can(player, skill)).toList();
+                .filter(skill -> ServerApi.can(player, skill)).toList();
         var count = acquiredSkills.size();
 
         if (count == 0) {

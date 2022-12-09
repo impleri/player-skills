@@ -205,10 +205,17 @@ public class ExampleMod {
 ```
 
 After registrations, classes in `net.impleri.playerskills.api` provide an exposed API. Probably most used should be
-`net.impleri.playerskills.api.PlayerSkill` which provides methods for checking player skills (`can`) as well as
+`net.impleri.playerskills.api.ServerApi` which provides methods for checking player skills (`can`) as well as
 manipulating the skills a player has (e.g. `set`). It should be noted that the API layer does not have the convenience
 methods exposed to KubeJS (`improve`, `degrade`) nor the built-in checking for conditions.
 
 ## Modpacks
 
 Want to use this in a modpack? Great! This was designed with modpack developers in mind. No need to ask.
+
+## Todo
+
+- [] FTB Quests integration (register `Task` in `TaskTypes.register`)
+- [] FTB Teams integration (specific specialization restricted to % of players on team to force a more even
+  distribution)
+- [] Public maven repo

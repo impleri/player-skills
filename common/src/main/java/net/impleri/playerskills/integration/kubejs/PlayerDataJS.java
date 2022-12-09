@@ -2,7 +2,7 @@ package net.impleri.playerskills.integration.kubejs;
 
 import dev.latvian.mods.rhino.util.HideFromJS;
 import net.impleri.playerskills.PlayerSkillsCore;
-import net.impleri.playerskills.api.PlayerSkill;
+import net.impleri.playerskills.api.ServerApi;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.integration.kubejs.skills.SkillConditionBuilderJS;
@@ -24,7 +24,7 @@ public class PlayerDataJS {
     @HideFromJS
     private <T> Skill<T> getSkill(String skillName) {
         try {
-            return PlayerSkill.getSkill(player, skillName);
+            return ServerApi.getSkill(player, skillName);
         } catch (RegistryItemNotFound e) {
             // TODO: handle error
             e.printStackTrace();
@@ -66,14 +66,14 @@ public class PlayerDataJS {
     private <T> boolean handleChange(Skill<T> skill, T newValue) {
         if (newValue != null && skill.areChangesAllowed() && skill.isAllowedValue(newValue)) {
             PlayerSkillsCore.LOGGER.debug("Should change {} to {}", skill.getName(), newValue);
-            return PlayerSkill.set(player, skill.getName(), newValue);
+            return ServerApi.set(player, skill.getName(), newValue);
         }
 
         return false;
     }
 
     public List<Skill<?>> getAll() {
-        return PlayerSkill.getAllSkills(player);
+        return ServerApi.getAllSkills(player);
     }
 
     public List<Skill<?>> getSkills() {
@@ -87,7 +87,7 @@ public class PlayerDataJS {
             return false;
         }
 
-        return PlayerSkill.can(player, skill, expectedValue);
+        return ServerApi.can(player, skill, expectedValue);
     }
 
     public <T> boolean can(String skill) {
@@ -187,7 +187,7 @@ public class PlayerDataJS {
 
         if (shouldChange) {
             PlayerSkillsCore.LOGGER.debug("Should reset {}.", skill.getName());
-            return PlayerSkill.reset(player, skill.getName());
+            return ServerApi.reset(player, skill.getName());
         }
 
         return false;
