@@ -35,14 +35,20 @@ they see fit.
 
 ### Registry Actions
 
-For all registry actions, we use the same `SkillEvents.skills` event. Every action on the event starts with the skill
-name. This is a string that will be cast into a ResourceLocation, so it must conform to ResourceLocation rules (namely,
-snake_case instead of camelCase). If no namespace is given, it will automatically be placed into the `skills:`
-namespace.
+For all registry actions, we use two separate events:
+
+- `SkillEvents.registration` ***startup*** event to _add_ skills.
+- `SkillEvents.modification` ***server*** event to _modify_ and _delete_ skills registered in the startup script or by
+  mods.
+
+Both events use the skill name as the first parameter. This is a string that will be cast into a `ResourceLocation`, so
+it must conform to ResourceLocation rules (namely, `snake_case` instead of `camelCase`). If no namespace is given, it
+will automatically be placed into the `skills:` namespace.
 
 When adding a skill, you must provide a skill type string as the second parameter. Like the name, this will be cast into
-a ResourceLocation and given the default `skills:` namespace if none provided. If you are modifying a skill, you may add
-a skill type parameter after the name to _change_ the skill typing.
+a `ResourceLocation` and given the default `skills:` namespace if none provided. If you are modifying a skill, you may
+add a skill type parameter after the name to _change_ the skill typing. Be sure to change the initial value of the skill
+if you're changing the type or else you will see errors.
 
 For both adding and modifying skills, the final argument is a callback function which will interact with the skill
 builder for the type. Modifying skills will start with their existing configurations while new skills will start with
@@ -53,8 +59,8 @@ whatever the default options are for the type.
 By default, we provide a simple boolean skill type (yes/no) which resembles what comes from Game Stages and Game Phases.
 
 ```js
-SkillEvents.skills(event => {
-  event.add('skills:started_quest', 'basic', skill => {
+SkillEvents.registration(event => {
+  event.add('started_quest', 'basic', skill => {
     skill.initialValue(false)
       .description('Indicates a Player has joined the Great Quest');
   });
@@ -64,7 +70,7 @@ SkillEvents.skills(event => {
 #### Modify Skill
 
 ```js
-SkillEvents.skills(event => {
+SkillEvents.modification(event => {
   event.modify('skills:test', skill => {
     skill.initialValue(true)
       .description('Less of a test value');
@@ -75,7 +81,7 @@ SkillEvents.skills(event => {
 #### Remove Skill
 
 ```js
-SkillEvents.skills(event => {
+SkillEvents.modification(event => {
   event.remove('test');
 });
 ```
@@ -103,7 +109,7 @@ Instead, we provide a function to determine if a player has a sufficient Skill:
 BlockEvents.rightClicked('minecraft:dirt', event => {
   if (event.entity.data.skills.can('skills:harvest', 2)) {
     // If the player does have a harvest skill of 2 or greater, spawn a Green Guardian to plague them
-    event.block.createEntity('green_guardian').spawn()
+    event.block.createEntity('custom:green_guardian').spawn()
   }
 })
 ```
@@ -155,7 +161,8 @@ The following conditions are available in the second parameter callback:
 - `unless`: Add an expression which evaluates to a boolean value. Will only increment the value if this is false
 
 The same can apply in reverse: if you want to reduce a skill level, use `degrade`. Conditions will be adapted
-appropriately.
+appropriately (`max` will force skill levels above that value down to it and `min` will do nothing if the level is
+already below it)
 
 There's also a shorthand method for resetting a skill back to the game registry's default: `reset`. Like `improve` and
 `degrade`, it can take conditions.
@@ -169,45 +176,80 @@ Lastly, KubeJS scripts have access to a `PlayerSkills` object that provides the 
 
 ## Java API
 
-Registering Skills and SkillTypes should happen during initialization (see `PlayerSkillsCore.registerCoreTypes`) using
+Registering Skills and SkillTypes should happen during initialization (see `PlayerSkills.registerTypes`) using
 a `DeferredRegister` to ensure it is happens at the right time.
 
 ```java
-package net.impleri.playerskills;
+package my.custom.mod;
 
 import dev.architectury.registry.registries.DeferredRegister;
-import net.impleri.playerskills.basic.BasicSkill;
-import net.impleri.playerskills.basic.BasicSkillType;
-import net.impleri.playerskills.api.SkillType;
-import net.impleri.playerskills.api.Skill;
+import net.impleri.playerskills.registry.SkillTypes;
+import net.impleri.playerskills.server.registry.Skills;
+import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import my.custom.mod.custom.CustomSkill;
+import my.custom.mod.custom.CustomSkillType;
 
 public class ExampleMod {
-    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skill.REGISTRY_KEY);
+    public static final String MOD_ID = 'mycustommod';
+    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skills.REGISTRY_KEY);
     private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(MOD_ID, SKILL_REGISTRY);
 
-    private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillType.REGISTRY_KEY);
+    private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillTypes.REGISTRY_KEY);
     private static final DeferredRegister<SkillType<?>> SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY);
 
     public ExampleMod() {
         // All that is needed to register a skill type
-        SKILL_TYPES.register(BasicSkillType.name, BasicSkillType::new);
+        SKILL_TYPES.register(CustomSkillType.name, CustomSkillType::new);
         SKILL_TYPES.register();
 
         // And to register a skill
-        var skillName = SkillResourceLocation.of("test");
-        SKILLS.register(skillName, () -> new BasicSkill(skillName));
+        ResourceLocation skillName = SkillResourceLocation.of("test");
+        SKILLS.register(skillName, () -> new CustomSkill(skillName));
         SKILLS.register();
     }
 }
 
 ```
 
-After registrations, classes in `net.impleri.playerskills.api` provide an exposed API. Probably most used should be
-`net.impleri.playerskills.api.ServerApi` which provides methods for checking player skills (`can`) as well as
-manipulating the skills a player has (e.g. `set`). It should be noted that the API layer does not have the convenience
-methods exposed to KubeJS (`improve`, `degrade`) nor the built-in checking for conditions.
+`SkillType`s are available in both the logical server and the logical client sides
+via `net.impleri.playerskills.api.SkillType` static methods. Post-modification `Skill`s are only available on the server
+side via `net.impleri.playerskills.server.api.Skill` static methods. Validating a player's skills (`can`) can be done on
+both client (`net.impleri.playerskills.client.ClientApi`) and server (`net.impleri.playerskills.server.ServerApi`).
+
+Any manipulation to those skills (`set`) can only happen on the server side. It should be noted that the API layer does
+not have the convenience methods exposed to KubeJS (`improve`, `degrade`) nor the built-in checking for conditions as
+that functionality is expected to be handled at the modpack level via KubeJS scripts.
+
+### Networking
+
+We expose a pair of network messages for communicating between the client and server: `SyncSkills` and `ResyncSkills`.
+The server side sends `SyncSkills` whenever the local player on the client has updated skills. It sends the player's
+most recent set of skills and gets cached in the client-side registry which supplies data necessary for the `ClientApi`.
+The client side can also request an update via the `ResyncSkills` message.
+
+### Events
+
+Events are now triggered on both the server side and the client side as a player's skills are changed. On the server
+side,
+`SkillChangedEvent` is broadcast with information about the specific skill change. This is consumed in `KubeJS` scripts
+as it is rebroadcast to the `SkillEvents.onChanged` handler. It is also consumed on the server side network handler
+which updates that specific player's client side.
+
+When a client receives an updated list of skills, `ClientSkillsUpdatedEvent` is broadcast for any client-side libraries
+to handle updates.
+
+## In-Game Commands
+
+Lastly, we expose a handful of in-game commands for players and mods:
+
+- `/skills types`: List all registered skill types
+- `/skills all`: List all registered skills (post-modification)
+- `/skills mine`: List the current player's skills _and values_
+- `/skills set [player] skill value`: Set the `skill`'s value to `value` for the player (omitting a player targets the
+  one performing the command). Note that this requires mod permissions.
 
 ## Modpacks
 

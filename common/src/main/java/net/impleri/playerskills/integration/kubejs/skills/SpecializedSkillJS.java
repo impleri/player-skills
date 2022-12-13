@@ -1,6 +1,6 @@
 package net.impleri.playerskills.integration.kubejs.skills;
 
-import net.impleri.playerskills.specialized.SpecializedSkill;
+import net.impleri.playerskills.variant.specialized.SpecializedSkill;
 import net.minecraft.resources.ResourceLocation;
 
 public class SpecializedSkillJS extends SpecializedSkill {

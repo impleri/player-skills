@@ -1,8 +1,8 @@
 package net.impleri.playerskills.integration.kubejs;
 
 import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes;
-import net.impleri.playerskills.SkillResourceLocation;
 import net.impleri.playerskills.api.Skill;
+import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 

@@ -2,9 +2,9 @@ package net.impleri.playerskills.registry;
 
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.Registries;
-import net.impleri.playerskills.PlayerSkillsCore;
-import net.impleri.playerskills.SkillResourceLocation;
+import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.api.SkillType;
+import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 public abstract class SkillTypes {
     public static final ResourceLocation REGISTRY_KEY = SkillResourceLocation.of("skill_types_registry");
 
-    private static final Registrar<SkillType<?>> registry = Registries.get(PlayerSkillsCore.MOD_ID)
+    private static final Registrar<SkillType<?>> registry = Registries.get(PlayerSkills.MOD_ID)
             .<SkillType<?>>builder(REGISTRY_KEY)
             .build();
 

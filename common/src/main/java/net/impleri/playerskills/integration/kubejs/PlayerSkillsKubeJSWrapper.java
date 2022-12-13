@@ -7,7 +7,7 @@ import java.util.List;
 
 class PlayerSkillsKubeJSWrapper {
     public List<Skill<?>> getSkills() {
-        return Skill.all();
+        return net.impleri.playerskills.server.api.Skill.all();
     }
 
     public List<SkillType<?>> getSkillTypes() {
