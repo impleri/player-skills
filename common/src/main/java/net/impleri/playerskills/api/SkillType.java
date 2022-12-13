@@ -1,9 +1,9 @@
 package net.impleri.playerskills.api;
 
-import net.impleri.playerskills.PlayerSkillsCore;
-import net.impleri.playerskills.SkillResourceLocation;
+import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.SkillTypes;
+import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.ApiStatus;
@@ -19,8 +19,6 @@ import java.util.List;
  * 2. Executing logic to determine if a skill value should be changed.
  */
 abstract public class SkillType<T> {
-    public static final ResourceLocation REGISTRY_KEY = SkillTypes.REGISTRY_KEY;
-
     private static final String valueSeparator = ";";
     private static final String optionsSeparator = "!";
     private static final String optionsValueEmpty = "[EMPTY]";
@@ -55,16 +53,16 @@ abstract public class SkillType<T> {
     }
 
     public static <V> String serializeToString(Skill<V> skill) {
-        PlayerSkillsCore.LOGGER.debug("Serializing skill {} with type {}", skill.getName(), skill.getType());
+        PlayerSkills.LOGGER.debug("Serializing skill {} with type {}", skill.getName(), skill.getType());
         try {
             SkillType<V> type = find(skill.getType());
             String storage = type.serialize(skill);
 
-            PlayerSkillsCore.LOGGER.debug("Dehydrating skill {} for storage: {}", skill.getName(), storage);
+            PlayerSkills.LOGGER.debug("Dehydrating skill {} for storage: {}", skill.getName(), storage);
 
             return storage;
         } catch (RegistryItemNotFound e) {
-            PlayerSkillsCore.LOGGER.warn("Attempted to serialize skill {} not found in registry", skill.getName());
+            PlayerSkills.LOGGER.warn("Attempted to serialize skill {} not found in registry", skill.getName());
         }
 
         return "";
@@ -72,7 +70,7 @@ abstract public class SkillType<T> {
 
     @ApiStatus.Internal
     public static @Nullable <V> Skill<V> unserializeFromString(String rawSkill) {
-        PlayerSkillsCore.LOGGER.debug("Unpacking skill {} from storage", rawSkill);
+        PlayerSkills.LOGGER.debug("Unpacking skill {} from storage", rawSkill);
 
         if (rawSkill == null || rawSkill.equals("")) {
             return null;
@@ -87,7 +85,7 @@ abstract public class SkillType<T> {
         try {
             changesAllowed = Integer.parseInt(elements[3]);
         } catch (NumberFormatException e) {
-            PlayerSkillsCore.LOGGER.error("Unable to parse changesAllowed ({}) back into an integer, data possibly corrupted", elements[3]);
+            PlayerSkills.LOGGER.error("Unable to parse changesAllowed ({}) back into an integer, data possibly corrupted", elements[3]);
             return null;
         }
 
@@ -95,10 +93,10 @@ abstract public class SkillType<T> {
 
         try {
             SkillType<V> skillType = SkillTypes.find(SkillResourceLocation.of(type));
-            PlayerSkillsCore.LOGGER.debug("Hydrating {} skill named {}: {}", type, name, value);
+            PlayerSkills.LOGGER.debug("Hydrating {} skill named {}: {}", type, name, value);
             return skillType.unserialize(name, value, changesAllowed, options);
         } catch (RegistryItemNotFound e) {
-            PlayerSkillsCore.LOGGER.warn("No skill type {} in the registry to hydrate {}", type, name);
+            PlayerSkills.LOGGER.warn("No skill type {} in the registry to hydrate {}", type, name);
         }
 
         return null;
@@ -124,9 +122,9 @@ abstract public class SkillType<T> {
     @Nullable
     protected String getDescriptionFor(ResourceLocation name) {
         try {
-            return Skill.find(name).description;
+            return net.impleri.playerskills.server.api.Skill.find(name).description;
         } catch (RegistryItemNotFound e) {
-            PlayerSkillsCore.LOGGER.warn("Could not get description for sill {}", name);
+            PlayerSkills.LOGGER.warn("Could not get description for sill {}", name);
         }
 
         return null;
@@ -161,6 +159,9 @@ abstract public class SkillType<T> {
     public Skill<T> unserialize(String name, String value, int changesAllowed, List<String> options) {
         return new Skill<T>(SkillResourceLocation.of(name), this.getName());
     }
+
+    @Nullable
+    public abstract T castValue(String value);
 
     /**
      * Logic to determine if skill is activated for the expected value

@@ -1,6 +1,6 @@
 package net.impleri.playerskills.integration.kubejs.skills;
 
-import net.impleri.playerskills.tiered.TieredSkill;
+import net.impleri.playerskills.variant.tiered.TieredSkill;
 import net.minecraft.resources.ResourceLocation;
 
 public class TieredSkillJS extends TieredSkill {

@@ -1,18 +1,21 @@
 package net.impleri.playerskills.integration.kubejs;
 
 import dev.latvian.mods.rhino.util.HideFromJS;
-import net.impleri.playerskills.PlayerSkillsCore;
-import net.impleri.playerskills.api.ServerApi;
+import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.integration.kubejs.skills.SkillConditionBuilderJS;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
+import net.impleri.playerskills.server.ServerApi;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Skills data that gets attached to Player
+ */
 public class PlayerDataJS {
     private final Player player;
 
@@ -65,7 +68,7 @@ public class PlayerDataJS {
     @HideFromJS
     private <T> boolean handleChange(Skill<T> skill, T newValue) {
         if (newValue != null && skill.areChangesAllowed() && skill.isAllowedValue(newValue)) {
-            PlayerSkillsCore.LOGGER.debug("Should change {} to {}", skill.getName(), newValue);
+            PlayerSkills.LOGGER.debug("Should change {} to {}", skill.getName(), newValue);
             return ServerApi.set(player, skill.getName(), newValue);
         }
 
@@ -117,7 +120,7 @@ public class PlayerDataJS {
         }
 
         if (shouldChange) {
-            PlayerSkillsCore.LOGGER.debug("Should set {} to {}.", skill.getName(), newValue);
+            PlayerSkills.LOGGER.debug("Should set {} to {}.", skill.getName(), newValue);
             return handleChange(skill, newValue);
         }
 
@@ -179,14 +182,14 @@ public class PlayerDataJS {
             return false;
         }
 
-        Skill<T> defaultSkill = Skill.find(skillName);
+        Skill<T> defaultSkill = net.impleri.playerskills.server.api.Skill.find(skillName);
         boolean shouldChange = skill.getValue() != defaultSkill.getValue();
         if (builder != null) {
             shouldChange = builder.shouldChange() && shouldChange;
         }
 
         if (shouldChange) {
-            PlayerSkillsCore.LOGGER.debug("Should reset {}.", skill.getName());
+            PlayerSkills.LOGGER.debug("Should reset {}.", skill.getName());
             return ServerApi.reset(player, skill.getName());
         }
 

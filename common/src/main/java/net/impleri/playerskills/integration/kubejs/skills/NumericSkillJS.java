@@ -1,6 +1,6 @@
 package net.impleri.playerskills.integration.kubejs.skills;
 
-import net.impleri.playerskills.numeric.NumericSkill;
+import net.impleri.playerskills.variant.numeric.NumericSkill;
 import net.minecraft.resources.ResourceLocation;
 
 public class NumericSkillJS extends NumericSkill {

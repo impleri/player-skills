@@ -1,12 +1,13 @@
 package net.impleri.playerskills.network;
 
+import com.google.common.collect.ImmutableList;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
-import net.impleri.playerskills.PlayerSkillsCore;
-import net.impleri.playerskills.api.ClientApi;
+import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
+import net.impleri.playerskills.client.PlayerSkillsClient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
@@ -24,7 +25,7 @@ public class SyncSkillsMessage extends BaseS2CMessage {
         int size = buffer.readInt();
         skills = new ArrayList<>(size);
 
-        PlayerSkillsCore.LOGGER.debug("Received skill sync of {} skills for {}", size, playerId);
+        PlayerSkills.LOGGER.debug("Received skill sync of {} skills for {}", size, playerId);
 
         for (int i = 0; i < size; i++) {
             var stringSize = buffer.readInt();
@@ -62,11 +63,11 @@ public class SyncSkillsMessage extends BaseS2CMessage {
             buffer.writeUtf(string, stringSize);
         }
 
-        PlayerSkillsCore.LOGGER.debug("Sending skill sync of {} skills for {}", size, playerId);
+        PlayerSkills.LOGGER.debug("Sending skill sync of {} skills for {}", size, playerId);
     }
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        ClientApi.syncFromServer(skills);
+        PlayerSkillsClient.syncFromServer(ImmutableList.copyOf(skills));
     }
 }
