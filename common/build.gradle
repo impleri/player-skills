@@ -15,17 +15,6 @@ publishing {
             from components.java
         }
     }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/impleri/player-skills")
-            credentials {
-                username = System.getenv("GH_USER")
-                password = System.getenv("GH_TOKEN")
-            }
-        }
-    }
 }
 
 repositories {

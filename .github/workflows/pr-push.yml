@@ -24,3 +24,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
+        env:
+          GH_USER: ${{ secrets.GITHUB_ACTOR }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
