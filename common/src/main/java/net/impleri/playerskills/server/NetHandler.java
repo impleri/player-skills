@@ -1,20 +1,11 @@
-package net.impleri.playerskills.network;
+package net.impleri.playerskills.server;
 
-import dev.architectury.networking.simple.MessageType;
-import dev.architectury.networking.simple.SimpleNetworkManager;
 import net.impleri.playerskills.PlayerSkills;
-import net.impleri.playerskills.server.ServerApi;
+import net.impleri.playerskills.network.SyncSkillsMessage;
 import net.impleri.playerskills.server.events.SkillChangedEvent;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 
 public abstract class NetHandler {
-    public static SimpleNetworkManager NET = SimpleNetworkManager.create(PlayerSkills.MOD_ID);
-
-    public static MessageType SYNC_SKILLS = NET.registerS2C("sync_skills", SyncSkillsMessage::new);
-
-    public static MessageType RESYNC_SKILLS = NET.registerC2S("resync_skills", ResyncSkillsMessage::new);
-
     public static void syncPlayer(SkillChangedEvent<?> event) {
         var player = event.getPlayer();
 
@@ -35,11 +26,5 @@ public abstract class NetHandler {
         PlayerSkills.LOGGER.debug("Syncing {} player skills to {}", skills.size(), player.getName().getString());
 
         new SyncSkillsMessage(player, skills).sendTo(player);
-    }
-
-    public static void resyncPlayer(LocalPlayer player) {
-        PlayerSkills.LOGGER.debug("Requesting skills resync for {}", player.getName().getString());
-
-        new ResyncSkillsMessage(player).sendToServer();
     }
 }

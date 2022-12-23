@@ -21,9 +21,6 @@
     ],
     "client": [
       "net.impleri.playerskills.client.fabric.PlayerSkillsClientFabric"
-    ],
-    "server": [
-      "net.impleri.playerskills.server.fabric.PlayerSkillsServerFabric"
     ]
   },
   "mixins": [],
