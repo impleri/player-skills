@@ -5,8 +5,6 @@ import dev.architectury.registry.ReloadListenerRegistry;
 import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.client.events.ClientSkillsUpdatedEvent;
-import net.impleri.playerskills.network.NetHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -22,22 +20,10 @@ public final class PlayerSkillsClient implements ResourceManagerReloadListener {
     }
 
     /**
-     * Broadcast client-side event that skills have changed
-     */
-    @ApiStatus.Internal
-    public static void emitSkillsUpdated(ImmutableList<Skill<?>> skills, ImmutableList<Skill<?>> prev) {
-        ClientSkillsUpdatedEvent.EVENT.invoker().accept(new ClientSkillsUpdatedEvent(skills, prev));
-    }
-
-    /**
      * Request Server to resend skills
      */
     public static void resyncSkills() {
-        var player = Minecraft.getInstance().player;
-
-        if (player != null) {
-            NetHandler.resyncPlayer(player);
-        }
+        NetHandler.resyncPlayer();
     }
 
     /**
@@ -46,6 +32,14 @@ public final class PlayerSkillsClient implements ResourceManagerReloadListener {
     @ApiStatus.Internal
     public static void syncFromServer(ImmutableList<Skill<?>> skills) {
         Registry.syncFromServer(skills);
+    }
+
+    /**
+     * Broadcast client-side event that skills have changed
+     */
+    @ApiStatus.Internal
+    public static void emitSkillsUpdated(ImmutableList<Skill<?>> skills, ImmutableList<Skill<?>> prev) {
+        ClientSkillsUpdatedEvent.EVENT.invoker().accept(new ClientSkillsUpdatedEvent(skills, prev));
     }
 
     private void registerEvents() {

@@ -3,7 +3,7 @@ package net.impleri.playerskills.network;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseC2SMessage;
 import dev.architectury.networking.simple.MessageType;
-import net.impleri.playerskills.server.PlayerSkillsServer;
+import net.impleri.playerskills.PlayerSkills;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
@@ -22,7 +22,7 @@ public class ResyncSkillsMessage extends BaseC2SMessage {
 
     @Override
     public MessageType getType() {
-        return NetHandler.RESYNC_SKILLS;
+        return Manager.RESYNC_SKILLS;
     }
 
     @Override
@@ -32,6 +32,6 @@ public class ResyncSkillsMessage extends BaseC2SMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        PlayerSkillsServer.resync(playerId);
+        PlayerSkills.resync(playerId);
     }
 }

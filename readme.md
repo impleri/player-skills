@@ -258,6 +258,8 @@ Want to use this in a modpack? Great! This was designed with modpack developers 
 ## Todo
 
 - [] FTB Quests integration (register `Task` in `TaskTypes.register`)
+    - Or just give a Kjs example of triggering
+      stage https://github.com/FTBTeam/FTB-Chunks/blob/1.18/main/common/src/main/java/dev/ftb/mods/ftbchunks/FTBChunksWorldConfig.java#L38
 - [] FTB Teams integration (specific specialization restricted to % of players on team to force a more even
   distribution)
 - [] Public maven repo

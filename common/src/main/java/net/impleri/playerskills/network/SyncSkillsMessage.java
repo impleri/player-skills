@@ -45,7 +45,7 @@ public class SyncSkillsMessage extends BaseS2CMessage {
 
     @Override
     public MessageType getType() {
-        return NetHandler.SYNC_SKILLS;
+        return Manager.SYNC_SKILLS;
     }
 
     @Override

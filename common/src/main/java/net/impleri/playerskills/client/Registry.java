@@ -19,7 +19,7 @@ final class Registry {
 
         playerSkills.clear();
 
-        PlayerSkills.LOGGER.debug("Syncing Client-side skills: {}", skills.stream().map(s -> {
+        PlayerSkills.LOGGER.info("Syncing Client-side skills: {}", skills.stream().map(s -> {
             var value = s.getValue() == null ? "NULL" : s.getValue();
             return "" + s.getName() + "=" + value;
         }).collect(Collectors.joining(", ")));

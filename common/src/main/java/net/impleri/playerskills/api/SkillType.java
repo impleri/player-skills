@@ -124,7 +124,7 @@ abstract public class SkillType<T> {
         try {
             return net.impleri.playerskills.server.api.Skill.find(name).description;
         } catch (RegistryItemNotFound e) {
-            PlayerSkills.LOGGER.warn("Could not get description for sill {}", name);
+            PlayerSkills.LOGGER.debug("Could not get description for skill {}", name);
         }
 
         return null;

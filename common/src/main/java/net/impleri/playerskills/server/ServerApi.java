@@ -140,7 +140,7 @@ public final class ServerApi {
 
         List<Skill<?>> newSkills = net.impleri.playerskills.server.registry.PlayerSkills.upsert(player.getUUID(), newSkill);
 
-        PlayerSkillsServer.emitSkillChanged(player, newSkill, oldSkill);
+        PlayerSkills.emitSkillChanged(player, newSkill, oldSkill);
 
         return newSkills.contains(newSkill);
     }
