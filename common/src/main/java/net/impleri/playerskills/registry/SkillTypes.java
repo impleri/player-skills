@@ -14,9 +14,15 @@ import java.util.Map;
 public abstract class SkillTypes {
     public static final ResourceLocation REGISTRY_KEY = SkillResourceLocation.of("skill_types_registry");
 
-    private static final Registrar<SkillType<?>> registry = Registries.get(PlayerSkills.MOD_ID)
-            .<SkillType<?>>builder(REGISTRY_KEY)
-            .build();
+    private static Registrar<SkillType<?>> registry;
+
+    public static void buildRegistry() {
+        if (registry == null) {
+            registry = Registries.get(PlayerSkills.MOD_ID)
+                    .<SkillType<?>>builder(REGISTRY_KEY)
+                    .build();
+        }
+    }
 
     /**
      * Get all SkillTypes registered

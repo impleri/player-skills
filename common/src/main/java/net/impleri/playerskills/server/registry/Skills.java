@@ -20,14 +20,20 @@ public abstract class Skills {
     /**
      * Initial Registry
      */
-    private static final Registrar<Skill<?>> REGISTRY = Registries.get(PlayerSkills.MOD_ID)
-            .<Skill<?>>builder(REGISTRY_KEY)
-            .build();
+    private static Registrar<Skill<?>> REGISTRY;
 
     /**
      * GAME Registry
      */
     private static final Map<ResourceLocation, Skill<?>> registry = new HashMap<>();
+
+    public static void buildRegistry() {
+        if (REGISTRY == null) {
+            REGISTRY = Registries.get(PlayerSkills.MOD_ID)
+                    .<Skill<?>>builder(REGISTRY_KEY)
+                    .build();
+        }
+    }
 
     /**
      * Resets the GAME registry to match the Initial registry

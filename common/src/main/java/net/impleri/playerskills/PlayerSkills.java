@@ -44,8 +44,8 @@ public final class PlayerSkills implements ResourceManagerReloadListener {
     private static final PlayerSkills INSTANCE = new PlayerSkills();
 
     public static void init() {
-        registerCommands();
         registerTypes();
+        registerCommands();
 
         INSTANCE.registerEvents();
         Manager.register();
@@ -69,6 +69,9 @@ public final class PlayerSkills implements ResourceManagerReloadListener {
     }
 
     private static void registerTypes() {
+        SkillTypes.buildRegistry();
+        Skills.buildRegistry();
+
         SKILL_TYPES.register(BasicSkillType.name, BasicSkillType::new);
         SKILL_TYPES.register(NumericSkillType.name, NumericSkillType::new);
         SKILL_TYPES.register(TieredSkillType.name, TieredSkillType::new);
