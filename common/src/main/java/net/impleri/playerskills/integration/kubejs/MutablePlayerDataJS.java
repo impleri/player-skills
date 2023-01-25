@@ -6,6 +6,7 @@ import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.integration.kubejs.skills.SkillConditionBuilderJS;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
+import net.impleri.playerskills.restrictions.PlayerDataJS;
 import net.impleri.playerskills.server.ServerApi;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -16,11 +17,9 @@ import java.util.function.Consumer;
 /**
  * Skills data that gets attached to Player
  */
-public class PlayerDataJS {
-    private final Player player;
-
-    public PlayerDataJS(Player player) {
-        this.player = player;
+public class MutablePlayerDataJS extends PlayerDataJS {
+    public MutablePlayerDataJS(Player player) {
+        super(player);
     }
 
     @Nullable
@@ -83,27 +82,6 @@ public class PlayerDataJS {
         return getAll();
     }
 
-    public <T> boolean can(String skillName, @Nullable T expectedValue) {
-        var skill = getSkill(skillName);
-
-        if (skill == null) {
-            return false;
-        }
-
-        return ServerApi.can(player, skill, expectedValue);
-    }
-
-    public <T> boolean can(String skill) {
-        return can(skill, null);
-    }
-
-    public <T> boolean cannot(String skill, @Nullable T expectedValue) {
-        return !can(skill, expectedValue);
-    }
-
-    public <T> boolean cannot(String skill) {
-        return cannot(skill, null);
-    }
 
     public <T> boolean set(String skillName, T newValue, @Nullable Consumer<SkillConditionBuilderJS<T>> consumer) {
         Skill<T> skill = getSkill(skillName);
