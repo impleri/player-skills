@@ -51,7 +51,7 @@ public class PlayerSkillsPlugin extends KubeJSPlugin {
 
     @Override
     public void attachPlayerData(AttachedData<Player> event) {
-        event.add("skills", new PlayerDataJS(event.getParent()));
+        event.add("skills", new MutablePlayerDataJS(event.getParent()));
     }
 
     private void registerSkills() {
