@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class SkillsRegistrationEventJS extends BaseSkillsRegistryEventJS {
-    private static final ResourceKey<Registry<Skill<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(Skills.REGISTRY_KEY);
-    private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(PlayerSkills.MOD_ID, SKILL_TYPE_REGISTRY);
+    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skills.REGISTRY_KEY);
+    private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(PlayerSkills.MOD_ID, SKILL_REGISTRY);
 
     public SkillsRegistrationEventJS(Map<String, RegistryObjectBuilderTypes.BuilderType<Skill<?>>> types) {
         super(types);
@@ -46,7 +46,7 @@ public class SkillsRegistrationEventJS extends BaseSkillsRegistryEventJS {
         return true;
     }
 
-    public <T> boolean add(String skillName, String type) throws RegistryItemAlreadyExists {
+    public boolean add(String skillName, String type) throws RegistryItemAlreadyExists {
         return add(skillName, type, null);
     }
 

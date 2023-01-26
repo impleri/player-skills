@@ -14,13 +14,14 @@ import java.util.Map;
 public abstract class SkillTypes {
     public static final ResourceLocation REGISTRY_KEY = SkillResourceLocation.of("skill_types_registry");
 
-    private static Registrar<SkillType<?>> registry;
+    private static Registrar<SkillType<?>> REGISTRY = Registries.get(PlayerSkills.MOD_ID)
+            .<SkillType<?>>builder(REGISTRY_KEY)
+            .build();
 
+    // Dummy method to ensure static elements are created
     public static void buildRegistry() {
-        if (registry == null) {
-            registry = Registries.get(PlayerSkills.MOD_ID)
-                    .<SkillType<?>>builder(REGISTRY_KEY)
-                    .build();
+        if (!REGISTRY.key().location().equals(REGISTRY_KEY)) {
+            PlayerSkills.LOGGER.warn("Skills registry is invalid.");
         }
     }
 
@@ -28,11 +29,11 @@ public abstract class SkillTypes {
      * Get all SkillTypes registered
      */
     public static List<SkillType<?>> entries() {
-        return registry.entrySet().stream().<SkillType<?>>map(Map.Entry::getValue).toList();
+        return REGISTRY.entrySet().stream().<SkillType<?>>map(Map.Entry::getValue).toList();
     }
 
     private static <T> @Nullable SkillType<T> maybeFind(ResourceLocation name) {
-        @Nullable SkillType<?> type = registry.get(name);
+        @Nullable SkillType<?> type = REGISTRY.get(name);
 
         if (type != null) {
             @SuppressWarnings("unchecked") SkillType<T> castSkill = ((SkillType<T>) type);
