@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public abstract class RestrictionsApi<T extends AbstractRestriction<?>> {
-    private final Registry<T> registry;
+    protected final Registry<T> registry;
 
     private final Field[] allRestrictionFields;
 
@@ -28,7 +28,7 @@ public abstract class RestrictionsApi<T extends AbstractRestriction<?>> {
         return found.orElse(null);
     }
 
-    private boolean getFieldValueFor(T restriction, String fieldName) {
+    protected boolean getFieldValueFor(T restriction, String fieldName) {
         Field field = getField(fieldName);
 
         // default to allow if field doesn't exist (this should never happen)

@@ -10,8 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public final class ClientApi {
     /**
      * Determines if a Player has a skill, optionally at an expected value
@@ -32,14 +30,11 @@ public final class ClientApi {
     }
 
     public static <T> boolean can(ResourceLocation skillName, @Nullable T expectedValue) {
-        Optional<Skill<?>> foundSkill = Registry.get().stream()
+        return Registry.get().stream()
                 .filter(skill -> skill.getName().equals(skillName))
-                .findFirst();
-        if (foundSkill.isEmpty()) {
-            return false;
-        }
-
-        return can((Skill<T>) foundSkill.get(), expectedValue);
+                .findFirst()
+                .map(skill -> can((Skill<T>) skill, expectedValue))
+                .orElse(false);
     }
 
     public static <T> boolean can(Player player, ResourceLocation skillName, @Nullable T expectedValue) throws MismatchedClientPlayerException {
