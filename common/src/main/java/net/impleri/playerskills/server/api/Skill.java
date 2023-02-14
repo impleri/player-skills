@@ -6,6 +6,7 @@ import net.impleri.playerskills.server.registry.Skills;
 import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,15 +35,16 @@ public class Skill {
     }
 
     @ApiStatus.Internal
-    public static <V> String dumpSkill(net.impleri.playerskills.api.Skill<V> skill) {
+    public static <V> String dumpSkill(@NotNull net.impleri.playerskills.api.Skill<V> skill) {
         return "" + skill.getName().toString() + "=" + Objects.requireNonNullElse(skill.getValue(), "null");
     }
 
     @ApiStatus.Internal
-    public static void logSkills(List<net.impleri.playerskills.api.Skill<?>> skills, String description) {
+    public static void logSkills(@NotNull List<net.impleri.playerskills.api.Skill<?>> skills, @NotNull String description) {
         var skillList = skills.stream()
                 .map(Skill::dumpSkill)
                 .collect(Collectors.joining(", "));
+
         PlayerSkills.LOGGER.debug("{}: {}", description, skillList);
     }
 }

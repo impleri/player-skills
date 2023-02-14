@@ -172,6 +172,7 @@ public abstract class PlayerSkills {
 
     private static void handleCloseFor(UUID playerUuid) {
         net.impleri.playerskills.PlayerSkills.LOGGER.info("Closing player {}, ensuring skills are saved", playerUuid);
+        
         List<Skill<?>> skills = getFor(playerUuid);
         writeToStorage(playerUuid, skills);
     }
@@ -190,7 +191,7 @@ public abstract class PlayerSkills {
      */
     public static List<UUID> closeAllPlayers() {
         List<UUID> playerIds = players.keySet().stream().toList();
-        playerIds.stream().sequential().forEach(net.impleri.playerskills.server.registry.PlayerSkills::handleCloseFor);
+        playerIds.stream().parallel().forEach(net.impleri.playerskills.server.registry.PlayerSkills::handleCloseFor);
         players.clear();
 
         return playerIds;
@@ -198,6 +199,7 @@ public abstract class PlayerSkills {
 
     private static List<Skill<?>> readFromStorage(UUID playerUuid) {
         net.impleri.playerskills.PlayerSkills.LOGGER.debug("Restoring saved skills for {}", playerUuid);
+
         return SkillStorage.read(playerUuid).stream()
                 .<Skill<?>>map(SkillType::unserializeFromString)
                 .filter(Objects::nonNull)
@@ -206,6 +208,7 @@ public abstract class PlayerSkills {
 
     private static void writeToStorage(UUID playerUuid, List<Skill<?>> skills) {
         net.impleri.playerskills.PlayerSkills.LOGGER.debug("Saving skills for {}", playerUuid);
+
         List<String> rawSkills = skills.stream()
                 .map(SkillType::serializeToString)
                 .filter(s -> s.length() > 0)
