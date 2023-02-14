@@ -3,6 +3,7 @@ package net.impleri.playerskills.restrictions;
 import net.impleri.playerskills.client.ClientApi;
 import net.impleri.playerskills.server.ServerApi;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public class PlayerDataJS {
     protected final Player player;
 
-    public PlayerDataJS(Player player) {
+    public PlayerDataJS(@NotNull Player player) {
         this.player = player;
     }
 
@@ -19,7 +20,7 @@ public class PlayerDataJS {
         return (player.getLevel().isClientSide) ? ClientApi.can(skillName, expectedValue) : ServerApi.can(player, skillName, expectedValue);
     }
 
-    public <T> boolean can(String skill) {
+    public boolean can(String skill) {
         return can(skill, null);
     }
 
@@ -27,7 +28,7 @@ public class PlayerDataJS {
         return !can(skill, expectedValue);
     }
 
-    public <T> boolean cannot(String skill) {
+    public boolean cannot(String skill) {
         return cannot(skill, null);
     }
 }

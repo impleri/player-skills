@@ -8,14 +8,16 @@ import net.minecraft.world.entity.player.Player;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
-public abstract class RestrictionsApi<T extends AbstractRestriction<?>> {
-    protected final Registry<T> registry;
+public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
+    protected final Registry<R> registry;
 
     private final Field[] allRestrictionFields;
 
-    public RestrictionsApi(Registry<T> registry, Field[] fields) {
+    public RestrictionsApi(Registry<R> registry, Field[] fields) {
         this.registry = registry;
         this.allRestrictionFields = fields;
     }
@@ -28,7 +30,7 @@ public abstract class RestrictionsApi<T extends AbstractRestriction<?>> {
         return found.orElse(null);
     }
 
-    protected boolean getFieldValueFor(T restriction, String fieldName) {
+    protected boolean getFieldValueFor(R restriction, String fieldName) {
         Field field = getField(fieldName);
 
         // default to allow if field doesn't exist (this should never happen)
@@ -47,18 +49,48 @@ public abstract class RestrictionsApi<T extends AbstractRestriction<?>> {
         return true;
     }
 
-    public boolean canPlayer(Player player, ResourceLocation item, String fieldName) {
+    protected List<R> getRestrictionsFor(Player player, Predicate<T> isMatchingTarget) {
+        return registry.entries().stream()
+                .filter(restriction -> restriction.condition.test(player) && isMatchingTarget.test(restriction.target)).toList();
+    }
+
+    protected List<R> getReplacementsFor(Player player, Predicate<T> isMatchingTarget) {
+        return registry.entries().stream()
+                .filter(restriction -> restriction.condition.test(player) && isMatchingTarget.test(restriction.target) && restriction.replacement != null).toList();
+    }
+
+    protected List<R> countReplacementsFor(Player player) {
+        return registry.entries().stream()
+                .filter(restriction -> restriction.condition.test(player) && restriction.target != null && restriction.replacement != null).toList();
+    }
+
+    protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, String fieldName, ResourceLocation resource) {
         if (player == null) {
-            PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on {}", fieldName, item);
+            PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on target {}}", fieldName, resource);
             return false;
         }
 
-        boolean hasRestrictions = registry.find(item).stream()
+        boolean hasRestrictions = getRestrictionsFor(player, isMatchingTarget).stream()
+                .map(restriction -> getFieldValueFor(restriction, fieldName)) // get field value
+                .anyMatch(value -> !value); // do we have any restrictions that deny the action
+
+        PlayerSkills.LOGGER.debug("Does {} for {} have {} restrictions? {}", resource, player.getName().getString(), fieldName, hasRestrictions);
+
+        return !hasRestrictions;
+    }
+
+    public boolean canPlayer(Player player, ResourceLocation resource, String fieldName) {
+        if (player == null) {
+            PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on {}", fieldName, resource);
+            return false;
+        }
+
+        boolean hasRestrictions = registry.find(resource).stream()
                 .filter(restriction -> restriction.condition.test(player)) // reduce to those whose condition matches the player
                 .map(restriction -> getFieldValueFor(restriction, fieldName)) // get field value
                 .anyMatch(value -> !value); // do we have any restrictions that deny the action
 
-        PlayerSkills.LOGGER.debug("Does {} for {} have {} restrictions? {}", item, player.getName().getString(), fieldName, hasRestrictions);
+        PlayerSkills.LOGGER.debug("Does {} for {} have {} restrictions? {}", resource, player.getName().getString(), fieldName, hasRestrictions);
 
         return !hasRestrictions;
     }

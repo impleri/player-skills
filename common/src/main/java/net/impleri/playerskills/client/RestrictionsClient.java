@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class RestrictionsClient<T extends AbstractRestriction<?>> {
+public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
     private static Player getPlayer() {
         try {
             return Minecraft.getInstance().player;
@@ -22,20 +22,20 @@ public abstract class RestrictionsClient<T extends AbstractRestriction<?>> {
         return null;
     }
 
-    private final Registry<T> registry;
+    private final Registry<R> registry;
 
-    private final RestrictionsApi<T> serverApi;
+    private final RestrictionsApi<T, R> serverApi;
 
-    public RestrictionsClient(Registry<T> registry, RestrictionsApi<T> serverApi) {
+    public RestrictionsClient(Registry<R> registry, RestrictionsApi<T, R> serverApi) {
         this.registry = registry;
         this.serverApi = serverApi;
     }
 
-    public List<T> getAll() {
+    public List<R> getAll() {
         return registry.entries();
     }
 
-    protected List<T> getFiltered(Predicate<T> predicate) {
+    protected List<R> getFiltered(Predicate<R> predicate) {
         var player = getPlayer();
 
         return getAll().stream()

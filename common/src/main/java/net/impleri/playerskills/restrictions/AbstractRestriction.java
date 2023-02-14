@@ -7,8 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Predicate;
 
 public abstract class AbstractRestriction<Target> {
+    private static final Predicate<Player> DEFAULT_CONDITION = (Player player) -> true;
     public final Target target;
-    public final Predicate<Player> condition;
+    public final @NotNull Predicate<Player> condition;
     public final Target replacement;
 
 
@@ -18,8 +19,8 @@ public abstract class AbstractRestriction<Target> {
             @Nullable Target replacement
     ) {
         this.target = target;
-        this.condition = condition;
         this.replacement = replacement;
+        this.condition = (condition != null) ? condition : DEFAULT_CONDITION;
     }
 
     public AbstractRestriction(
