@@ -19,11 +19,17 @@ public class PlayerSkillsLogger {
 
     private final Logger instance;
 
-    private String prefix = "TAG";
+    private boolean debug = false;
+
+    private final String prefix;
 
     private PlayerSkillsLogger(String modId, String prefix) {
         this.prefix = prefix;
         this.instance = LogManager.getLogger(modId);
+    }
+
+    public void enableDebug() {
+        this.debug = true;
     }
 
     private String addPrefix(String message) {
@@ -59,10 +65,18 @@ public class PlayerSkillsLogger {
     }
 
     public void debug(String message) {
+        if (debug) {
+            info(message);
+            return;
+        }
         instance.debug(addPrefix(message));
     }
 
     public void debug(String message, Object... params) {
+        if (debug) {
+            info(message, params);
+            return;
+        }
         instance.debug(addPrefix(message), Arrays.stream(params).toArray());
     }
 }
