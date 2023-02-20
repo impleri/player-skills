@@ -53,6 +53,10 @@ public final class PlayerSkills implements ResourceManagerReloadListener {
         LOGGER.info("PlayerSkills Loaded");
     }
 
+    public static void enableDebug() {
+        LOGGER.enableDebug();
+    }
+
     public static <T> void emitSkillChanged(Player player, Skill<T> newSkill, Skill<T> oldSkill) {
         SkillChangedEvent.EVENT.invoker().accept(new SkillChangedEvent<T>(player, newSkill, oldSkill));
     }
