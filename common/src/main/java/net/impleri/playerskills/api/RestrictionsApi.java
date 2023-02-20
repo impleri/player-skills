@@ -144,7 +144,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         Predicate<T> predicate = createPredicateFor(target);
         T actualTarget = getReplacement(player, target);
 
-        PlayerSkills.LOGGER.debug("Checking if {} ({}) is breakable.", targetName, getTargetName(actualTarget));
+        PlayerSkills.LOGGER.debug("Checking if {} ({}) is {}.", targetName, getTargetName(actualTarget), fieldName);
 
         return canPlayer(player, predicate, fieldName, targetName);
     }
