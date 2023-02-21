@@ -43,10 +43,15 @@ public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
                 .toList();
     }
 
-    public boolean canPlayer(ResourceLocation item, String fieldName) {
+    public boolean canPlayer(ResourceLocation resource, String fieldName) {
         var player = getPlayer();
 
-        return serverApi.canPlayer(player, item, fieldName);
+        return serverApi.canPlayer(player, resource, fieldName);
     }
 
+    public boolean canPlayer(T target, String fieldName) {
+        var player = getPlayer();
+
+        return serverApi.canPlayer(player, target, fieldName);
+    }
 }
