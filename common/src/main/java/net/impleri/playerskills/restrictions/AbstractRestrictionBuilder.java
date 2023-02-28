@@ -19,13 +19,13 @@ public abstract class AbstractRestrictionBuilder<T extends AbstractRestriction<?
 
     @RemapForJS("if")
     public AbstractRestrictionBuilder<T> condition(Predicate<PlayerDataJS> consumer) {
-        this.condition = (Player player) -> consumer.test(new PlayerDataJS(player));
+        this.condition = (Player player) -> player != null && consumer.test(new PlayerDataJS(player));
 
         return this;
     }
 
     public AbstractRestrictionBuilder<T> unless(Predicate<PlayerDataJS> consumer) {
-        this.condition = (Player player) -> !consumer.test(new PlayerDataJS(player));
+        this.condition = (Player player) -> player == null || !consumer.test(new PlayerDataJS(player));
 
         return this;
     }
