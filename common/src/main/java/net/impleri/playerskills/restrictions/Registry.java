@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public abstract class Registry<T extends AbstractRestriction<?>> {
     private final Map<ResourceLocation, List<T>> registry = new HashMap<>();
@@ -24,8 +25,8 @@ public abstract class Registry<T extends AbstractRestriction<?>> {
 
     public void add(ResourceLocation name, T restriction) {
         List<T> restrictions = find(name);
-        restrictions.add(restriction);
+        var newRestrictions = Stream.concat(restrictions.stream(), Stream.of(restriction)).toList();
 
-        registry.put(name, restrictions);
+        registry.put(name, newRestrictions);
     }
 }
