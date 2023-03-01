@@ -18,22 +18,22 @@ public class RegistrationType<T> {
     private final TagKey<T> tag;
 
     public RegistrationType(String value, ResourceKey<Registry<T>> registryKey) {
-        if (value.trim().endsWith(":*")) {
-            namespace = value.substring(0, value.indexOf(":"));
-            name = null;
-            tag = null;
-        } else if (value.trim().startsWith("@")) {
+        if (value.trim().startsWith("@")) {
             namespace = value.substring(1);
             name = null;
             tag = null;
         } else if (value.trim().startsWith("#")) {
             var tagKey = value.substring(1);
 
-            tag = TagKey.create(registryKey, SkillResourceLocation.of(tagKey));
+            tag = TagKey.create(registryKey, SkillResourceLocation.ofMinecraft(tagKey));
             namespace = null;
             name = null;
+        } else if (value.trim().endsWith(":*")) {
+            namespace = value.substring(0, value.indexOf(":"));
+            name = null;
+            tag = null;
         } else {
-            name = SkillResourceLocation.of(value);
+            name = SkillResourceLocation.ofMinecraft(value);
             namespace = null;
             tag = null;
         }
