@@ -20,6 +20,17 @@ public class SkillResourceLocation {
         return of(elements[0], elements[1]);
     }
 
+    /**
+     * ofMinecraft
+     * <p>
+     * Attempt to parse the string into a minecraft-default ResourceLocation and fallback to skills namespace if some error
+     */
+    public static ResourceLocation ofMinecraft(String value) {
+        var mcResource = ResourceLocation.tryParse(value);
+
+        return mcResource == null ? of(value) : mcResource;
+    }
+
     private static final String DEFAULT_NAMESPACE = "skills";
 
     private static String[] decompose(String string) {
