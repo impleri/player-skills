@@ -127,21 +127,21 @@ However, you will have a few options. Sometimes you will want to simply improve 
 ```js
 // Let's assume we have these tiers for `undead_killer` skill
 const KILLER_TIERS = {
-   wood: 0,
-   stone: 1,
-   iron: 2,
-   gold: 3,
-   diamond: 4,
-   netherite: 5,
+  wood: 0,
+  stone: 1,
+  iron: 2,
+  gold: 3,
+  diamond: 4,
+  netherite: 5,
 };
 
 BlockEvents.rightClicked('minecraft:dirt', event => {
   // this is a basic skill, so we ensure it's true
   event.entity.data.skills.improve('skills:dirt_watcher');
-  
+
   // this is a numeric skill, but we want to stop improvements this way once it hits 5
   event.entity.data.skills.improve('skills:harvest', condition => condition.max(5));
-  
+
   // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
   event.entity.data.skills.improve('skills:undead_killer', condition => condition
     .if(event.entity.data.skills.can('skills:undead_killer', KILLER_TIERS.iron))
@@ -251,15 +251,36 @@ Lastly, we expose a handful of in-game commands for players and mods:
 - `/skills set [player] skill value`: Set the `skill`'s value to `value` for the player (omitting a player targets the
   one performing the command). Note that this requires mod permissions.
 
+## Developers
+
+Add the following to your `build.gradle`. I depend
+on [Architectury API](https://github.com/architectury/architectury-api)
+and [KubeJS](https://github.com/KubeJS-Mods/KubeJS), so you'll need those as well.
+
+```groovy
+dependencies {
+    // Common should always be included 
+    modImplementation "net.impleri:player-skills-${minecraft_version}:${playerskills_version}"
+
+    // Plus forge
+    modApi "net.impleri:player-skills-${minecraft_version}-forge:${playerskills_version}"
+
+    // Or fabric
+    modApi "net.impleri:player-skills-${minecraft_version}-fabric:${playerskills_version}"
+}
+
+repositories {
+    maven {
+        url = "https://maven.impleri.org/minecraft"
+        name = "Impleri Mods"
+        content {
+            includeGroup "net.impleri"
+        }
+    }
+}
+
+```
+
 ## Modpacks
 
-Want to use this in a modpack? Great! This was designed with modpack developers in mind. No need to ask.
-
-## Todo
-
-- [] FTB Quests integration (register `Task` in `TaskTypes.register`)
-    - Or just give a Kjs example of triggering
-      stage https://github.com/FTBTeam/FTB-Chunks/blob/1.18/main/common/src/main/java/dev/ftb/mods/ftbchunks/FTBChunksWorldConfig.java#L38
-- [] FTB Teams integration (specific specialization restricted to % of players on team to force a more even
-  distribution)
-- [] Public maven repo
+Want to use this in a modpack? Great! This waBecause os designed with modpack developers in mind. No need to ask.
