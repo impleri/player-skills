@@ -60,8 +60,8 @@ jobs:
         with:
           arguments: publish
         env:
-          GH_USER: ${{ secrets.GITHUB_ACTOR }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USER: ${{ secrets.MAVEN_USER }}
+          MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
       - name: Remove Extra JARs
         run: rm -f {fabric,forge}/build/libs/*{sources,dev,shadow}*.jar
       - name: Move Fabric JARs
