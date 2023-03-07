@@ -53,7 +53,7 @@ allprojects {
         repositories {
             maven {
                 name = "impleri-dev"
-                url = uri("https://maven.impleri.org/minecraft")
+                url = "https://maven.impleri.org/minecraft"
                 credentials {
                     username = System.getenv("MAVEN_USER")
                     password = System.getenv("MAVEN_TOKEN")
@@ -61,7 +61,6 @@ allprojects {
                 authentication {
                     basic(BasicAuthentication)
                 }
-
             }
         }
 

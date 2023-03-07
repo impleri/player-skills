@@ -1,139 +1,38 @@
 name: Publish
 
 on:
-  pull_request:
+  push:
     branches:
       - main
+  pull_request:
     types:
       - closed
+      - synchronize
+      - opened
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    uses: impleri/automatic-skills/.github/workflows/build.yml@main
+
+  bump:
+    uses: impleri/automatic-skills/.github/workflows/version-bump.yml@main
     if: github.event.pull_request.merged == true
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Git config
-        run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "github-actions"
-      - name: Apply version bump (major)
-        if: contains(github.event.pull_request.labels.*.name, 'major')
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: incrementSemanticVersion --major
-        env:
-          GH_USER: ${{ secrets.HUB_USER }}
-          GH_TOKEN: ${{ secrets.HUB_TOKEN }}
-      - name: Apply version bump (minor)
-        if: contains(github.event.pull_request.labels.*.name, 'minor')
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: incrementSemanticVersion --minor
-        env:
-          GH_USER: ${{ secrets.HUB_USER }}
-          GH_TOKEN: ${{ secrets.HUB_TOKEN }}
-      - name: Apply version bump (patch)
-        if: contains(github.event.pull_request.labels.*.name, 'patch')
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: incrementSemanticVersion --patch
-        env:
-          GH_USER: ${{ secrets.HUB_USER }}
-          GH_TOKEN: ${{ secrets.HUB_TOKEN }}
-      - name: Commit version bump
-        run: |
-          git add version.properties
-          git commit -m "Version bump"
-          git push
-      - name: Publish with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: publish
-        env:
-          MAVEN_USER: ${{ secrets.MAVEN_USER }}
-          MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
-      - name: Remove Extra JARs
-        run: rm -f {fabric,forge}/build/libs/*{sources,dev,shadow}*.jar
-      - name: Move Fabric JARs
-        run: for f in fabric/build/libs/*.jar; do mv "$f" "${f/.jar/-fabric.jar}"; done
-      - name: Move Forge JARs
-        run: for f in forge/build/libs/*.jar; do mv "$f" "${f/.jar/-forge.jar}"; done
-      - name: Box Fabric JARs
-        uses: actions/upload-artifact@v3
-        with:
-          name: fabric
-          path: fabric/build/libs
-      - name: Box Forge JARs
-        uses: actions/upload-artifact@v3
-        with:
-          name: forge
-          path: forge/build/libs
-
-  deploy-github:
     needs: build
-    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
-    steps:
-      - name: Unbox Fabric JARs
-        uses: actions/download-artifact@v3
-        with:
-          name: fabric
-          path: build/libs
-      - name: Unbox Forge JARs
-        uses: actions/download-artifact@v3
-        with:
-          name: forge
-          path: build/libs
-      - uses: Kir-Antipov/mc-publish@v3.2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-generate-changelog: true
-          files: "build/libs/*.jar"
-
-  deploy-fabric:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Unbox Fabric JARs
-        uses: actions/download-artifact@v3
-        with:
-          name: fabric
-          path: build/libs
-      - uses: Kir-Antipov/mc-publish@v3.2
-        with:
-          loaders: fabric
-          modrinth-id: ${{ secrets.MODRINTH_ID }}
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-id: ${{ secrets.CURSEFORGE_ID }}
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files: "build/libs/*-fabric.jar"
-
-  deploy-forge:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Unbox Forge JARs
-        uses: actions/download-artifact@v3
-        with:
-          name: forge
-          path: build/libs
-      - uses: Kir-Antipov/mc-publish@v3.2
-        with:
-          loaders: forge
-          modrinth-id: ${{ secrets.MODRINTH_ID }}
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-id: ${{ secrets.CURSEFORGE_ID }}
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files: "build/libs/*-forge.jar"
+  publish:
+    uses: impleri/automatic-skills/.github/workflows/publish.yml@main
+    if: always() && needs.bump.result == 'success'
+    needs: bump
+    permissions:
+      contents: write
+    secrets:
+      maven-user: ${{ secrets.MAVEN_USER }}
+      maven-password: ${{ secrets.MAVEN_TOKEN }}
+      modrinth-id: ${{ secrets.MODRINTH_ID }}
+      modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+      curseforge-id: ${{ secrets.CURSEFORGE_ID }}
+      curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
