@@ -25,8 +25,6 @@ jobs:
 
   publish:
     uses: impleri/automatic-skills/.github/workflows/publish.yml@main
-    if: always() && needs.bump.result == 'success'
-    needs: bump
     permissions:
       contents: write
     secrets:
