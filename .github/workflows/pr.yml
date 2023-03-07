@@ -1,0 +1,24 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - closed
+      - synchronize
+      - opened
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: impleri/automatic-skills/.github/workflows/build.yml@main
+
+  bump:
+    uses: impleri/automatic-skills/.github/workflows/version-bump.yml@main
+    if: github.event.pull_request.merged == true
+    needs: build
+    permissions:
+      contents: write
