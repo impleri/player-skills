@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 public class Registry<T extends AbstractRestriction<?>> {
@@ -38,6 +39,6 @@ public class Registry<T extends AbstractRestriction<?>> {
         List<T> restrictions = find(name);
         var newRestrictions = Stream.concat(restrictions.stream(), Stream.of(restriction)).toList();
 
-        REGISTRY.registerOrOverride(null, ResourceKey.create(REGISTRY_RESOURCE, name), newRestrictions, Lifecycle.stable());
+        REGISTRY.registerOrOverride(OptionalInt.empty(), ResourceKey.create(REGISTRY_RESOURCE, name), newRestrictions, Lifecycle.stable());
     }
 }
