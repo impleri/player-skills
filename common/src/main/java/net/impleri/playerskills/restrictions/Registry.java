@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-public abstract class Registry<T extends AbstractRestriction<?>> {
+public class Registry<T extends AbstractRestriction<?>> {
     protected final ResourceLocation REGISTRY_KEY;
 
     protected final ResourceKey<net.minecraft.core.Registry<List<T>>> REGISTRY_RESOURCE;
