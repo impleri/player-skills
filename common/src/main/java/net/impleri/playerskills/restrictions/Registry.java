@@ -1,24 +1,35 @@
 package net.impleri.playerskills.restrictions;
 
+import com.mojang.serialization.Lifecycle;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 public abstract class Registry<T extends AbstractRestriction<?>> {
-    private final Map<ResourceLocation, List<T>> registry = new HashMap<>();
+    protected final ResourceLocation REGISTRY_KEY;
 
-    public List<T> entries() {
-        return registry.values().stream().flatMap(Collection::stream).toList();
+    protected final ResourceKey<net.minecraft.core.Registry<List<T>>> REGISTRY_RESOURCE;
+
+    protected final MappedRegistry<List<T>> REGISTRY;
+
+    public Registry(String modId) {
+        REGISTRY_KEY = new ResourceLocation(modId, "restrictions");
+        REGISTRY_RESOURCE = ResourceKey.createRegistryKey(REGISTRY_KEY);
+        REGISTRY = new MappedRegistry<>(REGISTRY_RESOURCE, Lifecycle.stable(), null);
     }
 
-    public void clear() {
-        registry.clear();
+    public List<T> entries() {
+        return REGISTRY.stream().flatMap(Collection::stream).toList();
     }
 
     public List<T> find(ResourceLocation name) {
-        @Nullable List<T> restrictions = registry.get(name);
+        @Nullable List<T> restrictions = REGISTRY.get(name);
 
         return (restrictions != null) ? restrictions.stream().toList() : new ArrayList<>();
     }
@@ -27,6 +38,6 @@ public abstract class Registry<T extends AbstractRestriction<?>> {
         List<T> restrictions = find(name);
         var newRestrictions = Stream.concat(restrictions.stream(), Stream.of(restriction)).toList();
 
-        registry.put(name, newRestrictions);
+        REGISTRY.registerOrOverride(null, ResourceKey.create(REGISTRY_RESOURCE, name), newRestrictions, Lifecycle.stable());
     }
 }
