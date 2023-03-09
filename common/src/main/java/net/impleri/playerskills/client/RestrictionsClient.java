@@ -43,12 +43,20 @@ public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
                 .toList();
     }
 
+    /**
+     * @deprecated Use the more expressive methods available on subclasses (e.g. ItemSkills.isConsumable)
+     */
+    @Deprecated
     public boolean canPlayer(ResourceLocation resource, String fieldName) {
         var player = getPlayer();
 
         return serverApi.canPlayer(player, resource, fieldName);
     }
 
+    /**
+     * @deprecated Use the more expressive methods available on subclasses (e.g. ItemSkills.isConsumable)
+     */
+    @Deprecated
     public boolean canPlayer(T target, String fieldName) {
         var player = getPlayer();
 

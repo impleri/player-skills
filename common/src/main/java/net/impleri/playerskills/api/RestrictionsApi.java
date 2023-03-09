@@ -3,8 +3,10 @@ package net.impleri.playerskills.api;
 import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.restrictions.AbstractRestriction;
 import net.impleri.playerskills.restrictions.Registry;
+import net.impleri.playerskills.server.events.SkillChangedEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -16,10 +18,23 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
 
     private final Field[] allRestrictionFields;
 
+    private final Map<Player, List<R>> restrictionsCache = new HashMap<>();
+
+    private final Map<Player, Map<T, T>> replacementCache = new HashMap<>();
+
+
     public RestrictionsApi(Registry<R> registry, Field[] fields) {
         this.registry = registry;
         this.allRestrictionFields = fields;
+
+        SkillChangedEvent.EVENT.register(this::clearPlayerCache);
     }
+
+    public void clearPlayerCache(SkillChangedEvent<?> event) {
+        restrictionsCache.put(event.getPlayer(), new ArrayList<>());
+        replacementCache.put(event.getPlayer(), new HashMap<>());
+    }
+
 
     private Field getField(String name) {
         Optional<Field> found = Arrays.stream(allRestrictionFields)
@@ -29,44 +44,41 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return found.orElse(null);
     }
 
-    protected boolean getFieldValueFor(R restriction, String fieldName) {
+    private boolean getFieldValueFor(R restriction, String fieldName) {
         Field field = getField(fieldName);
 
-        // default to allow if field doesn't exist (this should never happen)
-        if (field == null) {
-            return true;
-        }
-
-        try {
-            // return the boolean value of the field
-            return field.getBoolean(restriction);
-        } catch (IllegalAccessException | IllegalArgumentException | NullPointerException |
-                 ExceptionInInitializerError ignored) {
+        if (field != null) {
+            try {
+                // return the boolean value of the field
+                return field.getBoolean(restriction);
+            } catch (IllegalAccessException | IllegalArgumentException | NullPointerException |
+                     ExceptionInInitializerError ignored) {
+            }
         }
 
         // default to allow if we get some error when trying to access the field
         return true;
     }
 
-    abstract protected ResourceLocation getTargetName(T target);
-
-    abstract protected Predicate<T> createPredicateFor(T target);
-
-    protected List<R> getRestrictionsFor(Player player) {
+    private List<R> populatePlayerRestrictions(Player player) {
         return registry.entries().stream()
                 .filter(restriction -> restriction.condition.test(player) && restriction.target != null)
                 .toList();
     }
 
-    protected List<R> getReplacementsFor(Player player) {
+    private List<R> getRestrictionsFor(Player player) {
+        return restrictionsCache.computeIfAbsent(player, this::populatePlayerRestrictions);
+    }
+
+    private List<R> getRestrictionsFor(Player player, Predicate<T> isMatchingTarget) {
         return getRestrictionsFor(player).stream()
-                .filter(restriction -> restriction.replacement != null)
+                .filter(restriction -> isMatchingTarget.test(restriction.target))
                 .toList();
     }
 
-    protected List<R> getRestrictionsFor(Player player, Predicate<T> isMatchingTarget) {
+    private List<R> getReplacementsFor(Player player) {
         return getRestrictionsFor(player).stream()
-                .filter(restriction -> isMatchingTarget.test(restriction.target))
+                .filter(restriction -> restriction.replacement != null)
                 .toList();
     }
 
@@ -76,12 +88,19 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
                 .toList();
     }
 
-    public long countReplacementsFor(Player player) {
-        return getReplacementsFor(player).size();
-    }
+    /**
+     * Determine the ResourceLocation of the target
+     */
+    abstract protected ResourceLocation getTargetName(T target);
+
+    /**
+     * Create a Predicate using target to match with potential replacements registered to applicable restrictions.
+     */
+    abstract protected Predicate<T> createPredicateFor(T target);
+
 
     @NotNull
-    protected T getReplacementInternal(Player player, T target) {
+    private T getActualReplacement(Player player, T target) {
         T replacement = target;
         boolean hasReplacement = true;
 
@@ -102,17 +121,25 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return replacement;
     }
 
-    private final Map<Player, Map<T, T>> replacementCache = new HashMap<>();
+    /**
+     * Gets a count for all restrictions with replacements applicable to player.
+     */
+    public long countReplacementsFor(Player player) {
+        return getReplacementsFor(player).size();
+    }
 
+    /**
+     * Get replacement for target using restrictions applicable to player. Will return target if no replacements found.
+     */
     @NotNull
-    public T getReplacement(Player player, T target) {
-        Map<T, T> playerCache = replacementCache.getOrDefault(player, new HashMap<>());
+    public T getReplacementFor(@NotNull Player player, @NotNull T target) {
+        Map<T, T> playerCache = replacementCache.computeIfAbsent(player, (_player) -> new HashMap<>());
 
         if (playerCache.containsKey(target)) {
             return playerCache.get(target);
         }
 
-        var replacement = getReplacementInternal(player, target);
+        var replacement = getActualReplacement(player, target);
 
         playerCache.put(target, replacement);
         replacementCache.put(player, playerCache);
@@ -120,10 +147,19 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return replacement;
     }
 
-    public void clearPlayerCache(Player player) {
-        replacementCache.put(player, new HashMap<>());
+    /**
+     * @deprecated Use getReplacementFor
+     */
+    @Deprecated
+    public T getReplacement(Player player, T target) {
+        return getReplacementFor(player, target);
     }
 
+
+    /**
+     * Internal method exposed for subclasses to implement expressive methods (e.g. BlockSkills.isHarvestable)
+     */
+    @ApiStatus.Internal
     protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, String fieldName, ResourceLocation resource) {
         if (player == null) {
             PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on target {}}", fieldName, resource);
@@ -139,16 +175,24 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return !hasRestrictions;
     }
 
+    /**
+     * @deprecated Use the more expressive methods available on subclasses (e.g. ItemSkills.isConsumable)
+     */
+    @Deprecated
     public boolean canPlayer(Player player, T target, String fieldName) {
         var targetName = getTargetName(target);
         Predicate<T> predicate = createPredicateFor(target);
-        T actualTarget = getReplacement(player, target);
+        T actualTarget = getReplacementFor(player, target);
 
         PlayerSkills.LOGGER.debug("Checking if {} ({}) is {}.", targetName, getTargetName(actualTarget), fieldName);
 
         return canPlayer(player, predicate, fieldName, targetName);
     }
 
+    /**
+     * @deprecated Use the more expressive methods available on subclasses (e.g. ItemSkills.isConsumable)
+     */
+    @Deprecated
     public boolean canPlayer(Player player, ResourceLocation resourceName, String fieldName) {
         if (player == null) {
             PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on {}", fieldName, resourceName);
