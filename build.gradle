@@ -1,5 +1,5 @@
 plugins {
-    id "com.glovoapp.semantic-versioning" version "1.1.10"
+    id "com.github.jmongard.git-semver-plugin" version "0.4.3"
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
 }
@@ -7,6 +7,13 @@ plugins {
 architectury {
     minecraft = rootProject.minecraft_version
 }
+
+semver {
+    releaseTagNameFormat = "${rootProject.minecraft_version}-%s"
+    minorPattern = "\\Afeat(ure)?(?:\\(\\w+\\))?:"
+
+}
+
 
 subprojects {
     apply plugin: "dev.architectury.loom"
@@ -21,13 +28,15 @@ subprojects {
     }
 }
 
+def ver = semver.version
+
 allprojects {
     apply plugin: "java"
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
     archivesBaseName = rootProject.archives_base_name
-    version = rootProject.version
+    version = ver
     group = rootProject.maven_group
 
     repositories {
