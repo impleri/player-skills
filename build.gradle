@@ -42,6 +42,11 @@ subprojects {
                         curseforge = "architectury-api"
                         modrinth = "architectury-api"
                     }
+
+                    optional {
+                        curseforge = "kubejs"
+                        modrinth = "kubejs"
+                    }
                 }
 
                 var curseId = System.getenv("CURSEFORGE_ID")
