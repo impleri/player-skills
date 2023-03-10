@@ -11,9 +11,8 @@ architectury {
 semver {
     releaseTagNameFormat = "${rootProject.minecraft_version}-%s"
     minorPattern = "\\Afeat(ure)?(?:\\(\\w+\\))?:"
-
 }
-
+def ver = semver.version
 
 subprojects {
     apply plugin: "dev.architectury.loom"
@@ -27,8 +26,6 @@ subprojects {
         mappings loom.officialMojangMappings()
     }
 }
-
-def ver = semver.version
 
 allprojects {
     apply plugin: "java"
