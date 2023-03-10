@@ -1,7 +1,14 @@
-name: Publish
+name: Build
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - closed
+      - synchronize
+      - opened
     branches:
       - main
 
@@ -11,9 +18,8 @@ jobs:
 
   publish:
     uses: impleri/automatic-skills/.github/workflows/publish.yml@main
+    if: github.event.pull_request.merged == true
     needs: build
-    permissions:
-      contents: write
     secrets:
       maven-user: ${{ secrets.MAVEN_USER }}
       maven-password: ${{ secrets.MAVEN_TOKEN }}
@@ -21,3 +27,5 @@ jobs:
       modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
       curseforge-id: ${{ secrets.CURSEFORGE_ID }}
       curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+    permissions:
+      contents: write
