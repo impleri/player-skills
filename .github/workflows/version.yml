@@ -1,0 +1,10 @@
+name: Github Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    uses: impleri/automatic-skills/.github/workflows/github-release.yml@main
