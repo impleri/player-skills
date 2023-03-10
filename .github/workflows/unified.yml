@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - '*'
-    branches:
-      - main
   pull_request:
     types:
       - closed
@@ -35,7 +33,7 @@ jobs:
 
   release:
     uses: impleri/automatic-skills/.github/workflows/github-release.yml@main
-    if: startsWith(github.ref, 'ref/tags/')
+    if: ${{ github.ref_type == 'tag' }}
     needs: build
     permissions:
       contents: write
