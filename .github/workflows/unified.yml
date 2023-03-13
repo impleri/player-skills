@@ -10,7 +10,7 @@ on:
       - synchronize
       - opened
     branches:
-      - main
+      - '1.*'
 
 jobs:
   build:
