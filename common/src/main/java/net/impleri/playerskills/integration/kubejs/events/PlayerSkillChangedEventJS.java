@@ -1,7 +1,6 @@
 package net.impleri.playerskills.integration.kubejs.events;
 
 import dev.latvian.mods.kubejs.server.ServerEventJS;
-import dev.latvian.mods.kubejs.util.UtilsJS;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.server.events.SkillChangedEvent;
 import net.minecraft.world.entity.player.Player;
@@ -10,7 +9,7 @@ public class PlayerSkillChangedEventJS<T> extends ServerEventJS {
     private final SkillChangedEvent<T> event;
 
     public PlayerSkillChangedEventJS(SkillChangedEvent<T> event) {
-        super(UtilsJS.staticServer);
+        super();
         this.event = event;
     }
 
