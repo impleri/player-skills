@@ -1,0 +1,1 @@
+net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin

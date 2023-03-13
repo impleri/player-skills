@@ -1,0 +1,11 @@
+{
+  "commands.playerskills.no_registered_types": "There are no types registered.",
+  "commands.playerskills.registered_types": "The following %d type(s) are registered:",
+  "commands.playerskills.no_registered_skills": "There are no skills registered.",
+  "commands.playerskills.registered_skills": "The following %d skill(s) are registered:",
+  "commands.playerskills.no_acquired_skills": "You have not acquired any skills!",
+  "commands.playerskills.acquired_skills": "The following %d skill(s) have been acquired:",
+  "commands.playerskills.skill_not_found": "Unable to find registered skill named %s",
+  "commands.playerskills.skill_changed": "Successfully set skill %1$s to %2$s for %3$s",
+  "commands.playerskills.skill_change_failed": "Failed to set skill %1$s to %2$s for %3$s"
+}

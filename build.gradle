@@ -1,0 +1,127 @@
+plugins {
+    id "com.github.jmongard.git-semver-plugin" version "0.4.3"
+    id "me.shedaniel.unified-publishing" version "0.1.+"
+    id "architectury-plugin" version "3.4-SNAPSHOT"
+    id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
+}
+
+architectury {
+    minecraft = rootProject.minecraft_version
+}
+
+semver {
+    releaseTagNameFormat = "${rootProject.minecraft_version}-%s"
+    minorPattern = "\\Afeat(ure)?(?:\\(\\w+\\))?:"
+}
+def ver = semver.version
+
+subprojects {
+    apply plugin: "me.shedaniel.unified-publishing"
+    apply plugin: "dev.architectury.loom"
+
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings loom.officialMojangMappings()
+    }
+
+    if (project.name.contains("fabric") || project.name.contains("forge")) {
+        unifiedPublishing {
+            project {
+                displayName = "[${project.name.capitalize()} ${rootProject.minecraft_version}] v${ver}"
+                gameVersions = [rootProject.minecraft_version]
+                gameLoaders = [project.name]
+
+                mainPublication tasks.remapJar
+
+                relations {
+                    depends {
+                        curseforge = "architectury-api"
+                        modrinth = "architectury-api"
+                    }
+
+                    optional {
+                        curseforge = "kubejs"
+                        modrinth = "kubejs"
+                    }
+                }
+
+                var curseId = System.getenv("CURSEFORGE_ID")
+                var curseToken = System.getenv("CURSEFORGE_TOKEN")
+                if (curseToken != null) {
+                    curseforge {
+                        token = curseToken
+                        id = curseId
+                    }
+                }
+
+                var modrinthId = System.getenv("MODRINTH_ID")
+                var modrinthToken = System.getenv("MODRINTH_TOKEN")
+                if (modrinthToken != null) {
+                    modrinth {
+                        token = modrinthToken
+                        id = modrinthId
+                    }
+                }
+            }
+        }
+    }
+}
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+    apply plugin: "maven-publish"
+
+    archivesBaseName = rootProject.archives_base_name
+    version = ver
+    group = rootProject.maven_group
+
+    repositories {
+        maven {
+            url = "https://maven.architectury.dev"
+            content {
+                includeGroup "dev.architectury"
+            }
+        }
+        maven { url "https://maven.blamejared.com" }
+
+        maven {
+            url = "https://maven.saps.dev/minecraft"
+            content {
+                includeGroup "dev.latvian.mods"
+            }
+        }
+
+        mavenCentral()
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "impleri-dev"
+                url = "https://maven.impleri.org/minecraft"
+                credentials {
+                    username = System.getenv("MAVEN_USER")
+                    password = System.getenv("MAVEN_TOKEN")
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
+
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.release = 17
+    }
+
+    java {
+        withSourcesJar()
+    }
+}

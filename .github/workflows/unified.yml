@@ -1,0 +1,39 @@
+name: Build and Publish
+
+on:
+  push:
+    tags:
+      - '*'
+  pull_request:
+    types:
+      - closed
+      - synchronize
+      - opened
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: impleri/automatic-skills/.github/workflows/build.yml@main
+
+  publish:
+    uses: impleri/automatic-skills/.github/workflows/publish.yml@main
+    if: github.event.pull_request.merged == true
+    needs: build
+    secrets:
+      github-token: ${{ secrets.HUB_TOKEN || github.token }}
+      maven-user: ${{ secrets.MAVEN_USER }}
+      maven-password: ${{ secrets.MAVEN_TOKEN }}
+      modrinth-id: ${{ secrets.MODRINTH_ID }}
+      modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+      curseforge-id: ${{ secrets.CURSEFORGE_ID }}
+      curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+    permissions:
+      contents: write
+
+  release:
+    uses: impleri/automatic-skills/.github/workflows/github-release.yml@main
+    if: ${{ github.ref_type == 'tag' }}
+    needs: build
+    permissions:
+      contents: write

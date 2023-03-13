@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "playerskills",
+  "version": "${version}",
+  "name": "Player Skills",
+  "description": "A library mod that provides a baseline implementation of player-specific skills",
+  "authors": [
+    "impleri"
+  ],
+  "contact": {
+    "homepage": "https://github.com/impleri/player-skills",
+    "sources": "https://github.com/impleri/player-skills",
+    "issues": "https://github.com/impleri/player-skills/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/playerskills/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.impleri.playerskills.fabric.PlayerSkillsFabric"
+    ],
+    "client": [
+      "net.impleri.playerskills.client.fabric.PlayerSkillsClientFabric"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.19.2",
+    "architectury": ">=6.2.43"
+  }
+}
