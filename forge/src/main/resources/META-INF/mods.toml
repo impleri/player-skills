@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[40,41)"
 issueTrackerURL = "https://github.com/impleri/player-skills/issues"
 license = "MIT"
 
@@ -16,20 +16,20 @@ A library mod that provides a baseline implementation of player-specific skills.
 [[dependencies.playerskills]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[40,41)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.playerskills]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2,)"
+versionRange = "[1.18.2]"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.playerskills]]
 modId = "architectury"
 mandatory = true
-versionRange = "[6.2.43,)"
+versionRange = "[4.11.89,)"
 ordering = "AFTER"
 side = "BOTH"

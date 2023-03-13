@@ -1,8 +1,10 @@
 package net.impleri.playerskills.integration.kubejs;
 
 import dev.latvian.mods.kubejs.KubeJSPlugin;
+import dev.latvian.mods.kubejs.player.PlayerDataJS;
+import dev.latvian.mods.kubejs.script.AttachDataEvent;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
-import dev.latvian.mods.kubejs.util.AttachedData;
+import dev.latvian.mods.kubejs.script.ScriptType;
 import net.impleri.playerskills.integration.kubejs.events.EventsBinding;
 import net.impleri.playerskills.integration.kubejs.events.PlayerSkillChangedEventJS;
 import net.impleri.playerskills.integration.kubejs.events.SkillsModificationEventJS;
@@ -16,11 +18,10 @@ import net.impleri.playerskills.variant.basic.BasicSkillType;
 import net.impleri.playerskills.variant.numeric.NumericSkillType;
 import net.impleri.playerskills.variant.specialized.SpecializedSkillType;
 import net.impleri.playerskills.variant.tiered.TieredSkillType;
-import net.minecraft.world.entity.player.Player;
 
 public class PlayerSkillsPlugin extends KubeJSPlugin {
     public static void modifySkills() {
-        EventsBinding.MODIFICATION.post(new SkillsModificationEventJS(Registries.SKILLS.types));
+        new SkillsModificationEventJS(Registries.SKILLS.types).post(ScriptType.SERVER, EventsBinding.MODIFICATION);
     }
 
     private final PlayerSkillsKubeJSWrapper skillWrapper = new PlayerSkillsKubeJSWrapper();
@@ -35,30 +36,25 @@ public class PlayerSkillsPlugin extends KubeJSPlugin {
     }
 
     @Override
-    public void registerEvents() {
-        EventsBinding.GROUP.register();
-    }
-
-    @Override
     public void initStartup() {
         registerSkills();
     }
 
     @Override
-    public void registerBindings(BindingsEvent event) {
+    public void addBindings(BindingsEvent event) {
         event.add("PlayerSkills", skillWrapper);
     }
 
     @Override
-    public void attachPlayerData(AttachedData<Player> event) {
-        event.add("skills", new MutablePlayerDataJS(event.getParent()));
+    public void attachPlayerData(AttachDataEvent<PlayerDataJS> event) {
+        event.add("skills", new MutablePlayerDataJS(event.parent().getMinecraftPlayer()));
     }
 
     private void registerSkills() {
-        EventsBinding.REGISTRATION.post(new SkillsRegistrationEventJS(Registries.SKILLS.types));
+        new SkillsRegistrationEventJS(Registries.SKILLS.types).post(ScriptType.SERVER, EventsBinding.REGISTRATION);
     }
 
     private <T> void onSkillChange(SkillChangedEvent<T> event) {
-        EventsBinding.SKILL_CHANGED.post(event.getSkill().getName(), new PlayerSkillChangedEventJS<T>(event));
+        new PlayerSkillChangedEventJS<T>(event).post(ScriptType.SERVER, EventsBinding.SKILL_CHANGED, event.getSkill().getName().toString());
     }
 }
