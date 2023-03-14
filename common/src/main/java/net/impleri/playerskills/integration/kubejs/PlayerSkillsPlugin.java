@@ -51,7 +51,7 @@ public class PlayerSkillsPlugin extends KubeJSPlugin {
     }
 
     private void registerSkills() {
-        new SkillsRegistrationEventJS(Registries.SKILLS.types).post(ScriptType.SERVER, EventsBinding.REGISTRATION);
+        new SkillsRegistrationEventJS(Registries.SKILLS.types).post(ScriptType.STARTUP, EventsBinding.REGISTRATION);
     }
 
     private <T> void onSkillChange(SkillChangedEvent<T> event) {
