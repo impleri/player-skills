@@ -8,12 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
+    protected final Predicate<R> emptyFilter = (R restriction) -> true;
+
     protected final Registry<R> registry;
 
     private final Field[] allRestrictionFields;
@@ -70,9 +73,10 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return restrictionsCache.computeIfAbsent(player, this::populatePlayerRestrictions);
     }
 
-    private List<R> getRestrictionsFor(Player player, Predicate<T> isMatchingTarget) {
+    private List<R> getRestrictionsFor(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter) {
         return getRestrictionsFor(player).stream()
                 .filter(restriction -> isMatchingTarget.test(restriction.target))
+                .filter(filter)
                 .toList();
     }
 
@@ -82,8 +86,8 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
                 .toList();
     }
 
-    protected List<R> getReplacementsFor(Player player, Predicate<T> isMatchingTarget) {
-        return getRestrictionsFor(player, isMatchingTarget).stream()
+    protected List<R> getReplacementsFor(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter) {
+        return getRestrictionsFor(player, isMatchingTarget, filter).stream()
                 .filter(restriction -> restriction.replacement != null)
                 .toList();
     }
@@ -100,13 +104,13 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
 
 
     @NotNull
-    private T getActualReplacement(Player player, T target) {
+    private T getActualReplacement(Player player, T target, Predicate<R> filter) {
         T replacement = target;
         boolean hasReplacement = true;
 
         // Recurse through replacements until we don't have one so that we can allow for cascading replacements
         while (hasReplacement) {
-            var nextReplacement = getReplacementsFor(player, createPredicateFor(replacement))
+            var nextReplacement = getReplacementsFor(player, createPredicateFor(replacement), filter)
                     .stream()
                     .map(restriction -> restriction.replacement)
                     .findFirst();
@@ -132,19 +136,25 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
      * Get replacement for target using restrictions applicable to player. Will return target if no replacements found.
      */
     @NotNull
-    public T getReplacementFor(@NotNull Player player, @NotNull T target) {
+    public T getReplacementFor(@NotNull Player player, @NotNull T target, @Nullable Predicate<R> filter) {
         Map<T, T> playerCache = replacementCache.computeIfAbsent(player, (_player) -> new HashMap<>());
 
         if (playerCache.containsKey(target)) {
             return playerCache.get(target);
         }
 
-        var replacement = getActualReplacement(player, target);
+        var actualFilter = filter == null ? emptyFilter : filter;
+        var replacement = getActualReplacement(player, target, actualFilter);
 
         playerCache.put(target, replacement);
         replacementCache.put(player, playerCache);
 
         return replacement;
+    }
+
+    @NotNull
+    public T getReplacementFor(@NotNull Player player, @NotNull T target) {
+        return getReplacementFor(player, target, null);
     }
 
     /**
@@ -160,13 +170,13 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
      * Internal method exposed for subclasses to implement expressive methods (e.g. BlockSkills.isHarvestable)
      */
     @ApiStatus.Internal
-    protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, String fieldName, ResourceLocation resource) {
+    protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter, String fieldName, ResourceLocation resource) {
         if (player == null) {
             PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on target {}}", fieldName, resource);
             return false;
         }
 
-        boolean hasRestrictions = getRestrictionsFor(player, isMatchingTarget).stream()
+        boolean hasRestrictions = getRestrictionsFor(player, isMatchingTarget, filter).stream()
                 .map(restriction -> getFieldValueFor(restriction, fieldName)) // get field value
                 .anyMatch(value -> !value); // do we have any restrictions that deny the action
 
@@ -175,18 +185,29 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return !hasRestrictions;
     }
 
+    @ApiStatus.Internal
+    protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, String fieldName, ResourceLocation resource) {
+        return canPlayer(player, isMatchingTarget, emptyFilter, fieldName, resource);
+    }
+
+    @ApiStatus.Internal
+    protected boolean canPlayer(Player player, T target, @Nullable Predicate<R> filter, String fieldName) {
+        var targetName = getTargetName(target);
+        Predicate<T> predicate = createPredicateFor(target);
+        var actualFilter = filter == null ? emptyFilter : filter;
+        T actualTarget = getReplacementFor(player, target, actualFilter);
+
+        PlayerSkills.LOGGER.debug("Checking if {} ({}) is {}.", targetName, getTargetName(actualTarget), fieldName);
+
+        return canPlayer(player, predicate, actualFilter, fieldName, targetName);
+    }
+
     /**
      * @deprecated Use the more expressive methods available on subclasses (e.g. ItemSkills.isConsumable)
      */
     @Deprecated
     public boolean canPlayer(Player player, T target, String fieldName) {
-        var targetName = getTargetName(target);
-        Predicate<T> predicate = createPredicateFor(target);
-        T actualTarget = getReplacementFor(player, target);
-
-        PlayerSkills.LOGGER.debug("Checking if {} ({}) is {}.", targetName, getTargetName(actualTarget), fieldName);
-
-        return canPlayer(player, predicate, fieldName, targetName);
+        return canPlayer(player, target, null, fieldName);
     }
 
     /**
