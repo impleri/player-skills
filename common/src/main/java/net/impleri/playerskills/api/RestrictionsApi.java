@@ -6,13 +6,13 @@ import net.impleri.playerskills.restrictions.Registry;
 import net.impleri.playerskills.server.events.SkillChangedEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
     protected final Predicate<R> emptyFilter = (R restriction) -> true;
@@ -73,23 +73,20 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return restrictionsCache.computeIfAbsent(player, this::populatePlayerRestrictions);
     }
 
-    private List<R> getRestrictionsFor(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter) {
+    private Stream<R> getRestrictionsFor(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter) {
         return getRestrictionsFor(player).stream()
                 .filter(restriction -> isMatchingTarget.test(restriction.target))
-                .filter(filter)
-                .toList();
+                .filter(filter);
     }
 
-    private List<R> getReplacementsFor(Player player) {
+    private Stream<R> getReplacementsFor(Player player) {
         return getRestrictionsFor(player).stream()
-                .filter(restriction -> restriction.replacement != null)
-                .toList();
+                .filter(restriction -> restriction.replacement != null);
     }
 
-    protected List<R> getReplacementsFor(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter) {
-        return getRestrictionsFor(player, isMatchingTarget, filter).stream()
-                .filter(restriction -> restriction.replacement != null)
-                .toList();
+    private Stream<R> getReplacementsFor(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter) {
+        return getRestrictionsFor(player, isMatchingTarget, filter)
+                .filter(restriction -> restriction.replacement != null);
     }
 
     /**
@@ -111,7 +108,6 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         // Recurse through replacements until we don't have one so that we can allow for cascading replacements
         while (hasReplacement) {
             var nextReplacement = getReplacementsFor(player, createPredicateFor(replacement), filter)
-                    .stream()
                     .map(restriction -> restriction.replacement)
                     .findFirst();
 
@@ -129,7 +125,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
      * Gets a count for all restrictions with replacements applicable to player.
      */
     public long countReplacementsFor(Player player) {
-        return getReplacementsFor(player).size();
+        return getReplacementsFor(player).count();
     }
 
     /**
@@ -169,14 +165,13 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
     /**
      * Internal method exposed for subclasses to implement expressive methods (e.g. BlockSkills.isHarvestable)
      */
-    @ApiStatus.Internal
     protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter, String fieldName, ResourceLocation resource) {
         if (player == null) {
             PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on target {}}", fieldName, resource);
             return false;
         }
 
-        boolean hasRestrictions = getRestrictionsFor(player, isMatchingTarget, filter).stream()
+        boolean hasRestrictions = getRestrictionsFor(player, isMatchingTarget, filter)
                 .map(restriction -> getFieldValueFor(restriction, fieldName)) // get field value
                 .anyMatch(value -> !value); // do we have any restrictions that deny the action
 
@@ -185,12 +180,10 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return !hasRestrictions;
     }
 
-    @ApiStatus.Internal
     protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, String fieldName, ResourceLocation resource) {
         return canPlayer(player, isMatchingTarget, emptyFilter, fieldName, resource);
     }
 
-    @ApiStatus.Internal
     protected boolean canPlayer(Player player, T target, @Nullable Predicate<R> filter, String fieldName) {
         var targetName = getTargetName(target);
         Predicate<T> predicate = createPredicateFor(target);
