@@ -57,6 +57,10 @@ public final class PlayerSkills implements ResourceManagerReloadListener {
         LOGGER.enableDebug();
     }
 
+    public static boolean toggleDebug() {
+        return LOGGER.toggleDebug();
+    }
+
     public static <T> void emitSkillChanged(Player player, Skill<T> newSkill, Skill<T> oldSkill) {
         SkillChangedEvent.EVENT.invoker().accept(new SkillChangedEvent<T>(player, newSkill, oldSkill));
     }
