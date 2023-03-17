@@ -7,5 +7,7 @@
   "commands.playerskills.acquired_skills": "The following %d skill(s) have been acquired:",
   "commands.playerskills.skill_not_found": "Unable to find registered skill named %s",
   "commands.playerskills.skill_changed": "Successfully set skill %1$s to %2$s for %3$s",
-  "commands.playerskills.skill_change_failed": "Failed to set skill %1$s to %2$s for %3$s"
+  "commands.playerskills.skill_change_failed": "Failed to set skill %1$s to %2$s for %3$s",
+  "commands.playerskills.debug_enabled": "Debug has been enabled for %s",
+  "commands.playerskills.debug_disabled": "Debug has been disabled for %s"
 }

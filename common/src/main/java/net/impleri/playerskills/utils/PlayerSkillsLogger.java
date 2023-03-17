@@ -29,7 +29,17 @@ public class PlayerSkillsLogger {
     }
 
     public void enableDebug() {
-        this.debug = true;
+        debug = true;
+    }
+
+    public void disableDebug() {
+        debug = false;
+    }
+
+    public boolean toggleDebug() {
+        debug = !debug;
+
+        return debug;
     }
 
     private String addPrefix(String message) {
