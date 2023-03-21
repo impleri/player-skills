@@ -1,9 +1,9 @@
 package net.impleri.playerskills.client;
 
 import net.impleri.playerskills.PlayerSkills;
-import net.impleri.playerskills.api.RestrictionsApi;
 import net.impleri.playerskills.restrictions.AbstractRestriction;
 import net.impleri.playerskills.restrictions.Registry;
+import net.impleri.playerskills.restrictions.RestrictionsApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
