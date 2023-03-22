@@ -32,7 +32,7 @@ import java.util.function.Predicate;
  */
 public abstract class AbstractRestrictionBuilder<T extends AbstractRestriction<?>> extends BuilderBase<T> {
     @HideFromJS
-    private final MinecraftServer server;
+    protected final MinecraftServer server;
     @HideFromJS
     public Predicate<Player> condition = (Player player) -> true;
 
