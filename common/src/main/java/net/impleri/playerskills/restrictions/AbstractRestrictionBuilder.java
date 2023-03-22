@@ -136,13 +136,13 @@ public abstract class AbstractRestrictionBuilder<T extends AbstractRestriction<?
     }
 
     public AbstractRestrictionBuilder<T> inBiome(String biome) {
-        ifBiome(biome, this.includeDimensions::add);
+        ifBiome(biome, this.includeBiomes::add);
 
         return this;
     }
 
     public AbstractRestrictionBuilder<T> notInBiome(String biome) {
-        ifBiome(biome, this.excludeDimensions::add);
+        ifBiome(biome, this.excludeBiomes::add);
 
         return this;
     }
