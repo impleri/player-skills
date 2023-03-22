@@ -37,8 +37,8 @@ they see fit.
 
 For all registry actions, we use two separate events:
 
-- `SkillEvents.registration` ***startup*** event to _add_ skills.
-- `SkillEvents.modification` ***server*** event to _modify_ and _delete_ skills registered in the startup script or by
+- `skills.registration` ***startup*** event to _add_ skills.
+- `skills.modification` ***server*** event to _modify_ and _delete_ skills registered in the startup script or by
   mods.
 
 Both events use the skill name as the first parameter. This is a string that will be cast into a `ResourceLocation`, so
@@ -59,7 +59,7 @@ whatever the default options are for the type.
 By default, we provide a simple boolean skill type (yes/no) which resembles what comes from Game Stages and Game Phases.
 
 ```js
-SkillEvents.registration(event => {
+onEvent('skills.registration', event => {
   event.add('started_quest', 'basic', skill => {
     skill.initialValue(false)
       .description('Indicates a Player has joined the Great Quest');
@@ -70,7 +70,7 @@ SkillEvents.registration(event => {
 #### Modify Skill
 
 ```js
-SkillEvents.modification(event => {
+onEvent('skills.modification', event => {
   event.modify('skills:test', skill => {
     skill.initialValue(true)
       .description('Less of a test value');
@@ -81,7 +81,7 @@ SkillEvents.modification(event => {
 #### Remove Skill
 
 ```js
-SkillEvents.modification(event => {
+onEvent('skills.modification', event => {
   event.remove('test');
 });
 ```
@@ -96,9 +96,11 @@ KubeJS will have read-only access to a player's skill set. Note that we store _e
 this for determining if a player can perform an action.
 
 ```js
-BlockEvents.rightClicked('minecraft:dirt', event => {
-  event.entity.data.skills.all.forEach(skill => console.info(`Player has ${skill.name} at ${skill.value}`))
-})
+onEvent('block.right_click', event => {
+  if (event.block.id === 'minecraft:dirt') {
+    event.entity.data.skills.all.forEach(skill => console.info(`Player has ${skill.name} at ${skill.value}`));
+  }
+});
 ```
 
 #### Can?
@@ -106,12 +108,14 @@ BlockEvents.rightClicked('minecraft:dirt', event => {
 Instead, we provide a function to determine if a player has a sufficient Skill:
 
 ```js
-BlockEvents.rightClicked('minecraft:dirt', event => {
-  if (event.entity.data.skills.can('skills:harvest', 2)) {
-    // If the player does have a harvest skill of 2 or greater, spawn a Green Guardian to plague them
-    event.block.createEntity('custom:green_guardian').spawn()
+onEvent('block.right_click', event => {
+  if (event.block.id === 'minecraft:dirt') {
+    if (event.entity.data.skills.can('skills:harvest', 2)) {
+      // If the player does have a harvest skill of 2 or greater, spawn a Green Guardian to plague them
+      event.block.createEntity('custom:green_guardian').spawn();
+    }
   }
-})
+});
 ```
 
 This example is expecting `skills:harvest` to be a `Numeric` skill and checks if the player has a skill level of 2 ***or
@@ -135,20 +139,22 @@ const KILLER_TIERS = {
   netherite: 5,
 };
 
-BlockEvents.rightClicked('minecraft:dirt', event => {
-  // this is a basic skill, so we ensure it's true
-  event.entity.data.skills.improve('skills:dirt_watcher');
+onEvent('block.right_click', event => {
+  if (event.block.id === 'minecraft:dirt') {
+    // this is a basic skill, so we ensure it's true
+    event.entity.data.skills.improve('skills:dirt_watcher');
 
-  // this is a numeric skill, but we want to stop improvements this way once it hits 5
-  event.entity.data.skills.improve('skills:harvest', condition => condition.max(5));
+    // this is a numeric skill, but we want to stop improvements this way once it hits 5
+    event.entity.data.skills.improve('skills:harvest', condition => condition.max(5));
 
-  // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
-  event.entity.data.skills.improve('skills:undead_killer', condition => condition
-    .if(event.entity.data.skills.can('skills:undead_killer', KILLER_TIERS.iron))
-    .max(KILLER_TIERS.gold)
-    .unless(event.entity.data.skills.can('skills:crop_farmer'))
-  );
-})
+    // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
+    event.entity.data.skills.improve('skills:undead_killer', condition => condition
+      .if(event.entity.data.skills.can('skills:undead_killer', KILLER_TIERS.iron))
+      .max(KILLER_TIERS.gold)
+      .unless(event.entity.data.skills.can('skills:crop_farmer'))
+    );
+  }
+});
 ```
 
 The following conditions are available in the second parameter callback:
