@@ -174,6 +174,37 @@ Lastly, KubeJS scripts have access to a `PlayerSkills` object that provides the 
 - `PlayerSkills.skillTypes`: Returns an array of all registered Skill Types
 - `PlayerSkills.skills`: Returns an array of all registered Skills
 
+## KubeJS Restrictions API
+
+The various `x-skills` mods utilize a shared Restrictions API for managing restrictions. These are contained within
+PlayerSkills
+but are surfaced in the dependent mod. These are documented here in order to keep documentation as up-to-date as
+possible
+and the other mods may link back to here.
+
+### ID Parsing
+
+Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
+biome facets share the same identifier parsing. This means that plain identifiers can be used (e.g. `minecraft:zombie`)
+as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
+appropriate. Note that not everything uses tags, so it won't work with those.
+
+### Condition Methods
+
+- `if`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a signature
+  of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
+- `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
+
+### Facet Methods
+
+- `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
+  of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
+- `notInDimension`: Adds a facet to the restriction applying to the target only if it is not in one of the listed
+  dimensions. Example: `.notInDimension('@ad_astra')`
+- `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
+  the listed biomes. Example: `.inBiome('#desert')`
+- `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
+
 ## Java API
 
 Registering Skills and SkillTypes should happen during initialization (see `PlayerSkills.registerTypes`) using
@@ -248,6 +279,7 @@ Lastly, we expose a handful of in-game commands for players and mods:
 - `/skills types`: List all registered skill types
 - `/skills all`: List all registered skills (post-modification)
 - `/skills mine`: List the current player's skills _and values_
+- `/skills debug`: Toggles debug-level logging. Requires mod permissions.
 - `/skills set [player] skill value`: Set the `skill`'s value to `value` for the player (omitting a player targets the
   one performing the command). Note that this requires mod permissions.
 
