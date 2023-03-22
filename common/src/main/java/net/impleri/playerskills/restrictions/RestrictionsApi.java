@@ -5,6 +5,7 @@ import net.impleri.playerskills.server.events.SkillChangedEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,9 +49,11 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
     private void clearReplacementCacheFor(Player player) {
         var uuid = player.getUUID();
 
-        replacementCache.keySet().stream()
+        var ids = replacementCache.keySet().stream()
                 .filter(key -> key.getLeft().equals(uuid))
-                .forEach(replacementCache::remove);
+                .toList();
+
+        ids.forEach(replacementCache::remove);
     }
 
 
@@ -101,19 +104,19 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return restriction -> isMatchingTarget.test(restriction.target);
     }
 
-    private Predicate<R> inIncludedDimension(@Nullable ResourceLocation dimension) {
+    protected Predicate<R> inIncludedDimension(@Nullable ResourceLocation dimension) {
         return restriction -> restriction.includeDimensions.size() == 0 || restriction.includeDimensions.contains(dimension);
     }
 
-    private Predicate<R> notInExcludedDimension(@Nullable ResourceLocation dimension) {
+    protected Predicate<R> notInExcludedDimension(@Nullable ResourceLocation dimension) {
         return restriction -> restriction.excludeDimensions.size() == 0 || !restriction.excludeDimensions.contains(dimension);
     }
 
-    private Predicate<R> inIncludedBiome(@Nullable ResourceLocation biome) {
+    protected Predicate<R> inIncludedBiome(@Nullable ResourceLocation biome) {
         return restriction -> restriction.includeBiomes.size() == 0 || restriction.includeBiomes.contains(biome);
     }
 
-    private Predicate<R> notInExcludedBiome(@Nullable ResourceLocation biome) {
+    protected Predicate<R> notInExcludedBiome(@Nullable ResourceLocation biome) {
         return restriction -> restriction.excludeBiomes.size() == 0 || !restriction.excludeBiomes.contains(biome);
     }
 
@@ -171,6 +174,16 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
     }
 
     /**
+     * Internal API used by ClientApi
+     */
+    @ApiStatus.Internal
+    public List<R> getFiltered(Player player, Predicate<R> predicate) {
+        return getRestrictionsFor(player).stream()
+                .filter(predicate)
+                .toList();
+    }
+
+    /**
      * Gets a count for all restrictions with replacements applicable to player.
      */
     public long countReplacementsFor(Player player) {
@@ -219,8 +232,16 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return !hasRestrictions;
     }
 
+    protected boolean canPlayer(Player player, T target, ResourceLocation dimension, ResourceLocation biome, @Nullable Predicate<R> filter, String fieldName) {
+        return canPlayer(player, target, dimension, biome, filter, fieldName, getTargetName(target));
+    }
+
     protected boolean canPlayer(Player player, T target, ResourceLocation dimension, ResourceLocation biome, String fieldName, ResourceLocation resource) {
         return canPlayer(player, target, dimension, biome, null, fieldName, resource);
+    }
+
+    protected boolean canPlayer(Player player, T target, ResourceLocation dimension, ResourceLocation biome, String fieldName) {
+        return canPlayer(player, target, dimension, biome, null, fieldName, getTargetName(target));
     }
 
     @Deprecated
