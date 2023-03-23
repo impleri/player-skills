@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.server.ServerApi;
@@ -20,14 +21,22 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class PlayerSkillsCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection selection) {
+        var debugCommand = toggleDebug("Player Skills", PlayerSkills::toggleDebug);
+
         dispatcher.register(Commands.literal("skills")
                 .then(Commands.literal("types").executes(context -> listTypes(context.getSource())))
                 .then(Commands.literal("all").executes(context -> listSkills(context.getSource())))
                 .then(Commands.literal("mine").executes(context -> listOwnSkills(context.getSource())))
+                .then(Commands.literal("debug")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(context -> debugCommand.apply(context.getSource()))
+                )
                 .then(Commands.literal("set")
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
@@ -54,6 +63,27 @@ public class PlayerSkillsCommands {
                         )
                 )
         );
+    }
+
+    public static void registerDebug(CommandDispatcher<CommandSourceStack> dispatcher, String commandParent, Function<CommandSourceStack, Integer> debugCommand) {
+        dispatcher.register(Commands.literal(commandParent)
+                .then(Commands.literal("debug")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(context -> debugCommand.apply(context.getSource()))
+                )
+        );
+    }
+
+    public static Function<CommandSourceStack, Integer> toggleDebug(String modLabel, Supplier<Boolean> supplier) {
+        return (CommandSourceStack source) -> {
+            var enabled = supplier.get();
+            var message = enabled ? "commands.playerskills.debug_enabled" : "commands.playerskills.debug_disabled";
+            var color = enabled ? ChatFormatting.RED : ChatFormatting.GREEN;
+            var style = enabled ? ChatFormatting.BOLD : ChatFormatting.ITALIC;
+
+            source.sendSuccess(new TranslatableComponent(message, modLabel).withStyle(color, style), false);
+            return Command.SINGLE_SUCCESS;
+        };
     }
 
     private static int listTypes(CommandSourceStack source) {
@@ -117,7 +147,7 @@ public class PlayerSkillsCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static <T> int grantPlayerSkill(CommandSourceStack source, Player player, ResourceLocation skillName, String value) {
+    private static int grantPlayerSkill(CommandSourceStack source, Player player, ResourceLocation skillName, String value) {
         try {
             var skill = Skill.find(skillName);
             var type = SkillType.forSkill(skill);
