@@ -1,9 +1,9 @@
 package net.impleri.playerskills.client;
 
 import net.impleri.playerskills.PlayerSkills;
-import net.impleri.playerskills.api.RestrictionsApi;
 import net.impleri.playerskills.restrictions.AbstractRestriction;
 import net.impleri.playerskills.restrictions.Registry;
+import net.impleri.playerskills.restrictions.RestrictionsApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -11,8 +11,8 @@ import net.minecraft.world.entity.player.Player;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
-    private static Player getPlayer() {
+public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>, A extends RestrictionsApi<T, R>> {
+    protected static Player getPlayer() {
         try {
             return Minecraft.getInstance().player;
         } catch (Throwable error) {
@@ -24,9 +24,9 @@ public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
 
     private final Registry<R> registry;
 
-    private final RestrictionsApi<T, R> serverApi;
+    protected final A serverApi;
 
-    public RestrictionsClient(Registry<R> registry, RestrictionsApi<T, R> serverApi) {
+    public RestrictionsClient(Registry<R> registry, A serverApi) {
         this.registry = registry;
         this.serverApi = serverApi;
     }
@@ -36,11 +36,7 @@ public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
     }
 
     protected List<R> getFiltered(Predicate<R> predicate) {
-        var player = getPlayer();
-
-        return getAll().stream()
-                .filter(r -> r.condition.test(player) && predicate.test(r))
-                .toList();
+        return serverApi.getFiltered(getPlayer(), predicate);
     }
 
     /**
@@ -48,9 +44,7 @@ public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
      */
     @Deprecated
     public boolean canPlayer(ResourceLocation resource, String fieldName) {
-        var player = getPlayer();
-
-        return serverApi.canPlayer(player, resource, fieldName);
+        return serverApi.canPlayer(getPlayer(), resource, fieldName);
     }
 
     /**
@@ -58,8 +52,6 @@ public abstract class RestrictionsClient<T, R extends AbstractRestriction<T>> {
      */
     @Deprecated
     public boolean canPlayer(T target, String fieldName) {
-        var player = getPlayer();
-
-        return serverApi.canPlayer(player, target, fieldName);
+        return serverApi.canPlayer(getPlayer(), target, fieldName);
     }
 }
