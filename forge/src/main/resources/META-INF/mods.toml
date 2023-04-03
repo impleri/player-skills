@@ -23,13 +23,20 @@ side = "BOTH"
 [[dependencies.playerskills]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2,)"
+versionRange = "[1.19.2]"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.playerskills]]
 modId = "architectury"
 mandatory = true
-versionRange = "[6.2.43,)"
+versionRange = "[6.2.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.playerskills]]
+modId = "kubejs"
+mandatory = true
+versionRange = "[1902.6.0,)"
 ordering = "AFTER"
 side = "BOTH"
