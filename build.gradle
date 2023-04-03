@@ -43,7 +43,7 @@ subprojects {
                         modrinth = "architectury-api"
                     }
 
-                    optional {
+                    depends {
                         curseforge = "kubejs"
                         modrinth = "kubejs"
                     }
