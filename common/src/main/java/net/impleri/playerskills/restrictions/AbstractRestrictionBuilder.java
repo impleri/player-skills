@@ -1,12 +1,11 @@
 package net.impleri.playerskills.restrictions;
 
-import com.mojang.datafixers.util.Pair;
 import dev.latvian.mods.kubejs.BuilderBase;
 import dev.latvian.mods.kubejs.util.ConsoleJS;
 import dev.latvian.mods.rhino.util.HideFromJS;
 import dev.latvian.mods.rhino.util.RemapForJS;
 import net.impleri.playerskills.utils.RegistrationType;
-import net.minecraft.core.HolderSet;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -21,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -116,12 +115,19 @@ public abstract class AbstractRestrictionBuilder<T extends AbstractRestriction<?
 
     @HideFromJS
     private void ifInBiomesTagged(TagKey<Biome> tag, Consumer<ResourceLocation> callback) {
-        BuiltinRegistries.BIOME.getTags()
-                .filter(pair -> pair.getFirst().equals(tag))
-                .map(Pair::getSecond)
-                .flatMap(HolderSet.ListBacked::stream)
-                .map(biomeHolder -> biomeHolder.unwrapKey().orElseGet(() -> null))
-                .filter(Objects::nonNull)
+        var values = server.registryAccess()
+                .registryOrThrow(Registry.BIOME_REGISTRY)
+                .getTag(tag);
+
+        if (values.isEmpty()) {
+            ConsoleJS.SERVER.warn("No biomes found matching tag " + tag.location());
+            return;
+        }
+
+        values.get().stream()
+                .map(Holder::unwrapKey)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(ResourceKey::location)
                 .forEach(callback);
     }
