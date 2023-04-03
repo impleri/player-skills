@@ -2,9 +2,9 @@ package net.impleri.playerskills.restrictions;
 
 import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.server.events.SkillChangedEvent;
+import net.impleri.playerskills.utils.PlayerSkillsLogger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,39 +23,32 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
 
     private final Map<Player, List<R>> restrictionsCache = new HashMap<>();
 
-    private final Map<Triple<UUID, ResourceLocation, ResourceLocation>, Map<T, T>> replacementCache = new HashMap<>();
+    private record ReplacementCacheKey<RT, RR extends AbstractRestriction<RT>>(RT target, ResourceLocation dimension,
+                                                                               ResourceLocation biome,
+                                                                               Predicate<RR> filter) {
+    }
+
+    private final Map<Player, Map<ReplacementCacheKey<T, R>, T>> replacementCache = new HashMap<>();
+
+    private final PlayerSkillsLogger logger;
 
 
-    public RestrictionsApi(Registry<R> registry, Field[] fields) {
+    public RestrictionsApi(Registry<R> registry, Field[] fields, PlayerSkillsLogger logger) {
         this.registry = registry;
         this.allRestrictionFields = fields;
+        this.logger = logger;
 
         SkillChangedEvent.EVENT.register(this::clearPlayerCache);
     }
 
-    private Triple<UUID, ResourceLocation, ResourceLocation> createCacheKey(UUID player, ResourceLocation dimension, ResourceLocation biome) {
-        return Triple.of(player, dimension, biome);
-    }
-
-    private Triple<UUID, ResourceLocation, ResourceLocation> createCacheKey(Player player, ResourceLocation dimension, ResourceLocation biome) {
-        return createCacheKey(player.getUUID(), dimension, biome);
+    public RestrictionsApi(Registry<R> registry, Field[] fields) {
+        this(registry, fields, PlayerSkills.LOGGER);
     }
 
     public void clearPlayerCache(SkillChangedEvent<?> event) {
         restrictionsCache.remove(event.getPlayer());
-        clearReplacementCacheFor(event.getPlayer());
+        replacementCache.remove(event.getPlayer());
     }
-
-    private void clearReplacementCacheFor(Player player) {
-        var uuid = player.getUUID();
-
-        var ids = replacementCache.keySet().stream()
-                .filter(key -> key.getLeft().equals(uuid))
-                .toList();
-
-        ids.forEach(replacementCache::remove);
-    }
-
 
     private Field getField(String name) {
         Optional<Field> found = Arrays.stream(allRestrictionFields)
@@ -195,18 +188,27 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
      */
     @NotNull
     public T getReplacementFor(@NotNull Player player, @NotNull T target, @NotNull ResourceLocation dimension, @NotNull ResourceLocation biome, @Nullable Predicate<R> filter) {
-        var cacheKey = createCacheKey(player, dimension, biome);
-        Map<T, T> playerCache = replacementCache.computeIfAbsent(cacheKey, (_player) -> new HashMap<>());
-
-        if (playerCache.containsKey(target)) {
-            return playerCache.get(target);
-        }
+        var playerCache = replacementCache.computeIfAbsent(player, (_player) -> new HashMap<>());
 
         var actualFilter = filter == null ? emptyFilter : filter;
-        var replacement = getActualReplacement(player, target, dimension, biome, actualFilter);
+        var cacheKey = new ReplacementCacheKey<T, R>(target, dimension, biome, actualFilter);
 
-        playerCache.put(target, replacement);
-        replacementCache.put(cacheKey, playerCache);
+        if (playerCache.containsKey(cacheKey)) {
+            return playerCache.get(cacheKey);
+        }
+
+        var replacement = getActualReplacement(player, target, dimension, biome, actualFilter);
+        logger.debug(
+                "{} should be cached as {} in {}/{} for {}",
+                getTargetName(target),
+                getTargetName(replacement),
+                dimension,
+                biome,
+                player.getName().getString()
+        );
+
+        playerCache.put(cacheKey, replacement);
+        replacementCache.put(player, playerCache);
 
         return replacement;
     }
@@ -218,7 +220,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
 
     protected boolean canPlayer(Player player, T target, ResourceLocation dimension, ResourceLocation biome, @Nullable Predicate<R> filter, String fieldName, ResourceLocation resource) {
         if (player == null) {
-            PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on target {}}", fieldName, resource);
+            logger.warn("Attempted to determine if null player can {} on target {} in {} ({})", fieldName, resource, biome, dimension);
             return false;
         }
 
@@ -227,7 +229,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
                 .map(restriction -> getFieldValueFor(restriction, fieldName)) // get field value
                 .anyMatch(value -> !value); // do we have any restrictions that deny the action
 
-        PlayerSkills.LOGGER.debug("Does {} for {} have {} restrictions? {}", resource, player.getName().getString(), fieldName, hasRestrictions);
+        logger.debug("Does {} for {} have {} restrictions in {} ({})? {}", resource, player.getName().getString(), fieldName, biome, dimension, hasRestrictions);
 
         return !hasRestrictions;
     }
@@ -307,7 +309,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
     @Deprecated
     protected boolean canPlayer(Player player, Predicate<T> isMatchingTarget, Predicate<R> filter, String fieldName, ResourceLocation resource) {
         if (player == null) {
-            PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on target {}}", fieldName, resource);
+            logger.warn("Attempted to determine if null player can {} on target {}}", fieldName, resource);
             return false;
         }
 
@@ -315,7 +317,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
                 .map(restriction -> getFieldValueFor(restriction, fieldName)) // get field value
                 .anyMatch(value -> !value); // do we have any restrictions that deny the action
 
-        PlayerSkills.LOGGER.debug("Does {} for {} have {} restrictions? {}", resource, player.getName().getString(), fieldName, hasRestrictions);
+        logger.debug("Does {} for {} have {} restrictions? {}", resource, player.getName().getString(), fieldName, hasRestrictions);
 
         return !hasRestrictions;
     }
@@ -332,7 +334,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         var actualFilter = filter == null ? emptyFilter : filter;
         T actualTarget = getReplacementFor(player, target, actualFilter);
 
-        PlayerSkills.LOGGER.debug("Checking if {} ({}) is {}.", targetName, getTargetName(actualTarget), fieldName);
+        logger.debug("Checking if {} ({}) is {}.", targetName, getTargetName(actualTarget), fieldName);
 
         return canPlayer(player, predicate, actualFilter, fieldName, targetName);
     }
@@ -351,7 +353,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
     @Deprecated
     public boolean canPlayer(Player player, ResourceLocation resourceName, String fieldName) {
         if (player == null) {
-            PlayerSkills.LOGGER.warn("Attempted to determine if null player can {} on {}", fieldName, resourceName);
+            logger.warn("Attempted to determine if null player can {} on {}", fieldName, resourceName);
             return false;
         }
 
@@ -360,7 +362,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
                 .map(restriction -> getFieldValueFor(restriction, fieldName)) // get field value
                 .anyMatch(value -> !value); // do we have any restrictions that deny the action
 
-        PlayerSkills.LOGGER.debug("Does {} for {} have {} restrictions? {}", resourceName, player.getName().getString(), fieldName, hasRestrictions);
+        logger.debug("Does {} for {} have {} restrictions? {}", resourceName, player.getName().getString(), fieldName, hasRestrictions);
 
         return !hasRestrictions;
     }
