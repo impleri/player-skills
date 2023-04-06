@@ -24,7 +24,7 @@ Skill Types.
 
 ## Concepts
 
-This mod provides two entities that can be extended: Skill Types and Skills.
+This mod provides three entities that can be extended: Skill Types, Skills, and (Skill-based) Restrictions.
 
 ### Skill Type
 
