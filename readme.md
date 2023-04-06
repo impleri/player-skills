@@ -15,12 +15,12 @@ Skill Types.
 
 ### xSkills Mods
 
-[Player Skills](https://www.curseforge.com/minecraft/mc-mods/player-skills)
-| [Block Skills](https://www.curseforge.com/minecraft/mc-mods/block-skills)
-| [Dimension Skills](https://www.curseforge.com/minecraft/mc-mods/dimension-skills)
-| [Fluid Skills](https://www.curseforge.com/minecraft/mc-mods/fluid-skills)
-| [Item Skills](https://www.curseforge.com/minecraft/mc-mods/item-skills)
-| [Mob Skills](https://www.curseforge.com/minecraft/mc-mods/mob-skills)
+[Player Skills](https://github.com/impleri/player-skills)
+| [Block Skills](https://github.com/impleri/block-skills)
+| [Dimension Skills](https://github.com/impleri/dimension-skills)
+| [Fluid Skills](https://github.com/impleri/fluid-skills)
+| [Item Skills](https://github.com/impleri/item-skills)
+| [Mob Skills](https://github.com/impleri/mob-skills)
 
 ## Concepts
 
