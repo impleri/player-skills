@@ -42,7 +42,7 @@ a sufficient threshold. Because of this nature, skill types cannot be created vi
 4. `Specialization` provide a skill which allows one or more specializations out of a list. An example is "magic type" (
    red, black, white, green, blue).
 
-### SKill
+### Skill
 
 A skill tracks the data needed for SKill Types to calculate if a player _can_ perform a skill-based action. Skills get
 serialized and persisted in player-specific NBT data. Skills are exposed via KubeJS for modpack authors to manipulate as
