@@ -1,8 +1,8 @@
 plugins {
-    id "com.github.jmongard.git-semver-plugin" version "0.4.3"
+    id "com.github.jmongard.git-semver-plugin" version "0.4+"
     id "me.shedaniel.unified-publishing" version "0.1.+"
-    id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
+    id "architectury-plugin" version "3.4+"
+    id "dev.architectury.loom" version "1.0+" apply false
 }
 
 architectury {
