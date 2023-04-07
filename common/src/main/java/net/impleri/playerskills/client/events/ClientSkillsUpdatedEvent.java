@@ -8,6 +8,7 @@ import net.impleri.playerskills.api.Skill;
 import java.util.function.Consumer;
 
 public record ClientSkillsUpdatedEvent(ImmutableList<Skill<?>> next,
-                                       ImmutableList<Skill<?>> prev) {
+                                       ImmutableList<Skill<?>> prev,
+                                       boolean forced) {
     public static final Event<Consumer<ClientSkillsUpdatedEvent>> EVENT = EventFactory.createConsumerLoop();
 }

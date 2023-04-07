@@ -72,7 +72,7 @@ public final class PlayerSkillsEvents implements ResourceManagerReloadListener {
 
     private void onPlayerJoin(ServerPlayer player) {
         PlayerSkills.openPlayer(player.getUUID());
-        NetHandler.syncPlayer(player);
+        NetHandler.syncPlayer(player, true);
     }
 
     private void onPlayerQuit(ServerPlayer player) {
