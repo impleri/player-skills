@@ -30,16 +30,16 @@ public final class PlayerSkillsClient implements ResourceManagerReloadListener {
      * Handle updated skills from server
      */
     @ApiStatus.Internal
-    public static void syncFromServer(ImmutableList<Skill<?>> skills) {
-        Registry.syncFromServer(skills);
+    public static void syncFromServer(ImmutableList<Skill<?>> skills, boolean force) {
+        Registry.syncFromServer(skills, force);
     }
 
     /**
      * Broadcast client-side event that skills have changed
      */
     @ApiStatus.Internal
-    public static void emitSkillsUpdated(ImmutableList<Skill<?>> skills, ImmutableList<Skill<?>> prev) {
-        ClientSkillsUpdatedEvent.EVENT.invoker().accept(new ClientSkillsUpdatedEvent(skills, prev));
+    public static void emitSkillsUpdated(ImmutableList<Skill<?>> skills, ImmutableList<Skill<?>> prev, boolean force) {
+        ClientSkillsUpdatedEvent.EVENT.invoker().accept(new ClientSkillsUpdatedEvent(skills, prev, force));
     }
 
     private void registerEvents() {

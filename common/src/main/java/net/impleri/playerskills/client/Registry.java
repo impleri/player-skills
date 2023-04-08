@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 final class Registry {
     private static final List<Skill<?>> playerSkills = new ArrayList<>();
 
-    public static void syncFromServer(ImmutableList<Skill<?>> skills) {
+    public static void syncFromServer(ImmutableList<Skill<?>> skills, boolean force) {
         var prev = get();
 
         playerSkills.clear();
@@ -26,7 +26,7 @@ final class Registry {
 
         playerSkills.addAll(skills);
 
-        PlayerSkillsClient.emitSkillsUpdated(skills, prev);
+        PlayerSkillsClient.emitSkillsUpdated(skills, prev, force);
     }
 
     public static ImmutableList<Skill<?>> get() {

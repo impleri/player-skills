@@ -30,6 +30,13 @@ side = "BOTH"
 [[dependencies.playerskills]]
 modId = "architectury"
 mandatory = true
-versionRange = "[4.11.89,)"
+versionRange = "[4.11.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.playerskills]]
+modId = "kubejs"
+mandatory = true
+versionRange = "[1802.5.0,)"
 ordering = "AFTER"
 side = "BOTH"

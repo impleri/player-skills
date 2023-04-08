@@ -19,8 +19,11 @@ public class SyncSkillsMessage extends BaseS2CMessage {
     private final UUID playerId;
     private final List<Skill<?>> skills;
 
+    private final boolean force;
+
     SyncSkillsMessage(FriendlyByteBuf buffer) {
         playerId = buffer.readUUID();
+        force = buffer.readBoolean();
 
         int size = buffer.readInt();
         skills = new ArrayList<>(size);
@@ -38,9 +41,10 @@ public class SyncSkillsMessage extends BaseS2CMessage {
         }
     }
 
-    public SyncSkillsMessage(Player player, List<Skill<?>> skills) {
+    public SyncSkillsMessage(Player player, List<Skill<?>> skills, boolean force) {
         playerId = player.getUUID();
         this.skills = skills;
+        this.force = force;
     }
 
     @Override
@@ -51,6 +55,7 @@ public class SyncSkillsMessage extends BaseS2CMessage {
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerId);
+        buffer.writeBoolean(force);
 
         var size = skills.size();
         buffer.writeInt(size);
@@ -68,6 +73,6 @@ public class SyncSkillsMessage extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        PlayerSkillsClient.syncFromServer(ImmutableList.copyOf(skills));
+        PlayerSkillsClient.syncFromServer(ImmutableList.copyOf(skills), force);
     }
 }
