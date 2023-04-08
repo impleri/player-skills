@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 abstract public class AbstractRegistrationEventJS<T, R extends AbstractRestriction<T>, B extends AbstractRestrictionBuilder<R>> extends ServerEventJS {
-    private final MinecraftServer server;
+    protected final MinecraftServer server;
 
     private final ResourceKey<Registry<T>> registryName;
 
