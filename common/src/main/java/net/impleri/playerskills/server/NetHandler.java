@@ -10,13 +10,17 @@ public abstract class NetHandler {
         var player = event.getPlayer();
 
         if (player instanceof ServerPlayer serverPlayer) {
-            syncPlayer(serverPlayer);
+            syncPlayer(serverPlayer, false);
         } else {
             PlayerSkills.LOGGER.warn("Attempted to sync skill changes from clientside");
         }
     }
 
     public static void syncPlayer(ServerPlayer player) {
+        syncPlayer(player, true);
+    }
+
+    public static void syncPlayer(ServerPlayer player, boolean force) {
         if (player == null) {
             PlayerSkills.LOGGER.warn("Attempted to sync skill changes for nobody");
             return;
@@ -25,6 +29,6 @@ public abstract class NetHandler {
         var skills = ServerApi.getAllSkills(player);
         PlayerSkills.LOGGER.debug("Syncing {} player skills to {}", skills.size(), player.getName().getString());
 
-        new SyncSkillsMessage(player, skills).sendTo(player);
+        new SyncSkillsMessage(player, skills, force).sendTo(player);
     }
 }

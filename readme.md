@@ -7,9 +7,25 @@ Like GameStages and GamePhases, this provides a registry for tracking possible s
 currently possesses. Unlike the other mods, skills are added to a player immediately and leverage ability checking via
 Skill Types.
 
+[![CurseForge](https://cf.way2muchnoise.eu/short_711489.svg)](https://www.curseforge.com/minecraft/mc-mods/player-skills)
+[![Modrinth](https://img.shields.io/modrinth/dt/player-skills?color=bcdeb7&label=%20&logo=modrinth&logoColor=096765&style=plastic)](https://modrinth.com/mod/player-skills)
+[![MIT license](https://img.shields.io/github/license/impleri/player-skills?color=bcdeb7&label=Source&logo=github&style=flat)](https://github.com/impleri/player-skills)
+[![Discord](https://img.shields.io/discord/1093178610950623233?color=096765&label=Community&logo=discord&logoColor=bcdeb7&style=plastic)](https://discord.com/invite/avxJgbaUmG)
+[![1.19.2](https://img.shields.io/maven-metadata/v?label=1.19.2&color=096765&metadataUrl=https%3A%2F%2Fmaven.impleri.org%2Fminecraft%2Fnet%2Fimpleri%2Fplayer-skills-1.19.2%2Fmaven-metadata.xml&style=flat)](https://github.com/impleri/player-skills/tree/1.19.2#developers)
+[![1.18.2](https://img.shields.io/maven-metadata/v?label=1.18.2&color=096765&metadataUrl=https%3A%2F%2Fmaven.impleri.org%2Fminecraft%2Fnet%2Fimpleri%2Fplayer-skills-1.18.2%2Fmaven-metadata.xml&style=flat)](https://github.com/impleri/player-skills/tree/1.18.2#developers)
+
+### xSkills Mods
+
+[Player Skills](https://github.com/impleri/player-skills)
+| [Block Skills](https://github.com/impleri/block-skills)
+| [Dimension Skills](https://github.com/impleri/dimension-skills)
+| [Fluid Skills](https://github.com/impleri/fluid-skills)
+| [Item Skills](https://github.com/impleri/item-skills)
+| [Mob Skills](https://github.com/impleri/mob-skills)
+
 ## Concepts
 
-This mod provides two entities that can be extended: Skill Types and Skills.
+This mod provides three entities that can be extended: Skill Types, Skills, and (Skill-based) Restrictions.
 
 ### Skill Type
 
@@ -20,16 +36,25 @@ a sufficient threshold. Because of this nature, skill types cannot be created vi
 #### Builtin Types
 
 1. `Basic` provides a simple boolean `true`/`false`. Great for simple skills such as "can read."
-2. `Numeric` provides an integer value (0, 1, 2, etc). Great for skills which can be improved such as "can climb."
-3. `Tiered` are specialized version of `Numeric` in that strings can be used. One example could be university
-   education (undergraduate, postgraduate, doctorate)
-4. `Specialization` provide a skill which allows one or more specializations out of a list (e.g. "can pick {X} lock")
+2. `Numeric` provides an integer value (0, 1, 2, etc). Great for skills or attributes which can be improved such as "
+   strength."
+3. `Tiered` are specialized version of `Numeric` in that strings can be used. One example could be "education"
+   education (crude/primary, basic/secondary, intermediate/university, advanced/postgraduate, top/doctorate).
+4. `Specialization` provide a skill which allows one or more specializations out of a list. An example is "magic type" (
+   red, black, white, green, blue).
 
-### SKill
+### Skill
 
 A skill tracks the data needed for SKill Types to calculate if a player _can_ perform a skill-based action. Skills get
 serialized and persisted in player-specific NBT data. Skills are exposed via KubeJS for modpack authors to manipulate as
-they see fit.
+they see fit. This mod provides no built-in skills, as we want to encourage modpacks and other mods to provide that
+shape.
+
+### Restriction
+
+A restrictions handles the logic for determining if a player has an ability based on the set condition, current
+dimension, and current biome. It may also provide a replacement to the target resource. Like Skills, we provide no
+restrictions here. The other xSkills mods implements restrictions for many vanilla elements.
 
 ## KubeJS API
 
@@ -54,12 +79,21 @@ For both adding and modifying skills, the final argument is a callback function 
 builder for the type. Modifying skills will start with their existing configurations while new skills will start with
 whatever the default options are for the type.
 
+#### Skill Builder Methods
+
+- `initialValue(newValue: T)` - Sets a starting value for all players
+- `clearValue()` - Empties the initial value
+- `description(desc: string)` - Sets the skill description
+- `limitChanges(limit: number)` - How many times the skill can change before it is locked
+- `unlimitedChanges()` - Allows the skill to always change
+- `options(choices: T[])` - Sets what values will be allowed
+
 #### Add a skill
 
 By default, we provide a simple boolean skill type (yes/no) which resembles what comes from Game Stages and Game Phases.
 
 ```js
-onEvent('skills.registration', event => {
+onEvent("skills.registration", event => {
   event.add('started_quest', 'basic', skill => {
     skill.initialValue(false)
       .description('Indicates a Player has joined the Great Quest');
@@ -70,7 +104,7 @@ onEvent('skills.registration', event => {
 #### Modify Skill
 
 ```js
-onEvent('skills.modification', event => {
+onEvent("skills.modification", event => {
   event.modify('skills:test', skill => {
     skill.initialValue(true)
       .description('Less of a test value');
@@ -81,7 +115,7 @@ onEvent('skills.modification', event => {
 #### Remove Skill
 
 ```js
-onEvent('skills.modification', event => {
+onEvent("skills.modification", event => {
   event.remove('test');
 });
 ```
@@ -93,7 +127,7 @@ Whenever an event is triggered in KubeJS that has a Player associated with it, w
 #### Get Player's Current Skill Set
 
 KubeJS will have read-only access to a player's skill set. Note that we store _every_ skill on a player, so do not use
-this for determining if a player can perform an action.
+the existence of a skill for determining if a player can perform an action.
 
 ```js
 onEvent('block.right_click', event => {
@@ -112,7 +146,7 @@ onEvent('block.right_click', event => {
   if (event.block.id === 'minecraft:dirt') {
     if (event.entity.data.skills.can('skills:harvest', 2)) {
       // If the player does have a harvest skill of 2 or greater, spawn a Green Guardian to plague them
-      event.block.createEntity('custom:green_guardian').spawn();
+      event.block.createEntity('custom:green_guardian').spawn()
     }
   }
 });
@@ -120,13 +154,31 @@ onEvent('block.right_click', event => {
 
 This example is expecting `skills:harvest` to be a `Numeric` skill and checks if the player has a skill level of 2 ***or
 greater***. If no skill value is used (i.e. `event.entity.data.skills.can('skills:harvest')`), then the check only looks
-to see if the skill is truthy (`true`, greater than 0, not `null`). If you want to invert that check, you can use
+to see if the skill is truthy (`true`, greater than 0, not `null`). If you want to invert the condition, you can use
 `cannot` instead of `can`.
 
-#### Set
+#### Change Skills
 
 Oftentimes, you will want to set a player's skill level based on some arbitrary rules. We don't build in those rules!
-However, you will have a few options. Sometimes you will want to simply improve a skill:
+However, you will have a few options:
+
+- `improve(skill: string, builder?: Builder)` - Increase the value
+- `degrade(skill: string, builder?: Builder)` - Decrease the value
+- `set(skill: name, newValue: T, builder?: Builder)` - Set the skill to an arbitrary value
+- `reset(skill: name, builder?: Builder)` - Reset the skill back to the initial value
+
+##### Condition Builder
+
+Each of the methods take an optional condition builder callback. Here, you can provide more boundaries.
+
+- `min`: If the player's skill is below the minimum, it will jump to the minimum value. If it's at or above, it will
+  increment appropriately
+- `max`: If the player's skill is at or above the maximum value, nothing will change. Otherwise, increment the skill
+  appropriately
+- `if`: Add an expression which evaluates to a boolean value. Will only increment the value if this is true
+- `unless`: Add an expression which evaluates to a boolean value. Will only increment the value if this is false
+
+##### Examples
 
 ```js
 // Let's assume we have these tiers for `undead_killer` skill
@@ -157,28 +209,41 @@ onEvent('block.right_click', event => {
 });
 ```
 
-The following conditions are available in the second parameter callback:
-
-- `min`: If the player's skill is below the minimum, it will jump to the minimum value. If it's at or above, it will
-  increment appropriately
-- `max`: If the player's skill is at or above the maximum value, nothing will change. Otherwise, increment the skill
-  appropriately
-- `if`: Add an expression which evaluates to a boolean value. Will only increment the value if this is true
-- `unless`: Add an expression which evaluates to a boolean value. Will only increment the value if this is false
-
-The same can apply in reverse: if you want to reduce a skill level, use `degrade`. Conditions will be adapted
-appropriately (`max` will force skill levels above that value down to it and `min` will do nothing if the level is
-already below it)
-
-There's also a shorthand method for resetting a skill back to the game registry's default: `reset`. Like `improve` and
-`degrade`, it can take conditions.
-
 ### Global Utilities
 
 Lastly, KubeJS scripts have access to a `PlayerSkills` object that provides the following information:
 
 - `PlayerSkills.skillTypes`: Returns an array of all registered Skill Types
 - `PlayerSkills.skills`: Returns an array of all registered Skills
+
+## KubeJS Restrictions API
+
+The various xSkills mods utilize a shared Restrictions API for managing restrictions. These are contained within
+PlayerSkills but are surfaced in the dependent mod. These are documented here in order to keep documentation as
+up-to-date as possible and the other mods may link back to here.
+
+### ID Parsing
+
+Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
+biome facets share the same identifier parsing. This means that string identifiers can be used (e.g. `minecraft:zombie`)
+as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
+appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those.
+
+### Condition Methods
+
+- `if`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a signature
+  of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
+- `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
+
+### Facet Methods
+
+- `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
+  of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
+- `notInDimension`: Adds a facet to the restriction applying to the target only if it is not in one of the listed
+  dimensions. Example: `.notInDimension('@ad_astra')`
+- `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
+  the listed biomes. Example: `.inBiome('#desert')`
+- `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
 
 ## Java API
 
@@ -239,10 +304,9 @@ The client side can also request an update via the `ResyncSkills` message.
 ### Events
 
 Events are now triggered on both the server side and the client side as a player's skills are changed. On the server
-side,
-`SkillChangedEvent` is broadcast with information about the specific skill change. This is consumed in `KubeJS` scripts
-as it is rebroadcast to the `SkillEvents.onChanged` handler. It is also consumed on the server side network handler
-which updates that specific player's client side.
+side, `SkillChangedEvent` is broadcast with information about the specific skill change. This is consumed in `KubeJS`
+scripts as it is rebroadcast to the `skills.onChanged` handler. It is also consumed on the server side network
+handler which updates that specific player's client side.
 
 When a client receives an updated list of skills, `ClientSkillsUpdatedEvent` is broadcast for any client-side libraries
 to handle updates.
@@ -254,6 +318,7 @@ Lastly, we expose a handful of in-game commands for players and mods:
 - `/skills types`: List all registered skill types
 - `/skills all`: List all registered skills (post-modification)
 - `/skills mine`: List the current player's skills _and values_
+- `/skills debug`: Toggles debug-level logging for Player Skills. Requires mod permissions.
 - `/skills set [player] skill value`: Set the `skill`'s value to `value` for the player (omitting a player targets the
   one performing the command). Note that this requires mod permissions.
 

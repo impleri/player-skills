@@ -27,6 +27,7 @@
   "depends": {
     "fabric": "*",
     "minecraft": "1.18.2",
-    "architectury": ">=4.11.89"
+    "architectury": ">=5.0",
+    "kubejs": "*"
   }
 }
