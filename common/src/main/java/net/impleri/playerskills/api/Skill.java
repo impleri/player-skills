@@ -20,6 +20,7 @@ public class Skill<T> {
     protected List<T> options;
     protected int changesAllowed;
     protected String description;
+    protected TeamMode teamMode;
 
     public Skill(ResourceLocation name, ResourceLocation type) {
         this(name, type, null);
@@ -38,12 +39,17 @@ public class Skill<T> {
     }
 
     public Skill(ResourceLocation name, ResourceLocation type, T value, String description, List<T> options, int changesAllowed) {
+        this(name, type, value, description, options, changesAllowed, TeamMode.off());
+    }
+
+    public Skill(ResourceLocation name, ResourceLocation type, T value, String description, List<T> options, int changesAllowed, TeamMode teamMode) {
         this.name = name;
         this.type = type;
         this.value = value;
         this.description = description;
         this.options = options;
         this.changesAllowed = changesAllowed;
+        this.teamMode = teamMode;
     }
 
     public Skill<T> copy() {
@@ -56,6 +62,10 @@ public class Skill<T> {
 
     public ResourceLocation getType() {
         return type;
+    }
+
+    public TeamMode getTeamMode() {
+        return teamMode;
     }
 
     @Nullable
@@ -87,6 +97,10 @@ public class Skill<T> {
 
     public void setType(ResourceLocation type) {
         this.type = type;
+    }
+
+    public void setTeamMode(TeamMode teamMode) {
+        this.teamMode = teamMode;
     }
 
     public void setValue(@Nullable T value) {
