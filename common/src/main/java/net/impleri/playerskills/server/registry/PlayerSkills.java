@@ -2,7 +2,6 @@ package net.impleri.playerskills.server.registry;
 
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
-import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.server.registry.storage.SkillStorage;
 import net.minecraft.resources.ResourceLocation;
 
@@ -67,10 +66,8 @@ public abstract class PlayerSkills {
     }
 
     public static <T> Long countValue(List<UUID> playerIds, Skill<T> skill) {
-        SkillType<T> skillType;
-        try {
-            skillType = SkillType.forSkill(skill);
-        } catch (RegistryItemNotFound e) {
+        SkillType<T> skillType = SkillType.maybeForSkill(skill);
+        if (skillType == null) {
             return 0L;
         }
 
@@ -137,11 +134,16 @@ public abstract class PlayerSkills {
         save(playerUuid, skills);
     }
 
-    public static void openPlayers(List<UUID> playerUuids) {
+    public static List<UUID> openPlayers(List<UUID> playerUuids) {
+        var playersAdded = playerUuids.stream().filter(playerId -> !players.containsKey(playerId)).toList();
+
         Map<UUID, List<Skill<?>>> skillsList = playerUuids.stream()
                 .collect(Collectors.toMap(Function.identity(), net.impleri.playerskills.server.registry.PlayerSkills::handleOpenFor));
 
+
         players.putAll(skillsList);
+
+        return playersAdded;
     }
 
     /**
@@ -178,6 +180,8 @@ public abstract class PlayerSkills {
     public static <T> Map<UUID, Skill<T>> upsertMany(List<UUID> playerIds, Skill<T> skill) {
         Map<UUID, Skill<T>> updates = new HashMap<>();
 
+        SkillType<T> skillType = SkillType.maybeForSkill(skill);
+
         playerIds.forEach(playerId -> {
             var isActive = players.containsKey(playerId);
 
@@ -186,12 +190,18 @@ public abstract class PlayerSkills {
             }
 
             var oldSkills = getFor(playerId);
-            Optional<Skill<T>> oldSkill = filterSkill(oldSkills, skill.getName());
-            upsert(playerId, skill);
+            Optional<Skill<T>> oldSkillOption = filterSkill(oldSkills, skill.getName());
+            Skill<T> oldSkill = oldSkillOption.orElse(skill);
 
-            if (isActive) {
-                updates.put(playerId, oldSkill.orElseGet(() -> skill));
-            } else {
+            // Only update if the new skill is better or we can't tell if it is
+            if (skillType == null || oldSkillOption.isEmpty() || !skillType.can(oldSkill, skill.getValue())) {
+                upsert(playerId, skill);
+                if (isActive) {
+                    updates.put(playerId, oldSkill);
+                }
+            }
+
+            if (!isActive) {
                 closePlayer(playerId);
             }
         });
@@ -245,12 +255,19 @@ public abstract class PlayerSkills {
         players.remove(playerUuid);
     }
 
+    public static void closePlayers(List<UUID> playerIds) {
+        playerIds.stream().parallel().forEach(net.impleri.playerskills.server.registry.PlayerSkills::handleCloseFor);
+        playerIds.stream().parallel().forEach(players::remove);
+    }
+
     /**
      * Save multiple players' skills to persistent storage then remove them from in-memory cache
      */
     public static List<UUID> closeAllPlayers() {
         List<UUID> playerIds = players.keySet().stream().toList();
-        playerIds.stream().parallel().forEach(net.impleri.playerskills.server.registry.PlayerSkills::handleCloseFor);
+        closePlayers(playerIds);
+
+        // Wipe away any players that are somehow still present
         players.clear();
 
         return playerIds;
