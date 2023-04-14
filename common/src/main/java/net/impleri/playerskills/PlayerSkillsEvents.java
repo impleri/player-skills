@@ -3,6 +3,7 @@ package net.impleri.playerskills;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import net.impleri.playerskills.commands.PlayerSkillsCommands;
 import net.impleri.playerskills.server.NetHandler;
@@ -64,6 +65,11 @@ public final class PlayerSkillsEvents implements ResourceManagerReloadListener {
 
         // Fill up the deferred skills registry
         Skills.resync();
+
+        // Enable FTB Teams integration if the mod is there
+        if (Platform.isModLoaded("ftbteams")) {
+            net.impleri.playerskills.integration.ftbteams.FTBTeamApi.registerInstance();
+        }
     }
 
     private void onPlayerJoin(ServerPlayer player) {
