@@ -2,10 +2,17 @@ package net.impleri.playerskills.server.registry;
 
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
+import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.server.registry.storage.SkillStorage;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,6 +64,34 @@ public abstract class PlayerSkills {
      */
     public static List<Skill<?>> getAllForPlayer(UUID playerUuid) {
         return getFor(playerUuid);
+    }
+
+    public static <T> Long countValue(List<UUID> playerIds, Skill<T> skill) {
+        SkillType<T> skillType;
+        try {
+            skillType = SkillType.forSkill(skill);
+        } catch (RegistryItemNotFound e) {
+            return 0L;
+        }
+
+        return playerIds.stream()
+                .filter(playerId -> {
+                    var isActive = players.containsKey(playerId);
+
+                    if (!isActive) {
+                        openPlayer(playerId);
+                    }
+
+                    Optional<Skill<T>> current = filterSkill(getFor(playerId), skill.getName());
+                    var can = current.map(currentSkill -> skillType.can(currentSkill, skill.getValue())).orElseGet(() -> false);
+
+                    if (!isActive) {
+                        closePlayer(playerId);
+                    }
+
+                    return can;
+                })
+                .count();
     }
 
     public static List<Skill<?>> handleOpenFor(UUID playerUuid) {
@@ -140,6 +175,30 @@ public abstract class PlayerSkills {
         return newSkills;
     }
 
+    public static <T> Map<UUID, Skill<T>> upsertMany(List<UUID> playerIds, Skill<T> skill) {
+        Map<UUID, Skill<T>> updates = new HashMap<>();
+
+        playerIds.forEach(playerId -> {
+            var isActive = players.containsKey(playerId);
+
+            if (!isActive) {
+                openPlayer(playerId);
+            }
+
+            var oldSkills = getFor(playerId);
+            Optional<Skill<T>> oldSkill = filterSkill(oldSkills, skill.getName());
+            upsert(playerId, skill);
+
+            if (isActive) {
+                updates.put(playerId, oldSkill.orElseGet(() -> skill));
+            } else {
+                closePlayer(playerId);
+            }
+        });
+
+        return updates;
+    }
+
     /**
      * Add a skill to a player only if the player does not have it
      */
@@ -172,7 +231,7 @@ public abstract class PlayerSkills {
 
     private static void handleCloseFor(UUID playerUuid) {
         net.impleri.playerskills.PlayerSkills.LOGGER.info("Closing player {}, ensuring skills are saved", playerUuid);
-        
+
         List<Skill<?>> skills = getFor(playerUuid);
         writeToStorage(playerUuid, skills);
     }
@@ -215,5 +274,15 @@ public abstract class PlayerSkills {
                 .toList();
 
         SkillStorage.write(playerUuid, rawSkills);
+    }
+
+    public static <T> Optional<Skill<T>> filterSkill(List<Skill<?>> playerSkills, ResourceLocation name) {
+        return playerSkills.stream()
+                .filter(skill -> skill.getName().equals(name))
+                .map(skill -> {
+                    @SuppressWarnings("unchecked") Skill<T> castSkill = (Skill<T>) skill;
+                    return castSkill;
+                })
+                .findFirst();
     }
 }

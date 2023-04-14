@@ -30,13 +30,7 @@ public final class ServerApi {
 
         @Nullable Skill<T> defaultSkill = Skills.find(name);
 
-        Optional<Skill<T>> foundSkill = playerSkills.stream()
-                .filter(skill -> skill.getName().equals(name))
-                .map(skill -> {
-                    @SuppressWarnings("unchecked") Skill<T> castSkill = (Skill<T>) skill;
-                    return castSkill;
-                })
-                .findFirst();
+        Optional<Skill<T>> foundSkill = net.impleri.playerskills.server.registry.PlayerSkills.filterSkill(playerSkills, name);
 
         if (foundSkill.isEmpty()) {
             PlayerSkills.LOGGER.warn("Could not find {} for player {}", name, player.getName().getString());
@@ -138,10 +132,17 @@ public final class ServerApi {
         newSkill.setValue(value);
         newSkill.consumeChange();
 
+        if (!TeamApi.getInstance().allows(player, newSkill)) {
+            return false;
+        }
+
+        if (skill.getTeamMode().isShared()) {
+            return TeamApi.getInstance().updateTeam(player, newSkill);
+        }
+
+        // Update just the one player
         List<Skill<?>> newSkills = net.impleri.playerskills.server.registry.PlayerSkills.upsert(player.getUUID(), newSkill);
-
         PlayerSkills.emitSkillChanged(player, newSkill, oldSkill);
-
         return newSkills.contains(newSkill);
     }
 
