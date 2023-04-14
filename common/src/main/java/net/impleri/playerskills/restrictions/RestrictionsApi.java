@@ -10,7 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -46,8 +50,9 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
     }
 
     public void clearPlayerCache(SkillChangedEvent<?> event) {
-        restrictionsCache.remove(event.getPlayer());
-        replacementCache.remove(event.getPlayer());
+        var player = event.getPlayer();
+        restrictionsCache.remove(player);
+        replacementCache.remove(player);
     }
 
     private Field getField(String name) {
@@ -88,7 +93,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return restriction -> restriction.target != null;
     }
 
-    private Predicate<R> matchesPlayer(Player player) {
+    private Predicate<R> matchesPlayer(@NotNull Player player) {
         return restriction -> restriction.condition.test(player);
     }
 
@@ -113,7 +118,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return restriction -> restriction.excludeBiomes.size() == 0 || !restriction.excludeBiomes.contains(biome);
     }
 
-    private List<R> populatePlayerRestrictions(Player player) {
+    private List<R> populatePlayerRestrictions(@NotNull Player player) {
         return registry.entries().stream()
                 .filter(hasTarget())
                 .filter(matchesPlayer(player))

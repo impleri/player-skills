@@ -5,7 +5,6 @@ import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
 import net.impleri.playerskills.commands.PlayerSkillsCommands;
-import net.impleri.playerskills.integration.kubejs.PlayerSkillsPlugin;
 import net.impleri.playerskills.server.NetHandler;
 import net.impleri.playerskills.server.events.SkillChangedEvent;
 import net.impleri.playerskills.server.registry.PlayerSkills;
@@ -65,9 +64,6 @@ public final class PlayerSkillsEvents implements ResourceManagerReloadListener {
 
         // Fill up the deferred skills registry
         Skills.resync();
-
-        // Trigger skills modification event
-        PlayerSkillsPlugin.modifySkills();
     }
 
     private void onPlayerJoin(ServerPlayer player) {
