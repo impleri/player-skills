@@ -20,17 +20,6 @@ public class FTBTeamApi extends TeamApi {
         return FTBTeamsAPI.getPlayerTeam(playerUuid);
     }
 
-    @Nullable
-    protected UUID getTeamFor(UUID playerUuid) {
-        var team = getTeam(playerUuid);
-
-        if (team == null) {
-            return null;
-        }
-
-        return team.getId();
-    }
-
     protected List<UUID> getTeamMembersFor(UUID playerId) {
         var team = getTeam(playerId);
 

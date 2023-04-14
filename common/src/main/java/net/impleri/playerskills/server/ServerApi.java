@@ -12,32 +12,42 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class ServerApi {
     /**
      * Get all Skills for a Player
      */
+    private static List<Skill<?>> getAllSkills(UUID playerId) {
+        return net.impleri.playerskills.server.registry.PlayerSkills.getAllForPlayer(playerId);
+    }
+
     public static List<Skill<?>> getAllSkills(Player player) {
-        return net.impleri.playerskills.server.registry.PlayerSkills.getAllForPlayer(player.getUUID());
+        var playerSkills = getAllSkills(player.getUUID());
+        net.impleri.playerskills.server.api.Skill.logSkills(playerSkills, "All skills for " + player.getName().getString());
+
+        return playerSkills;
     }
 
     /**
      * Get a specific Skill for a player
      */
+    public static <T> Optional<Skill<T>> getSkill(UUID playerId, ResourceLocation name) {
+        List<Skill<?>> playerSkills = getAllSkills(playerId);
+
+        return net.impleri.playerskills.server.registry.PlayerSkills.filterSkill(playerSkills, name);
+    }
+
     public static <T> Skill<T> getSkill(Player player, ResourceLocation name) throws RegistryItemNotFound {
         List<Skill<?>> playerSkills = getAllSkills(player);
-        net.impleri.playerskills.server.api.Skill.logSkills(playerSkills, "All skills for " + player.getName().getString());
-
-        @Nullable Skill<T> defaultSkill = Skills.find(name);
 
         Optional<Skill<T>> foundSkill = net.impleri.playerskills.server.registry.PlayerSkills.filterSkill(playerSkills, name);
 
         if (foundSkill.isEmpty()) {
             PlayerSkills.LOGGER.warn("Could not find {} for player {}", name, player.getName().getString());
-            return defaultSkill;
         }
 
-        return foundSkill.get();
+        return foundSkill.orElse(Skills.find(name));
     }
 
     public static <T> Skill<T> getSkill(Player player, String name) throws RegistryItemNotFound {
@@ -132,12 +142,12 @@ public final class ServerApi {
         newSkill.setValue(value);
         newSkill.consumeChange();
 
-        if (!TeamApi.getInstance().allows(player, newSkill)) {
+        if (!TeamApi.allows(player, newSkill)) {
             return false;
         }
 
         if (skill.getTeamMode().isShared()) {
-            return TeamApi.getInstance().updateTeam(player, newSkill);
+            return TeamApi.updateTeam(player, newSkill);
         }
 
         // Update just the one player

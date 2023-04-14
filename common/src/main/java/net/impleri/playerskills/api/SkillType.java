@@ -52,6 +52,14 @@ abstract public class SkillType<T> {
         return find(skill.getType());
     }
 
+    public static <V> SkillType<V> maybeForSkill(Skill<V> skill) {
+        try {
+            return find(skill.getType());
+        } catch (RegistryItemNotFound e) {
+            return null;
+        }
+    }
+
     public static <V> String serializeToString(Skill<V> skill) {
         PlayerSkills.LOGGER.debug("Serializing skill {} with type {}", skill.getName(), skill.getType());
         try {
