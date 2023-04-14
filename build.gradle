@@ -93,6 +93,7 @@ allprojects {
             url = "https://maven.saps.dev/minecraft"
             content {
                 includeGroup "dev.latvian.mods"
+                includeGroup "dev.ftb.mods"
             }
         }
 
