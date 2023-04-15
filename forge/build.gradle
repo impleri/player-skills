@@ -71,3 +71,13 @@ publishing {
         }
     }
 }
+
+unifiedPublishing {
+    project {
+        relations {
+            optional {
+                curseforge = "ftb-teams"
+            }
+        }
+    }
+}
