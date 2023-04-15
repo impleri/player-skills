@@ -87,16 +87,62 @@ whatever the default options are for the type.
 - `limitChanges(limit: number)` - How many times the skill can change before it is locked
 - `unlimitedChanges()` - Allows the skill to always change
 - `options(choices: T[])` - Sets what values will be allowed
+- `sharedWithTeam()` - Sync progress to all players on a team for the shared skill (requires FTM Teams)
+- `teamLimitedTo(amount: number)` - Limits the progress to only `amount` players on the team (requires FTB Teams)
+- `percentageOfTeam(percentage: number)` = Limits the progress to a `percentage` of the players on the team (requires
+  FTB Teams)
+- `splitEvenlyAcrossTeam()` - Limits the progress of a _specialization_ skill so that there must be an even distribution
+  of specializations across the team.
+- `pyramid()` - Limits the progress of a _tiered_ skill so that fewer and fewer players on a team can progress until
+  only one player has the highest tier.
 
 #### Add a skill
 
 By default, we provide a simple boolean skill type (yes/no) which resembles what comes from Game Stages and Game Phases.
 
 ```js
+// Let's assume we have these tiers for `undead_killer` skill
+const KILLER_TIERS = {
+  wood: 0,
+  stone: 1,
+  iron: 2,
+  gold: 3,
+  diamond: 4,
+  netherite: 5,
+};
+
 SkillEvents.registration(event => {
   event.add('started_quest', 'basic', skill => {
     skill.initialValue(false)
       .description('Indicates a Player has joined the Great Quest');
+  });
+
+  // Shares the skill with the rest of the team
+  event.add('team_started_quest', 'basic', skill => {
+    skill.initialValue(false)
+      .description('Indicates a Team has joined the Great Quest')
+      .sharedWithTeam();
+  });
+
+  // Only 16 percent of the team (rounded up) can complete the quest 
+  event.add('team_completed_quest', 'basic', skill => {
+    skill.initialValue(false)
+      .description('Indicates a Player has completed the Great Quest for the team')
+      .percentageOfTeam(16.0);
+  });
+
+  // Only the first 4 Players on the team to gain this skill will receive it 
+  event.add('team_completed_quest', 'basic', skill => {
+    skill.initialValue(false)
+      .description('Indicates a Player has completed the Great Quest for the team')
+      .teamLimitedTo(4);
+  });
+
+  // Create a pyramid of tier limits (1 Nehtherite, 2 Diamond, 4 Gold, 8 Iron, 16 Stone) 
+  event.add('undead_killer', 'basic', skill => {
+    skill.initialValue(false)
+      .description('Tier of undead killer level')
+      .pyramis();
   });
 });
 ```
@@ -177,16 +223,6 @@ Each of the methods take an optional condition builder callback. Here, you can p
 ##### Examples
 
 ```js
-// Let's assume we have these tiers for `undead_killer` skill
-const KILLER_TIERS = {
-  wood: 0,
-  stone: 1,
-  iron: 2,
-  gold: 3,
-  diamond: 4,
-  netherite: 5,
-};
-
 BlockEvents.rightClicked('minecraft:dirt', event => {
   // this is a basic skill, so we ensure it's true
   event.entity.data.skills.improve('skills:dirt_watcher');
@@ -312,6 +348,12 @@ Lastly, we expose a handful of in-game commands for players and mods:
 - `/skills types`: List all registered skill types
 - `/skills all`: List all registered skills (post-modification)
 - `/skills mine`: List the current player's skills _and values_
+- `/skills team share`: Syncs the current player's team-shared skills to the rest of the player's team overriding their
+  values. (e.g. if Player 1 had kill_count of 3 and Player 2 had a kill_count of 8, both players would have a value of 3
+  after Player 1 executes the command)
+- `/skills team sync [player]`: Syncs the player's team's team-shared skills to the rest of the player's team overriding
+  their values with the "best" value. (if Player 1 had kill_count of 3 and Player 2 had a kill_count of 8, both players
+  would have a value of 8 after an op runs the command targeting Player 1). Requires mod permissions.
 - `/skills debug`: Toggles debug-level logging for Player Skills. Requires mod permissions.
 - `/skills set [player] skill value`: Set the `skill`'s value to `value` for the player (omitting a player targets the
   one performing the command). Note that this requires mod permissions.
