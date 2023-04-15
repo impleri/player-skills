@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class TeamApi {
@@ -34,6 +35,7 @@ public abstract class TeamApi {
         var teamMode = skill.getTeamMode();
 
         if (players.size() < 2 || teamMode.isOff() || teamMode.isShared()) {
+            PlayerSkills.LOGGER.info("No need to bother team");
             return true;
         }
 
@@ -69,7 +71,11 @@ public abstract class TeamApi {
             }
         }
 
-        return count < limit;
+        var allowed = count < limit;
+
+        PlayerSkills.LOGGER.info("Does the team allow updating skill? {} ({} < {})", allowed, count, limit);
+
+        return allowed;
     }
 
     /**
@@ -78,6 +84,8 @@ public abstract class TeamApi {
     public static <T> boolean updateTeam(Player player, Skill<T> newSkill) {
         // Team Shared: Update for all team members
         var teamMembers = INSTANCE.getTeamMembersFor(player);
+
+        PlayerSkills.LOGGER.debug("Syncing skills with team: {}", teamMembers.stream().map(UUID::toString).collect(Collectors.joining(", ")));
 
         // Emit SkillChanged event to all team members currently logged in
         syncTeam(teamMembers, newSkill, player.getServer());
@@ -89,6 +97,8 @@ public abstract class TeamApi {
      * Syncs the player's shared skills with the rest of the team, overriding any progress one may have
      */
     public static boolean syncFromPlayer(ServerPlayer player) {
+        PlayerSkills.LOGGER.debug("Syncing skills from {}", player.getName().getString());
+
         getSharedSkills(player).forEach(skill -> updateTeam(player, skill));
 
         return true;
@@ -98,6 +108,8 @@ public abstract class TeamApi {
      * Syncs the "best" skill value for each shared skill currently help by the team with the rest of the team
      */
     public static boolean syncEntireTeam(ServerPlayer player) {
+        PlayerSkills.LOGGER.debug("Syncing entire team connected to {}", player.getName().getString());
+
         var teamMembers = INSTANCE.getTeamMembersFor(player);
         var offlineMembers = net.impleri.playerskills.server.registry.PlayerSkills.openPlayers(teamMembers);
         var onlineMembers = teamMembers.stream().filter(playerId -> !offlineMembers.contains(playerId)).toList();
