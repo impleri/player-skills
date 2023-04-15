@@ -85,6 +85,10 @@ unifiedPublishing {
                 curseforge = "fabric-api"
                 modrinth = "fabric-api"
             }
+
+            optional {
+                curseforge = "ftb-teams-fabric"
+            }
         }
     }
 }
