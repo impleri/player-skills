@@ -47,6 +47,10 @@ subprojects {
                         curseforge = "kubejs"
                         modrinth = "kubejs"
                     }
+
+                    optional {
+                        curseforge = "ftb-teams"
+                    }
                 }
 
                 var curseId = System.getenv("CURSEFORGE_ID")
