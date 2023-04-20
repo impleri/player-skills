@@ -13,19 +13,14 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class SkillConditionBuilderJS<T> extends BuilderBase<Skill<T>> {
-    protected transient Skill<T> skill;
-    protected transient @Nullable
-    SkillType<T> type;
-    protected transient Player player;
+    protected Skill<T> skill;
+    protected @Nullable SkillType<T> type;
+    protected Player player;
 
-    public transient @Nullable
-    T min;
-    public transient @Nullable
-    T max;
-    public transient @Nullable
-    Boolean conditionIf;
-    public transient @Nullable
-    Boolean conditionUnless;
+    public @Nullable T min;
+    public @Nullable T max;
+    public @Nullable Boolean conditionIf;
+    public @Nullable Boolean conditionUnless;
 
     @HideFromJS
     public SkillConditionBuilderJS(Skill<T> skill, Player player) {

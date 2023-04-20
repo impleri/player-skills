@@ -11,61 +11,20 @@ import java.util.List;
 
 public class TieredSkillType extends SkillType<String> {
     public static ResourceLocation name = SkillResourceLocation.of("tiered");
-    private static final String optionsSeparator = "!";
-    private static final String stringValueNull = "NULL";
 
     @Override
     public ResourceLocation getName() {
         return name;
     }
 
-    private List<String> getOptions(Skill<String> skill) {
-        return ((TieredSkill) skill).getOptions();
-    }
-
     @Override
-    public String serialize(Skill<String> skill) {
-        return serialize(skill, skill.getValue(), skill.getOptions());
-    }
-
-    @Override
-    @Nullable
-    public Skill<String> unserialize(String skillName, String skillValue, int changesAllowed, List<String> options) {
-        ResourceLocation name = SkillResourceLocation.of(skillName);
-        @Nullable String description = getDescriptionFor(name);
-
-        return new TieredSkill(name, options, skillValue, description, changesAllowed);
-    }
-
-    @Override
-    public @Nullable String castValue(String value) {
+    protected String castToString(String value) {
         return value;
     }
 
-    private int getActualIndexValue(@Nullable String value, List<String> options) {
-        return value == null ? -1 : options.indexOf(value);
-    }
-
-    private int getIndexValue(String value, List<String> options, @Nullable String fallback) {
-        int fallbackIndex = getActualIndexValue(fallback, options);
-        int realFallback = Integer.max(fallbackIndex, 0);
-
-        int indexValue = getActualIndexValue(value, options);
-        return indexValue == -1 ? realFallback : indexValue;
-    }
-
-    private int getIndexValue(String value, List<String> options) {
-        return getIndexValue(value, options, null);
-    }
-
-    private int getIndexValue(Skill<String> skill) {
-        return getIndexValue(skill.getValue(), getOptions(skill), null);
-    }
-
-    private String getIndexName(int index, Skill<String> skill) {
-        List<String> options = getOptions(skill);
-
-        return options.get(index);
+    @Override
+    public @Nullable String castFromString(String value) {
+        return value;
     }
 
     @Override
@@ -122,5 +81,35 @@ public class TieredSkillType extends SkillType<String> {
 
         // Increment the current value if below the max
         return (nextVal <= maxVal) ? getIndexName(nextVal, skill) : null;
+    }
+
+    private List<String> getOptions(Skill<String> skill) {
+        return skill.getOptions();
+    }
+
+    private int getActualIndexValue(@Nullable String value, List<String> options) {
+        return value == null ? -1 : options.indexOf(value);
+    }
+
+    private int getIndexValue(String value, List<String> options, @Nullable String fallback) {
+        int fallbackIndex = getActualIndexValue(fallback, options);
+        int realFallback = Integer.max(fallbackIndex, 0);
+
+        int indexValue = getActualIndexValue(value, options);
+        return indexValue == -1 ? realFallback : indexValue;
+    }
+
+    private int getIndexValue(String value, List<String> options) {
+        return getIndexValue(value, options, null);
+    }
+
+    private int getIndexValue(Skill<String> skill) {
+        return getIndexValue(skill.getValue(), getOptions(skill), null);
+    }
+
+    private String getIndexName(int index, Skill<String> skill) {
+        List<String> options = getOptions(skill);
+
+        return options.get(index);
     }
 }

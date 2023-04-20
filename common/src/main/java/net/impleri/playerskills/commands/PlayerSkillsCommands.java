@@ -172,7 +172,7 @@ public class PlayerSkillsCommands {
         try {
             var skill = Skill.find(skillName);
             var type = SkillType.forSkill(skill);
-            var castValue = type.castValue(value);
+            var castValue = type.castFromString(value);
             var success = ServerApi.set(player, skill, castValue);
 
             var message = Component.translatable(
