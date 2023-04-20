@@ -53,7 +53,11 @@ public class Skill<T> {
     }
 
     public Skill<T> copy() {
-        return new Skill<T>(name, type, value, description, options, changesAllowed);
+        return copy(value, changesAllowed);
+    }
+
+    public Skill<T> copy(T value, int changesAllowed) {
+        return new Skill<T>(name, type, value, description, options, changesAllowed, teamMode);
     }
 
     public ResourceLocation getName() {

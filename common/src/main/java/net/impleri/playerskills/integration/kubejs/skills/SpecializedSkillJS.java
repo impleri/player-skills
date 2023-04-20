@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class SpecializedSkillJS extends SpecializedSkill {
     public SpecializedSkillJS(Builder builder) {
-        super(builder.id, builder.options, builder.initialValue, builder.description, builder.changesAllowed);
+        super(builder.id, builder.options, builder.initialValue, builder.description, builder.changesAllowed, builder.teamMode);
     }
 
     public static class Builder extends GenericSkillBuilderJS<String> {

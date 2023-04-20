@@ -5,11 +5,9 @@ import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.SkillTypes;
 import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,8 +18,6 @@ import java.util.List;
  */
 abstract public class SkillType<T> {
     private static final String valueSeparator = ";";
-    private static final String optionsSeparator = "!";
-    private static final String optionsValueEmpty = "[EMPTY]";
     private static final String stringValueNone = "[NULL]";
 
     /**
@@ -102,7 +98,7 @@ abstract public class SkillType<T> {
         try {
             SkillType<V> skillType = SkillTypes.find(SkillResourceLocation.of(type));
             PlayerSkills.LOGGER.debug("Hydrating {} skill named {}: {}", type, name, value);
-            return skillType.unserialize(name, value, changesAllowed, options);
+            return skillType.unserialize(name, value, changesAllowed);
         } catch (RegistryItemNotFound e) {
             PlayerSkills.LOGGER.warn("No skill type {} in the registry to hydrate {}", type, name);
         }
@@ -116,11 +112,8 @@ abstract public class SkillType<T> {
         String skillType = parts[1];
         String skillValue = parts[2].equals(stringValueNone) ? null : parts[2];
         String skillChangesAllowed = parts[3];
-        String[] skillOptions = (parts[4].equals(optionsValueEmpty)) ? new String[]{} : parts[4].split(optionsSeparator);
 
-        String[] mainData = {skillName, skillType, skillValue, skillChangesAllowed};
-
-        return ArrayUtils.addAll(mainData, skillOptions);
+        return new String[]{skillName, skillType, skillValue, skillChangesAllowed};
     }
 
     public ResourceLocation getName() {
@@ -142,34 +135,32 @@ abstract public class SkillType<T> {
      * Convert into string for NBT storage
      */
     public String serialize(Skill<T> skill) {
-        return serialize(skill, "", new ArrayList<>());
-    }
-
-    /**
-     * Helper serializer to ensure expected format when deserializing
-     */
-    public String serialize(Skill<T> skill, String value, List<String> options) {
-        String serialOptions = String.join(optionsSeparator, options);
+        String value = castToString(skill.getValue());
         String[] parts = {
                 skill.getName().toString(),
                 skill.getType().toString(),
                 (value == null || value.equals("")) ? stringValueNone : value,
                 String.valueOf(skill.getChangesAllowed()),
-                (serialOptions.equals("")) ? optionsValueEmpty : serialOptions,
         };
 
         return String.join(valueSeparator, parts);
     }
 
+    protected abstract String castToString(T value);
+
     /**
      * Convert from string in NBT storage
      */
-    public Skill<T> unserialize(String name, String value, int changesAllowed, List<String> options) {
-        return new Skill<T>(SkillResourceLocation.of(name), this.getName());
+    public Skill<T> unserialize(String skillName, String value, int changesAllowed) throws RegistryItemNotFound {
+        ResourceLocation name = SkillResourceLocation.of(skillName);
+        Skill<T> baseSkill = net.impleri.playerskills.server.api.Skill.find(name);
+        @Nullable T castValue = castFromString(value);
+
+        return baseSkill.copy(castValue, changesAllowed);
     }
 
     @Nullable
-    public abstract T castValue(String value);
+    public abstract T castFromString(String value);
 
     /**
      * Logic to determine if skill is activated for the expected value

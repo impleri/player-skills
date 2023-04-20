@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class BasicSkillJS extends BasicSkill {
     public BasicSkillJS(Builder builder) {
-        super(builder.id, builder.initialValue, builder.description, builder.options, builder.changesAllowed);
+        super(builder.id, builder.initialValue, builder.description, builder.options, builder.changesAllowed, builder.teamMode);
     }
 
     public static class Builder extends GenericSkillBuilderJS<Boolean> {
