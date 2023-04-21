@@ -9,15 +9,16 @@ import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.integration.kubejs.Registries;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
 
 public class SkillConditionBuilderJS<T> extends BuilderBase<Skill<T>> {
     protected Skill<T> skill;
     protected @Nullable SkillType<T> type;
     protected Player player;
-    private final RandomSource random = RandomSource.create();
+    private final Random random = new Random();
 
     protected double appliedChance = 100.0;
     public @Nullable T min;
@@ -55,13 +56,13 @@ public class SkillConditionBuilderJS<T> extends BuilderBase<Skill<T>> {
 
     @HideFromJS
     private boolean calculateConditions() {
-        // True if there is no if condition or if the condition is true
+        // True if there is no if condition or if the condition is trues
         boolean hasIf = (conditionIf == null || conditionIf);
 
         // True if there is no unless condition or if the condition is false
         boolean hasUnless = (conditionUnless == null || !conditionUnless);
 
-        boolean hasChance = (appliedChance >= random.nextIntBetweenInclusive(0, 100));
+        boolean hasChance = (appliedChance >= random.nextDouble(100.0));
 
         PlayerSkills.LOGGER.debug("Checking conditions. IF: {}->{}. UNLESS: {}->{}", conditionIf, hasIf, conditionUnless, hasUnless);
 
