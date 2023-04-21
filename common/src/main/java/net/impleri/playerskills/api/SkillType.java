@@ -28,26 +28,24 @@ abstract public class SkillType<T> {
     }
 
     /**
-     * Find a SkillType by string
+     * Find a SkillType
      */
     public static <V> SkillType<V> find(String name) throws RegistryItemNotFound {
         return find(SkillResourceLocation.of(name));
     }
 
-    /**
-     * Find a SkillType by name
-     */
     public static <V> SkillType<V> find(ResourceLocation location) throws RegistryItemNotFound {
         return SkillTypes.find(location);
     }
 
     /**
-     * Find a SkillType for a specific Skill
+     * Find a SkillType
      */
     public static <V> SkillType<V> forSkill(Skill<V> skill) throws RegistryItemNotFound {
         return find(skill.getType());
     }
 
+    @Nullable
     public static <V> SkillType<V> maybeForSkill(Skill<V> skill) {
         try {
             return find(skill.getType());
@@ -56,6 +54,7 @@ abstract public class SkillType<T> {
         }
     }
 
+    @ApiStatus.Internal
     public static <V> String serializeToString(Skill<V> skill) {
         PlayerSkills.LOGGER.debug("Serializing skill {} with type {}", skill.getName(), skill.getType());
         try {
@@ -106,7 +105,7 @@ abstract public class SkillType<T> {
         return null;
     }
 
-    public static String[] splitRawSkill(String value) {
+    private static String[] splitRawSkill(String value) {
         String[] parts = value.split(valueSeparator);
         String skillName = parts[0];
         String skillType = parts[1];
@@ -134,7 +133,7 @@ abstract public class SkillType<T> {
     /**
      * Convert into string for NBT storage
      */
-    public String serialize(Skill<T> skill) {
+    private String serialize(Skill<T> skill) {
         String value = castToString(skill.getValue());
         String[] parts = {
                 skill.getName().toString(),
@@ -151,7 +150,7 @@ abstract public class SkillType<T> {
     /**
      * Convert from string in NBT storage
      */
-    public Skill<T> unserialize(String skillName, String value, int changesAllowed) throws RegistryItemNotFound {
+    private Skill<T> unserialize(String skillName, String value, int changesAllowed) throws RegistryItemNotFound {
         ResourceLocation name = SkillResourceLocation.of(skillName);
         Skill<T> baseSkill = net.impleri.playerskills.server.api.Skill.find(name);
         @Nullable T castValue = castFromString(value);

@@ -4,7 +4,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,31 +15,11 @@ public class Skill<T> {
 
     protected ResourceLocation name;
     protected ResourceLocation type;
+    protected TeamMode teamMode;
     protected T value;
+    protected String description;
     protected List<T> options;
     protected int changesAllowed;
-    protected String description;
-    protected TeamMode teamMode;
-
-    public Skill(ResourceLocation name, ResourceLocation type) {
-        this(name, type, null);
-    }
-
-    public Skill(ResourceLocation name, ResourceLocation type, T value) {
-        this(name, type, value, null);
-    }
-
-    public Skill(ResourceLocation name, ResourceLocation type, T value, String description) {
-        this(name, type, value, description, new ArrayList<>());
-    }
-
-    public Skill(ResourceLocation name, ResourceLocation type, T value, String description, List<T> options) {
-        this(name, type, value, description, options, UNLIMITED_CHANGES);
-    }
-
-    public Skill(ResourceLocation name, ResourceLocation type, T value, String description, List<T> options, int changesAllowed) {
-        this(name, type, value, description, options, changesAllowed, TeamMode.off());
-    }
 
     public Skill(ResourceLocation name, ResourceLocation type, T value, String description, List<T> options, int changesAllowed, TeamMode teamMode) {
         this.name = name;
@@ -64,12 +43,24 @@ public class Skill<T> {
         return name;
     }
 
+    public void setName(ResourceLocation name) {
+        this.name = name;
+    }
+
     public ResourceLocation getType() {
         return type;
     }
 
+    public void setType(ResourceLocation type) {
+        this.type = type;
+    }
+
     public TeamMode getTeamMode() {
         return teamMode;
+    }
+
+    public void setTeamMode(TeamMode teamMode) {
+        this.teamMode = teamMode;
     }
 
     @Nullable
@@ -77,14 +68,26 @@ public class Skill<T> {
         return value;
     }
 
+    public void setValue(@Nullable T value) {
+        this.value = value;
+    }
+
     @Nullable
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(@Nullable String description) {
+        this.description = description;
+    }
+
     @NotNull
     public List<T> getOptions() {
         return options;
+    }
+
+    public void setOptions(@NotNull List<T> options) {
+        this.options = options;
     }
 
     public int getChangesAllowed() {
@@ -94,31 +97,6 @@ public class Skill<T> {
     public boolean areChangesAllowed() {
         return changesAllowed != 0;
     }
-
-    public void setName(ResourceLocation name) {
-        this.name = name;
-    }
-
-    public void setType(ResourceLocation type) {
-        this.type = type;
-    }
-
-    public void setTeamMode(TeamMode teamMode) {
-        this.teamMode = teamMode;
-    }
-
-    public void setValue(@Nullable T value) {
-        this.value = value;
-    }
-
-    public void setDescription(@Nullable String description) {
-        this.description = description;
-    }
-
-    public void setOptions(@NotNull List<T> options) {
-        this.options = options;
-    }
-
 
     public void consumeChange() {
         if (changesAllowed > 0) {
@@ -134,15 +112,18 @@ public class Skill<T> {
         return that.name == this.name;
     }
 
+    public boolean isSameType(Skill<?> that) {
+        return that.type == this.type;
+    }
+
     private <V> boolean canEquals(Skill<V> that) {
         return that.getClass().isInstance(this);
     }
 
-
     @Override
     public boolean equals(Object that) {
         if (that instanceof Skill<?> skill) {
-            return skill.canEquals(this) && skill.name == this.name && skill.type == this.type;
+            return skill.canEquals(this) && isSameAs(skill) && isSameType(skill);
         }
 
         return false;
