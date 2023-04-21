@@ -5,13 +5,16 @@ import net.impleri.playerskills.server.events.SkillChangedEvent;
 import net.impleri.playerskills.utils.PlayerSkillsLogger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -33,6 +36,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
 
     private final PlayerSkillsLogger logger;
 
+
     public RestrictionsApi(Registry<R> registry, Field[] fields, PlayerSkillsLogger logger) {
         this.registry = registry;
         this.allRestrictionFields = fields;
@@ -41,22 +45,14 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         SkillChangedEvent.EVENT.register(this::clearPlayerCache);
     }
 
-
     public RestrictionsApi(Registry<R> registry, Field[] fields) {
         this(registry, fields, PlayerSkills.LOGGER);
     }
 
-    private Triple<UUID, ResourceLocation, ResourceLocation> createCacheKey(UUID player, ResourceLocation dimension, ResourceLocation biome) {
-        return Triple.of(player, dimension, biome);
-    }
-
-    private Triple<UUID, ResourceLocation, ResourceLocation> createCacheKey(Player player, ResourceLocation dimension, ResourceLocation biome) {
-        return createCacheKey(player.getUUID(), dimension, biome);
-    }
-
     public void clearPlayerCache(SkillChangedEvent<?> event) {
-        restrictionsCache.remove(event.getPlayer());
-        replacementCache.remove(event.getPlayer());
+        var player = event.getPlayer();
+        restrictionsCache.remove(player);
+        replacementCache.remove(player);
     }
 
     private Field getField(String name) {
@@ -97,7 +93,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return restriction -> restriction.target != null;
     }
 
-    private Predicate<R> matchesPlayer(Player player) {
+    private Predicate<R> matchesPlayer(@NotNull Player player) {
         return restriction -> restriction.condition.test(player);
     }
 
@@ -122,7 +118,7 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         return restriction -> restriction.excludeBiomes.size() == 0 || !restriction.excludeBiomes.contains(biome);
     }
 
-    private List<R> populatePlayerRestrictions(Player player) {
+    private List<R> populatePlayerRestrictions(@NotNull Player player) {
         return registry.entries().stream()
                 .filter(hasTarget())
                 .filter(matchesPlayer(player))
@@ -200,14 +196,13 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
         var playerCache = replacementCache.computeIfAbsent(player, (_player) -> new HashMap<>());
 
         var actualFilter = filter == null ? emptyFilter : filter;
-
         var cacheKey = new ReplacementCacheKey<T, R>(target, dimension, biome, actualFilter);
+
         if (playerCache.containsKey(cacheKey)) {
             return playerCache.get(cacheKey);
         }
 
         var replacement = getActualReplacement(player, target, dimension, biome, actualFilter);
-
         logger.debug(
                 "{} should be cached as {} in {}/{} for {}",
                 getTargetName(target),

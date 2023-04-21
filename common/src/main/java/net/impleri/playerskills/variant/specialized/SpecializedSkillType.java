@@ -4,7 +4,6 @@ import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.utils.SkillResourceLocation;
-import net.impleri.playerskills.variant.tiered.TieredSkill;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,8 +11,6 @@ import java.util.List;
 
 public class SpecializedSkillType extends SkillType<String> {
     public static ResourceLocation name = SkillResourceLocation.of("specialized");
-    private static final String optionsSeparator = "!";
-    private static final String stringValueNull = "NULL";
 
     @Override
     public ResourceLocation getName() {
@@ -21,25 +18,16 @@ public class SpecializedSkillType extends SkillType<String> {
     }
 
     private List<String> getOptions(Skill<String> skill) {
-        return ((TieredSkill) skill).getOptions();
+        return skill.getOptions();
     }
 
     @Override
-    public String serialize(Skill<String> skill) {
-        return serialize(skill, skill.getValue(), skill.getOptions());
+    protected String castToString(String value) {
+        return value;
     }
 
     @Override
-    @Nullable
-    public Skill<String> unserialize(String skillName, String skillValue, int changesAllowed, List<String> options) {
-        ResourceLocation name = SkillResourceLocation.of(skillName);
-        @Nullable String description = getDescriptionFor(name);
-
-        return new SpecializedSkill(name, options, skillValue, description, changesAllowed);
-    }
-
-    @Override
-    public @Nullable String castValue(String value) {
+    public @Nullable String castFromString(String value) {
         return value;
     }
 

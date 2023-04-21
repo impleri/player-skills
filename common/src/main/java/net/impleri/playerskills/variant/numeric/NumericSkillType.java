@@ -7,9 +7,6 @@ import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Objects;
-
 public class NumericSkillType extends SkillType<Double> {
     public static ResourceLocation name = SkillResourceLocation.of("numeric");
 
@@ -18,13 +15,14 @@ public class NumericSkillType extends SkillType<Double> {
         return name;
     }
 
-    private String castToString(Double value) {
+    @Override
+    protected String castToString(Double value) {
         return (value == null) ? "" : value.toString();
     }
 
     @Nullable
     @Override
-    public Double castValue(String value) {
+    public Double castFromString(String value) {
         try {
             return (value == null || value.equals("")) ? null : Double.parseDouble(value);
         } catch (NumberFormatException e) {
@@ -32,28 +30,6 @@ public class NumericSkillType extends SkillType<Double> {
         }
 
         return null;
-    }
-
-    @Override
-    public String serialize(Skill<Double> skill) {
-        String stringValue = castToString(skill.getValue());
-        List<String> stringOptions = skill.getOptions().stream().map(this::castToString).toList();
-
-        return serialize(skill, stringValue, stringOptions);
-    }
-
-    @Override
-    @Nullable
-    public Skill<Double> unserialize(String skillName, String skillValue, int changesAllowed, List<String> skillOptions) {
-        ResourceLocation name = SkillResourceLocation.of(skillName);
-        @Nullable Double value = castValue(skillValue);
-        @Nullable String description = getDescriptionFor(name);
-        List<Double> options = skillOptions.stream()
-                .map(this::castValue)
-                .filter(Objects::nonNull)
-                .toList();
-
-        return new NumericSkill(name, value, description, options, changesAllowed);
     }
 
     private double getNumericValue(Double value, @Nullable Double fallback) {

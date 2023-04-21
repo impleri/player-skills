@@ -4,6 +4,7 @@ import dev.latvian.mods.kubejs.BuilderBase;
 import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes;
 import dev.latvian.mods.rhino.util.HideFromJS;
 import net.impleri.playerskills.api.Skill;
+import net.impleri.playerskills.api.TeamMode;
 import net.impleri.playerskills.integration.kubejs.Registries;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +18,7 @@ public abstract class GenericSkillBuilderJS<T> extends BuilderBase<Skill<T>> {
     public @Nullable String description;
     public List<T> options = new ArrayList<>();
     public int changesAllowed = Skill.UNLIMITED_CHANGES;
+    public TeamMode teamMode = TeamMode.off();
 
 
     public GenericSkillBuilderJS(ResourceLocation name) {
@@ -66,6 +68,24 @@ public abstract class GenericSkillBuilderJS<T> extends BuilderBase<Skill<T>> {
 
     public GenericSkillBuilderJS<T> clearValue() {
         initialValue = null;
+
+        return this;
+    }
+
+    public GenericSkillBuilderJS<T> sharedWithTeam() {
+        teamMode = TeamMode.shared();
+
+        return this;
+    }
+
+    public GenericSkillBuilderJS<T> teamLimitedTo(Double amount) {
+        teamMode = TeamMode.limited(amount);
+
+        return this;
+    }
+
+    public GenericSkillBuilderJS<T> percentageOfTeam(Double percentage) {
+        teamMode = TeamMode.proportional(percentage);
 
         return this;
     }
