@@ -1,5 +1,6 @@
 package net.impleri.playerskills.api;
 
+import dev.architectury.core.RegistryEntry;
 import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.registry.SkillTypes;
@@ -16,7 +17,7 @@ import java.util.List;
  * 1. serialization to/from NBT
  * 2. Executing logic to determine if a skill value should be changed.
  */
-abstract public class SkillType<T> {
+abstract public class SkillType<T> extends RegistryEntry<SkillType<?>> {
     private static final String valueSeparator = ";";
     private static final String stringValueNone = "[NULL]";
 
