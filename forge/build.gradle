@@ -19,6 +19,7 @@ dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
     modImplementation "dev.architectury:architectury-forge:${rootProject.architectury_version}"
     modImplementation "dev.latvian.mods:kubejs-forge:${rootProject.kubejs_version}"
+    modImplementation("dev.ftb.mods:ftb-teams-forge:${rootProject.ftb_teams_version}")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
@@ -67,6 +68,16 @@ publishing {
         mavenForge(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
+        }
+    }
+}
+
+unifiedPublishing {
+    project {
+        relations {
+            optional {
+                curseforge = "ftb-teams"
+            }
         }
     }
 }

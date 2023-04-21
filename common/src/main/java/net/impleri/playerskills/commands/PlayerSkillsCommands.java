@@ -8,6 +8,7 @@ import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.registry.RegistryItemNotFound;
 import net.impleri.playerskills.server.ServerApi;
+import net.impleri.playerskills.server.TeamApi;
 import net.impleri.playerskills.server.api.Skill;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -33,6 +34,18 @@ public class PlayerSkillsCommands {
                 .then(Commands.literal("types").executes(context -> listTypes(context.getSource())))
                 .then(Commands.literal("all").executes(context -> listSkills(context.getSource())))
                 .then(Commands.literal("mine").executes(context -> listOwnSkills(context.getSource())))
+                .then(Commands.literal("team")
+                        .then(Commands.literal("share").executes(context -> syncToTeam(context.getSource())))
+                        .then(Commands.literal("sync")
+                                .requires(source -> source.hasPermission(2))
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .executes(context -> syncTeamFor(
+                                                context.getSource(),
+                                                EntityArgument.getPlayer(context, "player")
+                                        ))
+                                )
+                        )
+                )
                 .then(Commands.literal("debug")
                         .requires(source -> source.hasPermission(2))
                         .executes(context -> debugCommand.apply(context.getSource()))
@@ -121,6 +134,29 @@ public class PlayerSkillsCommands {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int syncTeamFor(CommandSourceStack source, ServerPlayer player) {
+        if (player == null) {
+            return 2;
+        }
+
+        boolean success = TeamApi.syncEntireTeam(player);
+
+        return success ? Command.SINGLE_SUCCESS : 3;
+    }
+
+    private static int syncToTeam(CommandSourceStack source) {
+        ServerPlayer player;
+        try {
+            player = source.getPlayerOrException();
+        } catch (CommandSyntaxException error) {
+            return 2;
+        }
+
+        boolean success = TeamApi.syncFromPlayer(player);
+
+        return success ? Command.SINGLE_SUCCESS : 3;
+    }
+
     private static int listOwnSkills(CommandSourceStack source) {
         ServerPlayer player;
         try {
@@ -151,7 +187,7 @@ public class PlayerSkillsCommands {
         try {
             var skill = Skill.find(skillName);
             var type = SkillType.forSkill(skill);
-            var castValue = type.castValue(value);
+            var castValue = type.castFromString(value);
             var success = ServerApi.set(player, skill, castValue);
 
             var message = new TranslatableComponent(

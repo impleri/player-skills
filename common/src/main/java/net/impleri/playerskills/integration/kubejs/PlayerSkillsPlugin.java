@@ -1,5 +1,6 @@
 package net.impleri.playerskills.integration.kubejs;
 
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.player.PlayerDataJS;
 import dev.latvian.mods.kubejs.script.AttachDataEvent;
@@ -18,21 +19,25 @@ import net.impleri.playerskills.variant.basic.BasicSkillType;
 import net.impleri.playerskills.variant.numeric.NumericSkillType;
 import net.impleri.playerskills.variant.specialized.SpecializedSkillType;
 import net.impleri.playerskills.variant.tiered.TieredSkillType;
+import net.minecraft.server.MinecraftServer;
 
 public class PlayerSkillsPlugin extends KubeJSPlugin {
-    public static void modifySkills() {
-        new SkillsModificationEventJS(Registries.SKILLS.types).post(ScriptType.SERVER, EventsBinding.MODIFICATION);
-    }
 
     private final PlayerSkillsKubeJSWrapper skillWrapper = new PlayerSkillsKubeJSWrapper();
 
     @Override
     public void init() {
         SkillChangedEvent.EVENT.register(this::onSkillChange);
+        LifecycleEvent.SERVER_STARTING.register(this::onServerStart);
         Registries.SKILLS.addType(BasicSkillType.name.toString(), BasicSkillJS.Builder.class, BasicSkillJS.Builder::new);
         Registries.SKILLS.addType(NumericSkillType.name.toString(), NumericSkillJS.Builder.class, NumericSkillJS.Builder::new);
         Registries.SKILLS.addType(TieredSkillType.name.toString(), TieredSkillJS.Builder.class, TieredSkillJS.Builder::new);
         Registries.SKILLS.addType(SpecializedSkillType.name.toString(), SpecializedSkillJS.Builder.class, SpecializedSkillJS.Builder::new);
+    }
+
+    private void onServerStart(MinecraftServer minecraftServer) {
+        // Trigger skills modification event
+        new SkillsModificationEventJS(Registries.SKILLS.types).post(ScriptType.SERVER, EventsBinding.MODIFICATION);
     }
 
     @Override
