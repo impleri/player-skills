@@ -213,12 +213,18 @@ However, you will have a few options:
 
 Each of the methods take an optional condition builder callback. Here, you can provide more boundaries.
 
-- `min`: If the player's skill is below the minimum, it will jump to the minimum value. If it's at or above, it will
+- `min(value: T)` - If the player's skill is below the minimum, it will jump to the minimum value. If it's at or above,
+  it will
   increment appropriately
-- `max`: If the player's skill is at or above the maximum value, nothing will change. Otherwise, increment the skill
+- `max(value: T)` - If the player's skill is at or above the maximum value, nothing will change. Otherwise, increment
+  the skill
   appropriately
-- `if`: Add an expression which evaluates to a boolean value. Will only increment the value if this is true
-- `unless`: Add an expression which evaluates to a boolean value. Will only increment the value if this is false
+- `if(condition: boolean)` - Add an expression which evaluates to a boolean value. Will only increment the value if this
+  is true
+- `unless(condition: boolean)` - Add an expression which evaluates to a boolean value. Will only increment the value if
+  this is false
+- `chance(percentage: number)` - Make the skill gain based on random chance using the provided. Values are between 0
+  and 100. Anything over 100 is guaranteed success. Default is 100
 
 ##### Examples
 
@@ -227,8 +233,8 @@ BlockEvents.rightClicked('minecraft:dirt', event => {
   // this is a basic skill, so we ensure it's true
   event.entity.data.skills.improve('skills:dirt_watcher');
 
-  // this is a numeric skill, but we want to stop improvements this way once it hits 5
-  event.entity.data.skills.improve('skills:harvest', condition => condition.max(5));
+  // this is a numeric skill, but we want to stop improvements this way once it hits 5 and only grant it 1/3rd of the time
+  event.entity.data.skills.improve('skills:harvest', condition => condition.max(5).chance(33.3));
 
   // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
   event.entity.data.skills.improve('skills:undead_killer', condition => condition
