@@ -1,5 +1,6 @@
 package net.impleri.playerskills.api;
 
+import dev.architectury.core.RegistryEntry;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,7 +11,7 @@ import java.util.List;
  * Base generic skill. These are meant to be nothing more than
  * containers for data. All logic should be handled by the SkillType.
  */
-public class Skill<T> {
+public class Skill<T> extends RegistryEntry<Skill<?>> {
     public static final int UNLIMITED_CHANGES = -1;
 
     protected ResourceLocation name;
