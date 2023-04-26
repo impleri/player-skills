@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public abstract class Skills {
     public static final ResourceLocation REGISTRY_KEY = SkillResourceLocation.of("skills_registry");
