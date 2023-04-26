@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Skill {
     /**
@@ -18,6 +19,10 @@ public class Skill {
      */
     public static List<net.impleri.playerskills.api.Skill<?>> all() {
         return Skills.entries();
+    }
+
+    public static Stream<net.impleri.playerskills.api.Skill<?>> stream() {
+        return Skills.stream();
     }
 
     /**

@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public abstract class Skills {
     public static final ResourceLocation REGISTRY_KEY = SkillResourceLocation.of("skills_registry");
@@ -44,11 +45,15 @@ public abstract class Skills {
         REGISTRY.entrySet().forEach(entry -> registry.put(entry.getKey().location(), entry.getValue()));
     }
 
+    public static Stream<Skill<?>> stream() {
+        return registry.values().stream();
+    }
+
     /**
      * Get an IMMUTABLE List of the Skills in cache
      */
     public static List<Skill<?>> entries() {
-        return registry.values().stream().toList();
+        return stream().toList();
     }
 
     private static <T> @Nullable Skill<T> maybeFind(ResourceLocation name) {
