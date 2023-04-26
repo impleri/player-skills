@@ -24,7 +24,8 @@ dependencies {
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
     modApi "dev.latvian.mods:kubejs-fabric:${rootProject.kubejs_version}"
-    modImplementation("dev.ftb.mods:ftb-teams-fabric:${rootProject.ftb_teams_version}")
+    modImplementation "dev.ftb.mods:ftb-teams-fabric:${rootProject.ftb_teams_version}"
+    modImplementation "dev.ftb.mods:ftb-quests-fabric:${rootProject.ftb_quests_version}"
 
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
@@ -84,6 +85,10 @@ unifiedPublishing {
             depends {
                 curseforge = "fabric-api"
                 modrinth = "fabric-api"
+            }
+
+            optional {
+                curseforge = "ftb-quests-fabric"
             }
 
             optional {
