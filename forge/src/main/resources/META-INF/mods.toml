@@ -40,3 +40,17 @@ mandatory = true
 versionRange = "[1902.6.0,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.playerskills]]
+modId = "ftb-teams"
+mandatory = false
+versionRange = "[1902.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.playerskills]]
+modId = "ftb-quests"
+mandatory = false
+versionRange = "[1902.0,)"
+ordering = "AFTER"
+side = "BOTH"
