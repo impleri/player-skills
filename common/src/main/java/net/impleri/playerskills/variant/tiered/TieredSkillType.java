@@ -44,8 +44,10 @@ public class TieredSkillType extends SkillType<String> {
         }
 
         int currentValue = getIndexValue(skill);
-        int maxIndex = getIndexValue(max, getOptions(skill));
-        int minIndex = getIndexValue(min, getOptions(skill));
+
+        var options = getOptions(skill);
+        int maxIndex = getIndexValue(max, options);
+        int minIndex = getIndexValue(min, options);
 
         int currentMinusOne = currentValue - 1;
 
@@ -67,19 +69,21 @@ public class TieredSkillType extends SkillType<String> {
         }
 
         int currentValue = getIndexValue(skill);
-        int maxIndex = getIndexValue(max, getOptions(skill));
-        int minIndex = getIndexValue(min, getOptions(skill));
+
+        var options = getOptions(skill);
+        int maxIndex = getIndexValue(max, options);
+        int minIndex = getIndexValue(min, options);
 
         int currentPlusOne = currentValue + 1;
-        int maybeEndOfList = Integer.min(currentPlusOne, getOptions(skill).size());
+        int rawNextVal = Integer.min(currentPlusOne, options.size());
 
         // Ensure we jump up to the min value immediately
-        int nextVal = (min == null) ? maybeEndOfList : Integer.max(maybeEndOfList, minIndex);
+        int nextVal = (min == null) ? rawNextVal : Integer.max(rawNextVal, minIndex);
 
         // If no max, use nextVal so that we increment
-        int maxVal = (max == null) ? maybeEndOfList : Integer.min(maxIndex, maybeEndOfList);
+        int maxVal = (max == null) ? rawNextVal : Integer.min(maxIndex, rawNextVal);
 
-        // Increment the current value if below the max
+        // Increment the current value if at or below the max
         return (nextVal <= maxVal) ? getIndexName(nextVal, skill) : null;
     }
 
