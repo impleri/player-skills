@@ -29,5 +29,9 @@
     "minecraft": "1.18.2",
     "architectury": ">=4.0",
     "kubejs": "*"
+  },
+  "recommends": {
+    "ftb-quests": ">=1802.0",
+    "ftb-teams": ">=1802.0"
   }
 }
