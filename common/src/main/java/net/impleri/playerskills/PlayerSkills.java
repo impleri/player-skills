@@ -1,5 +1,6 @@
 package net.impleri.playerskills;
 
+import dev.architectury.platform.Platform;
 import dev.architectury.registry.registries.DeferredRegister;
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.SkillType;
@@ -35,6 +36,10 @@ public final class PlayerSkills {
         Manager.register();
 
         LOGGER.info("PlayerSkills Loaded");
+
+        if (Platform.isModLoaded("ftbquests")) {
+            net.impleri.playerskills.integration.ftbquests.PlayerSkillsIntegration.init();
+        }
     }
 
     public static void enableDebug() {
