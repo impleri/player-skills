@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -25,14 +26,14 @@ public abstract class RestrictionsApi<T, R extends AbstractRestriction<T>> {
 
     private final Field[] allRestrictionFields;
 
-    private final Map<Player, List<R>> restrictionsCache = new HashMap<>();
+    private final Map<Player, List<R>> restrictionsCache = new ConcurrentHashMap<>();
 
     private record ReplacementCacheKey<RT, RR extends AbstractRestriction<RT>>(RT target, ResourceLocation dimension,
                                                                                ResourceLocation biome,
                                                                                Predicate<RR> filter) {
     }
 
-    private final Map<Player, Map<ReplacementCacheKey<T, R>, T>> replacementCache = new HashMap<>();
+    private final Map<Player, Map<ReplacementCacheKey<T, R>, T>> replacementCache = new ConcurrentHashMap<>();
 
     private final PlayerSkillsLogger logger;
 

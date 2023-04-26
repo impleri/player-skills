@@ -44,11 +44,15 @@ public abstract class Skills {
         REGISTRY.entrySet().forEach(entry -> registry.put(entry.getKey().location(), entry.getValue()));
     }
 
+    public static Stream<Skill<?>> stream() {
+        return registry.values().stream();
+    }
+
     /**
      * Get an IMMUTABLE List of the Skills in cache
      */
     public static List<Skill<?>> entries() {
-        return registry.values().stream().toList();
+        return stream().toList();
     }
 
     private static <T> @Nullable Skill<T> maybeFind(ResourceLocation name) {
