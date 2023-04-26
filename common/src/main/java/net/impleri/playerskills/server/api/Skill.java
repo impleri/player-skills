@@ -20,6 +20,10 @@ public class Skill {
         return Skills.entries();
     }
 
+    public static Stream<net.impleri.playerskills.api.Skill<?>> stream() {
+        return Skills.stream();
+    }
+
     /**
      * Find a Skill by string
      */
