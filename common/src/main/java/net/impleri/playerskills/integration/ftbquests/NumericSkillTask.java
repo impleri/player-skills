@@ -65,7 +65,7 @@ public class NumericSkillTask extends BasicSkillTask {
         super.getConfig(config);
 
         config.addDouble("value", value, v -> value = v, 1.0, 0.0, Double.MAX_VALUE)
-                .setNameKey("playerskills.quests.task.value");
+                .setNameKey("playerskills.quests.ui.value");
     }
 
     @Override
