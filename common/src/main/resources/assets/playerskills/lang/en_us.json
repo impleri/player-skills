@@ -10,10 +10,15 @@
   "commands.playerskills.skill_change_failed": "Failed to set skill %1$s to %2$s for %3$s",
   "commands.playerskills.debug_enabled": "Debug has been enabled for %s",
   "commands.playerskills.debug_disabled": "Debug has been disabled for %s",
-  "playerskills.quests.task.skill": "Skill",
-  "playerskills.quests.task.value": "Value",
-  "playerskills.tasks.basic_skill": "Basic Skill",
-  "playerskills.tasks.numeric_skill": "Numeric Skill",
-  "playerskills.tasks.tiered_skill": "Tiered Skill",
-  "playerskills.tasks.specialized_skill": "Specialization Skill"
+  "playerskills.quests.reward.downgrade": "Skill %s was downgraded",
+  "playerskills.quests.reward.downgrade_value": "Skill %s was downgraded to %s",
+  "playerskills.quests.reward.upgrade_value": "Skill %s was upgraded to %s",
+  "playerskills.quests.ui.skill": "Skill",
+  "playerskills.quests.ui.value": "Value",
+  "playerskills.quests.ui.min": "Minimum",
+  "playerskills.quests.ui.max": "Maximum",
+  "playerskills.quests.basic_skill": "Basic Skill",
+  "playerskills.quests.numeric_skill": "Numeric Skill",
+  "playerskills.quests.tiered_skill": "Tiered Skill",
+  "playerskills.quests.specialized_skill": "Specialization Skill"
 }

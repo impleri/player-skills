@@ -13,9 +13,9 @@ public interface SkillTaskTypes {
     TaskType SPECIALIZED_SKILL = TaskTypes.register(SkillResourceLocation.of("specialized_skill_task"), SpecializedSkillTask::new, () -> Icon.getIcon("minecraft:item/diamond_hoe"));
 
     static void init() {
-        BASIC_SKILL.setDisplayName(Component.translatable("playerskills.tasks.basic_skill"));
-        NUMERIC_SKILL.setDisplayName(Component.translatable("playerskills.tasks.numeric_skill"));
-        TIERED_SKILL.setDisplayName(Component.translatable("playerskills.tasks.tiered_skill"));
-        SPECIALIZED_SKILL.setDisplayName(Component.translatable("playerskills.tasks.specialized_skill"));
+        BASIC_SKILL.setDisplayName(Component.translatable("playerskills.quests.basic_skill"));
+        NUMERIC_SKILL.setDisplayName(Component.translatable("playerskills.quests.numeric_skill"));
+        TIERED_SKILL.setDisplayName(Component.translatable("playerskills.quests.tiered_skill"));
+        SPECIALIZED_SKILL.setDisplayName(Component.translatable("playerskills.quests.specialized_skill"));
     }
 }
