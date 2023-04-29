@@ -86,6 +86,9 @@ whatever the default options are for the type.
 - `description(desc: string)` - Sets the skill description
 - `limitChanges(limit: number)` - How many times the skill can change before it is locked
 - `unlimitedChanges()` - Allows the skill to always change
+- `notifyOnChange(translationKey?: string)` - Send a notification when the skill changes (using either the provided
+  translation key or the base skill name)
+- `clearNotification()` - Turns off notification on skill change
 - `options(choices: T[])` - Sets what values will be allowed
 - `sharedWithTeam()` - Sync progress to all players on a team for the shared skill (requires FTM Teams)
 - `teamLimitedTo(amount: number)` - Limits the progress to only `amount` players on the team (requires FTB Teams)
