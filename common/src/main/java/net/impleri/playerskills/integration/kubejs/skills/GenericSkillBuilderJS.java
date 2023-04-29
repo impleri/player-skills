@@ -19,6 +19,8 @@ public abstract class GenericSkillBuilderJS<T> extends BuilderBase<Skill<T>> {
     public List<T> options = new ArrayList<>();
     public int changesAllowed = Skill.UNLIMITED_CHANGES;
     public TeamMode teamMode = TeamMode.off();
+    public String notifyKey;
+    public boolean notify = false;
 
 
     public GenericSkillBuilderJS(ResourceLocation name) {
@@ -62,6 +64,27 @@ public abstract class GenericSkillBuilderJS<T> extends BuilderBase<Skill<T>> {
 
     public GenericSkillBuilderJS<T> unlimitedChanges(Double changesAllowed) {
         this.changesAllowed = Skill.UNLIMITED_CHANGES;
+
+        return this;
+    }
+
+    public GenericSkillBuilderJS<T> notifyOnChange() {
+        return notifyOnChange(null);
+    }
+
+    public GenericSkillBuilderJS<T> notifyOnChange(String key) {
+        this.notify = true;
+
+        if (key != null && !key.isEmpty()) {
+            this.notifyKey = key;
+        }
+
+        return this;
+    }
+
+    public GenericSkillBuilderJS<T> clearNotification() {
+        this.notify = false;
+        this.notifyKey = null;
 
         return this;
     }

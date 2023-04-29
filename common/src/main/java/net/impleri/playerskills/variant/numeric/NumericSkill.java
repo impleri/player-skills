@@ -8,12 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class NumericSkill extends Skill<Double> {
-    public NumericSkill(ResourceLocation name, @Nullable Double value, @Nullable String description, List<Double> options, int changesAllowed, TeamMode teamMode) {
-        super(name, NumericSkillType.name, value, description, options, changesAllowed, teamMode);
+    public NumericSkill(ResourceLocation name, @Nullable Double value, @Nullable String description, List<Double> options, int changesAllowed, TeamMode teamMode, boolean notify, String notifyKey) {
+        super(name, NumericSkillType.name, value, description, options, changesAllowed, teamMode, notify, notifyKey);
     }
 
     @Override
     public Skill<Double> copy(Double value, int changesAllowed) {
-        return new NumericSkill(name, value, description, options, changesAllowed, teamMode);
+        return new NumericSkill(name, value, description, options, changesAllowed, teamMode, notify, notifyKey);
     }
 }

@@ -15,6 +15,7 @@ import net.impleri.playerskills.variant.specialized.SpecializedSkillType;
 import net.impleri.playerskills.variant.tiered.TieredSkillType;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
@@ -52,6 +53,13 @@ public final class PlayerSkills {
 
     public static <T> void emitSkillChanged(Player player, Skill<T> newSkill, Skill<T> oldSkill) {
         SkillChangedEvent.EVENT.invoker().accept(new SkillChangedEvent<T>(player, newSkill, oldSkill));
+
+        if (player instanceof ServerPlayer serverPlayer) {
+            var message = newSkill.getNotification(oldSkill.getValue());
+            if (message != null) {
+                serverPlayer.sendSystemMessage(message, true);
+            }
+        }
     }
 
     public static <T> void resync(UUID playerId) {
