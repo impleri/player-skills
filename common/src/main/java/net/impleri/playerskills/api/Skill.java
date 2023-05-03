@@ -14,9 +14,7 @@ import java.util.List;
  */
 public class Skill<T> {
     public static final int UNLIMITED_CHANGES = -1;
-
-    protected static final String FALLBACK_NOTIFICATION = "playerskills.notify.skill_change";
-
+    
     protected ResourceLocation name;
     protected ResourceLocation type;
     protected boolean notify;
@@ -118,17 +116,40 @@ public class Skill<T> {
             return null;
         }
 
-        var messageKey = notifyKey == null ? "playerskills.notify.skill_change" : notifyKey;
+        return notifyKey == null ? getDefaultNotification() : formatNotification(notifyKey, oldValue);
+    }
 
-        var skillName = Component.literal(getName().getPath().replace("_", " "))
+    protected Component getDefaultNotification() {
+        return formatNotification("playerskills.notify.skill_change");
+    }
+
+    protected Component formatNotification(String messageKey) {
+        return formatNotification(messageKey, null);
+    }
+
+    protected Component formatNotification(String messageKey, @Nullable T oldValue) {
+        var skillName = formatSkillName();
+        var skillValue = formatSkillValue();
+        var oldSkillValue = oldValue == null ? "" : formatSkillValue(oldValue);
+
+        return Component.translatable(messageKey, skillName, skillValue, oldSkillValue);
+    }
+
+    protected Component formatSkillName() {
+        return Component.literal(getName().getPath().replace("_", " "))
                 .withStyle(ChatFormatting.DARK_AQUA)
                 .withStyle(ChatFormatting.BOLD);
-
-        var skillValue = Component.literal(value.toString())
-                .withStyle(ChatFormatting.GOLD);
-
-        return Component.translatable(messageKey, skillName, skillValue);
     }
+
+    protected Component formatSkillValue() {
+        return formatSkillValue(value);
+    }
+
+    protected Component formatSkillValue(T value) {
+        return Component.literal(value.toString())
+                .withStyle(ChatFormatting.GOLD);
+    }
+
 
     public boolean isAllowedValue(T nextVal) {
         return options.size() == 0 || options.contains(nextVal);

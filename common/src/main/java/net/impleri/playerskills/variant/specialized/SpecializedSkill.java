@@ -2,6 +2,7 @@ package net.impleri.playerskills.variant.specialized;
 
 import net.impleri.playerskills.api.Skill;
 import net.impleri.playerskills.api.TeamMode;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,5 +16,11 @@ public class SpecializedSkill extends Skill<String> {
     @Override
     public Skill<String> copy(String value, int changesAllowed) {
         return new SpecializedSkill(name, options, value, description, changesAllowed, teamMode, notify, notifyKey);
+    }
+
+    @Override
+    @Nullable
+    protected Component getDefaultNotification() {
+        return Component.translatable("playerskills.notify.specialized_skill_selected", formatSkillName(), formatSkillValue());
     }
 }
