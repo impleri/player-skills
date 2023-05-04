@@ -17,6 +17,7 @@ abstract class GenericSkillBuilderJS<T>(name: ResourceLocation?) : BuilderBase<S
   var teamMode = TeamMode.off()
   var notifyKey: String? = null
   var notify = false
+  
   override fun getRegistryType(): RegistryObjectBuilderTypes<in Skill<T>?>? {
     return Registries.SKILLS
   }
@@ -52,13 +53,16 @@ abstract class GenericSkillBuilderJS<T>(name: ResourceLocation?) : BuilderBase<S
     return this
   }
 
-  @JvmOverloads
-  fun notifyOnChange(key: String? = null): GenericSkillBuilderJS<T> {
+  fun notifyOnChange(key: String?): GenericSkillBuilderJS<T> {
     notify = true
     if (key != null && !key.isEmpty()) {
       notifyKey = key
     }
     return this
+  }
+
+  fun notifyOnChange(): GenericSkillBuilderJS<T> {
+    return notifyOnChange(null)
   }
 
   fun clearNotification(): GenericSkillBuilderJS<T> {

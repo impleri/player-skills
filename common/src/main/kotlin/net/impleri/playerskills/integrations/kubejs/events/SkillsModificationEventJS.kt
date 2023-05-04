@@ -9,11 +9,10 @@ import net.impleri.playerskills.utils.SkillResourceLocation
 class SkillsModificationEventJS(types: Map<String, RegistryObjectBuilderTypes.BuilderType<Skill<*>>>) :
   BaseSkillsRegistryEventJS(types) {
 
-  @JvmOverloads
   fun <T> modify(
     skillName: String,
-    skillType: String? = null,
-    consumer: ((GenericSkillBuilderJS<T>) -> Unit)? = null,
+    skillType: String?,
+    consumer: ((GenericSkillBuilderJS<T>) -> Unit),
   ): Boolean {
     val name = SkillResourceLocation.of(skillName)
     val skill = Skill.find<T>(name) ?: return false
@@ -30,6 +29,13 @@ class SkillsModificationEventJS(types: Map<String, RegistryObjectBuilderTypes.Bu
     ConsoleJS.SERVER.info("Updated $type skill $name")
 
     return response
+  }
+
+  fun <T> modify(
+    skillName: String,
+    consumer: ((GenericSkillBuilderJS<T>) -> Unit),
+  ): Boolean {
+    return modify(skillName, null, consumer)
   }
 
   fun <T> remove(name: String): Boolean {

@@ -14,8 +14,7 @@ class SkillsRegistrationEventJS(types: Map<String, RegistryObjectBuilderTypes.Bu
   /**
    * Add a new skill to the registry
    */
-  @JvmOverloads
-  fun <T> add(skillName: String, type: String, consumer: ((GenericSkillBuilderJS<T>) -> Unit)? = null): Boolean {
+  fun <T> add(skillName: String, type: String, consumer: ((GenericSkillBuilderJS<T>) -> Unit)?): Boolean {
     val name = SkillResourceLocation.of(skillName)
 
     val builder = getBuilder<T>(type, name) ?: return false
@@ -26,6 +25,10 @@ class SkillsRegistrationEventJS(types: Map<String, RegistryObjectBuilderTypes.Bu
 
     ConsoleJS.STARTUP.info("Created $type skill $name")
     return true
+  }
+
+  fun <T> add(skillName: String, type: String): Boolean {
+    return add<T>(skillName, type, null)
   }
 
   override fun afterPosted(isCanceled: Boolean) {
