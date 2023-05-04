@@ -46,13 +46,15 @@ class MutablePlayerDataJS(player: Player) : PlayerDataJS(
     return false
   }
 
-  val all: List<Skill<*>>
-    get() = PlayerApi.get(player)
-  val skills: List<Skill<*>>
-    get() = Skill.all()
+  fun getAll(): List<Skill<*>> {
+    return PlayerApi.get(player)
+  }
 
-  @JvmOverloads
-  fun <T> set(skillName: String, newValue: T, consumer: ((SkillConditionBuilderJS<T>) -> Unit)? = null): Boolean {
+  fun getSkills(): List<Skill<*>> {
+    return Skill.all()
+  }
+
+  fun <T> set(skillName: String, newValue: T, consumer: ((SkillConditionBuilderJS<T>) -> Unit)?): Boolean {
     getSkill<T>(skillName)?.let {
       var shouldChange = it.value !== newValue
 
@@ -70,8 +72,11 @@ class MutablePlayerDataJS(player: Player) : PlayerDataJS(
     return false
   }
 
-  @JvmOverloads
-  fun <T> improve(skillName: String, consumer: ((SkillConditionBuilderJS<T>) -> Unit)? = null): Boolean {
+  fun <T> set(skillName: String, newValue: T): Boolean {
+    return set(skillName, newValue, null)
+  }
+
+  fun <T> improve(skillName: String, consumer: ((SkillConditionBuilderJS<T>) -> Unit)?): Boolean {
     return getSkill<T>(skillName)?.let {
 
       val type = getSkillType(it) ?: return false
@@ -85,8 +90,11 @@ class MutablePlayerDataJS(player: Player) : PlayerDataJS(
     } ?: false
   }
 
-  @JvmOverloads
-  fun <T> degrade(skillName: String, consumer: ((SkillConditionBuilderJS<T>) -> Unit)? = null): Boolean {
+  fun <T> improve(skillName: String): Boolean {
+    return improve<T>(skillName, null)
+  }
+
+  fun <T> degrade(skillName: String, consumer: ((SkillConditionBuilderJS<T>) -> Unit)?): Boolean {
     return getSkill<T>(skillName)?.let {
       val type = getSkillType(it) ?: return false
       val builder = getBuilderFor(it, consumer)
@@ -100,8 +108,11 @@ class MutablePlayerDataJS(player: Player) : PlayerDataJS(
     } ?: false
   }
 
-  @JvmOverloads
-  fun <T> reset(skillName: String, consumer: ((SkillConditionBuilderJS<T>) -> Unit)? = null): Boolean {
+  fun <T> degrade(skillName: String): Boolean {
+    return degrade<T>(skillName, null)
+  }
+
+  fun <T> reset(skillName: String, consumer: ((SkillConditionBuilderJS<T>) -> Unit)?): Boolean {
     return getSkill<T>(skillName)?.let {
       val builder = getBuilderFor(it, consumer)
 
@@ -119,5 +130,9 @@ class MutablePlayerDataJS(player: Player) : PlayerDataJS(
       PlayerSkills.LOGGER.debug("Should reset ${it.name}.")
       PlayerApi.reset<T>(player, it.name)
     } ?: false
+  }
+
+  fun <T> reset(skillName: String): Boolean {
+    return reset<T>(skillName, null)
   }
 }

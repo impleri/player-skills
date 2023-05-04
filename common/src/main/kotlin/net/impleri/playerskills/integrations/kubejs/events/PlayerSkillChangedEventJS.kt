@@ -7,20 +7,25 @@ import net.impleri.playerskills.events.SkillChangedEvent
 import net.minecraft.world.entity.player.Player
 
 class PlayerSkillChangedEventJS<T>(private val event: SkillChangedEvent<T>) : ServerEventJS(UtilsJS.staticServer) {
-  val isImproved: Boolean
-    get() {
-      val type = event.type ?: return false
-      return type.getNextValue(event.previous) === event.skill.value
-    }
-  val isDegraded: Boolean
-    get() {
-      val type = event.type ?: return false
-      return type.getPrevValue(event.previous) === event.skill.value
-    }
-  val skill: Skill<T>
-    get() = event.skill
-  val previous: Skill<T>
-    get() = event.previous
-  val player: Player
-    get() = event.player
+  fun getIsImproved(): Boolean {
+    val type = event.type ?: return false
+    return type.getNextValue(event.previous) == event.skill.value
+  }
+
+  fun getIsDegraded(): Boolean {
+    val type = event.type ?: return false
+    return type.getPrevValue(event.previous) == event.skill.value
+  }
+
+  fun getSkill(): Skill<T> {
+    return event.skill
+  }
+
+  fun getPrevious(): Skill<T> {
+    return event.previous
+  }
+
+  fun getPlayer(): Player {
+    return event.player
+  }
 }
