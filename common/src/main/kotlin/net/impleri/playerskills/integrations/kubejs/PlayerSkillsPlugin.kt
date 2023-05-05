@@ -12,6 +12,7 @@ import net.impleri.playerskills.integrations.kubejs.events.SkillsRegistrationEve
 import net.impleri.playerskills.integrations.kubejs.skills.BasicSkillJS
 import net.impleri.playerskills.integrations.kubejs.skills.MutablePlayerDataJS
 import net.impleri.playerskills.integrations.kubejs.skills.NumericSkillJS
+import net.impleri.playerskills.integrations.kubejs.skills.PlayerSkillsKubeJSWrapper
 import net.impleri.playerskills.integrations.kubejs.skills.SpecializedSkillJS
 import net.impleri.playerskills.integrations.kubejs.skills.TieredSkillJS
 import net.impleri.playerskills.skills.basic.BasicSkillType
@@ -30,22 +31,22 @@ class PlayerSkillsPlugin : KubeJSPlugin() {
 
     Registries.SKILLS.addType(
       BasicSkillType.NAME.toString(),
-      BasicSkillJS.Builder::class.java
+      BasicSkillJS.Builder::class.java,
     ) { BasicSkillJS.Builder(it) }
 
     Registries.SKILLS.addType(
       NumericSkillType.NAME.toString(),
-      NumericSkillJS.Builder::class.java
+      NumericSkillJS.Builder::class.java,
     ) { NumericSkillJS.Builder(it) }
 
     Registries.SKILLS.addType(
       TieredSkillType.NAME.toString(),
-      TieredSkillJS.Builder::class.java
+      TieredSkillJS.Builder::class.java,
     ) { TieredSkillJS.Builder(it) }
 
     Registries.SKILLS.addType(
       SpecializedSkillType.NAME.toString(),
-      SpecializedSkillJS.Builder::class.java
+      SpecializedSkillJS.Builder::class.java,
     ) { SpecializedSkillJS.Builder(it) }
   }
 

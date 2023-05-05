@@ -12,7 +12,7 @@ class NumericSkillJS(builder: Builder) : NumericSkill(
   builder.changesAllowed,
   builder.teamMode,
   builder.notify,
-  builder.notifyKey
+  builder.notifyKey,
 ) {
   class Builder(name: ResourceLocation) : GenericSkillBuilderJS<Double>(name) {
     override fun createObject(): Skill<Double> {

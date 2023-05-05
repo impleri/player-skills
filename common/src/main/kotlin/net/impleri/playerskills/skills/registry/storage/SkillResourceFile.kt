@@ -42,7 +42,7 @@ internal class SkillResourceFile private constructor(private val storage: Path) 
 
     fun forPlayer(playerUuid: UUID): File {
       return instance?.getPlayerFile(playerUuid)
-             ?: throw RuntimeException("Accessing file when the server is not running")
+        ?: throw RuntimeException("Accessing file when the server is not running")
     }
 
     private fun ensureDirectory(file: File) {

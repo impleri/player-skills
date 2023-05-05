@@ -60,11 +60,15 @@ open class NumericSkillReward(quest: Quest?) : BasicSkillReward(quest) {
     val actualSkill = skill?.let { Player.get<Double>(player, it) } ?: throw RuntimeException()
     val skillType = actualSkill.let { SkillType.find<Double>(skillType) } ?: throw RuntimeException()
 
-    val nextVal = if (downgrade) skillType.getPrevValue(
-      actualSkill,
-      if (min < 0) null else min,
-      if (max < 0) null else max
-    ) else skillType.getNextValue(actualSkill, if (min < 0) null else min, if (max < 0) null else max)
+    val nextVal = if (downgrade) {
+      skillType.getPrevValue(
+        actualSkill,
+        if (min < 0) null else min,
+        if (max < 0) null else max,
+      )
+    } else {
+      skillType.getNextValue(actualSkill, if (min < 0) null else min, if (max < 0) null else max)
+    }
 
     if (nextVal != null && Player.set(player, actualSkill, nextVal)) {
       maybeNotify(player, notify, nextVal.toString())

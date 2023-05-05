@@ -35,9 +35,7 @@ class NumericSkillType : SkillType<Double>() {
     val givenValue = getNumericValue(skill)
     val testValue = getNumericValue(expectedValue)
 
-    PlayerSkills.LOGGER.debug(
-      "Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)"
-    )
+    PlayerSkills.LOGGER.debug("Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)")
 
     return givenValue >= testValue
   }

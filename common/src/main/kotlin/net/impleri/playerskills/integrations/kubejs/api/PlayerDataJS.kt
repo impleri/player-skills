@@ -11,7 +11,7 @@ open class PlayerDataJS(protected val player: Player) {
   fun <T> can(skillName: String, expectedValue: T?): Boolean {
     return when {
       (player.level.isClientSide) -> PlayerClient.can(skillName, expectedValue)
-      else                        -> PlayerServer.can(player, skillName, expectedValue)
+      else -> PlayerServer.can(player, skillName, expectedValue)
     }
   }
 

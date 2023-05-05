@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 
 open class SpecializedSkill(
-  name: ResourceLocation?,
+  name: ResourceLocation,
   options: List<String>?,
   value: String?,
   description: String?,
@@ -15,7 +15,15 @@ open class SpecializedSkill(
   notify: Boolean,
   notifyKey: String?,
 ) : Skill<String>(
-  name!!, SpecializedSkillType.NAME, value, description, options!!, changesAllowed, teamMode!!, notify, notifyKey
+  name,
+  SpecializedSkillType.NAME,
+  value,
+  description,
+  options!!,
+  changesAllowed,
+  teamMode!!,
+  notify,
+  notifyKey,
 ) {
   override fun copy(value: String?, changesAllowed: Int): Skill<String> {
     return SpecializedSkill(name, options, value, description, changesAllowed, teamMode, notify, notifyKey)
@@ -25,7 +33,7 @@ open class SpecializedSkill(
     return Component.translatable(
       "playerskills.notify.specialized_skill_selected",
       formatSkillName(),
-      formatSkillValue()
+      formatSkillValue(),
     )
   }
 }

@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 
 open class BasicSkill(
-  name: ResourceLocation?,
+  name: ResourceLocation,
   value: Boolean?,
   description: String?,
   options: List<Boolean>?,
@@ -15,7 +15,15 @@ open class BasicSkill(
   notify: Boolean,
   notifyKey: String?,
 ) : Skill<Boolean>(
-  name!!, BasicSkillType.NAME, value, description, options!!, changesAllowed, teamMode!!, notify, notifyKey
+  name,
+  BasicSkillType.NAME,
+  value,
+  description,
+  options!!,
+  changesAllowed,
+  teamMode!!,
+  notify,
+  notifyKey,
 ) {
   override fun copy(value: Boolean?, changesAllowed: Int): Skill<Boolean> {
     return BasicSkill(name, value, description, options, changesAllowed, teamMode, notify, notifyKey)

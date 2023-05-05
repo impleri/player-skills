@@ -23,7 +23,7 @@ class BasicSkillType : SkillType<Boolean>() {
     val givenValue = BooleanUtils.toBoolean(skill.value)
     val testValue = expectedValue == null || BooleanUtils.toBoolean(expectedValue)
     PlayerSkills.LOGGER.debug(
-      "Checking if player can ${skill.name} (does ${expectedValue}->${testValue} == ${givenValue}<-${skill.value})"
+      "Checking if player can ${skill.name} (does $expectedValue->$testValue == $givenValue<-${skill.value})",
     )
     return testValue == givenValue
   }

@@ -56,9 +56,14 @@ open class TieredSkillTask(quest: Quest?) : BasicSkillTask(quest) {
     }
 
     config.addEnum(
-      "value", value, { value = it }, NameMap.of(
-        options[0], options
-      ).create(), actualSkill.value
+      "value",
+      value,
+      { value = it },
+      NameMap.of(
+        options[0],
+        options,
+      ).create(),
+      actualSkill.value,
     )
       .setNameKey("playerskills.quests.ui.value")
   }

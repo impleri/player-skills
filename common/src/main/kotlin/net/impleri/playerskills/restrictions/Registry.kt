@@ -29,7 +29,7 @@ open class Registry<T : AbstractRestriction<*>>(modId: String) {
       OptionalInt.empty(),
       ResourceKey.create(registryResource, name),
       restrictions.toList(),
-      Lifecycle.stable()
+      Lifecycle.stable(),
     )
   }
 }

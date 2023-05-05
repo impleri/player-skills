@@ -7,14 +7,13 @@ val ftbQuestsVersion: String = property("ftb_quests_version").toString()
 val ftbTeamsVersion: String = property("ftb_teams_version").toString()
 
 dependencies {
-    implementation(kotlin("stdlib", kotlinVersion))
-    implementation(kotlin("reflect", kotlinVersion))
+  implementation(kotlin("stdlib", kotlinVersion))
+  implementation(kotlin("reflect", kotlinVersion))
 
-    modImplementation("net.fabricmc:fabric-loader:${fabricLoaderVersion}")
-    modApi("dev.architectury:architectury:${architecturyVersion}")
-    modImplementation("dev.latvian.mods:kubejs:${kubejsVersion}")
+  modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
+  modApi("dev.architectury:architectury:$architecturyVersion")
+  modImplementation("dev.latvian.mods:kubejs:$kubejsVersion")
 
-    modImplementation("dev.ftb.mods:ftb-teams:${ftbTeamsVersion}")
-    modImplementation("dev.ftb.mods:ftb-quests:${ftbQuestsVersion}")
-
+  modImplementation("dev.ftb.mods:ftb-teams:$ftbTeamsVersion")
+  modImplementation("dev.ftb.mods:ftb-quests:$ftbQuestsVersion")
 }

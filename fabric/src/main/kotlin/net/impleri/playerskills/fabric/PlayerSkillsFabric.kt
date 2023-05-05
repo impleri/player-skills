@@ -1,10 +1,10 @@
 package net.impleri.playerskills.fabric
 
 import net.fabricmc.api.ModInitializer
-import net.impleri.playerskills.PlayerSkills.init
+import net.impleri.playerskills.PlayerSkills
 
 class PlayerSkillsFabric : ModInitializer {
   override fun onInitialize() {
-    init()
+    PlayerSkills.init()
   }
 }

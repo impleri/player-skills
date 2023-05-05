@@ -5,7 +5,7 @@ import net.impleri.playerskills.api.TeamMode
 import net.minecraft.resources.ResourceLocation
 
 open class TieredSkill(
-  name: ResourceLocation?,
+  name: ResourceLocation,
   options: List<String>?,
   value: String?,
   description: String?,
@@ -14,7 +14,15 @@ open class TieredSkill(
   notify: Boolean,
   notifyKey: String?,
 ) : Skill<String>(
-  name!!, TieredSkillType.NAME, value, description, options!!, changesAllowed, teamMode!!, notify, notifyKey
+  name,
+  TieredSkillType.NAME,
+  value,
+  description,
+  options!!,
+  changesAllowed,
+  teamMode!!,
+  notify,
+  notifyKey,
 ) {
   override fun copy(value: String?, changesAllowed: Int): Skill<String> {
     return TieredSkill(name, options, value, description, changesAllowed, teamMode, notify, notifyKey)
