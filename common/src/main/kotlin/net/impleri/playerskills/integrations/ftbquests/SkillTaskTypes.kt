@@ -17,21 +17,25 @@ interface SkillTaskTypes {
     val BASIC_SKILL = TaskTypes.register(
       of("basic_skill_task"),
       { BasicSkillTask(it) },
-      { Icon.getIcon("minecraft:item/wooden_hoe") })
+      { Icon.getIcon("minecraft:item/wooden_hoe") },
+    )
 
     val NUMERIC_SKILL = TaskTypes.register(
       of("numeric_skill_task"),
       { NumericSkillTask(it) },
-      { Icon.getIcon("minecraft:item/iron_hoe") })
+      { Icon.getIcon("minecraft:item/iron_hoe") },
+    )
 
     val TIERED_SKILL = TaskTypes.register(
       of("tiered_skill_task"),
       { TieredSkillTask(it) },
-      { Icon.getIcon("minecraft:item/golden_hoe") })
+      { Icon.getIcon("minecraft:item/golden_hoe") },
+    )
 
     val SPECIALIZED_SKILL = TaskTypes.register(
       of("specialized_skill_task"),
       { SpecializedSkillTask(it) },
-      { Icon.getIcon("minecraft:item/diamond_hoe") })
+      { Icon.getIcon("minecraft:item/diamond_hoe") },
+    )
   }
 }

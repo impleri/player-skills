@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.kubejs
+package net.impleri.playerskills.integrations.kubejs.skills
 
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType

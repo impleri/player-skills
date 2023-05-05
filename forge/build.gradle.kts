@@ -11,29 +11,29 @@ val ftbQuestsVersion: String = property("ftb_quests_version").toString()
 val ftbTeamsVersion: String = property("ftb_teams_version").toString()
 
 configure<UnifiedPublishingExtension> {
-    project {
-        relations {
-            optional {
-                curseforge.set("ftb-quests")
-            }
+  project {
+    relations {
+      optional {
+        curseforge.set("ftb-quests")
+      }
 
-            optional {
-                curseforge.set("ftb-teams")
-            }
-        }
+      optional {
+        curseforge.set("ftb-teams")
+      }
     }
+  }
 }
 
 dependencies {
-    forge("net.minecraftforge:forge:${forgeVersion}")
+  forge("net.minecraftforge:forge:$forgeVersion")
 
-    implementation("thedarkcolour:kotlinforforge:${kotlinForgeVersion}")
-    forgeRuntimeLibrary(kotlin("stdlib", kotlinVersion))
-    forgeRuntimeLibrary(kotlin("reflect", kotlinVersion))
+  implementation("thedarkcolour:kotlinforforge:$kotlinForgeVersion")
+  forgeRuntimeLibrary(kotlin("stdlib", kotlinVersion))
+  forgeRuntimeLibrary(kotlin("reflect", kotlinVersion))
 
-    modImplementation("dev.architectury:architectury-forge:${architecturyVersion}")
-    modImplementation("dev.latvian.mods:kubejs-forge:${kubejsVersion}")
+  modImplementation("dev.architectury:architectury-forge:$architecturyVersion")
+  modImplementation("dev.latvian.mods:kubejs-forge:$kubejsVersion")
 
-    modImplementation("dev.ftb.mods:ftb-quests-forge:${ftbQuestsVersion}")
-    modImplementation("dev.ftb.mods:ftb-teams-forge:${ftbTeamsVersion}")
+  modImplementation("dev.ftb.mods:ftb-quests-forge:$ftbQuestsVersion")
+  modImplementation("dev.ftb.mods:ftb-teams-forge:$ftbTeamsVersion")
 }

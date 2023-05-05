@@ -25,75 +25,83 @@ object PlayerSkillsCommands {
   ) {
     val debugCommand = toggleDebug("Player Skills") { PlayerSkills.toggleDebug() }
 
-    dispatcher.register(Commands.literal("skills")
-                          .then(
-                            Commands
-                              .literal("types")
-                              .executes { listTypes(it.source) })
-                          .then(
-                            Commands
-                              .literal("all")
-                              .executes { listSkills(it.source) })
-                          .then(
-                            Commands
-                              .literal("mine")
-                              .executes { listOwnSkills(it.source) })
-                          .then(Commands.literal("team")
-                                  .then(
-                                    Commands
-                                      .literal("share")
-                                      .executes { syncToTeam(it.source) })
-                                  .then(Commands.literal("sync")
-                                          .requires { it.hasPermission(REQUIRED_PERMISSION) }
-                                          .then(
-                                            Commands.argument("player", EntityArgument.player())
-                                              .executes {
-                                                syncTeamFor(
-                                                  EntityArgument.getPlayer(it, "player")
-                                                )
-                                              }
-                                          )
-                                  )
+    dispatcher.register(
+      Commands.literal("skills")
+        .then(
+          Commands
+            .literal("types")
+            .executes { listTypes(it.source) },
+        )
+        .then(
+          Commands
+            .literal("all")
+            .executes { listSkills(it.source) },
+        )
+        .then(
+          Commands
+            .literal("mine")
+            .executes { listOwnSkills(it.source) },
+        )
+        .then(
+          Commands.literal("team")
+            .then(
+              Commands
+                .literal("share")
+                .executes { syncToTeam(it.source) },
+            )
+            .then(
+              Commands.literal("sync")
+                .requires { it.hasPermission(REQUIRED_PERMISSION) }
+                .then(
+                  Commands.argument("player", EntityArgument.player())
+                    .executes {
+                      syncTeamFor(
+                        EntityArgument.getPlayer(it, "player"),
+                      )
+                    },
+                ),
+            ),
+        )
+        .then(
+          Commands.literal("debug")
+            .requires { it.hasPermission(REQUIRED_PERMISSION) }
+            .executes { debugCommand(it.source) },
+        )
+        .then(
+          Commands.literal("set")
+            .requires { it.hasPermission(REQUIRED_PERMISSION) }
+            .then(
+              Commands.argument("player", EntityArgument.player())
+                .then(
+                  Commands.argument("skill", ResourceLocationArgument.id())
+                    .then(
+                      Commands.argument("value", StringArgumentType.string())
+                        .executes {
+                          grantPlayerSkill<Any>(
+                            it.source,
+                            EntityArgument.getPlayer(it, "player"),
+                            ResourceLocationArgument.getId(it, "skill"),
+                            StringArgumentType.getString(it, "value"),
                           )
-                          .then(
-                            Commands.literal("debug")
-                              .requires { it.hasPermission(REQUIRED_PERMISSION) }
-                              .executes { debugCommand(it.source) }
-                          )
-                          .then(Commands.literal("set")
-                                  .requires { it.hasPermission(REQUIRED_PERMISSION) }
-                                  .then(
-                                    Commands.argument("player", EntityArgument.player())
-                                      .then(
-                                        Commands.argument("skill", ResourceLocationArgument.id())
-                                          .then(
-                                            Commands.argument("value", StringArgumentType.string())
-                                              .executes {
-                                                grantPlayerSkill<Any>(
-                                                  it.source,
-                                                  EntityArgument.getPlayer(it, "player"),
-                                                  ResourceLocationArgument.getId(it, "skill"),
-                                                  StringArgumentType.getString(it, "value")
-                                                )
-                                              }
-                                          )
-                                      )
-                                  )
-                                  .then(
-                                    Commands.argument("skill", ResourceLocationArgument.id())
-                                      .then(
-                                        Commands.argument("value", StringArgumentType.string())
-                                          .executes {
-                                            grantPlayerSkill<Any>(
-                                              it.source,
-                                              it.source.player!!,
-                                              ResourceLocationArgument.getId(it, "skill"),
-                                              StringArgumentType.getString(it, "value")
-                                            )
-                                          }
-                                      )
-                                  )
-                          )
+                        },
+                    ),
+                ),
+            )
+            .then(
+              Commands.argument("skill", ResourceLocationArgument.id())
+                .then(
+                  Commands.argument("value", StringArgumentType.string())
+                    .executes {
+                      grantPlayerSkill<Any>(
+                        it.source,
+                        it.source.player!!,
+                        ResourceLocationArgument.getId(it, "skill"),
+                        StringArgumentType.getString(it, "value"),
+                      )
+                    },
+                ),
+            ),
+        ),
     )
   }
 
@@ -107,8 +115,8 @@ object PlayerSkillsCommands {
         .then(
           Commands.literal("debug")
             .requires { it.hasPermission(REQUIRED_PERMISSION) }
-            .executes { debugCommand(it.source) }
-        )
+            .executes { debugCommand(it.source) },
+        ),
     )
   }
 
@@ -175,7 +183,7 @@ object PlayerSkillsCommands {
       source.sendSuccess(Component.translatable("commands.playerskills.acquired_skills", count), false)
       skills.forEach {
         source.sendSystemMessage(
-          Component.literal("${it.name} = ${it.value ?: "EMPTY"}")
+          Component.literal("${it.name} = ${it.value ?: "EMPTY"}"),
         )
       }
     }
@@ -197,7 +205,7 @@ object PlayerSkillsCommands {
         if (success) "commands.playerskills.skill_changed" else "commands.playerskills.skill_change_failed",
         Component.literal(skillName.toString()).withStyle(ChatFormatting.DARK_AQUA),
         Component.literal(value).withStyle(ChatFormatting.RED, ChatFormatting.ITALIC),
-        Component.literal(player.name.string).withStyle(ChatFormatting.BOLD, ChatFormatting.GREEN)
+        Component.literal(player.name.string).withStyle(ChatFormatting.BOLD, ChatFormatting.GREEN),
       )
       if (success) {
         source.sendSuccess(message, true)

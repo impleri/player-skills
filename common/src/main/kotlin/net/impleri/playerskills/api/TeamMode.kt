@@ -6,7 +6,7 @@ internal enum class TeamModeType {
   SPLIT_EVENLY,
   PYRAMID,
   PROPORTIONAL,
-  LIMITED
+  LIMITED,
 }
 
 class TeamMode private constructor(private val type: TeamModeType, val rate: Double? = null) {

@@ -62,14 +62,14 @@ open class BasicSkillTask(quest: Quest?) : BooleanTask(quest) {
       skill,
       { skill = it },
       NameMap.of(firstSkill, skills).create(),
-      firstSkill
+      firstSkill,
     ).setNameKey("playerskills.quests.ui.skill")
   }
 
   @Environment(EnvType.CLIENT)
   override fun getAltTitle(): MutableComponent {
     return Component.translatable("playerskills.quests.ui.skill").append(": ").append(
-      Component.literal(skill.toString()).withStyle(ChatFormatting.YELLOW)
+      Component.literal(skill.toString()).withStyle(ChatFormatting.YELLOW),
     )
   }
 

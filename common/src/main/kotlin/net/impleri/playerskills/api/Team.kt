@@ -52,14 +52,14 @@ abstract class Team {
       val count = countWith(players, skill).toDouble()
 
       val limit: Double = when {
-        (teamMode.isLimited)                                            -> teamMode.rate!!
-        (teamMode.isProportional)                                       -> {
+        (teamMode.isLimited) -> teamMode.rate!!
+        (teamMode.isProportional) -> {
           val percentage = teamMode.rate!! / 100
           val teamSize = players.size
           ceil(teamSize * percentage)
         }
 
-        (teamMode.isSplitEvenly)                                        -> {
+        (teamMode.isSplitEvenly) -> {
           val options = skill.options.size
           val teamSize = players.size.toDouble()
           ceil(teamSize / options)
@@ -71,12 +71,12 @@ abstract class Team {
           // Always allow the lowest tier
           skill.options
             .reversed() // reverse the tiers so that the highest/smallest is first
-            .map { skill.options.indexOf(it) }// convert tier to its current index
-            .map { 2.0.pow(it.toDouble()) }// scale each tier as 2^n where n = index
+            .map { skill.options.indexOf(it) } // convert tier to its current index
+            .map { 2.0.pow(it.toDouble()) } // scale each tier as 2^n where n = index
             .reversed()[newIndex]
         }
 
-        else                                                            -> count + 1
+        else -> count + 1
       }
 
       val allowed = count < limit
@@ -132,17 +132,17 @@ abstract class Team {
 
     private fun <T> getMaxSkill(teamMembers: List<UUID>, skill: Skill<T>): Skill<T> {
       return teamMembers
-               .mapNotNull { PlayerApi.get<T>(it, skill.name) }
-               .maxWithOrNull { a: Skill<T>, b: Skill<T> ->
-                 val aGreaterOrEqual = PlayerApi.can(b, a.value)
-                 val bGreaterOrEqual = PlayerApi.can(a, b.value)
+        .mapNotNull { PlayerApi.get<T>(it, skill.name) }
+        .maxWithOrNull { a: Skill<T>, b: Skill<T> ->
+          val aGreaterOrEqual = PlayerApi.can(b, a.value)
+          val bGreaterOrEqual = PlayerApi.can(a, b.value)
 
-                 when {
-                   (aGreaterOrEqual && bGreaterOrEqual) -> 0
-                   (aGreaterOrEqual)                    -> -1
-                   else                                 -> 1
-                 }
-               } ?: skill
+          when {
+            (aGreaterOrEqual && bGreaterOrEqual) -> 0
+            (aGreaterOrEqual) -> -1
+            else -> 1
+          }
+        } ?: skill
     }
 
     private fun <T> syncTeam(teamMembers: List<UUID>, skill: Skill<T>, server: MinecraftServer?) {

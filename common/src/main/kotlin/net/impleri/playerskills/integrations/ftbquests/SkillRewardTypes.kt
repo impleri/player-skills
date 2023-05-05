@@ -17,21 +17,25 @@ interface SkillRewardTypes {
     val BASIC_SKILL = RewardTypes.register(
       of("basic_skill_reward"),
       { BasicSkillReward(it) },
-      { Icon.getIcon("minecraft:item/wooden_hoe") })
+      { Icon.getIcon("minecraft:item/wooden_hoe") },
+    )
 
     val NUMERIC_SKILL = RewardTypes.register(
       of("numeric_skill_reward"),
       { NumericSkillReward(it) },
-      { Icon.getIcon("minecraft:item/iron_hoe") })
+      { Icon.getIcon("minecraft:item/iron_hoe") },
+    )
 
     val TIERED_SKILL = RewardTypes.register(
       of("tiered_skill_reward"),
       { TieredSkillReward(it) },
-      { Icon.getIcon("minecraft:item/golden_hoe") })
+      { Icon.getIcon("minecraft:item/golden_hoe") },
+    )
 
     val SPECIALIZED_SKILL = RewardTypes.register(
       of("specialized_skill_reward"),
       { SpecializedSkillReward(it) },
-      { Icon.getIcon("minecraft:item/diamond_hoe") })
+      { Icon.getIcon("minecraft:item/diamond_hoe") },
+    )
   }
 }

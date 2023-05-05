@@ -66,7 +66,7 @@ open class BasicSkillReward(quest: Quest?) : Reward(quest) {
   override fun getConfig(config: ConfigGroup) {
     super.getConfig(config)
     val skills = PlayerSkillsIntegration.getSkills(
-      skillType
+      skillType,
     )
     val firstSkill = skills[0]
     if (skill == null) {
@@ -78,7 +78,7 @@ open class BasicSkillReward(quest: Quest?) : Reward(quest) {
       skill,
       { skill = it },
       NameMap.of(firstSkill, skills).create(),
-      firstSkill
+      firstSkill,
     ).setNameKey("playerskills.quests.ui.skill")
     config.addBool("downgrade", downgrade, { downgrade = it }, false)
       .setNameKey("playerskills.quests.ui.downgrade")
@@ -87,7 +87,7 @@ open class BasicSkillReward(quest: Quest?) : Reward(quest) {
   @Environment(EnvType.CLIENT)
   override fun getAltTitle(): MutableComponent {
     return Component.translatable("playerskills.quests.ui.skill").append(": ").append(
-      Component.literal(skill.toString()).withStyle(ChatFormatting.YELLOW)
+      Component.literal(skill.toString()).withStyle(ChatFormatting.YELLOW),
     )
   }
 

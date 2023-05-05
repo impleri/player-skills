@@ -18,9 +18,9 @@ object PlayerClient {
   @JvmOverloads
   fun <T> can(skillName: ResourceLocation, expectedValue: T? = null): Boolean {
     return Registry.get().asSequence()
-             .filter { it.name == skillName }
-             .firstOrNull()
-             ?.let { can(it.cast(), expectedValue) } ?: false
+      .filter { it.name == skillName }
+      .firstOrNull()
+      ?.let { can(it.cast(), expectedValue) } ?: false
   }
 
   @JvmOverloads

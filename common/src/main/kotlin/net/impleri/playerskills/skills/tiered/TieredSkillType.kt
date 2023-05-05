@@ -22,9 +22,7 @@ class TieredSkillType : SkillType<String>() {
     val givenValue = getIndexValue(skill)
     val testValue = getIndexValue(expectedValue, getOptions(skill))
 
-    PlayerSkills.LOGGER.debug(
-      "Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)"
-    )
+    PlayerSkills.LOGGER.debug("Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)")
 
     return givenValue >= testValue
   }

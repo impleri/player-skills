@@ -13,7 +13,7 @@ class SpecializedSkillJS(builder: Builder) : SpecializedSkill(
   builder.changesAllowed,
   builder.teamMode,
   builder.notify,
-  builder.notifyKey
+  builder.notifyKey,
 ) {
   class Builder(name: ResourceLocation) : GenericSkillBuilderJS<String>(name) {
     override fun createObject(): Skill<String> {

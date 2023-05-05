@@ -23,6 +23,8 @@ open class BaseSkillsRegistryEventJS(private val types: Map<String, RegistryObje
 
     return if (uncastBuilder is GenericSkillBuilderJS<*>) {
       uncastBuilder as GenericSkillBuilderJS<T>
-    } else null
+    } else {
+      null
+    }
   }
 }

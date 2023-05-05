@@ -51,9 +51,14 @@ class SpecializedSkillReward(quest: Quest?) : BasicSkillReward(quest) {
     val options = actualSkill.options
 
     config.addEnum(
-      "value", value, { value = it }, NameMap.of(
-        options[0], options
-      ).create(), actualSkill.value
+      "value",
+      value,
+      { value = it },
+      NameMap.of(
+        options[0],
+        options,
+      ).create(),
+      actualSkill.value,
     )
       .setNameKey("playerskills.quests.ui.value")
   }

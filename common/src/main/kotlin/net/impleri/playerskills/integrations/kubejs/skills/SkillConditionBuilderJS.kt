@@ -9,11 +9,11 @@ import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.integrations.kubejs.Registries
 import net.minecraft.util.RandomSource
-import net.minecraft.world.entity.player.Player
 
-class SkillConditionBuilderJS<T>(protected var skill: Skill<T>, protected var player: Player) :
+// @TODO: Move this into API
+class SkillConditionBuilderJS<T>(private var skill: Skill<T>) :
   BuilderBase<Skill<T>>(
-    skill.name
+    skill.name,
   ) {
   private val type: SkillType<T>? = SkillType.find(skill)
   private val random = RandomSource.create()
@@ -43,7 +43,7 @@ class SkillConditionBuilderJS<T>(protected var skill: Skill<T>, protected var pl
     val hasChance = appliedChance >= random.nextIntBetweenInclusive(0, 100)
 
     PlayerSkills.LOGGER.debug(
-      "Checking conditions. IF: $conditionIf->$hasIf. UNLESS: $conditionUnless->$hasUnless, CHANCE: $appliedChance->$hasChance"
+      "Checking conditions. IF: $conditionIf->$hasIf. UNLESS: $conditionUnless->$hasUnless, CHANCE: $appliedChance->$hasChance",
     )
 
     return hasIf && hasUnless && hasChance
@@ -58,14 +58,18 @@ class SkillConditionBuilderJS<T>(protected var skill: Skill<T>, protected var pl
   fun calculatePrev(): T? {
     return if (shouldChange()) {
       type!!.getPrevValue(skill, min, max)
-    } else null
+    } else {
+      null
+    }
   }
 
   @HideFromJS
   fun calculateNext(): T? {
     return if (shouldChange()) {
       type!!.getNextValue(skill, min, max)
-    } else null
+    } else {
+      null
+    }
   }
 
   fun chance(value: Double): SkillConditionBuilderJS<T> {

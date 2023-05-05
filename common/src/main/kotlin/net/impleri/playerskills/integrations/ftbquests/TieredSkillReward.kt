@@ -76,11 +76,15 @@ open class TieredSkillReward(quest: Quest?) : BasicSkillReward(quest) {
     val actualSkill = skill?.let { Player.get<String>(player, it) } ?: throw RuntimeException()
     val skillType = actualSkill.let { SkillType.find(actualSkill) } ?: throw RuntimeException()
 
-    val nextVal = if (downgrade) skillType.getPrevValue(
-      actualSkill,
-      min.ifBlank { null },
-      max.ifBlank { null }
-    ) else skillType.getNextValue(actualSkill, min.ifBlank { null }, max.ifBlank { null })
+    val nextVal = if (downgrade) {
+      skillType.getPrevValue(
+        actualSkill,
+        min.ifBlank { null },
+        max.ifBlank { null },
+      )
+    } else {
+      skillType.getNextValue(actualSkill, min.ifBlank { null }, max.ifBlank { null })
+    }
 
     if (nextVal != null && Player.set(player, actualSkill, nextVal)) {
       maybeNotify(player, notify, nextVal)

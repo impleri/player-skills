@@ -7,7 +7,6 @@ import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.TeamMode
 import net.impleri.playerskills.integrations.kubejs.Registries
 import net.minecraft.resources.ResourceLocation
-import java.util.Arrays
 
 abstract class GenericSkillBuilderJS<T>(name: ResourceLocation?) : BuilderBase<Skill<T>?>(name) {
   var initialValue: T? = null
@@ -17,7 +16,7 @@ abstract class GenericSkillBuilderJS<T>(name: ResourceLocation?) : BuilderBase<S
   var teamMode = TeamMode.off()
   var notifyKey: String? = null
   var notify = false
-  
+
   override fun getRegistryType(): RegistryObjectBuilderTypes<in Skill<T>?>? {
     return Registries.SKILLS
   }
@@ -38,8 +37,8 @@ abstract class GenericSkillBuilderJS<T>(name: ResourceLocation?) : BuilderBase<S
     return this
   }
 
-  fun options(options: Array<T>?): GenericSkillBuilderJS<T> {
-    this.options = Arrays.stream(options).toList()
+  fun options(options: Array<T>): GenericSkillBuilderJS<T> {
+    this.options = options.toList()
     return this
   }
 
@@ -48,16 +47,18 @@ abstract class GenericSkillBuilderJS<T>(name: ResourceLocation?) : BuilderBase<S
     return this
   }
 
-  fun unlimitedChanges(changesAllowed: Double?): GenericSkillBuilderJS<T> {
+  fun unlimitedChanges(): GenericSkillBuilderJS<T> {
     this.changesAllowed = Skill.UNLIMITED_CHANGES
     return this
   }
 
   fun notifyOnChange(key: String?): GenericSkillBuilderJS<T> {
     notify = true
-    if (key != null && !key.isEmpty()) {
+
+    if (!key.isNullOrBlank()) {
       notifyKey = key
     }
+
     return this
   }
 
@@ -81,13 +82,13 @@ abstract class GenericSkillBuilderJS<T>(name: ResourceLocation?) : BuilderBase<S
     return this
   }
 
-  fun teamLimitedTo(amount: Double?): GenericSkillBuilderJS<T> {
-    teamMode = TeamMode.limited(amount!!)
+  fun teamLimitedTo(amount: Double): GenericSkillBuilderJS<T> {
+    teamMode = TeamMode.limited(amount)
     return this
   }
 
-  fun percentageOfTeam(percentage: Double?): GenericSkillBuilderJS<T> {
-    teamMode = TeamMode.proportional(percentage!!)
+  fun percentageOfTeam(percentage: Double): GenericSkillBuilderJS<T> {
+    teamMode = TeamMode.proportional(percentage)
     return this
   }
 }

@@ -12,7 +12,7 @@ class BasicSkillJS(builder: Builder) : BasicSkill(
   builder.changesAllowed,
   builder.teamMode,
   builder.notify,
-  builder.notifyKey
+  builder.notifyKey,
 ) {
   class Builder(name: ResourceLocation) : GenericSkillBuilderJS<Boolean>(name) {
     override fun createObject(): Skill<Boolean> {

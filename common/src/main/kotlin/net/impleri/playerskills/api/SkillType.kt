@@ -28,7 +28,9 @@ abstract class SkillType<T> {
   open fun can(skill: Skill<T>, expectedValue: T? = null): Boolean {
     return if (expectedValue == null) {
       skill.value != null
-    } else skill.value === expectedValue
+    } else {
+      skill.value === expectedValue
+    }
   }
 
   /**
@@ -40,7 +42,8 @@ abstract class SkillType<T> {
     return arrayOf(
       skill.name.toString(),
       skill.type.toString(),
-      if (value?.isEmpty() != false) stringValueNone else value, skill.changesAllowed.toString()
+      if (value?.isEmpty() != false) stringValueNone else value,
+      skill.changesAllowed.toString(),
     ).joinToString(valueSeparator)
   }
 
@@ -119,7 +122,7 @@ abstract class SkillType<T> {
         changesAllowed.toInt()
       } catch (e: NumberFormatException) {
         PlayerSkills.LOGGER.error(
-          "Unable to parse changesAllowed (${changesAllowed}) back into an integer, data possibly corrupted"
+          "Unable to parse changesAllowed ($changesAllowed) back into an integer, data possibly corrupted",
         )
 
         return null

@@ -22,7 +22,7 @@ class SkillsModificationEventJS(types: Map<String, RegistryObjectBuilderTypes.Bu
     val builder = getBuilder<T>(type, name) ?: return false
 
     builder.syncWith(skill)
-    consumer?.let { it(builder) }
+    consumer(builder)
     val newSkill = builder.createObject() ?: return false
 
     val response = Skill.modify(newSkill)

@@ -1,0 +1,19 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.{kt,kts,java}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+ktlint_standard_no-wildcard-imports = enabled
+ij_kotlin_packages_to_use_import_on_demand = unset
+ktlint_standard_trailing-comma-on-call-site = enabled
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_standard_trailing-comma-on-declaration-site = enabled
+ij_kotlin_allow_trailing_comma = true

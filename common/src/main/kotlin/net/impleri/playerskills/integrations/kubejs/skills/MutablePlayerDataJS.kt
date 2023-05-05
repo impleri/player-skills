@@ -12,7 +12,7 @@ import net.impleri.playerskills.api.Player as PlayerApi
  * Skills data that gets attached to Player
  */
 class MutablePlayerDataJS(player: Player) : PlayerDataJS(
-  player
+  player,
 ) {
   @HideFromJS
   private fun <T> getSkill(skillName: String): Skill<T>? {
@@ -30,7 +30,7 @@ class MutablePlayerDataJS(player: Player) : PlayerDataJS(
     consumer: ((SkillConditionBuilderJS<T>) -> Unit)?,
   ): SkillConditionBuilderJS<T>? {
     return consumer?.let {
-      val builder = SkillConditionBuilderJS(skill, player)
+      val builder = SkillConditionBuilderJS(skill)
       consumer(builder)
       builder
     }
@@ -78,7 +78,6 @@ class MutablePlayerDataJS(player: Player) : PlayerDataJS(
 
   fun <T> improve(skillName: String, consumer: ((SkillConditionBuilderJS<T>) -> Unit)?): Boolean {
     return getSkill<T>(skillName)?.let {
-
       val type = getSkillType(it) ?: return false
       val builder = getBuilderFor(it, consumer)
 
