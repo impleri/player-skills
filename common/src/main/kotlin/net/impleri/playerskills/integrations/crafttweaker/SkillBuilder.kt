@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation
 import org.openzen.zencode.java.ZenCodeType
 
 @ZenRegister
-@ZenCodeType.Name("mods.playerskills.SkillBuilder")
+@ZenCodeType.Name("mods.playerskills.skills.SkillBuilder")
 class SkillBuilder<T>(val name: ResourceLocation, val onSave: (SkillBuilder<T>) -> Boolean, skill: Skill<T>? = null) {
   var initialValue: T? = null
   var description: String? = null
