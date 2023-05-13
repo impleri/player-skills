@@ -27,12 +27,8 @@ class NumericSkillType : SkillType<Double>() {
     return value ?: fallback
   }
 
-  private fun getNumericValue(skill: Skill<Double>): Double {
-    return getNumericValue(skill.value)
-  }
-
   override fun can(skill: Skill<Double>, expectedValue: Double?): Boolean {
-    val givenValue = getNumericValue(skill)
+    val givenValue = getNumericValue(skill.value)
     val testValue = getNumericValue(expectedValue)
 
     PlayerSkills.LOGGER.debug("Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)")
@@ -40,37 +36,23 @@ class NumericSkillType : SkillType<Double>() {
     return givenValue >= testValue
   }
 
-  override fun getPrevValue(skill: Skill<Double>, min: Double?, max: Double?): Double? {
-    if (!skill.areChangesAllowed()) {
-      return null
-    }
+  override fun getPrevValue(skill: Skill<Double>, min: Double?, max: Double?): Double {
+    val currentValue = getNumericValue(skill.value)
+    val step = (skill as NumericSkill).step
 
-    val currentValue = getNumericValue(skill)
+    val nextVal = currentValue - step
+    val maxVal = if (max == null) nextVal else nextVal.coerceAtMost(max)
 
-    // Ensure we jump down to the max value
-    val nextVal = if (max == null) currentValue else (currentValue - 1).coerceAtMost(max)
-
-    // We're stopping at 0, so no fallback needed
-    val minVal = getNumericValue(min)
-
-    // Decrement the current value if we're over the min
-    return if (nextVal >= minVal) nextVal else null
+    return maxVal.coerceAtLeast(getNumericValue(min))
   }
 
-  override fun getNextValue(skill: Skill<Double>, min: Double?, max: Double?): Double? {
-    if (!skill.areChangesAllowed()) {
-      return null
-    }
-    val currentValue = getNumericValue(skill)
+  override fun getNextValue(skill: Skill<Double>, min: Double?, max: Double?): Double {
+    val currentValue = getNumericValue(skill.value)
+    val step = (skill as NumericSkill).step
 
-    // Ensure we jump up to the min value immediately
-    val nextVal = if (min == null) currentValue else (currentValue + 1).coerceAtLeast(min)
+    val minVal = (currentValue + step).coerceAtLeast(getNumericValue(min, step))
 
-    // If no max, use nextVal so that we increment
-    val maxVal = getNumericValue(max, nextVal)
-
-    // Increment the current value if below the max
-    return if (nextVal <= maxVal) nextVal else null
+    return if (max == null) minVal else minVal.coerceAtMost(max)
   }
 
   companion object {

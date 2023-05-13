@@ -18,8 +18,9 @@ abstract class SkillType<T> {
 
   protected abstract fun castToString(value: T?): String?
   internal abstract fun castFromString(value: String?): T?
-  abstract fun getPrevValue(skill: Skill<T>, min: T? = null, max: T? = null): T?
-  abstract fun getNextValue(skill: Skill<T>, min: T? = null, max: T? = null): T?
+  abstract fun getPrevValue(skill: Skill<T>, min: T? = null, max: T? = null): T
+
+  abstract fun getNextValue(skill: Skill<T>, min: T? = null, max: T? = null): T
 
   /**
    * Logic to determine if a player has a skill at an expected level
@@ -51,14 +52,14 @@ abstract class SkillType<T> {
    * Convert from string in NBT storage
    */
   @Throws(RegistryItemNotFound::class)
-  private fun unserialize(skillName: String, value: String?, changesAllowed: Int): Skill<T> {
+  private fun unserialize(skillName: String, value: String?, changesAllowed: Int): Skill<T>? {
     val name = SkillResourceLocation.of(skillName)
-    val baseSkill: Skill<T> = Skill.findOrThrow(name)
     val castValue = castFromString(value)
 
-    return baseSkill.copy(castValue, changesAllowed)
+    return Skill.find<T>(name)?.copy(castValue, changesAllowed)
   }
 
+  @Suppress("UNCHECKED_CAST")
   fun <V> cast(): SkillType<V> {
     return this as SkillType<V>
   }
@@ -66,6 +67,8 @@ abstract class SkillType<T> {
   companion object {
     private const val valueSeparator = ";"
     private const val stringValueNone = "[NULL]"
+
+    val REGISTRY_KEY = SkillTypes.REGISTRY_KEY
 
     /**
      * Get all Types
@@ -110,7 +113,7 @@ abstract class SkillType<T> {
     private data class SerialParts(val name: String, val type: String, val value: String?, val changesAllowed: String)
 
     @ApiStatus.Internal
-    fun unserializeFromString(rawSkill: String?): Skill<*>? {
+    internal fun unserializeFromString(rawSkill: String?): Skill<*>? {
       if (rawSkill?.isEmpty() != false) {
         PlayerSkills.LOGGER.warn("Unable to unpack skill $rawSkill from storage")
         return null

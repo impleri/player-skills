@@ -39,6 +39,7 @@ class PlayerSkills : ResourceManagerReloadListener {
   private var serverInstance: MinecraftServer? = null
 
   fun registerEvents() {
+    LifecycleEvent.SETUP.register(Runnable { onSetup() })
     LifecycleEvent.SERVER_BEFORE_START.register(LifecycleEvent.ServerState { beforeServerStart(it) })
     LifecycleEvent.SERVER_STOPPING.register(LifecycleEvent.ServerState { beforeSeverStops() })
     PlayerEvent.PLAYER_JOIN.register(PlayerEvent.PlayerJoin { onPlayerJoin(it) })
@@ -67,12 +68,7 @@ class PlayerSkills : ResourceManagerReloadListener {
       ?.forEach { NetHandler.syncPlayer(it) }
   }
 
-  private fun beforeServerStart(server: MinecraftServer) {
-    serverInstance = server
-
-    // Connect Player Skills Registry file storage
-    SkillStorage.setup(server)
-
+  private fun onSetup() {
     // Fill up the deferred skills registry
     Skills.resync()
 
@@ -81,6 +77,13 @@ class PlayerSkills : ResourceManagerReloadListener {
     if (Platform.isModLoaded("ftbteams")) {
       net.impleri.playerskills.integrations.ftbteams.FTBTeamsPlugin.registerInstance()
     }
+  }
+
+  private fun beforeServerStart(server: MinecraftServer) {
+    serverInstance = server
+
+    // Connect Player Skills Registry file storage
+    SkillStorage.setup(server)
   }
 
   private fun onPlayerJoin(player: ServerPlayer) {

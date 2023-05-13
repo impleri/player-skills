@@ -28,18 +28,12 @@ class BasicSkillType : SkillType<Boolean>() {
     return testValue == givenValue
   }
 
-  override fun getPrevValue(skill: Skill<Boolean>, min: Boolean?, max: Boolean?): Boolean? {
-    if (!skill.areChangesAllowed()) {
-      return null
-    }
-    return if (BooleanUtils.toBoolean(skill.value)) false else null
+  override fun getPrevValue(skill: Skill<Boolean>, min: Boolean?, max: Boolean?): Boolean {
+    return false
   }
 
-  override fun getNextValue(skill: Skill<Boolean>, min: Boolean?, max: Boolean?): Boolean? {
-    if (!skill.areChangesAllowed()) {
-      return null
-    }
-    return if (BooleanUtils.toBoolean(skill.value)) null else true
+  override fun getNextValue(skill: Skill<Boolean>, min: Boolean?, max: Boolean?): Boolean {
+    return true
   }
 
   companion object {

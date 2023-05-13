@@ -24,6 +24,9 @@ open class NumericSkill(
   notify,
   notifyKey,
 ) {
+  // @TODO: Expose for modification
+  val step = 1.0
+
   override fun copy(value: Double?, changesAllowed: Int): Skill<Double> {
     return NumericSkill(name, value, description, options, changesAllowed, teamMode, notify, notifyKey)
   }

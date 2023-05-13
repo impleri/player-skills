@@ -7,9 +7,9 @@ import net.minecraft.resources.ResourceLocation
 
 class SpecializedSkillJS(builder: Builder) : SpecializedSkill(
   builder.id,
-  builder.options,
   builder.initialValue,
   builder.description,
+  builder.options,
   builder.changesAllowed,
   builder.teamMode,
   builder.notify,
