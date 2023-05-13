@@ -49,7 +49,6 @@ subprojects {
   apply(plugin = "dev.architectury.loom")
   apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
-  base.archivesName.set("$modId-$minecraftVersion")
   version = buildVersion
   group = mavenGroup
 
@@ -76,16 +75,6 @@ subprojects {
   }
 
   configure<PublishingExtension> {
-    publications {
-      create<MavenPublication>("maven${project.name.capitalize()}") {
-        artifactId = project.base.archivesName.get()
-        groupId = project.group.toString()
-        version = project.version.toString()
-
-        from(components["java"])
-      }
-    }
-
     repositories {
       maven {
         name = "impleri-dev"
@@ -138,6 +127,19 @@ project(":common") {
   configure<ArchitectPluginExtension> {
     common(platforms)
   }
+  project.base.archivesName.set("$modId-$minecraftVersion")
+
+  configure<PublishingExtension> {
+    publications {
+      create<MavenPublication>("maven${project.name.capitalize()}") {
+        artifactId = "$modId-$minecraftVersion"
+        groupId = project.group.toString()
+        version = project.version.toString()
+
+        from(components["java"])
+      }
+    }
+  }
 }
 
 for (platform in platforms) {
@@ -145,11 +147,23 @@ for (platform in platforms) {
     apply(plugin = "com.github.johnrengelman.shadow")
     apply(plugin = "me.shedaniel.unified-publishing")
 
-    base.archivesName.set("$modId-$minecraftVersion-${project.name}")
+    project.base.archivesName.set("$modId-$minecraftVersion-${project.name}")
 
     configure<ArchitectPluginExtension> {
       platformSetupLoomIde()
       loader(platform)
+    }
+
+    configure<PublishingExtension> {
+      publications {
+        create<MavenPublication>("maven${project.name.capitalize()}") {
+          artifactId = "$modId-$minecraftVersion-${project.name}"
+          groupId = project.group.toString()
+          version = project.version.toString()
+
+          from(components["java"])
+        }
+      }
     }
 
     configure<UnifiedPublishingExtension> {
@@ -164,11 +178,6 @@ for (platform in platforms) {
           depends {
             curseforge.set("architectury-api")
             modrinth.set("architectury-api")
-          }
-
-          depends {
-            curseforge.set("player-skills")
-            modrinth.set("player-skills")
           }
 
           optional {
