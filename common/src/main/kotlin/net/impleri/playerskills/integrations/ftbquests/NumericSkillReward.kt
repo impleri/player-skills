@@ -70,7 +70,7 @@ open class NumericSkillReward(quest: Quest?) : BasicSkillReward(quest) {
       skillType.getNextValue(actualSkill, if (min < 0) null else min, if (max < 0) null else max)
     }
 
-    if (nextVal != null && Player.set(player, actualSkill, nextVal)) {
+    if (Player.set(player, actualSkill, nextVal)) {
       maybeNotify(player, notify, nextVal.toString())
     }
   }
