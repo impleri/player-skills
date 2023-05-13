@@ -86,7 +86,7 @@ open class TieredSkillReward(quest: Quest?) : BasicSkillReward(quest) {
       skillType.getNextValue(actualSkill, min.ifBlank { null }, max.ifBlank { null })
     }
 
-    if (nextVal != null && Player.set(player, actualSkill, nextVal)) {
+    if (Player.set(player, actualSkill, nextVal)) {
       maybeNotify(player, notify, nextVal)
     }
   }
