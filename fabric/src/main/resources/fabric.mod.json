@@ -27,11 +27,12 @@
   "depends": {
     "fabric": "*",
     "minecraft": "1.19.2",
-    "architectury": ">=6.2.0",
-    "kubejs": "*"
+    "architectury": ">=6.2.0"
   },
-  "recommends": {
+  "suggests": {
     "ftb-quests": ">=1902.0",
-    "ftb-teams": ">=1902.0"
+    "ftb-teams": ">=1902.0",
+    "kubejs": "*",
+    "crafttweaker": "*"
   }
 }

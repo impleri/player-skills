@@ -6,9 +6,9 @@ import net.minecraft.resources.ResourceLocation
 
 open class TieredSkill(
   name: ResourceLocation,
-  options: List<String>?,
   value: String?,
   description: String?,
+  options: List<String>?,
   changesAllowed: Int,
   teamMode: TeamMode?,
   notify: Boolean,
@@ -25,6 +25,6 @@ open class TieredSkill(
   notifyKey,
 ) {
   override fun copy(value: String?, changesAllowed: Int): Skill<String> {
-    return TieredSkill(name, options, value, description, changesAllowed, teamMode, notify, notifyKey)
+    return TieredSkill(name, value, description, options, changesAllowed, teamMode, notify, notifyKey)
   }
 }

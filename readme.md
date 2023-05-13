@@ -284,6 +284,184 @@ appropriate. Note that not everything uses tags (e.g. dimensions), so it won't w
   the listed biomes. Example: `.inBiome('#desert')`
 - `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
 
+## CafrtTweaker API
+
+In v2.0, CraftTweaker support was added as an alternative to KubeJS. It tries to remain very similar to the Kube API,
+but some changes have been made due to how ZenScript works compared to JavaScript.
+
+### Registry Actions
+
+For all registry actions, we use four methods to add or modify skills and one to remove them:
+
+- `mods.playerskills.Skills.createBasic(name: String)` to create a new or modify an existing basic skill.
+- `mods.playerskills.Skills.createNumeric(name: String)` to create a new or modify an existing numeric skill.
+- `mods.playerskills.Skills.createTiered(name: String)` to create a new or modify an existing tiered skill.
+- `mods.playerskills.Skills.createSpecialized(name: String)` to create a new or modify an existing specialized skill.
+- `mods.playerskills.Skills.remove(name: String)` to remove a possibly existing skill.
+
+Each method uses the skill name as the first parameter. This is a string that will be cast into a `ResourceLocation`, so
+it must conform to ResourceLocation rules (namely, `snake_case` instead of `camelCase`). If no namespace is given, it
+will automatically be placed into the `skills:` namespace. The return for each of these methods is the same: a Skill
+Builder.
+
+#### Skill Builder Methods
+
+- `save(): Boolean` - Commits the skill to the registry. If this is not called, the skill will not be added or modified.
+- `initialValue(newValue: T)` - Sets a starting value for all players
+- `clearValue()` - Empties the initial value
+- `description(desc: string)` - Sets the skill description
+- `limitChanges(limit: number)` - How many times the skill can change before it is locked
+- `unlimitedChanges()` - Allows the skill to always change
+- `notifyOnChange(translationKey?: string)` - Send a notification when the skill changes (using either the provided
+  translation key or the base skill name)
+- `clearNotification()` - Turns off notification on skill change
+- `options(choices: T[])` - Sets what values will be allowed
+- `sharedWithTeam()` - Sync progress to all players on a team for the shared skill (requires FTM Teams)
+- `teamLimitedTo(amount: number)` - Limits the progress to only `amount` players on the team (requires FTB Teams)
+- `percentageOfTeam(percentage: number)` = Limits the progress to a `percentage` of the players on the team (requires
+  FTB Teams)
+- `splitEvenlyAcrossTeam()` - Limits the progress of a _specialization_ skill so that there must be an even distribution
+  of specializations across the team.
+- `pyramid()` - Limits the progress of a _tiered_ skill so that fewer and fewer players on a team can progress until
+  only one player has the highest tier.
+
+#### Add a skill
+
+By default, we provide a simple boolean skill type (yes/no) which resembles what comes from Game Stages and Game Phases.
+
+```zs
+#priority 10
+
+import mods.playerskills.Skills;
+
+// Let's assume we have these tiers for `undead_killer` skill
+// Because this is a class, it'll be accessible to all scripts with a lower priority 
+public class KILLER_LEVELS {
+  public static val stone as string = "stone";
+  public static val iron as string = "iron";
+  public static val gold as string = "gold";
+  public static val diamond as string = "diamond";
+  public static val netherite as string = "netherite";
+}
+
+Skills.basic("started_quest")
+    .description("Indicates a Player has joined the Great Quest")
+    .initialValue(false)
+    .save();
+
+// Shares the skill with the rest of the team
+Skills.basic("team_started_quest")
+    .description("Indicates a Player has joined the Great Quest for the team")
+    .initialValue(false)
+    .sharedWithTeam()
+    .save();
+
+// Only 16 percent of the team (rounded up) can complete the quest
+Skills.basic("team_completed_quest")
+    .description("Indicates a Player has completed the Great Quest for the team")
+    .initialValue(false)
+    .percentageOfTeam(16.0)
+    .save();
+
+// Only the first 4 Players on the team to gain this skill will receive it 
+Skills.basic("team_completed_quest")
+    .description("Indicates a Player has completed the Great Quest for the team")
+    .initialValue(false)
+    .teamLimitedTo(4)
+    .save();
+
+// Create a pyramid of tier limits (1 Nehtherite, 2 Diamond, 4 Gold, 8 Iron, 16 Stone)
+Skills.tiered("undead_killer")
+  .initialValue(KILLER_LEVELS.iron)
+  .options([KILLER_LEVELS.stone, KILLER_LEVELS.iron, KILLER_LEVELS.gold, KILLER_LEVELS.diamond, KILLER_LEVELS.netherite] as string[])
+  .description('Tier of undead killer level')
+  .pyramid()
+  .save();
+```
+
+#### Modify Skill
+
+```zs
+// Now we want to modify undead_killer to change the initial value
+Skills.tiered("undead_killer")
+  .initialValue(KILLER_LEVELS.stone)
+  .save();
+```
+
+#### Remove Skill
+
+```zs
+Skills.remove('test');
+```
+
+### Expand Player Methods
+
+Any script that access the `Player` class will also have access to several PlayerSkills methods.
+
+- `player.skills` (or if you want `player.getSkills()`) - a List of a player's skill set. Note that we store _every_
+  skill on a player, so do not use the existence of a skill for determining if a player can perform an action.
+- `player.can(skillName: String, expectedValue?: T)` - Checks a specific skill if it is at or above an optional expected
+  value (default is "truthy" for the skill type). `!player.can()` is the same as `player.cannot()`
+- `player.cannot(skillName: String, expectedValue?: T)` - Checks a specific skill if it is below an optional expected
+  value (default is "truthy" for the skill type). `!player.cannot()` is the same as `player.can()`
+
+```zs
+// This event is only in Forge
+crafttweaker.api.events.CTEventManager.register<crafttweaker.api.event.entity.player.interact.RightClickBlockEvent>((event) => {
+  val player = event.player;
+  // Note that you'll need to be aware of how often an event can be fired (e.g. 4x here) and limit things accordingly
+  if (player.level.isClientSide || event.hand != <constant:minecraft:interactionhand:main_hand>) {
+    return;
+  }
+
+  val blockState = player.level.getBlockState(event.blockPos);
+  if (<block:minecraft:dirt>.matches(blockState.block) && player.cannot("denied_quest")) {
+    player.improveSkill("started_quest");
+  }
+  
+  if (<block:minecraft:grass>.matches(blockState.block) && !player.can("harvest", 2)) {
+    // do something here if the player does not have a high enough harvest skill when right clicking a grass block 
+  }
+});
+```
+
+#### Change Skills
+
+Oftentimes, you will want to set a player's skill level based on some arbitrary rules. We don't build in those rules!
+However, you will have a few options:
+
+- `improveSkill(skill: string, min?: T, max?: T)` - Increase the value
+- `degradeSkill(skill: string, min?: T, max?: T)` - Decrease the value
+- `setSkill(skill: name, newValue: T)` - Set the skill to an arbitrary value
+- `resetSkill(skill: name)` - Reset the skill back to the initial value
+
+##### Examples
+
+```zs
+// This event is only in Forge
+crafttweaker.api.events.CTEventManager.register<crafttweaker.api.event.entity.player.interact.RightClickBlockEvent>((event) => {
+  val player = event.player;
+  // Note that you'll need to be aware of how often an event can be fired (e.g. 4x here) and limit things accordingly
+  if (player.level.isClientSide || event.hand != <constant:minecraft:interactionhand:main_hand>) {
+    return;
+  }
+
+  val blockState = player.level.getBlockState(event.blockPos);
+  if (<block:minecraft:dirt>.matches(blockState.block) && player.cannot("denied_quest")) {
+    // this is a basic skill, so we ensure it's true
+    player.improveSkill("skills:dirt_watcher");
+    
+    // this is a numeric skill, but we want to stop improvements this way once it hits 5 and only grant it 1/3rd of the time
+    player.improveSkill("skills:harvest", null, 5);
+    
+    // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
+    if (player.can("skills:undead_killer", KILLER_TIERS.iron) && player.cannot("skills:crop_farmer")) {
+      player.improveSkill("skills:undead_killer", null, KILLER_TIERS.gold);
+    }
+  }
+});
+```
+
 ## Java API
 
 Registering Skills and SkillTypes should happen during initialization (see `PlayerSkills.registerTypes`) using
@@ -293,8 +471,8 @@ a `DeferredRegister` to ensure it is happens at the right time.
 package my.custom.mod;
 
 import dev.architectury.registry.registries.DeferredRegister;
-import net.impleri.playerskills.registry.SkillTypes;
-import net.impleri.playerskills.server.registry.Skills;
+import net.impleri.playerskills.api.Skill;
+import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -304,10 +482,10 @@ import my.custom.mod.custom.CustomSkillType;
 
 public class ExampleMod {
     public static final String MOD_ID = 'mycustommod';
-    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skills.REGISTRY_KEY);
+    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skill.REGISTRY_KEY);
     private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(MOD_ID, SKILL_REGISTRY);
 
-    private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillTypes.REGISTRY_KEY);
+    private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillType.REGISTRY_KEY);
     private static final DeferredRegister<SkillType<?>> SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY);
 
     public ExampleMod() {
@@ -327,11 +505,10 @@ public class ExampleMod {
 `SkillType`s are available in both the logical server and the logical client sides
 via `net.impleri.playerskills.api.SkillType` static methods. Post-modification `Skill`s are only available on the server
 side via `net.impleri.playerskills.server.api.Skill` static methods. Validating a player's skills (`can`) can be done on
-both client (`net.impleri.playerskills.client.ClientApi`) and server (`net.impleri.playerskills.server.ServerApi`).
+both client (`net.impleri.playerskills.client.PlayerClient`) and server (`net.impleri.playerskills.api.Player`).
 
 Any manipulation to those skills (`set`) can only happen on the server side. It should be noted that the API layer does
-not have the convenience methods exposed to KubeJS (`improve`, `degrade`) nor the built-in checking for conditions as
-that functionality is expected to be handled at the modpack level via KubeJS scripts.
+have the convenience methods (e.g. `improve`, `degrade`).
 
 ### Networking
 

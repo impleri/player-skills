@@ -10,6 +10,7 @@ val fabricApiVersion: String = property("fabric_api_version").toString()
 val kubejsVersion: String = property("kubejs_version").toString()
 val ftbQuestsVersion: String = property("ftb_quests_version").toString()
 val ftbTeamsVersion: String = property("ftb_teams_version").toString()
+val craftTweakerVersion: String = property("crafttweaker_version").toString()
 
 configure<UnifiedPublishingExtension> {
   project {
@@ -41,4 +42,5 @@ dependencies {
 
   modImplementation("dev.ftb.mods:ftb-quests-fabric:$ftbQuestsVersion")
   modImplementation("dev.ftb.mods:ftb-teams-fabric:$ftbTeamsVersion")
+  modImplementation("com.blamejared.crafttweaker:CraftTweaker-fabric-$minecraftVersion:$craftTweakerVersion")
 }

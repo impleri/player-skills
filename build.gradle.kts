@@ -3,7 +3,6 @@ import dev.architectury.plugin.ArchitectPluginExtension
 import me.shedaniel.unifiedpublishing.UnifiedPublishingExtension
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.task.RemapJarTask
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
   java
@@ -60,10 +59,6 @@ subprojects {
 
   kotlin {
     jvmToolchain(javaVersion.toInt())
-  }
-
-  configure<KtlintExtension> {
-    debug.set(true)
   }
 
   configure<ArchitectPluginExtension> {

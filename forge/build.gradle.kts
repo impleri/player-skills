@@ -9,6 +9,7 @@ val architecturyVersion: String = property("architectury_version").toString()
 val kubejsVersion: String = property("kubejs_version").toString()
 val ftbQuestsVersion: String = property("ftb_quests_version").toString()
 val ftbTeamsVersion: String = property("ftb_teams_version").toString()
+val craftTweakerVersion: String = property("crafttweaker_version").toString()
 
 configure<UnifiedPublishingExtension> {
   project {
@@ -36,4 +37,5 @@ dependencies {
 
   modImplementation("dev.ftb.mods:ftb-quests-forge:$ftbQuestsVersion")
   modImplementation("dev.ftb.mods:ftb-teams-forge:$ftbTeamsVersion")
+  modImplementation("com.blamejared.crafttweaker:CraftTweaker-forge-$minecraftVersion:$craftTweakerVersion")
 }

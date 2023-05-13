@@ -37,6 +37,16 @@ object Player {
     return get(playerId, name) ?: throw RegistryItemNotFound()
   }
 
+  @Throws(RegistryItemNotFound::class)
+  fun <T> getOrThrow(player: Player, name: String): Skill<T> {
+    return get(player, name) ?: throw RegistryItemNotFound()
+  }
+
+  @Throws(RegistryItemNotFound::class)
+  fun <T> getOrDefault(player: Player, name: String): Skill<T> {
+    return get(player, name) ?: Skill.findOrThrow(name)
+  }
+
   internal fun <T> can(skill: Skill<T>, expectedValue: T?): Boolean {
     return SkillType.find(skill)?.can(skill, expectedValue) ?: false
   }
@@ -60,6 +70,20 @@ object Player {
 
   internal fun upsert(player: UUID, skill: Skill<*>): List<Skill<*>> {
     return Players.upsert(player, skill)
+  }
+
+  fun <T> improve(player: Player, skillName: String, min: T? = null, max: T? = null): Boolean {
+    val skill = getOrThrow<T>(player, skillName)
+    val nextValue = SkillType.findOrThrow<T>(skill.type).getNextValue(skill, min, max)
+
+    return set(player, skill, nextValue)
+  }
+
+  fun <T> degrade(player: Player, skillName: String, min: T? = null, max: T? = null): Boolean {
+    val skill = getOrThrow<T>(player, skillName)
+    val nextValue = SkillType.findOrThrow<T>(skill.type).getPrevValue(skill, min, max)
+
+    return set(player, skill, nextValue)
   }
 
   fun <T> set(player: Player, skill: Skill<T>, newValue: T? = null): Boolean {
@@ -104,11 +128,15 @@ object Player {
     return get<T>(player, skill)?.let { set(player, it, newValue) } ?: false
   }
 
+  fun <T> set(player: Player, skill: String, newValue: T? = null): Boolean {
+    return set(player, SkillResourceLocation.of(skill), newValue)
+  }
+
   /**
    * Reset a Skill to the default value in the Skills registry
    */
   fun <T> reset(player: Player, skill: ResourceLocation): Boolean {
-    return Skill.find<T>(skill)?.let { set(player, it, null) } ?: false
+    return Skill.find<T>(skill)?.let { set(player, skill, it.value) } ?: false
   }
 
   fun <T> reset(player: Player, skill: String): Boolean {

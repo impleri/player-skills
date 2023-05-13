@@ -7,9 +7,9 @@ import net.minecraft.resources.ResourceLocation
 
 open class SpecializedSkill(
   name: ResourceLocation,
-  options: List<String>?,
   value: String?,
   description: String?,
+  options: List<String>?,
   changesAllowed: Int,
   teamMode: TeamMode?,
   notify: Boolean,
@@ -26,7 +26,7 @@ open class SpecializedSkill(
   notifyKey,
 ) {
   override fun copy(value: String?, changesAllowed: Int): Skill<String> {
-    return SpecializedSkill(name, options, value, description, changesAllowed, teamMode, notify, notifyKey)
+    return SpecializedSkill(name, value, description, options, changesAllowed, teamMode, notify, notifyKey)
   }
 
   override fun getDefaultNotification(): Component {

@@ -22,6 +22,7 @@ open class BaseSkillsRegistryEventJS(private val types: Map<String, RegistryObje
     val uncastBuilder = builderType.factory().createBuilder(name)
 
     return if (uncastBuilder is GenericSkillBuilderJS<*>) {
+      @Suppress("UNCHECKED_CAST")
       uncastBuilder as GenericSkillBuilderJS<T>
     } else {
       null

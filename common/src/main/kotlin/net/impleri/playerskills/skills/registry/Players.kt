@@ -95,7 +95,7 @@ object Players {
    */
   private fun handleUpsert(playerId: UUID, skill: Skill<*>): List<Skill<*>> {
     // Only replace skill with same name AND type (edge case of same name but different type is handled in openPlayer)
-    val filteredSkills = this.get(playerId).filter { skill != it.name }
+    val filteredSkills = this.get(playerId).filter { skill.name != it.name }
 
     val addedSkills = listOf(skill)
 

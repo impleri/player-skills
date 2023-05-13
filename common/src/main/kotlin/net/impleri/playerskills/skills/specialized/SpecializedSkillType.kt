@@ -30,18 +30,12 @@ class SpecializedSkillType : SkillType<String>() {
     return expectedValue == skill.value
   }
 
-  override fun getPrevValue(skill: Skill<String>, min: String?, max: String?): String? {
-    if (!skill.areChangesAllowed()) {
-      return null
-    }
-
-    val nextVal = min ?: max ?: return null
-
-    return if (getOptions(skill).contains(nextVal)) nextVal else null
+  override fun getPrevValue(skill: Skill<String>, min: String?, max: String?): String {
+    return ""
   }
 
-  override fun getNextValue(skill: Skill<String>, min: String?, max: String?): String? {
-    return getPrevValue(skill, min, max)
+  override fun getNextValue(skill: Skill<String>, min: String?, max: String?): String {
+    return ""
   }
 
   companion object {

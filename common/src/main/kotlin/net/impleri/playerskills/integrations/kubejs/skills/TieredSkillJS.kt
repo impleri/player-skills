@@ -7,9 +7,9 @@ import net.minecraft.resources.ResourceLocation
 
 class TieredSkillJS(builder: Builder) : TieredSkill(
   builder.id,
-  builder.options,
   builder.initialValue,
   builder.description,
+  builder.options,
   builder.changesAllowed,
   builder.teamMode,
   builder.notify,

@@ -16,6 +16,7 @@ abstract class AbstractRegistrationEventJS<T, R : AbstractRestriction<T>, B : Ab
   private val type: String,
   private val registry: Registry<T>,
 ) : ServerEventJS(s) {
+  @Suppress("UNCHECKED_CAST")
   private val registryName = registry.key() as ResourceKey<Registry<T>>
 
   fun restrict(resourceName: String, consumer: (B) -> Unit) {
