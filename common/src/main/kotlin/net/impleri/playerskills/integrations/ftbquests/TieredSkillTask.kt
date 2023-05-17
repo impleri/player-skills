@@ -52,7 +52,7 @@ open class TieredSkillTask(quest: Quest?) : BasicSkillTask(quest) {
     val options = actualSkill.options
 
     if (!actualSkill.isAllowedValue(value)) {
-      value = options[0]
+      value = options.firstOrNull() ?: ""
     }
 
     config.addEnum(
@@ -60,7 +60,7 @@ open class TieredSkillTask(quest: Quest?) : BasicSkillTask(quest) {
       value,
       { value = it },
       NameMap.of(
-        options[0],
+        options.firstOrNull() ?: "",
         options,
       ).create(),
       actualSkill.value,

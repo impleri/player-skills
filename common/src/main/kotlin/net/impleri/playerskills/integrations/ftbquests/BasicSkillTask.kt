@@ -54,7 +54,7 @@ open class BasicSkillTask(quest: Quest?) : BooleanTask(quest) {
 
     val skills = PlayerSkillsIntegration.getSkills(skillType)
 
-    val firstSkill = skills[0]
+    val firstSkill = skills.firstOrNull()
     skill = skill ?: firstSkill
 
     config.addEnum(

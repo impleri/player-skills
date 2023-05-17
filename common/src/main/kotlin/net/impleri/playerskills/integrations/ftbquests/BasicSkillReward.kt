@@ -68,10 +68,9 @@ open class BasicSkillReward(quest: Quest?) : Reward(quest) {
     val skills = PlayerSkillsIntegration.getSkills(
       skillType,
     )
-    val firstSkill = skills[0]
-    if (skill == null) {
-      skill = firstSkill
-    }
+
+    val firstSkill = skills.firstOrNull()
+    skill = skill ?: firstSkill
 
     config.addEnum(
       "skill",

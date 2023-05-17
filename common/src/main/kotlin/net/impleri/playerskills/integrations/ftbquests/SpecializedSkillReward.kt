@@ -47,7 +47,7 @@ class SpecializedSkillReward(quest: Quest?) : BasicSkillReward(quest) {
   override fun getConfig(config: ConfigGroup) {
     super.getConfig(config)
 
-    val actualSkill = skill?.let { Skill.find<String>(it) } ?: throw RuntimeException()
+    val actualSkill = skill?.let { Skill.find<String>(it) } ?: return
     val options = actualSkill.options
 
     config.addEnum(
@@ -55,7 +55,7 @@ class SpecializedSkillReward(quest: Quest?) : BasicSkillReward(quest) {
       value,
       { value = it },
       NameMap.of(
-        options[0],
+        options.firstOrNull() ?: "",
         options,
       ).create(),
       actualSkill.value,
