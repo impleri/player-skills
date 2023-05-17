@@ -15,13 +15,13 @@ import net.minecraft.resources.ResourceLocation
 abstract class Skill<T>(
   val name: ResourceLocation,
   val type: ResourceLocation,
-  val value: T?,
-  val description: String?,
-  val options: List<T>,
-  val changesAllowed: Int,
-  val teamMode: TeamMode,
-  val notify: Boolean,
-  val notifyKey: String?,
+  val value: T? = null,
+  val description: String? = null,
+  val options: List<T> = ArrayList(),
+  val changesAllowed: Int = UNLIMITED_CHANGES,
+  val teamMode: TeamMode = TeamMode.off(),
+  val notify: Boolean = false,
+  val notifyKey: String? = null,
 ) {
   abstract fun copy(value: T?, changesAllowed: Int): Skill<T>
 

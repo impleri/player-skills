@@ -10,19 +10,19 @@ open class BasicSkill(
   value: Boolean?,
   description: String?,
   options: List<Boolean>?,
-  changesAllowed: Int,
+  changesAllowed: Int?,
   teamMode: TeamMode?,
-  notify: Boolean,
+  notify: Boolean?,
   notifyKey: String?,
 ) : Skill<Boolean>(
   name,
   BasicSkillType.NAME,
   value,
   description,
-  options!!,
-  changesAllowed,
-  teamMode!!,
-  notify,
+  options ?: ArrayList(),
+  changesAllowed ?: UNLIMITED_CHANGES,
+  teamMode ?: TeamMode.off(),
+  notify ?: false,
   notifyKey,
 ) {
   override fun copy(value: Boolean?, changesAllowed: Int): Skill<Boolean> {
@@ -31,7 +31,7 @@ open class BasicSkill(
 
   override fun getDefaultNotification(): Component {
     val messageKey =
-      if (value!!) "playerskills.notify.basic_skill_enabled" else "playerskills.notify.basic_skill_disabled"
+      if (value == true) "playerskills.notify.basic_skill_enabled" else "playerskills.notify.basic_skill_disabled"
     val skillName = formatSkillName()
     return Component.translatable(messageKey, skillName)
   }
