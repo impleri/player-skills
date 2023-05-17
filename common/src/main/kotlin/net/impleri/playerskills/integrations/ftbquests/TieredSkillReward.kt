@@ -53,7 +53,7 @@ open class TieredSkillReward(quest: Quest?) : BasicSkillReward(quest) {
   override fun getConfig(config: ConfigGroup) {
     super.getConfig(config)
 
-    val actualSkill = skill?.let { Skill.find<String>(it) } ?: throw RuntimeException()
+    val actualSkill = skill?.let { Skill.find<String>(it) } ?: return
     val options = actualSkill.options.toMutableList()
     options.add(0, NO_VALUE)
 
