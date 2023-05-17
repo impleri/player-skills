@@ -127,14 +127,14 @@ project(":common") {
   configure<ArchitectPluginExtension> {
     common(platforms)
   }
-  project.base.archivesName.set("$modId-$minecraftVersion")
+  project.base.archivesName.set(modId)
 
   configure<PublishingExtension> {
     publications {
       create<MavenPublication>("maven${project.name.capitalize()}") {
-        artifactId = "$modId-$minecraftVersion"
+        artifactId = modId
         groupId = project.group.toString()
-        version = project.version.toString()
+        version = "$minecraftVersion-${project.version}"
 
         from(components["java"])
       }
@@ -147,7 +147,7 @@ for (platform in platforms) {
     apply(plugin = "com.github.johnrengelman.shadow")
     apply(plugin = "me.shedaniel.unified-publishing")
 
-    project.base.archivesName.set("$modId-$minecraftVersion-${project.name}")
+    project.base.archivesName.set("$modId-${project.name}")
 
     configure<ArchitectPluginExtension> {
       platformSetupLoomIde()
@@ -157,9 +157,9 @@ for (platform in platforms) {
     configure<PublishingExtension> {
       publications {
         create<MavenPublication>("maven${project.name.capitalize()}") {
-          artifactId = "$modId-$minecraftVersion-${project.name}"
+          artifactId = modId
           groupId = project.group.toString()
-          version = project.version.toString()
+          version = "$minecraftVersion-${project.name}-${project.version}"
 
           from(components["java"])
         }
