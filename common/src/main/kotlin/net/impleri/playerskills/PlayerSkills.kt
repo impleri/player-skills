@@ -10,6 +10,7 @@ import dev.architectury.registry.registries.DeferredRegister
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.commands.PlayerSkillsCommands
+import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.events.SkillChangedEvent
 import net.impleri.playerskills.network.Manager
 import net.impleri.playerskills.server.NetHandler
@@ -46,6 +47,7 @@ class PlayerSkills : ResourceManagerReloadListener {
     PlayerEvent.PLAYER_QUIT.register(PlayerEvent.PlayerQuit { onPlayerQuit(it) })
 
     ReloadListenerRegistry.register(PackType.SERVER_DATA, this)
+    ReloadListenerRegistry.register(PackType.SERVER_DATA, SkillsDataLoader())
 
     SkillChangedEvent.EVENT.register(Consumer { NetHandler.syncPlayer(it) })
     CommandRegistrationEvent.EVENT.register(

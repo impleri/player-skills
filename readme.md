@@ -56,6 +56,40 @@ A restrictions handles the logic for determining if a player has an ability base
 dimension, and current biome. It may also provide a replacement to the target resource. Like Skills, we provide no
 restrictions here. The other xSkills mods implements restrictions for many vanilla elements.
 
+## Data Packs
+
+You can create skills using data packs! Just use the `skills` grouping. The file name will be used as the skill name.
+Example: `mymod/skills/something_cool.json` will be registered as `mymod:something_cool`. The only required field is
+`type`; all others can either be omitted or set to `null`.
+
+- `initialValue` and `options` elements should be typed according to the `type` (e.g. use numbers for numerics, booleans
+  for basic, and strings otherwise).
+- `notify` can be either a string pointing to the translation string to use or a simple boolean `true` to use the
+  default message.
+- `teamMode` can be either an object (see below) or a string with the value of `teamMode.mode` if not
+  using `proportional` or `limited`.
+
+The JSON schema is:
+
+```json
+{
+  "type": "basic|numeric|tiered|specialized",
+  "description": "More about the skill.",
+  "initialValue": null,
+  "options": [
+    "one",
+    "two",
+    "three"
+  ],
+  "changesAllowed": 5,
+  "notify": "mymod.translation.key",
+  "teamMode": {
+    "mode": "off|shared|splitEvenly|pyramid|proportional|limited",
+    "rate": 0.45
+  }
+}
+```
+
 ## KubeJS API
 
 ### Registry Actions

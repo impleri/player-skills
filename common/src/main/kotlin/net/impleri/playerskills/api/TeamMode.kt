@@ -23,6 +23,10 @@ class TeamMode private constructor(private val type: TeamModeType, val rate: Dou
   val isLimited: Boolean
     get() = type == TeamModeType.LIMITED
 
+  override fun toString(): String {
+    return type.name
+  }
+
   companion object {
     fun off(): TeamMode {
       return TeamMode(TeamModeType.OFF)
