@@ -20,8 +20,7 @@ class SkillsRegistrationEventJS(types: Map<String, RegistryObjectBuilderTypes.Bu
     val builder = getBuilder<T>(type, name) ?: return false
     consumer?.let { it(builder) }
 
-    val newSkill = builder.createObject()
-    SKILLS.register(name) { newSkill }
+    SKILLS.register(name) { builder.createObject() }
 
     ConsoleJS.STARTUP.info("Created $type skill $name")
     return true
