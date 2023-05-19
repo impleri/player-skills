@@ -1,20 +1,16 @@
 package net.impleri.playerskills.integrations.kubejs.api
 
-import dev.latvian.mods.kubejs.BuilderBase
 import dev.latvian.mods.rhino.util.HideFromJS
 import dev.latvian.mods.rhino.util.RemapForJS
 import net.impleri.playerskills.restrictions.AbstractRestriction
 import net.impleri.playerskills.restrictions.RestrictionConditionsBuilder
-import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.entity.player.Player
 
 abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : AbstractRestriction<Target>>(
   @HideFromJS override val server: MinecraftServer,
-  id: ResourceLocation? = SkillResourceLocation.of("restriction_conditions"),
-) : BuilderBase<Restriction>(id),
-  RestrictionConditionsBuilder<Target, PlayerDataJS, Restriction> {
+) : RestrictionConditionsBuilder<Target, PlayerDataJS, Restriction> {
   @HideFromJS
   override var rawCondition = { _: PlayerDataJS -> true }
 
@@ -45,10 +41,5 @@ abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : Abstra
   override fun unless(predicate: (PlayerDataJS) -> Boolean): AbstractRestrictionConditionsBuilder<Target, Restriction> {
     @Suppress("UNCHECKED_CAST")
     return super.condition(predicate) as AbstractRestrictionConditionsBuilder<Target, Restriction>
-  }
-
-  @HideFromJS
-  override fun createObject(): Restriction? {
-    return null
   }
 }
