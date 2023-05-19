@@ -17,7 +17,7 @@ abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : Abstra
   @HideFromJS
   override var rawCondition = { _: PlayerDataJS -> true }
 
-  val condition: (Player) -> Boolean
+  override val condition: (Player) -> Boolean
     @HideFromJS
     get() = {
       rawCondition(PlayerDataJS(it))
