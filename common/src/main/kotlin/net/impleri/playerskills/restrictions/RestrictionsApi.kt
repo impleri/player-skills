@@ -79,7 +79,7 @@ abstract class RestrictionsApi<T, R : AbstractRestriction<T>>(
     return { isMatchingTarget(it.target) }
   }
 
-  protected fun inIncludedDimension(dimension: ResourceLocation): (R) -> Boolean {
+  protected fun inIncludedDimension(dimension: ResourceLocation?): (R) -> Boolean {
     return { it.includeDimensions.isEmpty() || it.includeDimensions.contains(dimension) }
   }
 
