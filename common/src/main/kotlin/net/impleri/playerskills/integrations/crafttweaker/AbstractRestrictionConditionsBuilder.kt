@@ -11,7 +11,6 @@ import org.openzen.zencode.java.ZenCodeType
 @ZenRegister
 @ZenCodeType.Name("mods.playerskills.restrictions.AbstractRestrictionBuilder")
 abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : AbstractRestriction<Target>>(
-  val id: ResourceLocation,
   override val server: MinecraftServer,
 ) : RestrictionConditionsBuilder<Target, Player, Restriction> {
   override var rawCondition = { _: Player -> true }
