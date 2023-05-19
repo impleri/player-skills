@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 
-abstract class AbstractRestrictionBuilder<Target, Player, Restriction : AbstractRestriction<Target>, Builder : RestrictionConditionsBuilder<Target, Player, Restriction>>(
+abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestriction<Target>>(
   protected val registry: Registry<Target>,
   private val givenLogger: PlayerSkillsLogger? = null,
 ) {
@@ -21,7 +21,7 @@ abstract class AbstractRestrictionBuilder<Target, Player, Restriction : Abstract
   /**
    * Register a Restriction using a Builder consumed in a script (e.g. CraftTweaker, KubeJS)
    */
-  fun create(resourceName: String, builder: Builder) {
+  fun <Player> create(resourceName: String, builder: RestrictionConditionsBuilder<Target, Player, Restriction>) {
     val registrationType = RegistrationType(resourceName, registryName)
     registrationType.ifNamespace { restrictNamespace(it, builder) }
     registrationType.ifName { restrictOne(it, builder) }
@@ -31,12 +31,18 @@ abstract class AbstractRestrictionBuilder<Target, Player, Restriction : Abstract
   /**
    * Type-specific handler for creating a restriction using data from a Builder
    */
-  protected abstract fun restrictOne(name: ResourceLocation, builder: Builder)
+  protected abstract fun <Player> restrictOne(
+    name: ResourceLocation,
+    builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
+  )
 
   /**
    * Internal, reusable helper to get all registered entries from the given namespace and create a restriction for them
    */
-  private fun restrictNamespace(namespace: String, builder: Builder) {
+  private fun <Player> restrictNamespace(
+    namespace: String,
+    builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
+  ) {
     registry.keySet()
       .asSequence()
       .filter { it.namespace == namespace }
@@ -56,7 +62,10 @@ abstract class AbstractRestrictionBuilder<Target, Player, Restriction : Abstract
   /**
    * Internal, reusable helper to get all registered entries with the given tag and create a restriction for them
    */
-  private fun restrictTag(tag: TagKey<Target>, builder: Builder) {
+  private fun <Player> restrictTag(
+    tag: TagKey<Target>,
+    builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
+  ) {
     registry
       .filter(isTagged(tag))
       .asSequence()
