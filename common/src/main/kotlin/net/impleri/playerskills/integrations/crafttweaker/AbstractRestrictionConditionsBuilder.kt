@@ -20,7 +20,7 @@ abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : Abstra
   override val includeDimensions: MutableList<ResourceLocation> = ArrayList()
   override val excludeDimensions: MutableList<ResourceLocation> = ArrayList()
 
-  val condition: (Player) -> Boolean
+  override val condition: (Player) -> Boolean
     get() = rawCondition
 
   @ZenCodeType.Method
