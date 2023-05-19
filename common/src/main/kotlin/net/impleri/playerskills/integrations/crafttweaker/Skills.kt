@@ -10,7 +10,6 @@ import net.impleri.playerskills.skills.tiered.TieredSkill
 import net.impleri.playerskills.utils.SkillResourceLocation
 import org.openzen.zencode.java.ZenCodeType
 
-// @TODO: Add remaining types
 @ZenRegister
 @ZenCodeType.Name("mods.playerskills.Skills")
 object Skills {
