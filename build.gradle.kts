@@ -181,6 +181,10 @@ for (platform in platforms) {
           }
 
           optional {
+            curseforge.set("crafttweaker")
+          }
+
+          optional {
             curseforge.set("kubejs")
             modrinth.set("kubejs")
           }
