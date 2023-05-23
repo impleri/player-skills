@@ -7,17 +7,18 @@ import net.impleri.playerskills.restrictions.RestrictionConditionsBuilder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.entity.player.Player
+import java.util.function.Predicate
 
 abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : AbstractRestriction<Target>>(
   @HideFromJS override val server: MinecraftServer,
 ) : RestrictionConditionsBuilder<Target, PlayerDataJS, Restriction> {
   @HideFromJS
-  override var rawCondition = { _: PlayerDataJS -> true }
+  override var rawCondition = Predicate { _: PlayerDataJS -> true }
 
-  override val condition: (Player) -> Boolean
+  override val actualCondition: (Player) -> Boolean
     @HideFromJS
     get() = {
-      rawCondition(PlayerDataJS(it))
+      rawCondition.test(PlayerDataJS(it))
     }
 
   @HideFromJS
@@ -33,13 +34,15 @@ abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : Abstra
   override val excludeDimensions: MutableList<ResourceLocation> = ArrayList()
 
   @RemapForJS("if")
-  override fun condition(predicate: (PlayerDataJS) -> Boolean): AbstractRestrictionConditionsBuilder<Target, Restriction> {
-    @Suppress("UNCHECKED_CAST")
-    return super.condition(predicate) as AbstractRestrictionConditionsBuilder<Target, Restriction>
+  override fun condition(predicate: Predicate<PlayerDataJS>): AbstractRestrictionConditionsBuilder<Target, Restriction> {
+    super.condition(predicate)
+
+    return this
   }
 
-  override fun unless(predicate: (PlayerDataJS) -> Boolean): AbstractRestrictionConditionsBuilder<Target, Restriction> {
-    @Suppress("UNCHECKED_CAST")
-    return super.condition(predicate) as AbstractRestrictionConditionsBuilder<Target, Restriction>
+  override fun unless(predicate: Predicate<PlayerDataJS>): AbstractRestrictionConditionsBuilder<Target, Restriction> {
+    super.condition(predicate)
+
+    return this
   }
 }
