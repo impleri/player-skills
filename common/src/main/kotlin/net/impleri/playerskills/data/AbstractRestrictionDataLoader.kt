@@ -37,9 +37,9 @@ abstract class AbstractRestrictionDataLoader<Target>(
   ) {
     datamap.forEach { (name, json) ->
       try {
-        parseRestriction(name, json)?.let {
+        parseRestriction(name, json.asJsonObject)?.let {
           logger.info("Registering $group restriction for $name")
-          register(it)
+          register(name, it)
         }
       } catch (e: Throwable) {
         logger.warn("Could not parse restriction details for $name")
@@ -51,10 +51,10 @@ abstract class AbstractRestrictionDataLoader<Target>(
 
   protected abstract fun parseRestriction(
     name: ResourceLocation,
-    jsonElement: JsonElement,
+    jsonElement: JsonObject,
   ): AbstractRestriction<Target>?
 
-  protected abstract fun register(restriction: AbstractRestriction<Target>): Void
+  protected abstract fun register(name: ResourceLocation, restriction: AbstractRestriction<Target>)
 
   protected fun getValue(
     raw: JsonObject,
