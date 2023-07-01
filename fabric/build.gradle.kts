@@ -32,15 +32,16 @@ configure<UnifiedPublishingExtension> {
 }
 
 dependencies {
+  modImplementation("net.fabricmc:fabric-language-kotlin:$kotlinFabricVersion+kotlin.$kotlinVersion")
+
   modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
   modApi("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 
-  modImplementation("net.fabricmc:fabric-language-kotlin:$kotlinFabricVersion+kotlin.$kotlinVersion")
-
   modApi("dev.architectury:architectury-fabric:$architecturyVersion")
-  modApi("dev.latvian.mods:kubejs-fabric:$kubejsVersion")
+
+  modImplementation("dev.latvian.mods:kubejs-fabric:$kubejsVersion")
+  modApi("com.blamejared.crafttweaker:CraftTweaker-fabric-$minecraftVersion:$craftTweakerVersion")
 
   modImplementation("dev.ftb.mods:ftb-quests-fabric:$ftbQuestsVersion")
   modImplementation("dev.ftb.mods:ftb-teams-fabric:$ftbTeamsVersion")
-  modImplementation("com.blamejared.crafttweaker:CraftTweaker-fabric-$minecraftVersion:$craftTweakerVersion")
 }
