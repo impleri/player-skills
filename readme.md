@@ -11,8 +11,7 @@ Skill Types.
 [![Modrinth](https://img.shields.io/modrinth/dt/player-skills?color=bcdeb7&label=%20&logo=modrinth&logoColor=096765&style=plastic)](https://modrinth.com/mod/player-skills)
 [![MIT license](https://img.shields.io/github/license/impleri/player-skills?color=bcdeb7&label=Source&logo=github&style=flat)](https://github.com/impleri/player-skills)
 [![Discord](https://img.shields.io/discord/1093178610950623233?color=096765&label=Community&logo=discord&logoColor=bcdeb7&style=plastic)](https://discord.com/invite/avxJgbaUmG)
-[![1.19.2](https://img.shields.io/maven-metadata/v?label=1.19.2&color=096765&metadataUrl=https%3A%2F%2Fmaven.impleri.org%2Fminecraft%2Fnet%2Fimpleri%2Fplayer-skills-1.19.2%2Fmaven-metadata.xml&style=flat)](https://github.com/impleri/player-skills/tree/1.19.2#developers)
-[![1.18.2](https://img.shields.io/maven-metadata/v?label=1.18.2&color=096765&metadataUrl=https%3A%2F%2Fmaven.impleri.org%2Fminecraft%2Fnet%2Fimpleri%2Fplayer-skills-1.18.2%2Fmaven-metadata.xml&style=flat)](https://github.com/impleri/player-skills/tree/1.18.2#developers)
+[![Maven](https://img.shields.io/maven-metadata/v?label=1.19.2&color=096765&metadataUrl=https%3A%2F%2Fmaven.impleri.org%2Fminecraft%2Fnet%2Fimpleri%2Fplayerskills%2Fmaven-metadata.xml&style=flat)](https://github.com/impleri/player-skills/tree/1.19.2#developers)
 
 ### xSkills Mods
 
@@ -289,36 +288,7 @@ Lastly, KubeJS scripts have access to a `PlayerSkills` object that provides the 
 - `PlayerSkills.skillTypes`: Returns an array of all registered Skill Types
 - `PlayerSkills.skills`: Returns an array of all registered Skills
 
-## KubeJS Restrictions API
-
-The various xSkills mods utilize a shared Restrictions API for managing restrictions. These are contained within
-PlayerSkills but are surfaced in the dependent mod. These are documented here in order to keep documentation as
-up-to-date as possible and the other mods may link back to here.
-
-### ID Parsing
-
-Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
-biome facets share the same identifier parsing. This means that string identifiers can be used (e.g. `minecraft:zombie`)
-as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
-appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those.
-
-### Condition Methods
-
-- `if`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a signature
-  of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
-- `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
-
-### Facet Methods
-
-- `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
-  of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
-- `notInDimension`: Adds a facet to the restriction applying to the target only if it is not in one of the listed
-  dimensions. Example: `.notInDimension('@ad_astra')`
-- `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
-  the listed biomes. Example: `.inBiome('#desert')`
-- `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
-
-## CafrtTweaker API
+## CraftTweaker API
 
 In v2.0, CraftTweaker support was added as an alternative to KubeJS. It tries to remain very similar to the Kube API,
 but some changes have been made due to how ZenScript works compared to JavaScript.
@@ -496,6 +466,35 @@ crafttweaker.api.events.CTEventManager.register<crafttweaker.api.event.entity.pl
 });
 ```
 
+## KubeJS Restrictions API
+
+The various xSkills mods utilize a shared Restrictions API for managing restrictions. These are contained within
+PlayerSkills but are surfaced in the dependent mod. These are documented here in order to keep documentation as
+up-to-date as possible and the other mods may link back to here.
+
+### ID Parsing
+
+Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
+biome facets share the same identifier parsing. This means that string identifiers can be used (e.g. `minecraft:zombie`)
+as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
+appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those.
+
+### Condition Methods
+
+- `if`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a signature
+  of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
+- `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
+
+### Facet Methods
+
+- `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
+  of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
+- `notInDimension`: Adds a facet to the restriction applying to the target only if it is not in one of the listed
+  dimensions. Example: `.notInDimension('@ad_astra')`
+- `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
+  the listed biomes. Example: `.inBiome('#desert')`
+- `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
+
 ## Java API
 
 Registering Skills and SkillTypes should happen during initialization (see `PlayerSkills.registerTypes`) using
@@ -587,13 +586,13 @@ and [KubeJS](https://github.com/KubeJS-Mods/KubeJS), so you'll need those as wel
 ```groovy
 dependencies {
     // Common should always be included 
-    modImplementation "net.impleri:player-skills-${minecraft_version}:${playerskills_version}"
+    modCompileOnly "net.impleri:playerskills-${minecraft_version}:${playerskills_version}"
 
     // Plus forge
-    modApi "net.impleri:player-skills-${minecraft_version}-forge:${playerskills_version}"
+    modImplementation "net.impleri:player-skills-${minecraft_version}-forge:${playerskills_version}"
 
     // Or fabric
-    modApi "net.impleri:player-skills-${minecraft_version}-fabric:${playerskills_version}"
+    modImplementation "net.impleri:player-skills-${minecraft_version}-fabric:${playerskills_version}"
 }
 
 repositories {
