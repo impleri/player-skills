@@ -26,16 +26,16 @@ configure<UnifiedPublishingExtension> {
 }
 
 dependencies {
-  forge("net.minecraftforge:forge:$forgeVersion")
-
   implementation("thedarkcolour:kotlinforforge:$kotlinForgeVersion")
   forgeRuntimeLibrary(kotlin("stdlib", kotlinVersion))
   forgeRuntimeLibrary(kotlin("reflect", kotlinVersion))
 
+  forge("net.minecraftforge:forge:$forgeVersion")
   modImplementation("dev.architectury:architectury-forge:$architecturyVersion")
+
   modImplementation("dev.latvian.mods:kubejs-forge:$kubejsVersion")
+  modApi("com.blamejared.crafttweaker:CraftTweaker-forge-$minecraftVersion:$craftTweakerVersion")
 
   modImplementation("dev.ftb.mods:ftb-quests-forge:$ftbQuestsVersion")
   modImplementation("dev.ftb.mods:ftb-teams-forge:$ftbTeamsVersion")
-  modImplementation("com.blamejared.crafttweaker:CraftTweaker-forge-$minecraftVersion:$craftTweakerVersion")
 }

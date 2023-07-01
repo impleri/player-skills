@@ -14,9 +14,10 @@ dependencies {
 
   modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
   modApi("dev.architectury:architectury:$architecturyVersion")
-  modImplementation("dev.latvian.mods:kubejs:$kubejsVersion")
 
-  modImplementation("dev.ftb.mods:ftb-teams:$ftbTeamsVersion")
-  modImplementation("dev.ftb.mods:ftb-quests:$ftbQuestsVersion")
-  compileOnly("com.blamejared.crafttweaker:CraftTweaker-common-$minecraftVersion:$craftTweakerVersion")
+  modCompileOnly("dev.latvian.mods:kubejs:$kubejsVersion")
+  modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-common-$minecraftVersion:$craftTweakerVersion")
+
+  modCompileOnly("dev.ftb.mods:ftb-teams:$ftbTeamsVersion")
+  modCompileOnly("dev.ftb.mods:ftb-quests:$ftbQuestsVersion")
 }
