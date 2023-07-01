@@ -9,12 +9,12 @@ import net.minecraft.world.level.biome.Biome
 import kotlin.jvm.optionals.getOrNull
 
 interface BiomeConditions<Target, Restriction : AbstractRestriction<Target>> {
-  val server: MinecraftServer
+  val server: Lazy<MinecraftServer>
   val includeBiomes: MutableList<ResourceLocation>
   val excludeBiomes: MutableList<ResourceLocation>
 
   private fun ifInBiomesNamespaced(namespace: String, callback: (ResourceLocation) -> Unit) {
-    server
+    server.value
       .registryAccess()
       .registry(Registry.BIOME_REGISTRY)
       .getOrNull()
@@ -27,7 +27,7 @@ interface BiomeConditions<Target, Restriction : AbstractRestriction<Target>> {
   }
 
   private fun ifInBiomesTagged(tag: TagKey<Biome>, callback: (ResourceLocation) -> Unit) {
-    server.registryAccess()
+    server.value.registryAccess()
       .registry(Registry.BIOME_REGISTRY)
       .getOrNull()
       ?.getTag(tag)

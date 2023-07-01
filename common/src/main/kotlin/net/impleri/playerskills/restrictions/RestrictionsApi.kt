@@ -16,7 +16,7 @@ abstract class RestrictionsApi<T, R : AbstractRestriction<T>>(
   private val allRestrictionFields: Array<Field>,
   private val logger: PlayerSkillsLogger = PlayerSkills.LOGGER,
 ) {
-  private val restrictionsCache: MutableMap<Player, List<R>> = ConcurrentHashMap()
+  private val restrictionsCache = ConcurrentHashMap<Player, List<R>>()
   private val emptyFilter = { _: R -> true }
 
   @JvmRecord
@@ -214,7 +214,7 @@ abstract class RestrictionsApi<T, R : AbstractRestriction<T>>(
   ): Boolean {
     if (player == null) {
       logger.warn("Attempted to determine if null player can $fieldName on target $resource in $dimension/$biome")
-      return false
+      return DEFAULT_CAN_RESPONSE
     }
 
     val actualFilter = filter ?: emptyFilter
@@ -223,8 +223,16 @@ abstract class RestrictionsApi<T, R : AbstractRestriction<T>>(
       .map { getFieldValueFor(it, fieldName) } // get field value
       .any { !it } // do we have any restrictions that deny the action
 
-    logger.debug("Does ${player.name}  have $fieldName restrictions with $resource in  $dimension/$biome? $hasRestrictions")
+    logger.debug("Does ${player.name} have $fieldName restrictions with $resource in  $dimension/$biome? $hasRestrictions")
 
     return !hasRestrictions
+  }
+
+  companion object {
+    /**
+     * Default response for checking if a player is restricted from something. We want to ALLOW the player to perform
+     * the action as if there were no restrictions.
+     */
+    const val DEFAULT_CAN_RESPONSE = true
   }
 }

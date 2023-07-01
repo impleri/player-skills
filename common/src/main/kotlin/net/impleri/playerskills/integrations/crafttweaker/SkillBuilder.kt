@@ -1,7 +1,6 @@
 package net.impleri.playerskills.integrations.crafttweaker
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.TeamMode
 import net.minecraft.resources.ResourceLocation
@@ -19,7 +18,6 @@ class SkillBuilder<T>(val name: ResourceLocation, val onSave: (SkillBuilder<T>) 
   var notify = false
 
   init {
-    PlayerSkills.LOGGER.info("Creating skill builder for $name")
     skill?.let {
       initialValue = it.value
       description = it.description

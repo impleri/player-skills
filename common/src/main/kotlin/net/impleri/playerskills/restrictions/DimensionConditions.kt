@@ -6,13 +6,13 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 
 interface DimensionConditions<Target, Restriction : AbstractRestriction<Target>> {
-  val server: MinecraftServer
+  val server: Lazy<MinecraftServer>
 
   val includeDimensions: MutableList<ResourceLocation>
   val excludeDimensions: MutableList<ResourceLocation>
 
   private fun ifInDimensionsNamespaced(namespace: String, callback: (ResourceLocation) -> Unit) {
-    server.levelKeys()
+    server.value.levelKeys()
       .asSequence()
       .map { it.location() }
       .filter { it.namespace == namespace }
