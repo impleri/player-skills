@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player
 import java.util.function.Predicate
 
 abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : AbstractRestriction<Target>>(
-  @HideFromJS override val server: MinecraftServer,
+  @HideFromJS override val server: Lazy<MinecraftServer>,
 ) : RestrictionConditionsBuilder<Target, PlayerDataJS, Restriction> {
   @HideFromJS
   override var rawCondition = Predicate { _: PlayerDataJS -> true }

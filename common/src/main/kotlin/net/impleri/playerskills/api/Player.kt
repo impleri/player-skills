@@ -47,8 +47,13 @@ object Player {
     return get(player, name) ?: Skill.findOrThrow(name)
   }
 
+  /**
+   * Default response for skill checks. We want to DENY by default any check for a skill.
+   */
+  const val DEFAULT_SKILL_RESPONE = false
+
   internal fun <T> can(skill: Skill<T>, expectedValue: T?): Boolean {
-    return SkillType.find(skill)?.can(skill, expectedValue) ?: false
+    return SkillType.find(skill)?.can(skill, expectedValue) ?: DEFAULT_SKILL_RESPONE
   }
 
   /**
@@ -56,7 +61,7 @@ object Player {
    */
   @JvmOverloads
   fun <T> can(playerId: UUID, skillName: ResourceLocation, expectedValue: T? = null): Boolean {
-    return get<T>(playerId, skillName)?.let { can(it, expectedValue) } ?: false
+    return get<T>(playerId, skillName)?.let { can(it, expectedValue) } ?: DEFAULT_SKILL_RESPONE
   }
 
   @JvmOverloads

@@ -81,26 +81,26 @@ abstract class AbstractRestrictionDataLoader<Target>(
     return if (rawValue.isJsonNull) defaultValue else parser(rawValue)
   }
 
-  private fun parseZone(
+  protected fun <T> parseArray(
     raw: JsonElement,
-    zone: String,
-    callback: (String) -> List<ResourceLocation>,
-  ): List<ResourceLocation> {
+    key: String,
+    callback: (String) -> List<T>,
+  ): List<T> {
     return parseValue(
       raw.asJsonObject,
-      zone,
+      key,
       {
         it.asJsonArray.flatMap { rawValue -> callback(rawValue.asString) }
       },
     ) ?: ArrayList()
   }
 
-  private fun parseExclude(raw: JsonElement, callback: (String) -> List<ResourceLocation>): List<ResourceLocation> {
-    return parseZone(raw, "exclude", callback)
+  protected fun <T> parseExclude(raw: JsonElement, callback: (String) -> List<T>): List<T> {
+    return parseArray(raw, "exclude", callback)
   }
 
-  private fun parseInclude(raw: JsonElement, callback: (String) -> List<ResourceLocation>): List<ResourceLocation> {
-    return parseZone(raw, "include", callback)
+  protected fun <T> parseInclude(raw: JsonElement, callback: (String) -> List<T>): List<T> {
+    return parseArray(raw, "include", callback)
   }
 
   protected fun parseDimensions(raw: JsonObject): Pair<List<ResourceLocation>, List<ResourceLocation>> {
