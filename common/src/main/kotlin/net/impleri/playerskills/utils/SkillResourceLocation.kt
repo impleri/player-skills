@@ -6,14 +6,17 @@ import net.minecraft.resources.ResourceLocation
  * Helper class for generating ResourceLocation, defaulting the namespace to playerSkills
  */
 object SkillResourceLocation {
+  @JvmStatic
   fun of(resourceLocation: ResourceLocation): ResourceLocation {
     return resourceLocation
   }
 
+  @JvmStatic
   fun of(namespace: String, path: String): ResourceLocation {
     return ResourceLocation(namespace, path)
   }
 
+  @JvmStatic
   fun of(path: String): ResourceLocation {
     val elements = decompose(path)
     return of(elements[0], elements[1])
@@ -25,6 +28,7 @@ object SkillResourceLocation {
    *
    * Attempt to parse the string into a minecraft-default ResourceLocation and fallback to skills namespace if some error
    */
+  @JvmStatic
   fun ofMinecraft(value: String): ResourceLocation {
     val mcResource = ResourceLocation.tryParse(value)
     return mcResource ?: of(value)

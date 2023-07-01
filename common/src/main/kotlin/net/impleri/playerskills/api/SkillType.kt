@@ -68,6 +68,7 @@ abstract class SkillType<T> {
     private const val valueSeparator = ";"
     private const val stringValueNone = "[NULL]"
 
+    @JvmField
     val REGISTRY_KEY = SkillTypes.REGISTRY_KEY
 
     /**

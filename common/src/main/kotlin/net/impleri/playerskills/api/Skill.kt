@@ -107,6 +107,7 @@ abstract class Skill<T>(
   companion object {
     const val UNLIMITED_CHANGES = -1
 
+    @JvmField
     val REGISTRY_KEY = Skills.REGISTRY_KEY
 
     fun all(): List<Skill<*>> {
