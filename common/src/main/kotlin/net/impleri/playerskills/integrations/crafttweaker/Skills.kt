@@ -3,6 +3,7 @@ package net.impleri.playerskills.integrations.crafttweaker
 import com.blamejared.crafttweaker.api.annotation.ZenRegister
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.TeamMode
+import net.impleri.playerskills.integrations.crafttweaker.skills.SkillBuilder
 import net.impleri.playerskills.skills.basic.BasicSkill
 import net.impleri.playerskills.skills.numeric.NumericSkill
 import net.impleri.playerskills.skills.specialized.SpecializedSkill

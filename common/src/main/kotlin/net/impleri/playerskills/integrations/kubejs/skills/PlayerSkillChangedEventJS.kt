@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.kubejs.events
+package net.impleri.playerskills.integrations.kubejs.skills
 
 import dev.latvian.mods.kubejs.server.ServerEventJS
 import dev.latvian.mods.kubejs.util.UtilsJS

@@ -1,11 +1,10 @@
-package net.impleri.playerskills.integrations.kubejs.events
+package net.impleri.playerskills.integrations.kubejs.skills
 
 import dev.architectury.registry.registries.DeferredRegister
 import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes
 import dev.latvian.mods.kubejs.util.ConsoleJS
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
-import net.impleri.playerskills.integrations.kubejs.skills.GenericSkillBuilderJS
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceKey
 

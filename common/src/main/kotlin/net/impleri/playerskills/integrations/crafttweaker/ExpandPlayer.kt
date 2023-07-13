@@ -18,7 +18,7 @@ object ExpandPlayer {
 
   @ZenCodeType.Method
   @JvmStatic
-  fun can(player: Player, skillName: String, expectedValue: Boolean?): Boolean {
+  fun can(player: Player, skillName: String, expectedValue: Boolean): Boolean {
     return PlayerApi.can(
       player,
       skillName,
@@ -28,7 +28,7 @@ object ExpandPlayer {
 
   @ZenCodeType.Method
   @JvmStatic
-  fun can(player: Player, skillName: String, expectedValue: Double?): Boolean {
+  fun can(player: Player, skillName: String, expectedValue: Double): Boolean {
     return PlayerApi.can(
       player,
       skillName,
@@ -38,7 +38,7 @@ object ExpandPlayer {
 
   @ZenCodeType.Method
   @JvmStatic
-  fun can(player: Player, skillName: String, expectedValue: String?): Boolean {
+  fun can(player: Player, skillName: String, expectedValue: String): Boolean {
     return PlayerApi.can(
       player,
       skillName,
@@ -57,19 +57,19 @@ object ExpandPlayer {
 
   @ZenCodeType.Method
   @JvmStatic
-  fun cannot(player: Player, skill: String, expectedValue: Boolean?): Boolean {
+  fun cannot(player: Player, skill: String, expectedValue: Boolean): Boolean {
     return !can(player, skill, expectedValue)
   }
 
   @ZenCodeType.Method
   @JvmStatic
-  fun cannot(player: Player, skill: String, expectedValue: Double?): Boolean {
+  fun cannot(player: Player, skill: String, expectedValue: Double): Boolean {
     return !can(player, skill, expectedValue)
   }
 
   @ZenCodeType.Method
   @JvmStatic
-  fun cannot(player: Player, skill: String, expectedValue: String?): Boolean {
+  fun cannot(player: Player, skill: String, expectedValue: String): Boolean {
     return !can(player, skill, expectedValue)
   }
 

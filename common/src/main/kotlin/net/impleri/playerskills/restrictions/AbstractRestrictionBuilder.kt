@@ -7,21 +7,37 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
+import net.minecraft.world.entity.player.Player
 
 abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestriction<Target>>(
   protected val registry: Registry<Target>,
-  private val givenLogger: PlayerSkillsLogger? = null,
+  protected val logger: PlayerSkillsLogger = PlayerSkills.LOGGER,
 ) {
-  protected val logger: PlayerSkillsLogger
-    get() = givenLogger ?: PlayerSkills.LOGGER
-
   @Suppress("UNCHECKED_CAST")
   private val registryName = registry.key() as ResourceKey<Registry<Target>>
+  private val restrictions: MutableMap<String, MutableList<RestrictionConditionsBuilder<Target, *, Restriction>>> =
+    HashMap()
+
+  fun <Player> create(resourceName: String, builder: RestrictionConditionsBuilder<Target, Player, Restriction>) {
+    val list = restrictions.computeIfAbsent(resourceName) { ArrayList() }
+    list.add(builder)
+  }
+
+  fun register() {
+    restrictions.entries.forEach { (name, builders) ->
+      builders.forEach { restrict(name, it) }
+    }
+
+    restrictions.clear()
+  }
 
   /**
    * Register a Restriction using a Builder consumed in a script (e.g. CraftTweaker, KubeJS)
    */
-  fun <Player> create(resourceName: String, builder: RestrictionConditionsBuilder<Target, Player, Restriction>) {
+  private fun <Player> restrict(
+    resourceName: String,
+    builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
+  ) {
     val registrationType = RegistrationType(resourceName, registryName)
     registrationType.ifNamespace { restrictNamespace(it, builder) }
     registrationType.ifName { restrictOne(it, builder) }
@@ -43,6 +59,7 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
     namespace: String,
     builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
   ) {
+    logger.info("Creating ${registry.key().location()} restriction for $namespace namespace")
     registry.keySet()
       .asSequence()
       .filter { it.namespace == namespace }
@@ -52,12 +69,12 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
   /**
    * Type-specific helper to create a predicate determining if a given Target matches the given TagKey
    */
-  protected abstract fun isTagged(tag: TagKey<Target>): (Target) -> Boolean
+  protected abstract fun isTagged(target: Target, tag: TagKey<Target>): Boolean
 
   /**
    * Type-specific helper to retrieve the ResourceLocation related to the given Target
    */
-  protected abstract fun getName(resource: Target): ResourceLocation
+  protected abstract fun getName(target: Target): ResourceLocation
 
   /**
    * Internal, reusable helper to get all registered entries with the given tag and create a restriction for them
@@ -66,9 +83,10 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
     tag: TagKey<Target>,
     builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
   ) {
-    registry
-      .filter(isTagged(tag))
-      .asSequence()
+    logger.info("Creating ${registry.key().location()} restriction for ${tag.location} tag")
+
+    registry.asSequence()
+      .filter { isTagged(it, tag) }
       .map { getName(it) }
       .forEach { restrictOne(it, builder) }
   }

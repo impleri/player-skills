@@ -14,10 +14,12 @@ import java.util.function.Predicate
 abstract class RestrictionsApi<T, R : AbstractRestriction<T>>(
   protected val registry: Registry<R>,
   private val allRestrictionFields: Array<Field>,
-  private val logger: PlayerSkillsLogger = PlayerSkills.LOGGER,
+  private val givenLogger: PlayerSkillsLogger? = null,
 ) {
   private val restrictionsCache = ConcurrentHashMap<Player, List<R>>()
   private val emptyFilter = { _: R -> true }
+  protected val logger: PlayerSkillsLogger
+    get() = givenLogger ?: PlayerSkills.LOGGER
 
   @JvmRecord
   private data class ReplacementCacheKey<RT, RR : AbstractRestriction<RT>>(

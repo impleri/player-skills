@@ -1,7 +1,10 @@
 # Player Skills
 
-A library mod that provides a baseline implementation of player-specific skills. On its own, this does very little as it
-is meant to be as un-opinionated as possible.
+A library mod that handles everything related to player-specific skills and skill-based restrictions. Included in the
+box are the following types of restrictions:
+
+* Mob Spawning
+* Mob Interaction (i.e. right-clicking to trade with a villager)
 
 Like GameStages and GamePhases, this provides a registry for tracking possible skills as well what skills a given player
 currently possesses. Unlike the other mods, skills are added to a player immediately and leverage ability checking via
@@ -13,16 +16,7 @@ Skill Types.
 [![Discord](https://img.shields.io/discord/1093178610950623233?color=096765&label=Community&logo=discord&logoColor=bcdeb7&style=plastic)](https://discord.com/invite/avxJgbaUmG)
 [![Maven](https://img.shields.io/maven-metadata/v?label=1.19.2&color=096765&metadataUrl=https%3A%2F%2Fmaven.impleri.org%2Fminecraft%2Fnet%2Fimpleri%2Fplayerskills%2Fmaven-metadata.xml&style=flat)](https://github.com/impleri/player-skills/tree/1.19.2#developers)
 
-### xSkills Mods
-
-[Player Skills](https://github.com/impleri/player-skills)
-| [Block Skills](https://github.com/impleri/block-skills)
-| [Dimension Skills](https://github.com/impleri/dimension-skills)
-| [Fluid Skills](https://github.com/impleri/fluid-skills)
-| [Item Skills](https://github.com/impleri/item-skills)
-| [Mob Skills](https://github.com/impleri/mob-skills)
-
-## Concepts
+## Core Concepts
 
 This mod provides three entities that can be extended: Skill Types, Skills, and (Skill-based) Restrictions.
 
@@ -54,6 +48,19 @@ shape.
 A restrictions handles the logic for determining if a player has an ability based on the set condition, current
 dimension, and current biome. It may also provide a replacement to the target resource. Like Skills, we provide no
 restrictions here. The other xSkills mods implements restrictions for many vanilla elements.
+
+#### ID Parsing
+
+Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
+biome facets share the same identifier parsing. This means that string identifiers can be used (e.g. `minecraft:zombie`)
+as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
+appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those. These work in Data
+Packs, KubeJS, and CraftTweaker.
+
+## Caveats
+
+Because of the way we're handling spawn conditions, if you are using an `unless` condition, you should not also
+manipulate `usable` in the same restriction. Just keep the two restrictions separate.
 
 ## Data Packs
 
@@ -89,9 +96,68 @@ The JSON schema is:
 }
 ```
 
+### Data Pack Restrictions API
+
+There is less dynamism in the data pack handling of restrictions mostly because the medium of Data Packs (JSON) is
+static. However, we have done our best to make it work as close as possible as using KubeJS or CraftTweaker. These
+properties are available on every restriction.
+
+#### Condition Properties
+
+- `if`: Sets the condition which must evaluate to true in order to apply.
+- `unless`: Sets the condition which must evaluate to false.
+
+In either case, the condition provided can be a single condition object or an array of them.
+
+```json
+{
+  "if": [
+    {
+      "skill": "some_basic_skill"
+    },
+    {
+      "skill": "numeric_skill",
+      "value": 3
+    }
+  ],
+  "unless": {
+    "skill": "that_specialization_skill",
+    "value": "blue"
+  }
+}
+```
+
+#### Facet Properties
+
+- `dimensions`: Add dimension facets to the restriction
+- `biomes`: Add biome facets to the restriction
+
+Both facets can either be an array of string values that will be parsed as IDs (see above) or an object with `include`
+and/or `exclude` properties that are array of string values.
+
+```json
+{
+  "dimensions": [
+    "overworld",
+    "minecraft:nether",
+    "@ad_astra"
+  ],
+  "biomes": {
+    "include": [
+      "plains",
+      "#desert",
+      "ad_astra:*"
+    ],
+    "exclude": [
+      "#minecraft:ocean"
+    ]
+  }
+}
+```
+
 ## KubeJS API
 
-### Registry Actions
+### Skills Registry Actions
 
 For all registry actions, we use two separate events:
 
@@ -288,12 +354,111 @@ Lastly, KubeJS scripts have access to a `PlayerSkills` object that provides the 
 - `PlayerSkills.skillTypes`: Returns an array of all registered Skill Types
 - `PlayerSkills.skills`: Returns an array of all registered Skills
 
+### Shared Restrictions API
+
+Restrictions are built using a callback in KubeJS (
+e.g. `SomeRestrictions.register("target", builder => builder.if(player => true));`). Below are methods available to
+every restriction.
+
+#### Condition Methods
+
+- `if`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a signature
+  of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
+- `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
+
+#### Facet Methods
+
+- `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
+  of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
+- `notInDimension`: Adds a facet to the restriction applying to the target only if it is not in one of the listed
+  dimensions. Example: `.notInDimension('@ad_astra')`
+- `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
+  the listed biomes. Example: `.inBiome('#desert')`
+- `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
+
+### Mob Restrictions Registry Actions
+
+We use the `MobSkillEvents.register` ***server*** event to register mob restrictions.
+
+Spawn restrictions are then calculated at spawn time based on the players in the entity's despawn range (i.e. 128 blocks
+for most mobs). If the players ***match*** the conditions, the restrictions are applied.
+
+Other restrictions are calculated when the player attempts to interact with the mob. If the player matches the
+conditions, the restriction is applied.
+
+Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
+allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
+condition. By default, no restrictions are set, so be sure to set actual
+restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
+
+#### Allow Restriction Methods
+
+- `nothing()` - shorthand to apply all "allow" restrictions
+- `spawnable(matchAllInsteadOfAny?: boolean)` - The mob can spawn if any (or all) players in range match the criteria
+- `usable()` - Players that meet the condition can interact with the entity (e.g. trade with a villager)
+
+#### Deny Restriction Methods
+
+- `everything()` - shorthand to apply the below "deny" abilities
+- `unspawnable(matchAllInsteadOfAny?: boolean)` - The mob cannot spawn if any (or all) players in range match the
+  criteria
+- `unusable()` - Players that meet the condition cannot interact with the entity (e.g. trade with a villager)
+
+#### Additional Methods
+
+- `always()` - Change `spanwable`/`unspawnable` into an absolute value instead of a condition
+- `fromSpawner(spawner: string)` - Add a spawn type
+
+##### Spawn Types
+
+We have a shortened list of spawn types which we are allowing granular spawn restrictions. We want to keep breeding,
+spawn eggs, direct summons, and more interaction-based spawns as-is.
+
+- `natural` - A normal, random spawn
+- `spawner` - A nearby mob spawner block
+- `structure` - A spawn related to a structure (e.g. guardians, wither skeletons)
+- `patrol` - Really a subset of "natural" but related to illager patrols
+- `chunk` - A natural spawn from when the chunk generates (e.g. villager)
+
+#### Examples
+
+```js
+MobSkillEvents.register(event => {
+  // Always prevent blazes from spawning
+  event.restrict('minecraft:blaze', is => is.unspawnable().always());
+
+  // Prevent all vanilla mobs from spawning
+  event.restrict('@minecraft', is => is.unspawnable().always());
+
+  // Prevent all illagers from spawning
+  event.restrict('#raiders', is => is.unspawnable().always());
+
+  // Prevent all vanilla illager patrols from spawning
+  event.restrict('minecraft:*', is => is.unspawnable().fromSpawner("patrol").always());
+
+  // ALLOW creepers to spawn IF ALL players in range have the `started_quest` skill
+  event.restrict("minecraft:creeper", is => is.spawnable(true).if(player => player.can("skills:started_quest")));
+
+  // ALLOW cows to spawn UNLESS ANY players in range have the `started_quest` skill
+  event.restrict("minecraft:cow", is => is.spawnable().unless(player => player.can("skills:started_quest")));
+
+  // DENY zombies from spawning IF ANY player in range has the `started_quest` skill
+  event.restrict('minecraft:zombie', is => is.unspawnable().if(player => player.can('skills:started_quest')));
+
+  // DENY sheep from spawning UNLESS ALL player in range has the `started_quest` skill
+  event.restrict('minecraft:sheep', is => is.unspawnable(true).unless(player => player.can('skills:started_quest')));
+
+  // Players cannot interact with villagers unless they have `started_quest` skill
+  event.restrict("minecraft:villager", is => is.unusable().unless(player => player.can("skills:started_quest")));
+});
+```
+
 ## CraftTweaker API
 
 In v2.0, CraftTweaker support was added as an alternative to KubeJS. It tries to remain very similar to the Kube API,
 but some changes have been made due to how ZenScript works compared to JavaScript.
 
-### Registry Actions
+### Skills Registry Actions
 
 For all registry actions, we use four methods to add or modify skills and one to remove them:
 
@@ -466,26 +631,22 @@ crafttweaker.api.events.CTEventManager.register<crafttweaker.api.event.entity.pl
 });
 ```
 
-## KubeJS Restrictions API
+### Shared Restrictions API
 
-The various xSkills mods utilize a shared Restrictions API for managing restrictions. These are contained within
-PlayerSkills but are surfaced in the dependent mod. These are documented here in order to keep documentation as
-up-to-date as possible and the other mods may link back to here.
+Restrictions are build as chained calls in CraftTweaker (
+e.g. `SomeRestrictions.create("target").condition(player => true).save()`). These methods are available for every
+restriction.
 
-### ID Parsing
+- `save`: Completes the building of this restriction and adds the restriction to the registry.
 
-Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
-biome facets share the same identifier parsing. This means that string identifiers can be used (e.g. `minecraft:zombie`)
-as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
-appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those.
+#### Condition Methods
 
-### Condition Methods
-
-- `if`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a signature
+- `condition`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a
+  signature
   of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
 - `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
 
-### Facet Methods
+#### Facet Methods
 
 - `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
   of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
@@ -494,6 +655,110 @@ appropriate. Note that not everything uses tags (e.g. dimensions), so it won't w
 - `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
   the listed biomes. Example: `.inBiome('#desert')`
 - `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
+
+### Mob Restrictions
+
+We use the `MobRestrictions.create` static method to register mob restrictions.
+
+Spawn restrictions are then calculated at spawn time based on the players in the entity's despawn range (i.e. 128 blocks
+for most mobs). If the players ***match*** the conditions, the restrictions are applied.
+
+Other restrictions are calculated when the player attempts to interact with the mob. If the player matches the
+conditions, the restriction is applied.
+
+Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
+allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
+condition. By default, no restrictions are set, so be sure to set actual
+restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
+
+#### Allow Builder Methods
+
+- `nothing()` - shorthand to apply all "allow" restrictions
+- `spawnable(matchAllInsteadOfAny?: boolean)` - The mob can spawn if any (or all) players in range match the criteria
+- `usable()` - Players that meet the condition can interact with the entity (e.g. trade with a villager)
+
+#### Deny Builder Methods
+
+- `everything()` - shorthand to apply the below "deny" abilities
+- `unspawnable(matchAllInsteadOfAny?: boolean)` - The mob cannot spawn if any (or all) players in range match the
+  criteria
+- `unusable()` - Players that meet the condition cannot interact with the entity (e.g. trade with a villager)
+
+#### Additional Methods
+
+- `always()` - Change `spanwable`/`unspawnable` into an absolute value instead of a condition
+- `fromSpawner(spawner: string)` - Add a spawn type
+
+##### Spawn Types
+
+We have a shortened list of spawn types which we are allowing granular spawn restrictions. We want to keep breeding,
+spawn eggs, direct summons, and more interaction-based spawns as-is.
+
+- `natural` - A normal, random spawn
+- `spawner` - A nearby mob spawner block
+- `structure` - A spawn related to a structure (e.g. guardians, wither skeletons)
+- `patrol` - Really a subset of "natural" but related to illager patrols
+- `chunk` - A natural spawn from when the chunk generates (e.g. villager)
+
+#### Examples
+
+```zs
+import mods.mobskills.MobSkillEvents;
+
+// Always prevent blazes from spawning
+MobSkillEvents.create('minecraft:blaze')
+  .unspawnable()
+  .always()
+  .save();
+
+  // Prevent all vanilla mobs from spawning
+  MobSkillEvents.create('@minecraft')
+    .unspawnable()
+    .always()
+    .save();
+
+  // Prevent all illagers from spawning
+  MobSkillEvents.create('#raiders')
+  .unspawnable()
+  .always()
+  .save();
+
+  // Prevent all vanilla illager patrols from spawning
+  MobSkillEvents.create('minecraft:*')
+  .unspawnable()
+  .fromSpawner("patrol")
+  .always()
+  .save();
+
+  // ALLOW creepers to spawn IF ALL players in range have the `started_quest` skill
+  MobSkillEvents.create("minecraft:creeper")
+    .spawnable(true)
+    .if(player => player.can("skills:started_quest"))
+    .save();
+
+  // ALLOW cows to spawn UNLESS ANY players in range have the `started_quest` skill
+  MobSkillEvents.create("minecraft:cow")
+    .spawnable()
+    .unless(player => player.can("skills:started_quest"))
+    .save();
+
+  // DENY zombies from spawning IF ANY player in range has the `started_quest` skill
+  MobSkillEvents.create('minecraft:zombie')
+    .unspawnable().if(player => player.can('skills:started_quest'))
+    .save();
+
+  // DENY sheep from spawning UNLESS ALL player in range has the `started_quest` skill
+  MobSkillEvents.create('minecraft:sheep')
+    .unspawnable(true)
+    .unless(player => player.can('skills:started_quest'))
+    .save();
+
+  // Players cannot interact with villagers unless they have `started_quest` skill
+  MobSkillEvents.create("minecraft:villager")
+    .unusable()
+    .unless(player => player.can("skills:started_quest"))
+    .save();
+```
 
 ## Java API
 
@@ -573,7 +838,7 @@ Lastly, we expose a handful of in-game commands for players and mods:
 - `/skills team sync [player]`: Syncs the player's team's team-shared skills to the rest of the player's team overriding
   their values with the "best" value. (if Player 1 had kill_count of 3 and Player 2 had a kill_count of 8, both players
   would have a value of 8 after an op runs the command targeting Player 1). Requires mod permissions.
-- `/skills debug`: Toggles debug-level logging for Player Skills. Requires mod permissions.
+- `/skills debug [category]`: Toggles debug-level logging for Player Skills. Requires mod permissions.
 - `/skills set [player] skill value`: Set the `skill`'s value to `value` for the player (omitting a player targets the
   one performing the command). Note that this requires mod permissions.
 

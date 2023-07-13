@@ -8,6 +8,7 @@ import net.impleri.playerskills.api.Player
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.api.Team
+import net.impleri.playerskills.mobs.MobSkills
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -16,15 +17,12 @@ import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import java.util.function.Supplier
 
 object PlayerSkillsCommands {
   private const val REQUIRED_PERMISSION = 2
   fun register(
     dispatcher: CommandDispatcher<CommandSourceStack>,
   ) {
-    val debugCommand = toggleDebug("Player Skills") { PlayerSkills.toggleDebug() }
-
     dispatcher.register(
       Commands.literal("skills")
         .then(
@@ -65,7 +63,14 @@ object PlayerSkillsCommands {
         .then(
           Commands.literal("debug")
             .requires { it.hasPermission(REQUIRED_PERMISSION) }
-            .executes { debugCommand(it.source) },
+            .then(
+              Commands.literal("skills")
+                .executes { toggleDebug("Skills", it.source) { PlayerSkills.toggleDebug() } },
+            )
+            .then(
+              Commands.literal("mobs")
+                .executes { toggleDebug("Mob Restrictions", it.source) { MobSkills.toggleDebug() } },
+            ),
         )
         .then(
           Commands.literal("set")
@@ -105,33 +110,16 @@ object PlayerSkillsCommands {
     )
   }
 
-  fun registerDebug(
-    dispatcher: CommandDispatcher<CommandSourceStack>,
-    commandParent: String,
-    debugCommand: (CommandSourceStack) -> Int,
-  ) {
-    dispatcher.register(
-      Commands.literal(commandParent)
-        .then(
-          Commands.literal("debug")
-            .requires { it.hasPermission(REQUIRED_PERMISSION) }
-            .executes { debugCommand(it.source) },
-        ),
-    )
-  }
+  fun toggleDebug(modLabel: String, source: CommandSourceStack, supplier: () -> Boolean): Int {
+    val enabled = supplier()
 
-  fun toggleDebug(modLabel: String, supplier: Supplier<Boolean>): (CommandSourceStack) -> Int {
-    return {
-      val enabled = supplier.get()
+    val message = if (enabled) "commands.playerskills.debug_enabled" else "commands.playerskills.debug_disabled"
+    val color = if (enabled) ChatFormatting.RED else ChatFormatting.GREEN
+    val style = if (enabled) ChatFormatting.BOLD else ChatFormatting.ITALIC
 
-      val message = if (enabled) "commands.playerskills.debug_enabled" else "commands.playerskills.debug_disabled"
-      val color = if (enabled) ChatFormatting.RED else ChatFormatting.GREEN
-      val style = if (enabled) ChatFormatting.BOLD else ChatFormatting.ITALIC
+    source.sendSuccess(Component.translatable(message, modLabel).withStyle(color, style), false)
 
-      it.sendSuccess(Component.translatable(message, modLabel).withStyle(color, style), false)
-
-      Command.SINGLE_SUCCESS
-    }
+    return Command.SINGLE_SUCCESS
   }
 
   private fun listTypes(source: CommandSourceStack): Int {
