@@ -1,9 +1,8 @@
-package net.impleri.playerskills.integrations.kubejs.events
+package net.impleri.playerskills.integrations.kubejs.skills
 
 import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes
 import dev.latvian.mods.kubejs.util.ConsoleJS
 import net.impleri.playerskills.api.Skill
-import net.impleri.playerskills.integrations.kubejs.skills.GenericSkillBuilderJS
 import net.impleri.playerskills.utils.SkillResourceLocation
 
 class SkillsModificationEventJS(types: Map<String, RegistryObjectBuilderTypes.BuilderType<Skill<*>>>) :

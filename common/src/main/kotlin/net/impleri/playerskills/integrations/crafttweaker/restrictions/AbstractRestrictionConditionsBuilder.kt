@@ -1,6 +1,7 @@
-package net.impleri.playerskills.integrations.crafttweaker
+package net.impleri.playerskills.integrations.crafttweaker.restrictions
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister
+import net.impleri.playerskills.EventHandlers
 import net.impleri.playerskills.restrictions.AbstractRestriction
 import net.impleri.playerskills.restrictions.RestrictionConditionsBuilder
 import net.minecraft.resources.ResourceLocation
@@ -11,9 +12,9 @@ import java.util.function.Predicate
 
 @ZenRegister
 @ZenCodeType.Name("mods.playerskills.restrictions.AbstractRestrictionConditionsBuilder")
-abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : AbstractRestriction<Target>>(
-  override val server: Lazy<MinecraftServer>,
-) : RestrictionConditionsBuilder<Target, Player, Restriction> {
+abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : AbstractRestriction<Target>> :
+  RestrictionConditionsBuilder<Target, Player, Restriction> {
+  override val server: Lazy<MinecraftServer> = EventHandlers.server
   override val includeBiomes: MutableList<ResourceLocation> = ArrayList()
   override val excludeBiomes: MutableList<ResourceLocation> = ArrayList()
   override val includeDimensions: MutableList<ResourceLocation> = ArrayList()

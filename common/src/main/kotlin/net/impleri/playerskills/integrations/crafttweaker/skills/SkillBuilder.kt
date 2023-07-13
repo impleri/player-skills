@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.crafttweaker
+package net.impleri.playerskills.integrations.crafttweaker.skills
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister
 import net.impleri.playerskills.api.Skill

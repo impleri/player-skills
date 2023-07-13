@@ -1,5 +1,6 @@
 package net.impleri.playerskills.utils
 
+import net.impleri.playerskills.PlayerSkills
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -49,9 +50,12 @@ class PlayerSkillsLogger private constructor(modId: String, private val prefix: 
   }
 
   companion object {
-    @JvmOverloads
     fun create(modId: String, prefix: String = "MOD"): PlayerSkillsLogger {
       return PlayerSkillsLogger(modId, prefix)
+    }
+
+    fun create(prefix: String = "MOD"): PlayerSkillsLogger {
+      return PlayerSkillsLogger(PlayerSkills.MOD_ID, prefix)
     }
   }
 }
