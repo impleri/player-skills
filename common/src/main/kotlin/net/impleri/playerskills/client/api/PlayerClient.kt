@@ -1,7 +1,9 @@
-package net.impleri.playerskills.client
+package net.impleri.playerskills.client.api
 
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
+import net.impleri.playerskills.client.MismatchedClientPlayerException
+import net.impleri.playerskills.client.Registry
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.client.Minecraft
 import net.minecraft.resources.ResourceLocation

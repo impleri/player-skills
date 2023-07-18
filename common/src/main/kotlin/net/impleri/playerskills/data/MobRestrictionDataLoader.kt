@@ -17,12 +17,9 @@ class MobRestrictionDataLoader :
     name: ResourceLocation,
     jsonElement: JsonObject,
   ) {
-    val type = parseValue(jsonElement, "entity", { it.asString })
-      ?: throw NullPointerException("Restrictions must target an entity")
-
-    val builder = MobRestrictionConditionBuilder()
+    val builder = MobRestrictionConditionBuilder(name)
     builder.parse(jsonElement)
 
-    MobRestrictionBuilder.register(type, builder)
+    MobRestrictionBuilder.register(builder.targetName, builder)
   }
 }

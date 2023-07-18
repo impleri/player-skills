@@ -96,7 +96,7 @@ interface RestrictionDataParser : JsonDataParser {
   }
 
   private fun parseCondition(raw: JsonObject, callback: (Player, String, Any?) -> Boolean): (Player) -> Boolean {
-    val skillName = parseValue(raw, "skill", { it.asString })
+    val skillName = parseString(raw, "skill")
       ?: throw NullPointerException("Expected skill to be defined for the condition")
 
     val skill =

@@ -8,6 +8,7 @@ import net.impleri.playerskills.api.Player
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.api.Team
+import net.impleri.playerskills.items.ItemSkills
 import net.impleri.playerskills.mobs.MobSkills
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
@@ -66,6 +67,10 @@ object PlayerSkillsCommands {
             .then(
               Commands.literal("skills")
                 .executes { toggleDebug("Skills", it.source) { PlayerSkills.toggleDebug() } },
+            )
+            .then(
+              Commands.literal("items")
+                .executes { toggleDebug("Item Restrictions", it.source) { ItemSkills.toggleDebug() } },
             )
             .then(
               Commands.literal("mobs")

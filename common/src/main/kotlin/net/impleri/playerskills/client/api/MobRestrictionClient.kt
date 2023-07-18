@@ -1,6 +1,7 @@
-package net.impleri.playerskills.client
+package net.impleri.playerskills.client.api
 
 import net.impleri.playerskills.api.MobRestrictions
+import net.impleri.playerskills.client.RestrictionsClient
 import net.impleri.playerskills.mobs.MobRestriction
 import net.impleri.playerskills.restrictions.Registry
 import net.impleri.playerskills.restrictions.RestrictionsApi

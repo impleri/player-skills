@@ -14,6 +14,8 @@ import java.util.function.Predicate
 @ZenCodeType.Name("mods.playerskills.restrictions.AbstractRestrictionConditionsBuilder")
 abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : AbstractRestriction<Target>> :
   RestrictionConditionsBuilder<Target, Player, Restriction> {
+  override val name: ResourceLocation? = null
+  override var target: String? = null
   override val server: Lazy<MinecraftServer> = EventHandlers.server
   override val includeBiomes: MutableList<ResourceLocation> = ArrayList()
   override val excludeBiomes: MutableList<ResourceLocation> = ArrayList()

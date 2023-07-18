@@ -1,6 +1,6 @@
 package net.impleri.playerskills.integrations.kubejs.api
 
-import net.impleri.playerskills.client.PlayerClient
+import net.impleri.playerskills.client.api.PlayerClient
 import net.minecraft.world.entity.player.Player
 import net.impleri.playerskills.api.Player as PlayerServer
 

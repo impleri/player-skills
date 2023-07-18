@@ -5,12 +5,13 @@ import net.impleri.playerskills.api.EntitySpawnMode
 import net.impleri.playerskills.data.utils.RestrictionDataParser
 import net.impleri.playerskills.mobs.MobConditions
 import net.impleri.playerskills.mobs.MobRestriction
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobSpawnType
 import net.minecraft.world.entity.player.Player
 
-class MobRestrictionConditionBuilder :
-  AbstractRestrictionConditionBuilder<EntityType<*>, MobRestriction>(),
+class MobRestrictionConditionBuilder(name: ResourceLocation? = null) :
+  AbstractRestrictionConditionBuilder<EntityType<*>, MobRestriction>(name),
   MobConditions<Player>,
   RestrictionDataParser {
   override var replacement: EntityType<*>? = null
@@ -22,19 +23,26 @@ class MobRestrictionConditionBuilder :
   override fun parseRestriction(
     jsonElement: JsonObject,
   ) {
-    spawnMode = parseSpawnMode(jsonElement)
-    usable = parseValue(jsonElement, "usable", { it.asBoolean }, true)
-    val (include, exclude) = parseSpawners(jsonElement)
-    includeSpawners = include.toMutableList()
-    excludeSpawners = exclude.toMutableList()
+    parseTarget(jsonElement, "entity")
+    parseSpawnMode(jsonElement)
+    parseSpawners(jsonElement)
+    usable = parseBoolean(jsonElement, "usable", usable)
   }
 
-  private fun parseSpawnMode(raw: JsonObject): EntitySpawnMode {
-    val spawnable = parseValue(raw, "spawnable", { it.asBoolean }) ?: false
-    val all = parseValue(raw, "allPlayers", { it.asBoolean }) ?: false
-    val always = parseValue(raw, "always", { it.asBoolean }) ?: false
+  override fun toggleEverything() {
+    usable = true
+  }
 
-    return when {
+  override fun toggleNothing() {
+    usable = false
+  }
+
+  private fun parseSpawnMode(raw: JsonObject) {
+    val spawnable = parseBoolean(raw, "spawnable") ?: false
+    val all = parseBoolean(raw, "allPlayers") ?: false
+    val always = parseBoolean(raw, "always") ?: false
+
+    spawnMode = when {
       (spawnable && always) -> EntitySpawnMode.ALLOW_ALWAYS
       (spawnable && all) -> EntitySpawnMode.ALLOW_IF_ALL_MATCH
       spawnable -> EntitySpawnMode.ALLOW_IF_ANY_MATCH
@@ -44,19 +52,13 @@ class MobRestrictionConditionBuilder :
     }
   }
 
-  private fun parseSpawners(raw: JsonObject): Pair<List<MobSpawnType>, List<MobSpawnType>> {
-    return getValue(raw, "spawners")?.let {
+  private fun parseSpawners(raw: JsonObject) {
+    getValue(raw, "spawners")?.let {
       if (it.isJsonObject) {
-        (
-          parseInclude(it, this::ifSpawner) to parseExclude(
-            it,
-            this::ifSpawner,
-          )
-          )
-      } else {
-        null
+        includeSpawners = parseInclude(it, this::ifSpawner).toMutableList()
+        excludeSpawners = parseExclude(it, this::ifSpawner).toMutableList()
       }
-    } ?: (ArrayList<MobSpawnType>() to ArrayList())
+    }
   }
 
   private fun ifSpawner(spawnerName: String): List<MobSpawnType> {
