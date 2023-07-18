@@ -24,5 +24,8 @@
   "playerskills.quests.basic_skill": "Basic Skill",
   "playerskills.quests.numeric_skill": "Numeric Skill",
   "playerskills.quests.tiered_skill": "Tiered Skill",
-  "playerskills.quests.specialized_skill": "Specialization Skill"
+  "playerskills.quests.specialized_skill": "Specialization Skill",
+  "message.playerskills.unknown_item": "Unknown Item",
+  "rules.playerskills.items.filtering.rule": "Item Skills",
+  "rules.playerskills.items.filtering.rule.subtitle": "Stage items based on Player Skills restrictions"
 }

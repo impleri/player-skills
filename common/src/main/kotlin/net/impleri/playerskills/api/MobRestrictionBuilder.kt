@@ -15,15 +15,15 @@ class MobRestrictionBuilder : AbstractRestrictionBuilder<EntityType<*>, MobRestr
   MobSkills.LOGGER,
 ) {
   override fun <Player> restrictOne(
-    name: ResourceLocation,
+    targetName: ResourceLocation,
     builder: RestrictionConditionsBuilder<EntityType<*>, Player, MobRestriction>,
   ) {
     builder as MobConditions<Player>
 
-    val type = MobRestrictions.getValue(name)
+    val type = MobRestrictions.getValue(targetName)
 
     if (type == null) {
-      logger.warn("Could not find any mob named $name")
+      logger.warn("Could not find any mob named $targetName")
       return
     }
 
@@ -41,8 +41,8 @@ class MobRestrictionBuilder : AbstractRestrictionBuilder<EntityType<*>, MobRestr
       builder.replacement,
     )
 
-    MobRestrictions.add(name, restriction)
-    logRestriction(name, restriction)
+    MobRestrictions.add(builder.name ?: targetName, restriction)
+    logRestriction(targetName, restriction)
   }
 
   override fun isTagged(target: EntityType<*>, tag: TagKey<EntityType<*>>): Boolean {

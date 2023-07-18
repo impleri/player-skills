@@ -107,12 +107,25 @@ subprojects {
         includeGroup("dev.ftb.mods")
       }
     }
+    maven("https://maven.shedaniel.me")
+    maven {
+      // location of the maven that hosts JEI files
+      name = "Progwml6 maven"
+      url = uri("https://dvs1.progwml6.com/files/maven/")
+    }
+    maven {
+      // location of a maven mirror for JEI files, as a fallback
+      name = "ModMaven"
+      url = uri("https://modmaven.dev")
+    }
+
     mavenCentral()
   }
 
   dependencies {
     "minecraft"("com.mojang:minecraft:$minecraftVersion")
     "mappings"(project.extensions.getByName<LoomGradleExtensionAPI>("loom").officialMojangMappings())
+    compileOnly("me.shedaniel:REIPluginCompatibilities-forge-annotations:9+")
   }
 
   tasks {
@@ -178,6 +191,16 @@ for (platform in platforms) {
           depends {
             curseforge.set("architectury-api")
             modrinth.set("architectury-api")
+          }
+
+          optional {
+            curseforge.set("roughly-enough-items")
+            modrinth.set("rei")
+          }
+
+          optional {
+            curseforge.set("jei")
+            modrinth.set("jei")
           }
 
           optional {

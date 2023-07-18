@@ -10,9 +10,10 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.world.entity.player.Player
 import java.util.function.Predicate
 
-abstract class AbstractRestrictionConditionBuilder<Target, Restriction : AbstractRestriction<Target>> :
+abstract class AbstractRestrictionConditionBuilder<Target, Restriction : AbstractRestriction<Target>>(override val name: ResourceLocation? = null) :
   RestrictionConditionsBuilder<Target, Player, Restriction>, RestrictionDataParser {
   override val server: Lazy<MinecraftServer> = EventHandlers.server
+  override var target: String? = null
   override val includeBiomes: MutableList<ResourceLocation> = ArrayList()
   override val excludeBiomes: MutableList<ResourceLocation> = ArrayList()
   override val includeDimensions: MutableList<ResourceLocation> = ArrayList()
@@ -22,6 +23,8 @@ abstract class AbstractRestrictionConditionBuilder<Target, Restriction : Abstrac
     get() = {
       rawCondition.test(it)
     }
+  val targetName: String
+    get() = target ?: name?.toString() ?: throw NullPointerException("Restrictions must provide a target name")
 
   fun parse(
     jsonElement: JsonObject,
@@ -30,6 +33,13 @@ abstract class AbstractRestrictionConditionBuilder<Target, Restriction : Abstrac
     parseBiomes(jsonElement, { inBiome(it) }, { notInBiome(it) })
     parseCondition(jsonElement)
     parseRestriction(jsonElement)
+    parseEverything(jsonElement)
+    parseNothing(jsonElement)
+  }
+
+  protected fun parseTarget(raw: JsonObject, element: String = "target") {
+    target =
+      parseValue(raw, element, { it.asString }) ?: throw NullPointerException("Restrictions must provide a $element")
   }
 
   private fun parseCondition(raw: JsonObject) {
@@ -42,5 +52,17 @@ abstract class AbstractRestrictionConditionBuilder<Target, Restriction : Abstrac
     }
   }
 
+  private fun parseEverything(raw: JsonObject) {
+    parseBoolean(raw, "everything")?.let { toggleEverything() }
+  }
+
+  private fun parseNothing(raw: JsonObject) {
+    parseBoolean(raw, "nothing")?.let { toggleNothing() }
+  }
+
   abstract fun parseRestriction(jsonElement: JsonObject)
+
+  abstract fun toggleEverything()
+
+  abstract fun toggleNothing()
 }

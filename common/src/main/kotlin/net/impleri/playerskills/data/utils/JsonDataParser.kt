@@ -22,6 +22,30 @@ interface JsonDataParser {
     return if (rawValue.isJsonNull) defaultValue else parser(rawValue)
   }
 
+  fun parseBoolean(
+    raw: JsonObject,
+    key: String,
+    defaultValue: Boolean? = null,
+  ): Boolean? {
+    return parseValue(raw, key, { it.asBoolean }, defaultValue)
+  }
+
+  fun parseInt(
+    raw: JsonObject,
+    key: String,
+    defaultValue: Int? = null,
+  ): Int? {
+    return parseValue(raw, key, { it.asInt }, defaultValue)
+  }
+
+  fun parseString(
+    raw: JsonObject,
+    key: String,
+    defaultValue: String? = null,
+  ): String? {
+    return parseValue(raw, key, { it.asString }, defaultValue)
+  }
+
   fun <T> parseArray(
     raw: JsonElement,
     key: String,

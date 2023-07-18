@@ -13,6 +13,12 @@ abstract class AbstractRestrictionConditionsBuilder<Target, Restriction : Abstra
   @HideFromJS override val server: Lazy<MinecraftServer>,
 ) : RestrictionConditionsBuilder<Target, PlayerDataJS, Restriction> {
   @HideFromJS
+  override val name: ResourceLocation? = null
+
+  @HideFromJS
+  override var target: String? = null
+
+  @HideFromJS
   override var rawCondition = Predicate { _: PlayerDataJS -> true }
 
   override val actualCondition: (Player) -> Boolean

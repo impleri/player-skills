@@ -21,6 +21,12 @@
     ],
     "client": [
       "net.impleri.playerskills.client.fabric.PlayerSkillsClientFabric"
+    ],
+    "rei_client": [
+      "PlayerSkillsReiPlugin"
+    ],
+    "jei_mod_plugin": [
+      "PlayerSkillsJeiPlugin"
     ]
   },
   "mixins": [],
@@ -30,9 +36,12 @@
     "architectury": ">=6.2.0"
   },
   "suggests": {
+    "kubejs": "*",
+    "crafttweaker": "*",
     "ftb-quests": ">=1902.0",
     "ftb-teams": ">=1902.0",
-    "kubejs": "*",
-    "crafttweaker": "*"
+    "roughlyenoughitems": ">=9.0.0",
+    "jei": ">=11.0.0",
+    "trinkets": ">=3.5"
   }
 }

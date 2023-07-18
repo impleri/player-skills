@@ -5,6 +5,9 @@ box are the following types of restrictions:
 
 * Mob Spawning
 * Mob Interaction (i.e. right-clicking to trade with a villager)
+* Item equipment
+* Item interactions (recognition in inventories, usability)
+* Recipe visibility (JEI and REI)
 
 Like GameStages and GamePhases, this provides a registry for tracking possible skills as well what skills a given player
 currently possesses. Unlike the other mods, skills are added to a player immediately and leverage ability checking via
@@ -47,7 +50,17 @@ shape.
 
 A restrictions handles the logic for determining if a player has an ability based on the set condition, current
 dimension, and current biome. It may also provide a replacement to the target resource. Like Skills, we provide no
-restrictions here. The other xSkills mods implements restrictions for many vanilla elements.
+restrictions here.
+
+#### Mob Restriction
+
+Mob restrictions target how players interact with mobs, including (dis)-allowing what mobs can spawn.
+
+#### Item Restriction
+
+An item restriction handles interaction and inventory of items. Restrictions can prevent holding or equipping items (
+including as Curios/Trinkets), stop an item from being used as a tool or a weapon, prevent a recipe from working, and
+reduce or remove its visibility from JEI and REI.
 
 #### ID Parsing
 
@@ -61,6 +74,13 @@ Packs, KubeJS, and CraftTweaker.
 
 Because of the way we're handling spawn conditions, if you are using an `unless` condition, you should not also
 manipulate `usable` in the same restriction. Just keep the two restrictions separate.
+
+When using this with JEI or REI, please be sure to disable the vanilla recipe book as the restricted items can appear
+there despite being uncraftable as this mod does not remove any actual recipe. Instead of removing recipes, it restricts
+the crafting result when a player tries to craft an item and hides the recipes in JEI/REI. JEI integration does not
+remove recipes related to the `unconsumable` flag. It does hide the recipes from right-clicking on the ingredient.
+However, it does not remove the recipe itself -- only `unproducible` does that. That is, a crafty player could view a
+recipe that produces the item, then right click on the produced item to see what recipes with which it can be consumed.
 
 ## Data Packs
 
@@ -453,6 +473,88 @@ MobSkillEvents.register(event => {
 });
 ```
 
+### Item Restrictions Registry Actions
+
+We use the `ItemSkillEvents.register` ***server*** event to register item restrictions. Registration should have a
+condition (`if` or `unless`). If the player ***matches*** the criteria, the following restrictions are applied. This can
+cascade with other restrictions, so any restrictions which disallow an action will trump any which do allow it. We also
+expose these methods to indicate what restrictions are in place for when a player meets that condition. By default, no
+restrictions are set, so be sure to set actual
+restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
+
+#### Allow Restriction Methods
+
+- `nothing()` - shorthand to apply all "allow" restrictions
+- `producible()` - the item is craftable and recipes for crafting it are visible in REI/JEI. This will automatically
+  set `holdable` since it's required
+- `consumable()` - recipes using the item are visible in REI/JEI. This will automatically set `holdable` since it's
+  required
+- `holdable()` - the item can be picked up and held, i.e. the player can hold the item in their inventory
+- `identifiable()` - the item can be identified, i.e. the player can see details in a tooltip about the item
+- `harmful()` - the item can be used as a weapon (if applicable). This will automatically set `holdable` since it's
+  required
+- `wearable()` - the item can be equipped (if applicable). This will automatically set `holdable` since it's required
+- `usable()` - the item can be used (if applicable), e.g. if a water bucket can place water or if a diamond pickaxe can
+  mine obsidian. This will automatically set `holdable` since it's required
+
+#### Deny Restriction Methods
+
+- `everything()` - shorthand to apply the below "deny" abilities
+- `unproducible()` - the item is not craftable
+- `unconsumable()` - recipes using the item are hidden in REI/JEI
+- `unholdable()` - the item cannot be picked up
+- `unidentifiable()` - the item cannot be identified
+- `harmless()` - the item cannot be used as a weapon (if applicable)
+- `unwearable()` - the item cannot be equipped (if applicable)
+- `unusable()` - the item cannot be used (if applicable)
+
+#### Examples
+
+```js
+ItemSkillEvents.register(event => {
+  // Vanilla items cannot be used at all unless player is at stage 2 (or later)
+  event.restrict('minecraft:*', restrict => {
+    restrict.everything()
+      .if(player => player.cannot('skills:stage', 2));
+  });
+
+  // Vanilla items cannot be crafted at all unless player is at stage 2 (or later)
+  event.restrict('@minecraft', restrict => {
+    restrict.unproducible()
+      .if(player => player.cannot('skills:stage', 2));
+  });
+
+  // Any item tagged as wool cannot be used
+  event.restrict('#minecraft:wool', restrict => {
+    restrict.everything()
+      .if(player => player.cannot('skills:stage', 2));
+  });
+
+  // Bed item cannot be used/placed at all unless player is at stage 2 (or later)
+  event.restrict('minecraft:bed', restrict => {
+    restrict.usable()
+      .if(player => player.cannot('skills:stage', 2));
+  });
+
+  // Bread can be picked up and used in other recipes if player is at stage 1 or below but it cannot be eaten or identified
+  event.restrict('minecraft:bread', restrict => {
+    restrict.everything()
+      .holdable()
+      .consumable()
+      .unless(player => player.can('skills:stage', 2));
+  });
+
+  // The following two restrictions does not result in the same effects as above: everything will still be denied to the player
+  event.restrict('minecraft:bread', restrict => {
+    restrict.everything().holdable().unless(player => player.can('skills:stage', 2));
+  });
+
+  event.restrict('minecraft:bread', restrict => {
+    restrict.everything().visible().unless(player => player.cannot('skills:stage', 2));
+  });
+});
+```
+
 ## CraftTweaker API
 
 In v2.0, CraftTweaker support was added as an alternative to KubeJS. It tries to remain very similar to the Kube API,
@@ -658,7 +760,7 @@ restriction.
 
 ### Mob Restrictions
 
-We use the `MobRestrictions.create` static method to register mob restrictions.
+We use the `mods.playerskills.MobRestrictions.create` static method to register mob restrictions.
 
 Spawn restrictions are then calculated at spawn time based on the players in the entity's despawn range (i.e. 128 blocks
 for most mobs). If the players ***match*** the conditions, the restrictions are applied.
@@ -668,8 +770,7 @@ conditions, the restriction is applied.
 
 Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
 allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
-condition. By default, no restrictions are set, so be sure to set actual
-restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
+condition. By default, no restrictions are set, so be sure to set actual restrictions.
 
 #### Allow Builder Methods
 
@@ -758,6 +859,94 @@ MobSkillEvents.create('minecraft:blaze')
     .unusable()
     .unless(player => player.can("skills:started_quest"))
     .save();
+```
+
+### Item Restrictions
+
+We use the `mods.playerskills.ItemRestrictions.create` static method to register item restrictions.
+
+Some restrictions are calculated on per-tick basis (e.g. holdable, wearable). Others are calculated when the player
+attempts to interact with the item in hand, in world, or in an inventory. If the player matches the conditions, the
+restriction is applied.
+
+Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
+allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
+condition. By default, no restrictions are set, so be sure to set actual restrictions.
+
+#### Allow Builder Methods
+
+- `nothing()` - shorthand to apply all "allow" restrictions
+- `producible()` - the item is craftable and recipes for crafting it are visible in REI/JEI. This will automatically
+  set `holdable` since it's required
+- `consumable()` - recipes using the item are visible in REI/JEI. This will automatically set `holdable` since it's
+  required
+- `holdable()` - the item can be picked up and held, i.e. the player can hold the item in their inventory
+- `identifiable()` - the item can be identified, i.e. the player can see details in a tooltip about the item
+- `harmful()` - the item can be used as a weapon (if applicable). This will automatically set `holdable` since it's
+  required
+- `wearable()` - the item can be equipped (if applicable). This will automatically set `holdable` since it's required
+- `usable()` - the item can be used (if applicable), e.g. if a water bucket can place water or if a diamond pickaxe can
+  mine obsidian. This will automatically set `holdable` since it's required
+
+#### Deny Builder Methods
+
+- `everything()` - shorthand to apply the below "deny" abilities
+- `unproducible()` - the item is not craftable
+- `unconsumable()` - recipes using the item are hidden in REI/JEI
+- `unholdable()` - the item cannot be picked up
+- `unidentifiable()` - the item cannot be identified
+- `harmless()` - the item cannot be used as a weapon (if applicable)
+- `unwearable()` - the item cannot be equipped (if applicable)
+- `unusable()` - the item cannot be used (if applicable)
+
+#### Examples
+
+```js
+// Vanilla items cannot be used at all unless player is at stage 2 (or later)
+ItemRestrictions.create("minecraft:*")
+  .everything()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Vanilla items cannot be crafted at all unless player is at stage 2 (or later)
+ItemRestrictions.create("@minecraft")
+  .unproducible()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Any item tagged as wool cannot be used
+ItemRestrictions.create("#minecraft:wool")
+  .everything()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Bed item cannot be used/placed at all unless player is at stage 2 (or later)
+ItemRestrictions.create("#minecraft:white_bed")
+  .usable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Bread can be picked up and used in other recipes if player is at stage 1 or below but it can be eaten and held
+ItemRestrictions.create("#minecraft:bread")
+  .everything()
+  .holdable()
+  .consumable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// The following two restrictions does not result in the same effects as above: everything will still be denied to the player
+ItemRestrictions.create("#minecraft:bread")
+  .everything()
+  .holdable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+ItemRestrictions.create("#minecraft:bread")
+  .everything()
+  .consumable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
 ```
 
 ## Java API

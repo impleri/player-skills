@@ -15,18 +15,15 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
 ) {
   @Suppress("UNCHECKED_CAST")
   private val registryName = registry.key() as ResourceKey<Registry<Target>>
-  private val restrictions: MutableMap<String, MutableList<RestrictionConditionsBuilder<Target, *, Restriction>>> =
+  private val restrictions: MutableMap<String, RestrictionConditionsBuilder<Target, *, Restriction>> =
     HashMap()
 
-  fun <Player> create(resourceName: String, builder: RestrictionConditionsBuilder<Target, Player, Restriction>) {
-    val list = restrictions.computeIfAbsent(resourceName) { ArrayList() }
-    list.add(builder)
+  fun <Player> create(restrictionName: String, builder: RestrictionConditionsBuilder<Target, Player, Restriction>) {
+    restrictions[restrictionName] = builder
   }
 
   fun register() {
-    restrictions.entries.forEach { (name, builders) ->
-      builders.forEach { restrict(name, it) }
-    }
+    restrictions.entries.forEach { (name, builder) -> restrict(name, builder) }
 
     restrictions.clear()
   }
@@ -48,7 +45,7 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
    * Type-specific handler for creating a restriction using data from a Builder
    */
   protected abstract fun <Player> restrictOne(
-    name: ResourceLocation,
+    targetName: ResourceLocation,
     builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
   )
 
@@ -59,7 +56,7 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
     namespace: String,
     builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
   ) {
-    logger.info("Creating ${registry.key().location()} restriction for $namespace namespace")
+    logger.info("Creating restriction for $namespace namespace")
     registry.keySet()
       .asSequence()
       .filter { it.namespace == namespace }
@@ -83,7 +80,7 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
     tag: TagKey<Target>,
     builder: RestrictionConditionsBuilder<Target, Player, Restriction>,
   ) {
-    logger.info("Creating ${registry.key().location()} restriction for ${tag.location} tag")
+    logger.info("Creating restriction for ${tag.location} tag")
 
     registry.asSequence()
       .filter { isTagged(it, tag) }
