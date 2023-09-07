@@ -19,7 +19,7 @@ open class NumericSkill(
   value,
   description,
   options ?: ArrayList(),
-  changesAllowed ?: Skill.UNLIMITED_CHANGES,
+  changesAllowed ?: UNLIMITED_CHANGES,
   teamMode ?: TeamMode.off(),
   notify ?: false,
   notifyKey,

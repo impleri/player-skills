@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import java.util.OptionalInt
 
-open class Registry<T : AbstractRestriction<*>>() {
+open class Registry<T : AbstractRestriction<*>> {
   private val registryKey: ResourceLocation =
     net.impleri.playerskills.utils.SkillResourceLocation.of("mob_restrictions")
   private val registryResource: ResourceKey<Registry<List<T>>> = ResourceKey.createRegistryKey(registryKey)

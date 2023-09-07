@@ -2,8 +2,8 @@ package net.impleri.playerskills.integrations.crafttweaker.restrictions
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister
 import net.impleri.playerskills.api.EntitySpawnMode
-import net.impleri.playerskills.mobs.MobConditions
-import net.impleri.playerskills.mobs.MobRestriction
+import net.impleri.playerskills.restrictions.mobs.MobConditions
+import net.impleri.playerskills.restrictions.mobs.MobRestriction
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobSpawnType
 import net.minecraft.world.entity.player.Player

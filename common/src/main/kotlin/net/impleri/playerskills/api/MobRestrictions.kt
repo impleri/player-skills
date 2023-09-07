@@ -1,8 +1,9 @@
 package net.impleri.playerskills.api
 
-import net.impleri.playerskills.mobs.MobRestriction
-import net.impleri.playerskills.mobs.MobSkills
 import net.impleri.playerskills.restrictions.RestrictionsApi
+import net.impleri.playerskills.restrictions.StaticRestrictionsApi
+import net.impleri.playerskills.restrictions.mobs.MobRestriction
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Registry
 import net.minecraft.core.Vec3i
@@ -20,7 +21,7 @@ import net.impleri.playerskills.restrictions.Registry as RestrictionsRegistry
 class MobRestrictions private constructor(
   registry: RestrictionsRegistry<MobRestriction>,
   fields: Array<Field>,
-) : RestrictionsApi<EntityType<*>, MobRestriction>(registry, fields, MobSkills.LOGGER) {
+) : RestrictionsApi<EntityType<*>, MobRestriction>(registry, fields, PlayerSkillsLogger.MOBS) {
   override fun getTargetName(target: EntityType<*>): ResourceLocation {
     return getName(target)
   }
@@ -83,10 +84,10 @@ class MobRestrictions private constructor(
     return { !doesRestrictionAllowSpawn(it, players) }
   }
 
-  companion object {
-    internal val RestrictionRegistry = RestrictionsRegistry<MobRestriction>()
-
+  companion object StaticMobRestrictions : StaticRestrictionsApi<EntityType<*>, MobRestriction> {
     private val allRestrictionFields = MobRestrictions::class.java.declaredFields
+
+    internal val RestrictionRegistry = RestrictionsRegistry<MobRestriction>()
 
     internal val INSTANCE = MobRestrictions(RestrictionRegistry, allRestrictionFields)
 
@@ -98,36 +99,32 @@ class MobRestrictions private constructor(
       "patrol" to MobSpawnType.PATROL,
     )
 
-    fun add(name: ResourceLocation, restriction: MobRestriction) {
+    override fun add(name: ResourceLocation, restriction: MobRestriction) {
       RestrictionRegistry.add(name, restriction)
     }
 
-    fun getName(type: EntityType<*>): ResourceLocation {
-      return EntityType.getKey(type)
+    override fun getName(value: EntityType<*>?): ResourceLocation {
+      return value?.let { Registry.ENTITY_TYPE.getKey(it) } ?: Registry.ENTITY_TYPE.defaultKey
     }
 
-    fun getValue(type: ResourceLocation): EntityType<*>? {
-      val entityType = Registry.ENTITY_TYPE[type]
+    override fun getValue(name: ResourceLocation): EntityType<*>? {
+      val entityType = Registry.ENTITY_TYPE[name]
 
-      return if (isDefaultValue(entityType, type)) null else entityType
+      return if (isDefaultValue(entityType, name)) null else entityType
     }
 
-    fun isDefaultValue(entityType: EntityType<*>, target: ResourceLocation? = null): Boolean {
-      // Currently, the default entity type is minecraft:pig, so we're making sure that the restriction actually targets
-      // a pig before returning that value
-      val foundType = getName(entityType)
+    override fun isDefaultValue(value: EntityType<*>?): Boolean {
+      return Registry.ENTITY_TYPE.defaultKey == getName(value)
+    }
 
-      val isDefaultType = Registry.ENTITY_TYPE.defaultKey == foundType
-
-      val isTargetingDefaultType = target?.let { it == foundType } ?: false
-
-      return isDefaultType && !isTargetingDefaultType
+    override fun isDefaultValue(value: ResourceLocation?): Boolean {
+      return value?.let { it == Registry.ENTITY_TYPE.defaultKey } ?: false
     }
 
     fun canInteractWith(entity: EntityType<*>, player: Player): Boolean {
       val usable = INSTANCE.isUsable(player, entity)
 
-      MobSkills.LOGGER.debug("Can ${player.name} interact with ${getName(entity)}? $usable")
+      PlayerSkillsLogger.MOBS.info("Can ${player.name} interact with ${getName(entity)}? $usable")
 
       return usable
     }
@@ -146,7 +143,7 @@ class MobRestrictions private constructor(
 
       val playersInRange = getNearbyPlayers(levelAccessor.players() as List<Player>, position, spawnRadius)
 
-      MobSkills.LOGGER.debug("Found ${playersInRange.size} players within $spawnRadius blocks of ${position.toShortString()}")
+      PlayerSkillsLogger.MOBS.debug("Found ${playersInRange.size} players within $spawnRadius blocks of ${position.toShortString()}")
       return INSTANCE.canSpawnAround(type, playersInRange, dimension, biome, spawnType)
     }
 

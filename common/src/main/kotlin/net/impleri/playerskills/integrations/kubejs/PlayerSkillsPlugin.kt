@@ -5,6 +5,8 @@ import dev.latvian.mods.kubejs.KubeJSPlugin
 import dev.latvian.mods.kubejs.script.BindingsEvent
 import dev.latvian.mods.kubejs.util.AttachedData
 import net.impleri.playerskills.events.SkillChangedEvent
+import net.impleri.playerskills.integrations.kubejs.blocks.BlockEventsBinding
+import net.impleri.playerskills.integrations.kubejs.blocks.BlockRestrictionsEventJS
 import net.impleri.playerskills.integrations.kubejs.items.ItemEventsBinding
 import net.impleri.playerskills.integrations.kubejs.items.ItemRestrictionsEventJS
 import net.impleri.playerskills.integrations.kubejs.mobs.MobEventsBinding
@@ -58,12 +60,14 @@ class PlayerSkillsPlugin : KubeJSPlugin() {
   private fun onServerStart(server: MinecraftServer) {
     // Trigger skills modification event
     SkillsEventsBinding.MODIFICATION.post(SkillsModificationEventJS(Registries.SKILLS.types))
+    BlockEventsBinding.RESTRICTIONS.post(BlockRestrictionsEventJS(server))
     ItemEventsBinding.RESTRICTIONS.post(ItemRestrictionsEventJS(server))
     MobEventsBinding.RESTRICTIONS.post(MobRestrictionsEventJS(server))
   }
 
   override fun registerEvents() {
     SkillsEventsBinding.GROUP.register()
+    BlockEventsBinding.GROUP.register()
     ItemEventsBinding.GROUP.register()
     MobEventsBinding.GROUP.register()
   }

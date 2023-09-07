@@ -3,6 +3,7 @@ package net.impleri.playerskills.skills.registry
 import dev.architectury.registry.registries.Registries
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.SkillType
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
@@ -16,7 +17,7 @@ object SkillTypes {
   // Dummy method to ensure static elements are created
   fun buildRegistry() {
     if (REGISTRY.key().location() != REGISTRY_KEY) {
-      PlayerSkills.LOGGER.warn("Skills registry is invalid.")
+      PlayerSkillsLogger.SKILLS.warn("Skills registry is invalid.")
     }
   }
 

@@ -8,7 +8,7 @@ import me.shedaniel.rei.api.common.entry.EntryIngredient
 import me.shedaniel.rei.api.common.entry.EntryStack
 import net.impleri.playerskills.client.api.ItemRestrictionClient
 import net.impleri.playerskills.events.ClientSkillsUpdatedEvent
-import net.impleri.playerskills.items.ItemSkills
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 
@@ -23,7 +23,7 @@ class SkillsDisplayVisibility : DisplayVisibilityPredicate {
   }
 
   private fun clearCache() {
-    ItemSkills.LOGGER.debug("Clearing REI Visibility caches")
+    PlayerSkillsLogger.ITEMS.debug("Clearing REI Visibility caches")
     producibility.clear()
     consumability.clear()
   }

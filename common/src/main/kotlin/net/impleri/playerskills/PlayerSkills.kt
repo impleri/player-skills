@@ -5,6 +5,7 @@ import dev.architectury.registry.registries.DeferredRegister
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.events.SkillChangedEvent
+import net.impleri.playerskills.events.handlers.EventHandlers
 import net.impleri.playerskills.network.Manager
 import net.impleri.playerskills.skills.basic.BasicSkillType
 import net.impleri.playerskills.skills.numeric.NumericSkillType
@@ -20,8 +21,6 @@ import net.minecraft.world.entity.player.Player
 object PlayerSkills {
   const val MOD_ID = "playerskills"
 
-  internal val LOGGER = PlayerSkillsLogger.create(MOD_ID, "SKILLS")
-
   private val SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey<SkillType<*>>(SkillTypes.REGISTRY_KEY)
   private val SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY)
 
@@ -30,7 +29,7 @@ object PlayerSkills {
     Manager.register()
     EventHandlers.init()
 
-    LOGGER.info("PlayerSkills Loaded")
+    PlayerSkillsLogger.SKILLS.info("PlayerSkills Loaded")
 
     // @TODO: Maybe move elsewhere?
     if (Platform.isModLoaded("ftbquests")) {
@@ -46,10 +45,6 @@ object PlayerSkills {
     SKILL_TYPES.register(TieredSkillType.NAME) { TieredSkillType() }
     SKILL_TYPES.register(SpecializedSkillType.NAME) { SpecializedSkillType() }
     SKILL_TYPES.register()
-  }
-
-  fun toggleDebug(): Boolean {
-    return LOGGER.toggleDebug()
   }
 
   fun <T> emitSkillChanged(player: Player, newSkill: Skill<T>, oldSkill: Skill<T>) {

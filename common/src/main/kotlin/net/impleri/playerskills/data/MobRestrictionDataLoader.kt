@@ -1,10 +1,10 @@
 package net.impleri.playerskills.data
 
 import com.google.gson.JsonObject
-import net.impleri.playerskills.api.MobRestrictionBuilder
 import net.impleri.playerskills.data.conditions.MobRestrictionConditionBuilder
 import net.impleri.playerskills.data.utils.RestrictionDataParser
-import net.impleri.playerskills.mobs.MobRestriction
+import net.impleri.playerskills.restrictions.mobs.MobRestriction
+import net.impleri.playerskills.restrictions.mobs.MobRestrictionBuilder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 

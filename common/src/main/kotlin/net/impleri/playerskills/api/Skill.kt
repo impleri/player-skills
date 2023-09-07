@@ -1,8 +1,8 @@
 package net.impleri.playerskills.api
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.skills.registry.RegistryItemNotFound
 import net.impleri.playerskills.skills.registry.Skills
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -115,7 +115,7 @@ abstract class Skill<T>(
     }
 
     fun <T> modify(skill: Skill<T>): Boolean {
-      PlayerSkills.LOGGER.info("Saving skill ${skill.name}")
+      PlayerSkillsLogger.SKILLS.info("Saving skill ${skill.name}")
       return Skills.upsert(skill)
     }
 

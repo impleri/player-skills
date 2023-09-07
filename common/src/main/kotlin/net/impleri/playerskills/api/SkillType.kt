@@ -1,8 +1,8 @@
 package net.impleri.playerskills.api
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.skills.registry.RegistryItemNotFound
 import net.impleri.playerskills.skills.registry.SkillTypes
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 import org.jetbrains.annotations.ApiStatus
@@ -106,7 +106,7 @@ abstract class SkillType<T> {
     fun <V> serializeToString(skill: Skill<V>): String {
       val storage = find(skill)?.serialize(skill) ?: ""
 
-      PlayerSkills.LOGGER.debug("Dehydrated skill ${skill.name} of type ${skill.type} for storage: $storage")
+      PlayerSkillsLogger.SKILLS.debug("Dehydrated skill ${skill.name} of type ${skill.type} for storage: $storage")
 
       return storage
     }
@@ -116,7 +116,7 @@ abstract class SkillType<T> {
     @ApiStatus.Internal
     internal fun unserializeFromString(rawSkill: String?): Skill<*>? {
       if (rawSkill?.isEmpty() != false) {
-        PlayerSkills.LOGGER.warn("Unable to unpack skill $rawSkill from storage")
+        PlayerSkillsLogger.SKILLS.warn("Unable to unpack skill $rawSkill from storage")
         return null
       }
 
@@ -125,14 +125,14 @@ abstract class SkillType<T> {
       val remainingChanges: Int = try {
         changesAllowed.toInt()
       } catch (e: NumberFormatException) {
-        PlayerSkills.LOGGER.error(
+        PlayerSkillsLogger.SKILLS.error(
           "Unable to parse changesAllowed ($changesAllowed) back into an integer, data possibly corrupted",
         )
 
         return null
       }
 
-      PlayerSkills.LOGGER.debug("Hydrating $type skill named $name: $value")
+      PlayerSkillsLogger.SKILLS.debug("Hydrating $type skill named $name: $value")
       return find<Any>(SkillResourceLocation.of(type))?.unserialize(name, value, remainingChanges)
     }
 

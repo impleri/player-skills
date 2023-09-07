@@ -57,5 +57,37 @@ class PlayerSkillsLogger private constructor(modId: String, private val prefix: 
     fun create(prefix: String = "MOD"): PlayerSkillsLogger {
       return PlayerSkillsLogger(PlayerSkills.MOD_ID, prefix)
     }
+
+    enum class TYPES {
+      BLOCKS,
+      FLUIDS,
+      ITEMS,
+      MOBS,
+      SKILLS,
+      SKIPS,
+    }
+
+    fun toggleDebug(type: TYPES?): Boolean {
+      return when (type) {
+        TYPES.BLOCKS -> BLOCKS.toggleDebug()
+        TYPES.FLUIDS -> FLUIDS.toggleDebug()
+        TYPES.ITEMS -> ITEMS.toggleDebug()
+        TYPES.MOBS -> MOBS.toggleDebug()
+        TYPES.SKIPS -> SKIPS.toggleDebug()
+        else -> SKILLS.toggleDebug()
+      }
+    }
+
+    internal val SKILLS = create("SKILLS")
+
+    internal val SKIPS = create("REST")
+
+    internal val BLOCKS = create("BLOCKS")
+
+    internal val FLUIDS = create("FLUIDS")
+
+    internal val ITEMS = create("ITEMS")
+
+    internal val MOBS = create("MOBS")
   }
 }

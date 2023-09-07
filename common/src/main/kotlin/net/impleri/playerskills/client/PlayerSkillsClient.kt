@@ -1,15 +1,15 @@
 package net.impleri.playerskills.client
 
 import com.google.common.collect.ImmutableList
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.events.ClientSkillsUpdatedEvent
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import org.jetbrains.annotations.ApiStatus
 
 object PlayerSkillsClient {
   fun init() {
     ClientEventHandlers.init()
-    PlayerSkills.LOGGER.info("PlayerSkills Client started")
+    PlayerSkillsLogger.SKILLS.info("PlayerSkills Client started")
   }
 
   /**

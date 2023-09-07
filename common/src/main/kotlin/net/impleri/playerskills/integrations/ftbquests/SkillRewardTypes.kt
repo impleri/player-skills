@@ -1,6 +1,7 @@
 package net.impleri.playerskills.integrations.ftbquests
 
 import dev.ftb.mods.ftblibrary.icon.Icon
+import dev.ftb.mods.ftbquests.quest.reward.RewardType
 import dev.ftb.mods.ftbquests.quest.reward.RewardTypes
 import net.impleri.playerskills.utils.SkillResourceLocation.of
 import net.minecraft.network.chat.Component
@@ -14,25 +15,25 @@ interface SkillRewardTypes {
       SPECIALIZED_SKILL.setDisplayName(Component.translatable("playerskills.quests.specialized_skill"))
     }
 
-    val BASIC_SKILL = RewardTypes.register(
+    val BASIC_SKILL: RewardType = RewardTypes.register(
       of("basic_skill_reward"),
       { BasicSkillReward(it) },
       { Icon.getIcon("minecraft:item/wooden_hoe") },
     )
 
-    val NUMERIC_SKILL = RewardTypes.register(
+    val NUMERIC_SKILL: RewardType = RewardTypes.register(
       of("numeric_skill_reward"),
       { NumericSkillReward(it) },
       { Icon.getIcon("minecraft:item/iron_hoe") },
     )
 
-    val TIERED_SKILL = RewardTypes.register(
+    val TIERED_SKILL: RewardType = RewardTypes.register(
       of("tiered_skill_reward"),
       { TieredSkillReward(it) },
       { Icon.getIcon("minecraft:item/golden_hoe") },
     )
 
-    val SPECIALIZED_SKILL = RewardTypes.register(
+    val SPECIALIZED_SKILL: RewardType = RewardTypes.register(
       of("specialized_skill_reward"),
       { SpecializedSkillReward(it) },
       { Icon.getIcon("minecraft:item/diamond_hoe") },

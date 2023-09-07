@@ -4,10 +4,10 @@ import dev.latvian.mods.kubejs.BuilderBase
 import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes
 import dev.latvian.mods.rhino.util.HideFromJS
 import dev.latvian.mods.rhino.util.RemapForJS
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.integrations.kubejs.Registries
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.util.RandomSource
 
 // @TODO: Move this into API
@@ -42,7 +42,7 @@ class SkillConditionBuilderJS<T>(private var skill: Skill<T>) :
 
     val hasChance = appliedChance >= random.nextIntBetweenInclusive(0, 100)
 
-    PlayerSkills.LOGGER.debug(
+    PlayerSkillsLogger.SKILLS.debug(
       "Checking conditions. IF: $conditionIf->$hasIf. UNLESS: $conditionUnless->$hasUnless, CHANCE: $appliedChance->$hasChance",
     )
 

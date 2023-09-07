@@ -1,8 +1,8 @@
 package net.impleri.playerskills.skills.numeric
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
@@ -18,7 +18,7 @@ class NumericSkillType : SkillType<Double>() {
     try {
       return if (value.isNullOrBlank()) null else value.toDouble()
     } catch (e: NumberFormatException) {
-      PlayerSkills.LOGGER.error("Unable to parse $value into an integer")
+      PlayerSkillsLogger.SKILLS.error("Unable to parse $value into an integer")
     }
     return null
   }
@@ -31,7 +31,7 @@ class NumericSkillType : SkillType<Double>() {
     val givenValue = getNumericValue(skill.value)
     val testValue = getNumericValue(expectedValue)
 
-    PlayerSkills.LOGGER.debug("Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)")
+    PlayerSkillsLogger.SKILLS.debug("Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)")
 
     return givenValue >= testValue
   }

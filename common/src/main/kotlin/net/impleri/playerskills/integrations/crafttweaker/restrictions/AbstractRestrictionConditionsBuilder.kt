@@ -1,7 +1,7 @@
 package net.impleri.playerskills.integrations.crafttweaker.restrictions
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister
-import net.impleri.playerskills.EventHandlers
+import net.impleri.playerskills.events.handlers.EventHandlers
 import net.impleri.playerskills.restrictions.AbstractRestriction
 import net.impleri.playerskills.restrictions.RestrictionConditionsBuilder
 import net.minecraft.resources.ResourceLocation

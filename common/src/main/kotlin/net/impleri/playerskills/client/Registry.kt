@@ -1,8 +1,8 @@
 package net.impleri.playerskills.client
 
 import com.google.common.collect.ImmutableList
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 
 /**
  * Internal client-side registry
@@ -14,7 +14,7 @@ internal object Registry {
     playerSkills.clear()
 
     val skillList = skills.joinToString(", ") { "${it.name}=${it.value ?: "NULL"}" }
-    PlayerSkills.LOGGER.info("Syncing Client-side skills: $skillList")
+    PlayerSkillsLogger.SKILLS.info("Syncing Client-side skills: $skillList")
 
     playerSkills.addAll(skills)
     PlayerSkillsClient.emitSkillsUpdated(skills, prev, force)

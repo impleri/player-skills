@@ -1,7 +1,7 @@
 package net.impleri.playerskills.integrations.kubejs.items
 
 import dev.latvian.mods.kubejs.server.ServerEventJS
-import net.impleri.playerskills.api.ItemRestrictionBuilder
+import net.impleri.playerskills.restrictions.items.ItemRestrictionBuilder
 import net.minecraft.server.MinecraftServer
 
 class ItemRestrictionsEventJS(s: MinecraftServer) : ServerEventJS(s) {

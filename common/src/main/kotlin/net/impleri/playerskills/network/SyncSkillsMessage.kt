@@ -4,10 +4,10 @@ import com.google.common.collect.ImmutableList
 import dev.architectury.networking.NetworkManager
 import dev.architectury.networking.simple.BaseS2CMessage
 import dev.architectury.networking.simple.MessageType
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.client.PlayerSkillsClient
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.entity.player.Player
 import java.util.UUID
@@ -22,7 +22,7 @@ class SyncSkillsMessage : BaseS2CMessage {
     force = buffer.readBoolean()
     val size = buffer.readInt()
     skills = ArrayList(size)
-    PlayerSkills.LOGGER.debug("Received skill sync of $size skills for $playerId")
+    PlayerSkillsLogger.SKILLS.debug("Received skill sync of $size skills for $playerId")
     for (i in 0 until size) {
       val stringSize = buffer.readInt()
       val string = buffer.readUtf(stringSize)
@@ -52,7 +52,7 @@ class SyncSkillsMessage : BaseS2CMessage {
       buffer.writeInt(stringSize)
       buffer.writeUtf(string, stringSize)
     }
-    PlayerSkills.LOGGER.debug("Sending skill sync of $size skills for $playerId")
+    PlayerSkillsLogger.SKILLS.debug("Sending skill sync of $size skills for $playerId")
   }
 
   override fun handle(context: NetworkManager.PacketContext) {

@@ -1,6 +1,6 @@
 package net.impleri.playerskills.skills.registry.storage
 
-import net.impleri.playerskills.PlayerSkills
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.NbtIo
@@ -19,12 +19,12 @@ internal class SkillNbtStorage : PersistentStorage {
     val tag: CompoundTag = try {
       NbtIo.readCompressed(file)
     } catch (e: IOException) {
-      PlayerSkills.LOGGER.debug("Player data file ${file.path} does not exist")
+      PlayerSkillsLogger.SKILLS.debug("Player data file ${file.path} does not exist")
       return skills
     }
 
     if (!tag.contains(SKILLS_TAG)) {
-      PlayerSkills.LOGGER.error("Player data file ${file.path} does not match the expected format")
+      PlayerSkillsLogger.SKILLS.error("Player data file ${file.path} does not match the expected format")
       return skills
     }
 
@@ -45,7 +45,7 @@ internal class SkillNbtStorage : PersistentStorage {
     try {
       NbtIo.writeCompressed(storage, file)
     } catch (e: IOException) {
-      PlayerSkills.LOGGER.error("Failed to write to ${file.path}")
+      PlayerSkillsLogger.SKILLS.error("Failed to write to ${file.path}")
     }
   }
 

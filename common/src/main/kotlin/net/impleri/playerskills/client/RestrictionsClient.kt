@@ -1,6 +1,5 @@
 package net.impleri.playerskills.client
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.restrictions.AbstractRestriction
 import net.impleri.playerskills.restrictions.Registry
 import net.impleri.playerskills.restrictions.RestrictionsApi
@@ -11,7 +10,7 @@ import net.minecraft.world.entity.player.Player
 abstract class RestrictionsClient<T, R : AbstractRestriction<T>, A : RestrictionsApi<T, R>> @JvmOverloads constructor(
   private val registry: Registry<R>,
   protected val serverApi: A,
-  protected val logger: PlayerSkillsLogger = PlayerSkills.LOGGER,
+  protected val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 ) {
   val all: List<R>
     get() = registry.entries()

@@ -3,9 +3,28 @@
   "minVersion": "0.8",
   "package": "net.impleri.playerskills.mixins",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [],
+  "mixins": [
+    "block.MixinBlock",
+    "block.MixinBlockStateBase",
+    "block.MixinLiquidBlock",
+    "chunk.MixinChunkMap",
+    "chunk.MixinHashMapPalette",
+    "chunk.MixinLinearPalette",
+    "chunk.MixinSingleValuePalette",
+    "entity.MixinEntity",
+    "entity.MixinPlayer",
+    "material.MixinFlowingFluid",
+    "material.MixinLavaFluid",
+    "network.MixinClientboundBlockUpdatePacket",
+    "network.MixinClientboundSectionBlocksUpdatePacket",
+    "network.MixinServerGamePacketListenerImpl",
+    "server.MixinServerPlayer",
+    "server.MixinServerPlayerGameMode"
+  ],
   "client": [
-    "MixinRecipeManager"
+    "block.MixinBlockStateBaseClientside",
+    "item.MixinItemStackClientside",
+    "item.MixinRecipeManager"
   ],
   "server": [
     "MixinCraftingMenu"

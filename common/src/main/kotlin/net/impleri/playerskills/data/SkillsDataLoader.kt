@@ -3,7 +3,6 @@ package net.impleri.playerskills.data
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.TeamMode
 import net.impleri.playerskills.skills.basic.BasicSkill
@@ -14,6 +13,7 @@ import net.impleri.playerskills.skills.specialized.SpecializedSkill
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 import net.impleri.playerskills.skills.tiered.TieredSkill
 import net.impleri.playerskills.skills.tiered.TieredSkillType
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
@@ -29,12 +29,12 @@ class SkillsDataLoader : SimpleJsonResourceReloadListener(Gson, "skills") {
     datamap.forEach { (name, json) ->
       try {
         parseSkill(name, json)?.let {
-          PlayerSkills.LOGGER.info("Registering skill ${it.name}")
+          PlayerSkillsLogger.SKILLS.info("Registering skill ${it.name}")
           Skill.modify(it)
         }
       } catch (e: Throwable) {
-        PlayerSkills.LOGGER.warn("Could not parse skill details for $name")
-        e.message?.let { PlayerSkills.LOGGER.error("$it.") }
+        PlayerSkillsLogger.SKILLS.warn("Could not parse skill details for $name")
+        e.message?.let { PlayerSkillsLogger.SKILLS.error("$it.") }
         e.printStackTrace()
       }
     }
@@ -95,7 +95,7 @@ class SkillsDataLoader : SimpleJsonResourceReloadListener(Gson, "skills") {
       }
 
       else -> {
-        PlayerSkills.LOGGER.warn("Unknown skill type $type for $name")
+        PlayerSkillsLogger.SKILLS.warn("Unknown skill type $type for $name")
         null
       }
     }
@@ -108,8 +108,8 @@ class SkillsDataLoader : SimpleJsonResourceReloadListener(Gson, "skills") {
     return try {
       raw.get(key)
     } catch (e: NullPointerException) {
-      PlayerSkills.LOGGER.info("Could not get value for $key")
-      e.message?.let { PlayerSkills.LOGGER.error(it) }
+      PlayerSkillsLogger.SKILLS.info("Could not get value for $key")
+      e.message?.let { PlayerSkillsLogger.SKILLS.error(it) }
       e.printStackTrace()
       null
     }

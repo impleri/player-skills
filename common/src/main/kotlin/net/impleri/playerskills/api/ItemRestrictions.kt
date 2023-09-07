@@ -1,8 +1,9 @@
 package net.impleri.playerskills.api
 
-import net.impleri.playerskills.items.ItemRestriction
-import net.impleri.playerskills.items.ItemSkills
 import net.impleri.playerskills.restrictions.RestrictionsApi
+import net.impleri.playerskills.restrictions.StaticRestrictionsApi
+import net.impleri.playerskills.restrictions.items.ItemRestriction
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.core.BlockPos
 import net.minecraft.core.NonNullList
 import net.minecraft.core.Registry
@@ -23,7 +24,7 @@ import net.impleri.playerskills.restrictions.Registry as RestrictionsRegistry
 class ItemRestrictions private constructor(
   registry: RestrictionsRegistry<ItemRestriction>,
   fields: Array<Field>,
-) : RestrictionsApi<Item, ItemRestriction>(registry, fields, ItemSkills.LOGGER) {
+) : RestrictionsApi<Item, ItemRestriction>(registry, fields, PlayerSkillsLogger.ITEMS) {
   override fun getTargetName(target: Item): ResourceLocation {
     return getName(target)
   }
@@ -83,14 +84,14 @@ class ItemRestrictions private constructor(
     return canHelper(player, item, pos, "usable")
   }
 
-  companion object {
-    internal val RestrictionRegistry = RestrictionsRegistry<ItemRestriction>()
-
+  companion object StaticItemRestrictions : StaticRestrictionsApi<Item, ItemRestriction> {
     private val allRestrictionFields = ItemRestriction::class.java.declaredFields
+
+    internal val RestrictionRegistry = RestrictionsRegistry<ItemRestriction>()
 
     internal val INSTANCE = ItemRestrictions(RestrictionRegistry, allRestrictionFields)
 
-    fun add(name: ResourceLocation, restriction: ItemRestriction) {
+    override fun add(name: ResourceLocation, restriction: ItemRestriction) {
       RestrictionRegistry.add(name, restriction)
     }
 
@@ -98,12 +99,14 @@ class ItemRestrictions private constructor(
       return getName(if (stack.isEmpty) null else stack.item)
     }
 
-    fun getName(item: Item?): ResourceLocation {
-      return Registry.ITEM.getKey(item)
+    override fun getName(value: Item?): ResourceLocation {
+      return value?.let { Registry.ITEM.getKey(it) } ?: Registry.ITEM.defaultKey
     }
 
-    fun getValue(resource: ResourceLocation?): Item {
-      return Registry.ITEM[resource]
+    override fun getValue(name: ResourceLocation): Item? {
+      val item = Registry.ITEM[name]
+
+      return if (isDefaultValue(item, name)) null else item
     }
 
     fun getValue(stack: ItemStack): Item {
@@ -115,8 +118,7 @@ class ItemRestrictions private constructor(
     }
 
     fun getStackOf(resource: ResourceLocation?): ItemStack {
-      val item = getValue(resource)
-      return ItemStack(item)
+      return resource?.let { ItemStack(getValue(it)) } ?: ItemStack.EMPTY
     }
 
     fun getItemUsed(player: Player, hand: InteractionHand): Item {
@@ -203,7 +205,7 @@ class ItemRestrictions private constructor(
     }
 
     private fun removeFromEquippedSlot(player: Player, list: NonNullList<ItemStack>, stack: ItemStack, index: Int) {
-      ItemSkills.LOGGER.debug("${player.name} should not have ${getName(stack)} equipped")
+      PlayerSkillsLogger.ITEMS.debug("${player.name} should not have ${getName(stack)} equipped")
       list[index] = ItemStack.EMPTY
       moveItemIntoInventory(player, stack)
     }
@@ -220,7 +222,7 @@ class ItemRestrictions private constructor(
 
     fun dropFromInventory(player: Player): (ItemStack) -> Unit {
       return {
-        ItemSkills.LOGGER.debug("${player.name} should not be holding ${getName(it)}")
+        PlayerSkillsLogger.ITEMS.debug("${player.name} should not be holding ${getName(it)}")
         player.inventory.removeItem(it)
         player.drop(it, true)
       }

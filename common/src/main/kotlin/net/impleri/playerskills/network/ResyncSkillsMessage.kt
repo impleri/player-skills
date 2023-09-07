@@ -3,7 +3,7 @@ package net.impleri.playerskills.network
 import dev.architectury.networking.NetworkManager
 import dev.architectury.networking.simple.BaseC2SMessage
 import dev.architectury.networking.simple.MessageType
-import net.impleri.playerskills.EventHandlers
+import net.impleri.playerskills.events.handlers.EventHandlers
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.entity.player.Player
 import java.util.UUID

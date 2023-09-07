@@ -1,8 +1,8 @@
 package net.impleri.playerskills.skills.basic
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 import org.apache.commons.lang3.BooleanUtils
@@ -22,7 +22,7 @@ class BasicSkillType : SkillType<Boolean>() {
   override fun can(skill: Skill<Boolean>, expectedValue: Boolean?): Boolean {
     val givenValue = BooleanUtils.toBoolean(skill.value)
     val testValue = expectedValue == null || BooleanUtils.toBoolean(expectedValue)
-    PlayerSkills.LOGGER.debug(
+    PlayerSkillsLogger.SKILLS.debug(
       "Checking if player can ${skill.name} (does $expectedValue->$testValue == $givenValue<-${skill.value})",
     )
     return testValue == givenValue
