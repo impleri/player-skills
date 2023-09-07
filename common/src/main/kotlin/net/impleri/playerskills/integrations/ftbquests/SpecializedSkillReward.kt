@@ -72,6 +72,6 @@ class SpecializedSkillReward(quest: Quest?) : BasicSkillReward(quest) {
   }
 
   companion object {
-    protected const val NO_VALUE = ""
+    internal const val NO_VALUE = ""
   }
 }

@@ -1,10 +1,10 @@
 package net.impleri.playerskills.skills.registry
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.skills.registry.storage.SkillStorage.read
 import net.impleri.playerskills.skills.registry.storage.SkillStorage.write
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.resources.ResourceLocation
 import java.util.UUID
 
@@ -48,7 +48,7 @@ object Players {
   }
 
   private fun handleOpenFor(playerId: UUID): List<Skill<*>> {
-    PlayerSkills.LOGGER.info("Opening player $playerId, ensuring saved skills are still valid")
+    PlayerSkillsLogger.SKILLS.info("Opening player $playerId, ensuring saved skills are still valid")
 
     // Get all the names of the registered skills
     val registeredSkillNames = Skills.entries()
@@ -144,7 +144,7 @@ object Players {
   }
 
   private fun handleCloseFor(playerId: UUID) {
-    PlayerSkills.LOGGER.info("Closing player $playerId, ensuring skills are saved")
+    PlayerSkillsLogger.SKILLS.info("Closing player $playerId, ensuring skills are saved")
 
     val skills = this.get(playerId)
 
@@ -178,12 +178,12 @@ object Players {
   }
 
   private fun readFromStorage(playerId: UUID): List<Skill<*>> {
-    PlayerSkills.LOGGER.debug("Restoring saved skills for $playerId")
+    PlayerSkillsLogger.SKILLS.debug("Restoring saved skills for $playerId")
     return read(playerId).mapNotNull { SkillType.unserializeFromString(it) }
   }
 
   private fun writeToStorage(playerId: UUID, skills: List<Skill<*>>) {
-    PlayerSkills.LOGGER.debug("Saving skills for $playerId")
+    PlayerSkillsLogger.SKILLS.debug("Saving skills for $playerId")
 
     val rawSkills: List<String> = skills
       .map { SkillType.serializeToString(it) }

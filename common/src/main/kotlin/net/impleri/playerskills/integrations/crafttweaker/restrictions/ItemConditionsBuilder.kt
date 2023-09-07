@@ -1,8 +1,8 @@
 package net.impleri.playerskills.integrations.crafttweaker.restrictions
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister
-import net.impleri.playerskills.items.ItemConditions
-import net.impleri.playerskills.items.ItemRestriction
+import net.impleri.playerskills.restrictions.items.ItemConditions
+import net.impleri.playerskills.restrictions.items.ItemRestriction
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import org.openzen.zencode.java.ZenCodeType

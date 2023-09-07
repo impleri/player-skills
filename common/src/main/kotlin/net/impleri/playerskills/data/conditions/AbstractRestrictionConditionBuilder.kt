@@ -1,8 +1,8 @@
 package net.impleri.playerskills.data.conditions
 
 import com.google.gson.JsonObject
-import net.impleri.playerskills.EventHandlers
 import net.impleri.playerskills.data.utils.RestrictionDataParser
+import net.impleri.playerskills.events.handlers.EventHandlers
 import net.impleri.playerskills.restrictions.AbstractRestriction
 import net.impleri.playerskills.restrictions.RestrictionConditionsBuilder
 import net.minecraft.resources.ResourceLocation

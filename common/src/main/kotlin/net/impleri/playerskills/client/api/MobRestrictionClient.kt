@@ -2,9 +2,9 @@ package net.impleri.playerskills.client.api
 
 import net.impleri.playerskills.api.MobRestrictions
 import net.impleri.playerskills.client.RestrictionsClient
-import net.impleri.playerskills.mobs.MobRestriction
 import net.impleri.playerskills.restrictions.Registry
 import net.impleri.playerskills.restrictions.RestrictionsApi
+import net.impleri.playerskills.restrictions.mobs.MobRestriction
 import net.minecraft.world.entity.EntityType
 
 class MobRestrictionClient(

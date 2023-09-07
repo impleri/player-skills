@@ -72,6 +72,16 @@ interface JsonDataParser {
     )
   }
 
+  fun parseObjectOrArray(raw: JsonObject, key: String): List<JsonElement> {
+    val block = getValue(raw, key) ?: return ArrayList()
+
+    return when {
+      block.isJsonArray -> block.asJsonArray.toList()
+      block.isJsonObject -> listOf(block.asJsonObject)
+      else -> ArrayList()
+    }
+  }
+
   fun <T> parseExclude(raw: JsonElement, callback: (String) -> List<T>): List<T> {
     return parseArray(raw, "exclude", callback)
   }
@@ -86,5 +96,24 @@ interface JsonDataParser {
 
   fun parseIncludeAction(raw: JsonElement, callback: (String) -> Unit) {
     parseArrayEach(raw, "include", callback)
+  }
+
+  fun parseFacet(
+    raw: JsonObject,
+    key: String,
+    onInclude: (value: String) -> Unit,
+    onExclude: (value: String) -> Unit,
+  ) {
+    getValue(raw, key)?.let {
+      when {
+        it.isJsonObject -> {
+          parseIncludeAction(it, onInclude)
+          parseExcludeAction(it, onExclude)
+        }
+
+        it.isJsonArray -> it.asJsonArray.forEach { value -> onInclude(value.asString) }
+        else -> null
+      }
+    }
   }
 }

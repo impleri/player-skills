@@ -1,8 +1,8 @@
 package net.impleri.playerskills.skills.specialized
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
@@ -26,7 +26,7 @@ class SpecializedSkillType : SkillType<String>() {
     if (expectedValue == null) {
       return skill.value != null
     }
-    PlayerSkills.LOGGER.debug("Checking if player can ${skill.name} (is ${skill.value} == $expectedValue)")
+    PlayerSkillsLogger.SKILLS.debug("Checking if player can ${skill.name} (is ${skill.value} == $expectedValue)")
     return expectedValue == skill.value
   }
 

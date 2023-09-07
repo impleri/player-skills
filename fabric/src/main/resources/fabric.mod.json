@@ -23,10 +23,10 @@
       "net.impleri.playerskills.client.fabric.PlayerSkillsClientFabric"
     ],
     "rei_client": [
-      "PlayerSkillsReiPlugin"
+      "net.impleri.playerskills.integrations.rei.PlayerSkillsReiPlugin"
     ],
     "jei_mod_plugin": [
-      "PlayerSkillsJeiPlugin"
+      "net.impleri.playerskills.integrations.jei.PlayerSkillsJeiPlugin"
     ]
   },
   "mixins": [],

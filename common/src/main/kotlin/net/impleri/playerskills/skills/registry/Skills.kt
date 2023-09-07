@@ -4,6 +4,7 @@ import dev.architectury.registry.registries.Registrar
 import dev.architectury.registry.registries.Registries
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
@@ -25,7 +26,7 @@ object Skills {
   // Dummy method to ensure static elements are created
   fun buildRegistry() {
     if (INITIAL_REGISTRY.key().location() != REGISTRY_KEY) {
-      PlayerSkills.LOGGER.warn("Skills registry is invalid.")
+      PlayerSkillsLogger.SKILLS.warn("Skills registry is invalid.")
     }
   }
 
@@ -75,7 +76,7 @@ object Skills {
   }
 
   /**
-   * Upserts a skill in the registry even if it already exists
+   * Upsert a skill in the registry even if it already exists
    */
   fun <T> upsert(skill: Skill<T>): Boolean {
     REGISTRY[skill.name] = skill

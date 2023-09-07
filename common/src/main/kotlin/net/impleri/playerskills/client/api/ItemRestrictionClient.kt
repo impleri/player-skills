@@ -2,8 +2,8 @@ package net.impleri.playerskills.client.api
 
 import net.impleri.playerskills.api.ItemRestrictions
 import net.impleri.playerskills.client.RestrictionsClient
-import net.impleri.playerskills.items.ItemRestriction
 import net.impleri.playerskills.restrictions.Registry
+import net.impleri.playerskills.restrictions.items.ItemRestriction
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.crafting.Recipe
 

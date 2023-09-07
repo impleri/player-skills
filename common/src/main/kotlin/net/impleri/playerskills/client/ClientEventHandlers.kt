@@ -5,7 +5,7 @@ import dev.architectury.registry.ReloadListenerRegistry
 import net.impleri.playerskills.api.ItemRestrictions
 import net.impleri.playerskills.client.api.ItemRestrictionClient
 import net.impleri.playerskills.events.ClientSkillsUpdatedEvent
-import net.impleri.playerskills.items.ItemSkills
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.server.packs.PackType
@@ -50,7 +50,7 @@ class ClientEventHandlers : ResourceManagerReloadListener {
   private fun beforeRenderItemTooltip(stack: ItemStack, lines: MutableList<Component>) {
     val item = ItemRestrictions.getValue(stack)
     if (!identifiability.computeIfAbsent(item) { populateCache(it) }) {
-      ItemSkills.LOGGER.debug("Replacing tooltip for $item")
+      PlayerSkillsLogger.ITEMS.debug("Replacing tooltip for $item")
       lines.clear()
       lines.add(Component.translatable("message.playerskills.unknown_item").withStyle(ChatFormatting.RED))
     }

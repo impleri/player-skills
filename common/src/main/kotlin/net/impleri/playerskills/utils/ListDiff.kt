@@ -1,20 +1,19 @@
 package net.impleri.playerskills.utils
 
-import net.impleri.playerskills.api.ItemRestrictions
-import net.minecraft.world.item.Item
+import net.minecraft.resources.ResourceLocation
 
 object ListDiff {
-  fun contains(a: List<Item>, b: List<Item>): Boolean {
-    return getMissing(a, b).isEmpty()
+  fun <T> contains(a: List<T>, b: List<T>, getName: (T) -> ResourceLocation): Boolean {
+    return getMissing(a, b, getName).isEmpty()
   }
 
-  fun getMissing(a: List<Item>, b: List<Item>): List<Item> {
+  fun <T> getMissing(a: List<T>, b: List<T>, getName: (T) -> ResourceLocation): List<T> {
     if (a.isEmpty() && b.isEmpty()) {
       return ArrayList()
     }
 
-    val bStrings = b.map { ItemRestrictions.getName(it) }
+    val bStrings = b.map { getName(it) }
 
-    return a.filter { !bStrings.contains(ItemRestrictions.getName(it)) }
+    return a.filter { !bStrings.contains(getName(it)) }
   }
 }

@@ -1,8 +1,8 @@
 package net.impleri.playerskills.skills.tiered
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
@@ -22,7 +22,7 @@ class TieredSkillType : SkillType<String>() {
     val givenValue = getIndexFor(skill.value, skill.options) ?: 0
     val testValue = getIndexFor(expectedValue, skill.options) ?: 1
 
-    PlayerSkills.LOGGER.debug("Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)")
+    PlayerSkillsLogger.SKILLS.debug("Checking if player can ${skill.name} (is ${skill.value}->$givenValue >= $testValue<-$expectedValue)")
 
     return givenValue >= testValue
   }

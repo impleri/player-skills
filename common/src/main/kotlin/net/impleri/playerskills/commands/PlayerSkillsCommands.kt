@@ -3,13 +3,11 @@ package net.impleri.playerskills.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.Player
 import net.impleri.playerskills.api.Skill
 import net.impleri.playerskills.api.SkillType
 import net.impleri.playerskills.api.Team
-import net.impleri.playerskills.items.ItemSkills
-import net.impleri.playerskills.mobs.MobSkills
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -66,15 +64,23 @@ object PlayerSkillsCommands {
             .requires { it.hasPermission(REQUIRED_PERMISSION) }
             .then(
               Commands.literal("skills")
-                .executes { toggleDebug("Skills", it.source) { PlayerSkills.toggleDebug() } },
+                .executes { toggleDebug("Skills", it.source) { PlayerSkillsLogger.SKILLS.toggleDebug() } },
+            )
+            .then(
+              Commands.literal("blocks")
+                .executes { toggleDebug("Block Restrictions", it.source) { PlayerSkillsLogger.BLOCKS.toggleDebug() } },
+            )
+            .then(
+              Commands.literal("fluids")
+                .executes { toggleDebug("Fluid Restrictions", it.source) { PlayerSkillsLogger.FLUIDS.toggleDebug() } },
             )
             .then(
               Commands.literal("items")
-                .executes { toggleDebug("Item Restrictions", it.source) { ItemSkills.toggleDebug() } },
+                .executes { toggleDebug("Item Restrictions", it.source) { PlayerSkillsLogger.ITEMS.toggleDebug() } },
             )
             .then(
               Commands.literal("mobs")
-                .executes { toggleDebug("Mob Restrictions", it.source) { MobSkills.toggleDebug() } },
+                .executes { toggleDebug("Mob Restrictions", it.source) { PlayerSkillsLogger.MOBS.toggleDebug() } },
             ),
         )
         .then(

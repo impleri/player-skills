@@ -2,8 +2,8 @@ package net.impleri.playerskills.data.conditions
 
 import com.google.gson.JsonObject
 import net.impleri.playerskills.data.utils.RestrictionDataParser
-import net.impleri.playerskills.items.ItemConditions
-import net.impleri.playerskills.items.ItemRestriction
+import net.impleri.playerskills.restrictions.items.ItemConditions
+import net.impleri.playerskills.restrictions.items.ItemRestriction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item

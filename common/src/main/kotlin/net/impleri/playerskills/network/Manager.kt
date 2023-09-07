@@ -3,6 +3,7 @@ package net.impleri.playerskills.network
 import dev.architectury.networking.simple.MessageType
 import dev.architectury.networking.simple.SimpleNetworkManager
 import net.impleri.playerskills.PlayerSkills
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 
 object Manager {
   private val NET: SimpleNetworkManager = SimpleNetworkManager.create(PlayerSkills.MOD_ID)
@@ -12,6 +13,6 @@ object Manager {
   val RESYNC_SKILLS: MessageType = NET.registerC2S("resync_skills") { ResyncSkillsMessage(it) }
 
   fun register() {
-    PlayerSkills.LOGGER.debug("Registered network channels")
+    PlayerSkillsLogger.SKILLS.debug("Registered network channels")
   }
 }

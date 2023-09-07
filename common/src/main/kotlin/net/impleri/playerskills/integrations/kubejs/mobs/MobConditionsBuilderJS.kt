@@ -4,8 +4,8 @@ import dev.latvian.mods.rhino.util.HideFromJS
 import net.impleri.playerskills.api.EntitySpawnMode
 import net.impleri.playerskills.integrations.kubejs.api.AbstractRestrictionConditionsBuilder
 import net.impleri.playerskills.integrations.kubejs.api.PlayerDataJS
-import net.impleri.playerskills.mobs.MobConditions
-import net.impleri.playerskills.mobs.MobRestriction
+import net.impleri.playerskills.restrictions.mobs.MobConditions
+import net.impleri.playerskills.restrictions.mobs.MobRestriction
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobSpawnType

@@ -4,6 +4,7 @@ import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.skills.registry.Players
 import net.impleri.playerskills.skills.registry.Players.close
 import net.impleri.playerskills.skills.registry.Players.open
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
@@ -46,7 +47,7 @@ abstract class Team {
       val players = INSTANCE.getTeamMembersFor(player)
       val teamMode = skill.teamMode
       if (players.size < 2 || teamMode.isOff || teamMode.isShared) {
-        PlayerSkills.LOGGER.info("No need to bother team")
+        PlayerSkillsLogger.SKILLS.info("No need to bother team")
         return true
       }
       val count = countWith(players, skill).toDouble()
@@ -81,7 +82,7 @@ abstract class Team {
 
       val allowed = count < limit
 
-      PlayerSkills.LOGGER.info("Does the team allow updating skill? $allowed ($count < $limit)")
+      PlayerSkillsLogger.SKILLS.info("Does the team allow updating skill? $allowed ($count < $limit)")
 
       return allowed
     }
@@ -92,7 +93,7 @@ abstract class Team {
     fun <T> updateTeam(player: Player, newSkill: Skill<T>): Boolean {
       // Team Shared: Update for all team members
       val teamMembers = INSTANCE.getTeamMembersFor(player)
-      PlayerSkills.LOGGER.debug("Syncing skills with team: ${teamMembers.map { it.toString() }.joinToString { ", " }}")
+      PlayerSkillsLogger.SKILLS.debug("Syncing skills with team: ${teamMembers.map { it.toString() }.joinToString { ", " }}")
 
       // Emit SkillChanged event to all team members currently logged in
       syncTeam(teamMembers, newSkill, player.server)
@@ -103,7 +104,7 @@ abstract class Team {
      * Syncs the player's shared skills with the rest of the team, overriding any progress one may have
      */
     fun syncFromPlayer(player: ServerPlayer): Boolean {
-      PlayerSkills.LOGGER.debug("Syncing skills from ${player.name}")
+      PlayerSkillsLogger.SKILLS.debug("Syncing skills from ${player.name}")
 
       getSharedSkills(player).forEach { updateTeam(player, it) }
 
@@ -114,7 +115,7 @@ abstract class Team {
      * Syncs the "best" skill value for each shared skill currently help by the team with the rest of the team
      */
     fun syncEntireTeam(player: ServerPlayer): Boolean {
-      PlayerSkills.LOGGER.debug("Syncing entire team connected to ${player.name}")
+      PlayerSkillsLogger.SKILLS.debug("Syncing entire team connected to ${player.name}")
 
       val teamMembers = INSTANCE.getTeamMembersFor(player)
       val offlineMembers = open(teamMembers)
@@ -188,13 +189,13 @@ abstract class Team {
     private fun <V> ensurePlayerOpen(playerId: UUID, callback: () -> V): V {
       val isActive = Players.has(playerId)
       if (!isActive) {
-        Players.open(playerId)
+        open(playerId)
       }
 
       val value = callback()
 
       if (!isActive) {
-        Players.close(playerId)
+        close(playerId)
       }
 
       return value

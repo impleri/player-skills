@@ -1,17 +1,15 @@
 package net.impleri.playerskills.restrictions
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.RegistrationType
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
-import net.minecraft.world.entity.player.Player
 
 abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestriction<Target>>(
   protected val registry: Registry<Target>,
-  protected val logger: PlayerSkillsLogger = PlayerSkills.LOGGER,
+  protected val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 ) {
   @Suppress("UNCHECKED_CAST")
   private val registryName = registry.key() as ResourceKey<Registry<Target>>
@@ -88,7 +86,7 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
       .forEach { restrictOne(it, builder) }
   }
 
-  protected fun logRestriction(name: ResourceLocation, restriction: Restriction) {
+  protected fun logRestriction(name: ResourceLocation, restriction: Restriction, settings: String? = null) {
     val inBiomes = appendListInfo(restriction.includeBiomes, "in biomes")
     val notInBiomes = appendListInfo(restriction.excludeBiomes, "not in biomes")
     val inDimensions = appendListInfo(restriction.includeDimensions, "in dimensions")
@@ -98,7 +96,9 @@ abstract class AbstractRestrictionBuilder<Target, Restriction : AbstractRestrict
       .filter { it.isNotEmpty() }
       .joinToString(", ")
 
-    logger.info("Created restriction for $name $details")
+    val settingsAdded = settings?.let { ": $settings" } ?: ""
+
+    logger.info("Created restriction for $name $details$settingsAdded")
   }
 
   private fun appendListInfo(list: List<ResourceLocation>, description: String): String {

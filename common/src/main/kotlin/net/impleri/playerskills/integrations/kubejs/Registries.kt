@@ -8,5 +8,5 @@ import net.minecraft.resources.ResourceKey
 object Registries {
   private val key = ResourceKey.createRegistryKey<Skill<*>>(of("skill_builders_registry"))
 
-  val SKILLS = RegistryObjectBuilderTypes.add(key, Skill::class.java)
+  val SKILLS: RegistryObjectBuilderTypes<Skill<*>> = RegistryObjectBuilderTypes.add(key, Skill::class.java)
 }

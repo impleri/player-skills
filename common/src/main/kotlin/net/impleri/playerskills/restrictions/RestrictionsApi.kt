@@ -1,6 +1,5 @@
 package net.impleri.playerskills.restrictions
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.events.SkillChangedEvent
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.resources.ResourceLocation
@@ -19,7 +18,7 @@ abstract class RestrictionsApi<T, R : AbstractRestriction<T>>(
   private val restrictionsCache = ConcurrentHashMap<Player, List<R>>()
   private val emptyFilter = { _: R -> true }
   protected val logger: PlayerSkillsLogger
-    get() = givenLogger ?: PlayerSkills.LOGGER
+    get() = givenLogger ?: PlayerSkillsLogger.SKILLS
 
   @JvmRecord
   private data class ReplacementCacheKey<RT, RR : AbstractRestriction<RT>>(

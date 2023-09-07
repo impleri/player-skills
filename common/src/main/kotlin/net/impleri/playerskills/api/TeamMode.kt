@@ -1,14 +1,5 @@
 package net.impleri.playerskills.api
 
-internal enum class TeamModeType {
-  OFF,
-  SHARED,
-  SPLIT_EVENLY,
-  PYRAMID,
-  PROPORTIONAL,
-  LIMITED,
-}
-
 class TeamMode private constructor(private val type: TeamModeType, val rate: Double? = null) {
   val isOff: Boolean
     get() = type == TeamModeType.OFF

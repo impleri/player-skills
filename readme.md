@@ -126,8 +126,11 @@ properties are available on every restriction.
 
 - `if`: Sets the condition which must evaluate to true in order to apply.
 - `unless`: Sets the condition which must evaluate to false.
+- `everyting`: Sets all restrictions to the default allowed state.
+- `nothing`: Sets all restrictions to the restrictive state.
 
-In either case, the condition provided can be a single condition object or an array of them.
+In either case, the condition provided can be a single condition object or an array of them. Also of note is that skills
+registered via Data Pack will not have the
 
 ```json
 {
@@ -170,6 +173,63 @@ and/or `exclude` properties that are array of string values.
     ],
     "exclude": [
       "#minecraft:ocean"
+    ]
+  }
+}
+```
+
+### Item Restrictions Data
+
+Mob Restrictions are created using the `item_restrictions` grouping. In addition to the shared facet and condition
+properties above, the schema exposes:
+
+- `item`: ***required*** either item tag (e.g. `#minecraft:planks`), identifier (`minecraft:oak_planks`), or
+  namespace (`@create`)
+- `producible`: Can this item be produced by any recipe? (default value is `true`)
+- `consumable`: Can this item be consumed in any recipe? (default value is `true`)
+- `identifiable`: Can this item be identified by a tooltip? (default value is `true`)
+- `holdable`: Can this item be held in the player's inventory? (default value is `true`)
+- `wearable`: Can this item be equipped by the player as armor, trinket, or curio? (default value is `true`)
+- `usable`: Can this item be used as an item? This only applies if the item has a left- or right-click use in some way (
+  default value is `true`)
+- `harmful`: Can this item be used to harm a mob? (default value is `true`)
+
+```json
+{
+  "item": "minecraft:shears",
+  "usable": false,
+  "identifiable": false,
+  "unless": {
+    "skill": "kill_count",
+    "value": 8
+  }
+}
+
+```
+
+### Mob Restrictions Data
+
+Mob Restrictions are created using the `mob_restrictions` grouping. In addition to the shared facet and condition
+properties above, the schema exposes:
+
+- `entity`: ***required*** either entity tag (e.g. `#minecraft:skeletons`), identifier (`minecraft:zombie`), or
+  namespace (`ad_astra:*`)
+- `usable`: Can the player interact with this mob? Only applies to mobs that have a right-click interaction. (default
+  value is `true`)
+- `spawnable`: Can this mob can spawn? (default value is `true`)
+- `allPlayers`: Whether `spawnable` applies if any (`false`) or all (`true`) players within range match the conditions
+  (default value is `false`)
+- `always`: Forces `spawnable` to always apply (default value is `false`)
+- `spawners`: Facet property for types of spawners (e.g. `spawner`, `natural`, `chunk`, `structure`, `breeding`, etc)
+
+```json
+{
+  "entity": "minecraft:creeper",
+  "spawnable": false,
+  "allPlayers": true,
+  "spawners": {
+    "include": [
+      "spawner"
     ]
   }
 }
@@ -396,83 +456,6 @@ every restriction.
   the listed biomes. Example: `.inBiome('#desert')`
 - `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
 
-### Mob Restrictions Registry Actions
-
-We use the `MobSkillEvents.register` ***server*** event to register mob restrictions.
-
-Spawn restrictions are then calculated at spawn time based on the players in the entity's despawn range (i.e. 128 blocks
-for most mobs). If the players ***match*** the conditions, the restrictions are applied.
-
-Other restrictions are calculated when the player attempts to interact with the mob. If the player matches the
-conditions, the restriction is applied.
-
-Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
-allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
-condition. By default, no restrictions are set, so be sure to set actual
-restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
-
-#### Allow Restriction Methods
-
-- `nothing()` - shorthand to apply all "allow" restrictions
-- `spawnable(matchAllInsteadOfAny?: boolean)` - The mob can spawn if any (or all) players in range match the criteria
-- `usable()` - Players that meet the condition can interact with the entity (e.g. trade with a villager)
-
-#### Deny Restriction Methods
-
-- `everything()` - shorthand to apply the below "deny" abilities
-- `unspawnable(matchAllInsteadOfAny?: boolean)` - The mob cannot spawn if any (or all) players in range match the
-  criteria
-- `unusable()` - Players that meet the condition cannot interact with the entity (e.g. trade with a villager)
-
-#### Additional Methods
-
-- `always()` - Change `spanwable`/`unspawnable` into an absolute value instead of a condition
-- `fromSpawner(spawner: string)` - Add a spawn type
-
-##### Spawn Types
-
-We have a shortened list of spawn types which we are allowing granular spawn restrictions. We want to keep breeding,
-spawn eggs, direct summons, and more interaction-based spawns as-is.
-
-- `natural` - A normal, random spawn
-- `spawner` - A nearby mob spawner block
-- `structure` - A spawn related to a structure (e.g. guardians, wither skeletons)
-- `patrol` - Really a subset of "natural" but related to illager patrols
-- `chunk` - A natural spawn from when the chunk generates (e.g. villager)
-
-#### Examples
-
-```js
-MobSkillEvents.register(event => {
-  // Always prevent blazes from spawning
-  event.restrict('minecraft:blaze', is => is.unspawnable().always());
-
-  // Prevent all vanilla mobs from spawning
-  event.restrict('@minecraft', is => is.unspawnable().always());
-
-  // Prevent all illagers from spawning
-  event.restrict('#raiders', is => is.unspawnable().always());
-
-  // Prevent all vanilla illager patrols from spawning
-  event.restrict('minecraft:*', is => is.unspawnable().fromSpawner("patrol").always());
-
-  // ALLOW creepers to spawn IF ALL players in range have the `started_quest` skill
-  event.restrict("minecraft:creeper", is => is.spawnable(true).if(player => player.can("skills:started_quest")));
-
-  // ALLOW cows to spawn UNLESS ANY players in range have the `started_quest` skill
-  event.restrict("minecraft:cow", is => is.spawnable().unless(player => player.can("skills:started_quest")));
-
-  // DENY zombies from spawning IF ANY player in range has the `started_quest` skill
-  event.restrict('minecraft:zombie', is => is.unspawnable().if(player => player.can('skills:started_quest')));
-
-  // DENY sheep from spawning UNLESS ALL player in range has the `started_quest` skill
-  event.restrict('minecraft:sheep', is => is.unspawnable(true).unless(player => player.can('skills:started_quest')));
-
-  // Players cannot interact with villagers unless they have `started_quest` skill
-  event.restrict("minecraft:villager", is => is.unusable().unless(player => player.can("skills:started_quest")));
-});
-```
-
 ### Item Restrictions Registry Actions
 
 We use the `ItemSkillEvents.register` ***server*** event to register item restrictions. Registration should have a
@@ -552,6 +535,83 @@ ItemSkillEvents.register(event => {
   event.restrict('minecraft:bread', restrict => {
     restrict.everything().visible().unless(player => player.cannot('skills:stage', 2));
   });
+});
+```
+
+### Mob Restrictions Registry Actions
+
+We use the `MobSkillEvents.register` ***server*** event to register mob restrictions.
+
+Spawn restrictions are then calculated at spawn time based on the players in the entity's despawn range (i.e. 128 blocks
+for most mobs). If the players ***match*** the conditions, the restrictions are applied.
+
+Other restrictions are calculated when the player attempts to interact with the mob. If the player matches the
+conditions, the restriction is applied.
+
+Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
+allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
+condition. By default, no restrictions are set, so be sure to set actual
+restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
+
+#### Allow Restriction Methods
+
+- `nothing()` - shorthand to apply all "allow" restrictions
+- `spawnable(matchAllInsteadOfAny?: boolean)` - The mob can spawn if any (or all) players in range match the criteria
+- `usable()` - Players that meet the condition can interact with the entity (e.g. trade with a villager)
+
+#### Deny Restriction Methods
+
+- `everything()` - shorthand to apply the below "deny" abilities
+- `unspawnable(matchAllInsteadOfAny?: boolean)` - The mob cannot spawn if any (or all) players in range match the
+  criteria
+- `unusable()` - Players that meet the condition cannot interact with the entity (e.g. trade with a villager)
+
+#### Additional Methods
+
+- `always()` - Change `spanwable`/`unspawnable` into an absolute value instead of a condition
+- `fromSpawner(spawner: string)` - Add a spawn type
+
+##### Spawn Types
+
+We have a shortened list of spawn types which we are allowing granular spawn restrictions. We want to keep breeding,
+spawn eggs, direct summons, and more interaction-based spawns as-is.
+
+- `natural` - A normal, random spawn
+- `spawner` - A nearby mob spawner block
+- `structure` - A spawn related to a structure (e.g. guardians, wither skeletons)
+- `patrol` - Really a subset of "natural" but related to illager patrols
+- `chunk` - A natural spawn from when the chunk generates (e.g. villager)
+
+#### Examples
+
+```js
+MobSkillEvents.register(event => {
+  // Always prevent blazes from spawning
+  event.restrict('minecraft:blaze', is => is.unspawnable().always());
+
+  // Prevent all vanilla mobs from spawning
+  event.restrict('@minecraft', is => is.unspawnable().always());
+
+  // Prevent all illagers from spawning
+  event.restrict('#raiders', is => is.unspawnable().always());
+
+  // Prevent all vanilla illager patrols from spawning
+  event.restrict('minecraft:*', is => is.unspawnable().fromSpawner("patrol").always());
+
+  // ALLOW creepers to spawn IF ALL players in range have the `started_quest` skill
+  event.restrict("minecraft:creeper", is => is.spawnable(true).if(player => player.can("skills:started_quest")));
+
+  // ALLOW cows to spawn UNLESS ANY players in range have the `started_quest` skill
+  event.restrict("minecraft:cow", is => is.spawnable().unless(player => player.can("skills:started_quest")));
+
+  // DENY zombies from spawning IF ANY player in range has the `started_quest` skill
+  event.restrict('minecraft:zombie', is => is.unspawnable().if(player => player.can('skills:started_quest')));
+
+  // DENY sheep from spawning UNLESS ALL player in range has the `started_quest` skill
+  event.restrict('minecraft:sheep', is => is.unspawnable(true).unless(player => player.can('skills:started_quest')));
+
+  // Players cannot interact with villagers unless they have `started_quest` skill
+  event.restrict("minecraft:villager", is => is.unusable().unless(player => player.can("skills:started_quest")));
 });
 ```
 
@@ -758,6 +818,94 @@ restriction.
   the listed biomes. Example: `.inBiome('#desert')`
 - `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
 
+### Item Restrictions
+
+We use the `mods.playerskills.ItemRestrictions.create` static method to register item restrictions.
+
+Some restrictions are calculated on per-tick basis (e.g. holdable, wearable). Others are calculated when the player
+attempts to interact with the item in hand, in world, or in an inventory. If the player matches the conditions, the
+restriction is applied.
+
+Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
+allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
+condition. By default, no restrictions are set, so be sure to set actual restrictions.
+
+#### Allow Builder Methods
+
+- `nothing()` - shorthand to apply all "allow" restrictions
+- `producible()` - the item is craftable and recipes for crafting it are visible in REI/JEI. This will automatically
+  set `holdable` since it's required
+- `consumable()` - recipes using the item are visible in REI/JEI. This will automatically set `holdable` since it's
+  required
+- `holdable()` - the item can be picked up and held, i.e. the player can hold the item in their inventory
+- `identifiable()` - the item can be identified, i.e. the player can see details in a tooltip about the item
+- `harmful()` - the item can be used as a weapon (if applicable). This will automatically set `holdable` since it's
+  required
+- `wearable()` - the item can be equipped (if applicable). This will automatically set `holdable` since it's required
+- `usable()` - the item can be used (if applicable), e.g. if a water bucket can place water or if a diamond pickaxe can
+  mine obsidian. This will automatically set `holdable` since it's required
+
+#### Deny Builder Methods
+
+- `everything()` - shorthand to apply the below "deny" abilities
+- `unproducible()` - the item is not craftable
+- `unconsumable()` - recipes using the item are hidden in REI/JEI
+- `unholdable()` - the item cannot be picked up
+- `unidentifiable()` - the item cannot be identified
+- `harmless()` - the item cannot be used as a weapon (if applicable)
+- `unwearable()` - the item cannot be equipped (if applicable)
+- `unusable()` - the item cannot be used (if applicable)
+
+#### Examples
+
+```js
+// Vanilla items cannot be used at all unless player is at stage 2 (or later)
+ItemRestrictions.create("minecraft:*")
+  .everything()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Vanilla items cannot be crafted at all unless player is at stage 2 (or later)
+ItemRestrictions.create("@minecraft")
+  .unproducible()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Any item tagged as wool cannot be used
+ItemRestrictions.create("#minecraft:wool")
+  .everything()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Bed item cannot be used/placed at all unless player is at stage 2 (or later)
+ItemRestrictions.create("#minecraft:white_bed")
+  .usable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// Bread can be picked up and used in other recipes if player is at stage 1 or below but it can be eaten and held
+ItemRestrictions.create("#minecraft:bread")
+  .everything()
+  .holdable()
+  .consumable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+// The following two restrictions does not result in the same effects as above: everything will still be denied to the player
+ItemRestrictions.create("#minecraft:bread")
+  .everything()
+  .holdable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+ItemRestrictions.create("#minecraft:bread")
+  .everything()
+  .consumable()
+  .condition((player) => player.cannot("skills:stage", 2))
+  .save();
+
+```
+
 ### Mob Restrictions
 
 We use the `mods.playerskills.MobRestrictions.create` static method to register mob restrictions.
@@ -859,94 +1007,6 @@ MobSkillEvents.create('minecraft:blaze')
     .unusable()
     .unless(player => player.can("skills:started_quest"))
     .save();
-```
-
-### Item Restrictions
-
-We use the `mods.playerskills.ItemRestrictions.create` static method to register item restrictions.
-
-Some restrictions are calculated on per-tick basis (e.g. holdable, wearable). Others are calculated when the player
-attempts to interact with the item in hand, in world, or in an inventory. If the player matches the conditions, the
-restriction is applied.
-
-Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
-allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
-condition. By default, no restrictions are set, so be sure to set actual restrictions.
-
-#### Allow Builder Methods
-
-- `nothing()` - shorthand to apply all "allow" restrictions
-- `producible()` - the item is craftable and recipes for crafting it are visible in REI/JEI. This will automatically
-  set `holdable` since it's required
-- `consumable()` - recipes using the item are visible in REI/JEI. This will automatically set `holdable` since it's
-  required
-- `holdable()` - the item can be picked up and held, i.e. the player can hold the item in their inventory
-- `identifiable()` - the item can be identified, i.e. the player can see details in a tooltip about the item
-- `harmful()` - the item can be used as a weapon (if applicable). This will automatically set `holdable` since it's
-  required
-- `wearable()` - the item can be equipped (if applicable). This will automatically set `holdable` since it's required
-- `usable()` - the item can be used (if applicable), e.g. if a water bucket can place water or if a diamond pickaxe can
-  mine obsidian. This will automatically set `holdable` since it's required
-
-#### Deny Builder Methods
-
-- `everything()` - shorthand to apply the below "deny" abilities
-- `unproducible()` - the item is not craftable
-- `unconsumable()` - recipes using the item are hidden in REI/JEI
-- `unholdable()` - the item cannot be picked up
-- `unidentifiable()` - the item cannot be identified
-- `harmless()` - the item cannot be used as a weapon (if applicable)
-- `unwearable()` - the item cannot be equipped (if applicable)
-- `unusable()` - the item cannot be used (if applicable)
-
-#### Examples
-
-```js
-// Vanilla items cannot be used at all unless player is at stage 2 (or later)
-ItemRestrictions.create("minecraft:*")
-  .everything()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Vanilla items cannot be crafted at all unless player is at stage 2 (or later)
-ItemRestrictions.create("@minecraft")
-  .unproducible()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Any item tagged as wool cannot be used
-ItemRestrictions.create("#minecraft:wool")
-  .everything()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Bed item cannot be used/placed at all unless player is at stage 2 (or later)
-ItemRestrictions.create("#minecraft:white_bed")
-  .usable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Bread can be picked up and used in other recipes if player is at stage 1 or below but it can be eaten and held
-ItemRestrictions.create("#minecraft:bread")
-  .everything()
-  .holdable()
-  .consumable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// The following two restrictions does not result in the same effects as above: everything will still be denied to the player
-ItemRestrictions.create("#minecraft:bread")
-  .everything()
-  .holdable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-ItemRestrictions.create("#minecraft:bread")
-  .everything()
-  .consumable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
 ```
 
 ## Java API

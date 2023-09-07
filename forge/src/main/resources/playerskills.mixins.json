@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.impleri.playerskills.mixins.forge",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MixinBlock",
+    "MixinLavaFluid"
+  ],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
