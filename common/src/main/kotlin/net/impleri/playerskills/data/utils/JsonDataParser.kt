@@ -2,7 +2,6 @@ package net.impleri.playerskills.data.utils
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-
 interface JsonDataParser {
   fun getValue(
     raw: JsonObject,

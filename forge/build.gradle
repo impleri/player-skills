@@ -1,0 +1,57 @@
+def minecraftVersion = property("minecraft_version")
+def scalaVersion = property("scala_forge_version")
+def slpVersion = property("slp_forge_version")
+def forgeVersion = property("forge_version")
+def architecturyVersion = property("architectury_version")
+def kubejsVersion = property("kubejs_version")
+def craftTweakerVersion = property("crafttweaker_version")
+def ftbQuestsVersion = property("ftb_quests_version")
+def ftbTeamsVersion = property("ftb_teams_version")
+def reiVersion = property("rei_version")
+def jeiVersion = property("jei_version")
+def curiosVersion = property("curios_version")
+
+unifiedPublishing {
+    project {
+        relations {
+            optional {
+                curseforge = "ftb-quests"
+            }
+
+            optional {
+                curseforge = "ftb-teams"
+            }
+
+            optional {
+                curseforge = "curios"
+                modrinth = "curios"
+            }
+        }
+    }
+}
+
+dependencies {
+    // The language loader. You can put the jar to the mods dir instead of declaring in `build.gradle`.
+    // This file is needed as the scala library will not be loaded in dev environment due to change of classpath by Forge.
+    runtimeOnly "com.kotori316:scalablecatsforce:$scalaVersion-build-$slpVersion:with-library" transitive false
+
+    forge "net.minecraftforge:forge:$minecraftVersion-$forgeVersion"
+    modImplementation "dev.architectury:architectury-forge:$architecturyVersion"
+
+    modImplementation "dev.latvian.mods:kubejs-forge:$kubejsVersion"
+    modApi "com.blamejared.crafttweaker:CraftTweaker-forge-$minecraftVersion:$craftTweakerVersion"
+
+    modImplementation "dev.ftb.mods:ftb-quests-forge:$ftbQuestsVersion"
+    modImplementation "dev.ftb.mods:ftb-teams-forge:$ftbTeamsVersion"
+
+    compileOnly "me.shedaniel:RoughlyEnoughItems-api-forge:$reiVersion"
+    compileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-forge:$reiVersion"
+    modImplementation "me.shedaniel:RoughlyEnoughItems-forge:$reiVersion"
+
+    compileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
+    compileOnly "mezz.jei:jei-$minecraftVersion-forge-api:$jeiVersion"
+    modImplementation "mezz.jei:jei-$minecraftVersion-forge:$jeiVersion"
+
+    compileOnly "top.theillusivec4.curios:curios-forge:$minecraftVersion-$curiosVersion:api"
+    modRuntimeOnly "top.theillusivec4.curios:curios-forge:$minecraftVersion-$curiosVersion"
+}

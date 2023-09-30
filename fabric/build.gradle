@@ -1,0 +1,75 @@
+def minecraftVersion = property("minecraft_version")
+def scalaVersion = property("scala_version")
+def slpVersion = property("slp_fabric_version")
+def architecturyVersion = property("architectury_version")
+def fabricLoaderVersion = property("fabric_loader_version")
+def fabricApiVersion = property("fabric_api_version")
+def kubejsVersion = property("kubejs_version")
+def craftTweakerVersion = property("crafttweaker_version")
+def ftbQuestsVersion = property("ftb_quests_version")
+def ftbTeamsVersion = property("ftb_teams_version")
+def reiVersion = property("rei_version")
+def jeiVersion = property("jei_version")
+def trinketsVersion = property("trinkets_version")
+
+unifiedPublishing {
+    project {
+        relations {
+            depends {
+                curseforge = "fabric-api"
+                modrinth = "fabric-api"
+            }
+
+            optional {
+                curseforge = "ftb-quests-fabric"
+            }
+
+            optional {
+                curseforge = "ftb-teams-fabric"
+            }
+
+            optional {
+                curseforge = "trinkets"
+                modrinth = "trinkets"
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = "TerraformersMC"
+        url = uri("https://maven.terraformersmc.com/")
+    }
+    maven {
+        name = "Ladysnake Libs"
+        url = uri("https://ladysnake.jfrog.io/artifactory/mods")
+    }
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-language-scala:$slpVersion+scala.$scalaVersion"
+
+    modImplementation "net.fabricmc:fabric-loader:$fabricLoaderVersion"
+    modApi "net.fabricmc.fabric-api:fabric-api:$fabricApiVersion+$minecraftVersion"
+
+    modApi "dev.architectury:architectury-fabric:$architecturyVersion"
+
+    modImplementation "dev.latvian.mods:kubejs-fabric:$kubejsVersion"
+    modApi "com.blamejared.crafttweaker:CraftTweaker-fabric-$minecraftVersion:$craftTweakerVersion"
+
+    modImplementation "dev.ftb.mods:ftb-quests-fabric:$ftbQuestsVersion"
+    modImplementation "dev.ftb.mods:ftb-teams-fabric:$ftbTeamsVersion"
+
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:$reiVersion"
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:$reiVersion"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:$reiVersion"
+
+    modCompileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
+    modCompileOnly "mezz.jei:jei-$minecraftVersion-fabric-api:$jeiVersion"
+    modRuntimeOnly "mezz.jei:jei-$minecraftVersion-fabric:$jeiVersion"
+
+    // TODO: Temorarily add this dependency until we can update to 1.20 which has the fix to bundle it correctly for trinkets
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.0-beta.1"
+    modApi "dev.emi:trinkets:$trinketsVersion"
+}

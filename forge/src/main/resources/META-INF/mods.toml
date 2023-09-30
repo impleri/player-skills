@@ -1,5 +1,5 @@
-modLoader = "javafml"
-loaderVersion = "[43,)"
+modLoader = "kotori_scala"
+loaderVersion = "[2.13.8,2.14.0)"
 issueTrackerURL = "https://github.com/impleri/player-skills/issues"
 license = "MIT"
 
@@ -31,54 +31,54 @@ side = "BOTH"
 modId = "architectury"
 mandatory = true
 versionRange = "[6.2,)"
-ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.playerskills]]
-modId = "kubejs"
-mandatory = false
-versionRange = "[1902.6,)"
-ordering = "BEFORE"
-side = "BOTH"
-
-[[dependencies.playerskills]]
-modId = "crafttweaker"
-mandatory = false
-versionRange = "[10.1,)"
-ordering = "BEFORE"
-side = "BOTH"
-
-[[dependencies.playerskills]]
-modId = "ftb-teams"
-mandatory = false
-versionRange = "[1902.0,)"
-ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.playerskills]]
-modId = "ftb-quests"
-mandatory = false
-versionRange = "[1902.0,)"
-ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.playerskills]]
-modId = "curios"
-mandatory = false
-versionRange = "[1.19.2-5.1,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.playerskills]]
-modId = "roughlyenoughitems"
-mandatory = false
-versionRange = "[9,)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.playerskills]]
-modId = "jei"
-mandatory = false
-versionRange = "[11,)"
-ordering = "NONE"
-side = "BOTH"
+#[[dependencies.playerskills]]
+#modId = "kubejs"
+#mandatory = false
+#versionRange = "[1902.6,)"
+#ordering = "NONE"
+#side = "BOTH"
+#
+#[[dependencies.playerskills]]
+#modId = "crafttweaker"
+#mandatory = false
+#versionRange = "[10.1,)"
+#ordering = "NONE"
+#side = "BOTH"
+#
+#[[dependencies.playerskills]]
+#modId = "ftb-teams"
+#mandatory = false
+#versionRange = "[1902.0,)"
+#ordering = "NONE"
+#side = "BOTH"
+#
+#[[dependencies.playerskills]]
+#modId = "ftb-quests"
+#mandatory = false
+#versionRange = "[1902.0,)"
+#ordering = "NONE"
+#side = "BOTH"
+#
+#[[dependencies.playerskills]]
+#modId = "curios"
+#mandatory = false
+#versionRange = "[1.19.2-5.1,)"
+#ordering = "NONE"
+#side = "BOTH"
+#
+#[[dependencies.playerskills]]
+#modId = "roughlyenoughitems"
+#mandatory = false
+#versionRange = "[9,)"
+#ordering = "NONE"
+#side = "BOTH"
+#
+#[[dependencies.playerskills]]
+#modId = "jei"
+#mandatory = false
+#versionRange = "[11,)"
+#ordering = "NONE"
+#side = "BOTH"
