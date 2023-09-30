@@ -1018,7 +1018,7 @@ a `DeferredRegister` to ensure it is happens at the right time.
 package my.custom.mod;
 
 import dev.architectury.registry.registries.DeferredRegister;
-import net.impleri.playerskills.api.Skill;
+import net.impleri.playerskills.api.skills.Skill;
 import net.impleri.playerskills.api.SkillType;
 import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.core.Registry;

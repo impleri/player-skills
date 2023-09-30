@@ -1,0 +1,25 @@
+def minecraftVersion = property("minecraft_version")
+def fabricLoaderVersion = property("fabric_loader_version")
+def architecturyVersion = property("architectury_version")
+def kubejsVersion = property("kubejs_version")
+def craftTweakerVersion = property("crafttweaker_version")
+def ftbQuestsVersion = property("ftb_quests_version")
+def ftbTeamsVersion = property("ftb_teams_version")
+def reiVersion = property("rei_version")
+def jeiVersion = property("jei_version")
+
+dependencies {
+  modImplementation "net.fabricmc:fabric-loader:$fabricLoaderVersion"
+  modApi "dev.architectury:architectury:$architecturyVersion"
+
+  modCompileOnly "dev.latvian.mods:kubejs:$kubejsVersion"
+  modCompileOnly "com.blamejared.crafttweaker:CraftTweaker-common-$minecraftVersion:$craftTweakerVersion"
+
+  modCompileOnly "dev.ftb.mods:ftb-teams:$ftbTeamsVersion"
+  modCompileOnly "dev.ftb.mods:ftb-quests:$ftbQuestsVersion"
+
+  modCompileOnly "me.shedaniel:RoughlyEnoughItems-api:$reiVersion"
+  modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin:$reiVersion"
+
+  modCompileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
+}

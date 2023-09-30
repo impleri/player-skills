@@ -21,17 +21,12 @@
     ],
     "client": [
       "net.impleri.playerskills.client.fabric.PlayerSkillsClientFabric"
-    ],
-    "rei_client": [
-      "net.impleri.playerskills.integrations.rei.PlayerSkillsReiPlugin"
-    ],
-    "jei_mod_plugin": [
-      "net.impleri.playerskills.integrations.jei.PlayerSkillsJeiPlugin"
     ]
   },
   "mixins": [],
   "depends": {
     "fabric": "*",
+    "fabric-language-scala": "*",
     "minecraft": "1.19.2",
     "architectury": ">=6.2.0"
   },

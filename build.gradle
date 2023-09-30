@@ -1,0 +1,313 @@
+plugins {
+    id "scala"
+    id "maven-publish"
+    id "architectury-plugin" version "3.4+"
+    id "dev.architectury.loom" version "1.2+" apply false
+    id "com.github.johnrengelman.shadow" version "7.1.2" apply false
+    id "me.shedaniel.unified-publishing" version "0.1.+" apply false
+    id "com.github.jmongard.git-semver-plugin" version "0.4+"
+}
+
+def mavenGroup = property "maven_group"
+def scala_version = property "scala_version"
+def minecraftVersion = property "minecraft_version"
+def forgeVersion = property "forge_version"
+def architecturyVersion = property "architectury_version"
+def modId = property "archives_base_name"
+
+def enabledPlatforms = property "enabled_platforms"
+def platforms = enabledPlatforms.split(",")
+
+semver {
+    releaseTagNameFormat = "$minecraftVersion-%s"
+    minorPattern = "\\Afeat(ure)?(?:\\(\\w+\\))?:"
+}
+
+def buildVersion = semver.version
+
+subprojects {
+    apply plugin: "scala"
+    apply plugin: "maven-publish"
+    apply plugin: "architectury-plugin"
+    apply plugin: "dev.architectury.loom"
+
+    version = buildVersion
+    group = mavenGroup
+
+    java {
+        withSourcesJar()
+    }
+
+    architectury {
+        minecraft = minecraftVersion
+    }
+
+    loom {
+        silentMojangMappingsLicense()
+
+        def accessWidenerFile = project(":common").file("src/main/resources/${modId}.accesswidener")
+
+        if (accessWidenerFile.exists()) {
+            accessWidenerPath = accessWidenerFile
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "impleri-dev"
+                url = uri("https://maven.impleri.org/minecraft")
+                credentials {
+                    username = System.getenv("MAVEN_USER")
+                    password = System.getenv("MAVEN_TOKEN")
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri("https://maven.impleri.org/minecraft")
+        }
+        maven {
+            name = "Azure-SLP"
+            url = uri("https://pkgs.dev.azure.com/Kotori316/minecraft/_packaging/mods/maven/v1")
+            content {
+                includeGroup "com.kotori316"
+                includeGroup "org.typelevel"
+            }
+        }
+        maven {
+            url = uri("https://maven.architectury.dev")
+            content {
+                includeGroup "dev.architectury"
+            }
+        }
+        maven {
+            url = uri("https://maven.blamejared.com")
+        }
+        maven {
+            url = uri("https://maven.saps.dev/minecraft")
+            content {
+                includeGroup "dev.latvian.mods"
+                includeGroup "dev.ftb.mods"
+            }
+        }
+        maven {
+            url = uri("https://maven.shedaniel.me")
+        }
+        maven {
+            // location of the maven that hosts JEI files
+            name = "Progwml6 maven"
+            url = uri("https://dvs1.progwml6.com/files/maven/")
+        }
+        maven {
+            // location of a maven mirror for JEI files, as a fallback
+            name = "ModMaven"
+            url = uri("https://modmaven.dev")
+        }
+
+        mavenCentral()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:$minecraftVersion"
+        mappings loom.officialMojangMappings()
+        compileOnly "me.shedaniel:REIPluginCompatibilities-forge-annotations:9+"
+        compileOnly "org.scala-lang:scala-library:$scala_version"
+
+        testImplementation "org.scala-lang:scala-library:$scala_version"
+        testImplementation "org.scalactic:scalactic_2.13:3.2.17"
+        testImplementation "org.scalatest:scalatest_2.13:3.2.17"
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+        testImplementation "org.junit.platform:junit-platform-launcher:1.10.0"
+        testRuntimeOnly "org.junit.platform:junit-platform-engine:1.10.0"
+        testRuntimeOnly 'org.scalatestplus:junit-5-10_2.13:3.2.17.0'
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.release = 17
+    }
+
+    test {
+        useJUnitPlatform {
+            includeEngines "scalatest"
+            testLogging {
+                events("passed", "skipped", "failed")
+            }
+        }
+
+        maxHeapSize = '1G'
+    }
+}
+
+project(":common") {
+    architectury {
+        common(platforms)
+    }
+
+    project.base.archivesName = modId
+
+    publishing {
+        publications {
+            "maven${project.name.capitalize()}"(MavenPublication) {
+                artifactId = modId
+                groupId = project.group.toString()
+                version = "$minecraftVersion-${project.version}"
+
+                from components.java
+            }
+        }
+    }
+}
+
+for (platform in platforms) {
+    project(":$platform") {
+        apply plugin: "com.github.johnrengelman.shadow"
+        apply plugin: "me.shedaniel.unified-publishing"
+
+        project.base.archivesName = "$modId-${project.name}"
+
+        architectury {
+            platformSetupLoomIde()
+            "$platform"()
+        }
+
+        publishing {
+            publications {
+                "maven${project.name.capitalize()}"(MavenPublication) {
+                    artifactId = modId
+                    groupId = project.group.toString()
+                    version = "$minecraftVersion-${project.name}-${project.version}"
+
+                    from components.java
+                }
+            }
+        }
+
+        unifiedPublishing {
+            project {
+                displayName = "[${project.name.capitalize()} $minecraftVersion] v$buildVersion"
+                gameVersions = [minecraftVersion]
+                gameLoaders = [project.name]
+
+                mainPublication project.tasks.getByName("remapJar")
+
+                relations {
+                    depends {
+                        curseforge = "architectury-api"
+                        modrinth = "architectury-api"
+                    }
+
+                    optional {
+                        curseforge = "roughly-enough-items"
+                        modrinth = "rei"
+                    }
+
+                    optional {
+                        curseforge = "jei"
+                        modrinth = "jei"
+                    }
+
+                    optional {
+                        curseforge = "crafttweaker"
+                        modrinth = "crafttweaker"
+                    }
+
+                    optional {
+                        curseforge = "kubejs"
+                        modrinth = "kubejs"
+                    }
+                }
+
+                def curseId = System.getenv("CURSEFORGE_ID")
+                def curseToken = System.getenv("CURSEFORGE_TOKEN")
+                if (curseToken != null) {
+                    curseforge {
+                        token = curseToken
+                        id = curseId
+                    }
+                }
+
+                def modrinthId = System.getenv("MODRINTH_ID")
+                def modrinthToken = System.getenv("MODRINTH_TOKEN")
+                if (modrinthToken != null) {
+                    modrinth {
+                        token = modrinthToken
+                        id = modrinthId
+                    }
+                }
+            }
+        }
+
+        configurations {
+            common
+            shadowCommon
+            compileClasspath.extendsFrom(common)
+            runtimeClasspath.extendsFrom(common)
+            named("development${platform.capitalize()}").get().extendsFrom(common)
+        }
+
+        dependencies {
+            common(project(path: ":common", configuration: "namedElements")) { transitive false }
+            shadowCommon(
+                    project(
+                            path: ":common",
+                            configuration: "transformProduction${platform.capitalize()}",
+                    ),
+            ) { transitive false }
+        }
+
+        tasks {
+            processResources {
+                def commonProps = [
+                        "modId"              : modId,
+                        "version"            : buildVersion,
+                        "minecraftVersion"   : minecraftVersion,
+                        "forgeVersion"       : forgeVersion,
+                        "architecturyVersion": architecturyVersion,
+                ] + project.properties
+
+                filesMatching("fabric.mod.json") {
+                    expand(commonProps)
+                }
+                filesMatching("META-INF/mods.toml") {
+                    expand(commonProps)
+                }
+            }
+
+            shadowJar {
+                exclude "architectury.common.json"
+                configurations = [project.configurations.shadowCommon]
+                archiveClassifier = "dev-shadow"
+            }
+
+            remapJar {
+                inputFile.set shadowJar.archiveFile
+                dependsOn shadowJar
+                archiveClassifier = null
+                injectAccessWidener = true
+            }
+
+            jar {
+                archiveClassifier = "dev"
+            }
+
+            sourcesJar {
+                def commonSources = project(":common").sourcesJar
+                dependsOn commonSources
+                from commonSources.archiveFile.map { zipTree(it) }
+            }
+        }
+
+        components.java {
+            withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+                skip()
+            }
+        }
+    }
+}
