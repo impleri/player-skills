@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    uses: impleri/automatic-skills/.github/workflows/build.yml@main
+    uses: impleri/automatic-skills/.github/workflows/build-and-test.yml@main
 
   publish:
     uses: impleri/automatic-skills/.github/workflows/publish.yml@main
