@@ -20,3 +20,4 @@ classes/
 .architectury-transformer
 
 /.env
+/common/logs

@@ -7,13 +7,7 @@ import java.io.File
 import java.util.UUID
 import scala.util.chaining._
 
-object SkillStorage {
-  private val storage: PersistentStorage = SkillNbtStorage()
-
-  def setup(server: MinecraftServer): Unit = SkillResourceFile.createInstance(server)
-
-  def cleanup(): Unit = SkillResourceFile.destroyInstance()
-
+class SkillStorage(private val storage: PersistentStorage) {
   private def readFile(file: File): Either[NbtFileReadError, List[String]] =
     file
       .tap(f => PlayerSkillsLogger.SKILLS.debug(s"Reading from file ${f.getPath}"))
@@ -33,4 +27,18 @@ object SkillStorage {
     SkillResourceFile.forPlayer(playerId)
       .toRight(WriteBeforeServerLoaded())
       .flatMap(writeToFile(skills))
+}
+
+object SkillStorage {
+  private lazy val instance: SkillStorage = apply()
+
+  def apply(storage: PersistentStorage = SkillNbtStorage()): SkillStorage = new SkillStorage(storage)
+
+  def setup(server: MinecraftServer): Unit = SkillResourceFile.createInstance(server)
+
+  def cleanup(): Unit = SkillResourceFile.destroyInstance()
+
+  def read(playerId: UUID): Either[NbtFileReadError, List[String]] = instance.read(playerId)
+
+  def write(playerId: UUID, skills: List[String]): Either[NbtFileWriteError, Boolean] = instance.write(playerId, skills)
 }
