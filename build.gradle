@@ -28,6 +28,21 @@ semver {
 
 def buildVersion = semver.version
 
+dependencies {
+    compileOnly "org.scala-lang:scala-library:$scala_version"
+
+    testImplementation "org.scala-lang:scala-library:$scala_major_version"
+    testImplementation "org.scalactic:scalactic_$scala_major_version:3.2.17"
+    testImplementation "org.scalatest:scalatest_$scala_major_version:3.2.17"
+    testImplementation "org.mockito:mockito-scala_$scala_major_version:1.17.27"
+    testImplementation "org.mockito:mockito-scala-scalatest_$scala_major_version:1.17.27"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+    testImplementation "org.junit.platform:junit-platform-launcher:1.10.0"
+    testRuntimeOnly "org.junit.platform:junit-platform-engine:1.10.0"
+    testRuntimeOnly "org.scalatestplus:junit-5-10_$scala_major_version:3.2.17.0"
+    testRuntimeOnly "org.scalatestplus:junit-5-10_$scala_major_version:3.2.17.0"
+}
+
 subprojects {
     apply plugin: "scala"
     apply plugin: "jacoco"

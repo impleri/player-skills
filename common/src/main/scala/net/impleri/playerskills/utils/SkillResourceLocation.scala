@@ -21,7 +21,6 @@ object SkillResourceLocation {
   def of(value: String): Option[ResourceLocation] = value match {
     case s"$namespace:$path" => of(namespace, path)
     case path if !value.contains(":") => of(DEFAULT_NAMESPACE, path)
-    case _ => None
   }
 
   def ofMinecraft(value: String): Option[ResourceLocation] =

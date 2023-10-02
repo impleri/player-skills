@@ -26,7 +26,6 @@ class SkillResourceLocationSpec extends BaseSpec {
   }
 
   "SkillResourceLocation.ofMinecraft" should "return the vanilla parsed ResourceLocation if parsing succeeds" in {
-    val expected = new ResourceLocation("skills", "example")
     SkillResourceLocation.ofMinecraft(s"$namespace:$path") should be (Some(defaultResource))
   }
 
