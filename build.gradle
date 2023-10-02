@@ -1,6 +1,8 @@
 plugins {
     id "scala"
     id "maven-publish"
+    id "jacoco"
+    id "net.razvan.jacoco-to-cobertura" version "1.2+"
     id "architectury-plugin" version "3.4+"
     id "dev.architectury.loom" version "1.2+" apply false
     id "com.github.johnrengelman.shadow" version "7.1.2" apply false
@@ -28,6 +30,7 @@ def buildVersion = semver.version
 
 subprojects {
     apply plugin: "scala"
+    apply plugin: "jacoco"
     apply plugin: "maven-publish"
     apply plugin: "architectury-plugin"
     apply plugin: "dev.architectury.loom"
@@ -146,7 +149,25 @@ subprojects {
         }
 
         maxHeapSize = '1G'
+        finalizedBy jacocoTestReport
     }
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            csv.required = true
+        }
+        finalizedBy jacocoToCobertura
+    }
+
+    jacocoToCobertura {
+        dependsOn jacocoTestReport
+        inputFile = project(":common").layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
+        outputFile = project(":common").layout.buildDirectory.file("reports/jacoco/test/cobertura.xml")
+        sourceDirectories.from(project(":common").layout.buildDirectory.dir("reports/jacoco/test"))
+    }
+
 }
 
 project(":common") {
