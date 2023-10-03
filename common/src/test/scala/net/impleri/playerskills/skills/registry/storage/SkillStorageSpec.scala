@@ -65,8 +65,27 @@ class SkillStorageSpec extends BaseSpec {
     val target = new SkillStorage(storageMock)
     val uuid = UUID.randomUUID()
 
-    val received = target.write(uuid, List.empty)
+    SkillResourceFile.instance = None
+    val received = target.write(uuid, List("skills"))
 
     received.left.value should be (WriteBeforeServerLoaded())
+  }
+
+  it should "return success" in {
+    val storageMock = mock[PersistentStorage]
+    val resourceMock = mock[SkillResourceFile]
+    val file = new File("/tmp")
+
+    val uuid = UUID.randomUUID()
+
+    resourceMock.getPlayerFile(uuid) returns file
+    storageMock.write(file, *) returns Right(true)
+
+    SkillResourceFile.instance = Some(resourceMock)
+    val target = new SkillStorage(storageMock)
+
+    val received = target.write(uuid, List("skills"))
+
+    received.value should be (true)
   }
 }
