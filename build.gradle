@@ -171,16 +171,16 @@ subprojects {
         dependsOn test
         reports {
             xml.required = true
-            csv.required = true
+            xml.outputLocation = rootProject.file("reports/jacoco.xml")
         }
         finalizedBy jacocoToCobertura
     }
 
     jacocoToCobertura {
         dependsOn jacocoTestReport
-        inputFile = project(":common").layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
-        outputFile = project(":common").layout.buildDirectory.file("reports/jacoco/test/cobertura.xml")
-        sourceDirectories.from(project(":common").layout.buildDirectory.dir("reports/jacoco/test"))
+        inputFile = rootProject.file("reports/jacoco.xml")
+        outputFile = rootProject.file("reports/cobertura.xml")
+        sourceDirectories.from(project(":common").layout.projectDirectory.file("src/main/scala"))
     }
 
 }
