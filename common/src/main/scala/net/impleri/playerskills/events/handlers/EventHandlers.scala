@@ -18,4 +18,6 @@ object EventHandlers {
   }
 
   def resync(playerId: UUID): Unit = INTERNAL.resyncPlayer(server, playerId)
+
+  lazy val withServer: MinecraftServer = server.get
 }

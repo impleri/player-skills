@@ -2,6 +2,7 @@ package net.impleri.playerskills.skills.registry
 
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
+import net.impleri.playerskills.events.handlers.EventHandlers
 import net.impleri.playerskills.skills.registry.storage.SkillFileMissing
 import net.impleri.playerskills.skills.registry.storage.SkillStorage
 import net.impleri.playerskills.utils.PlayerSkillsLogger
@@ -44,8 +45,9 @@ sealed trait CachedPlayers {
  * Handles the I/O side of interacting with player skills
  */
 trait PersistedPlayers {
+  protected def storage: () => SkillStorage
   protected def readFromStorage(playerId: UUID): Option[List[Skill[_]]] =
-    SkillStorage.read(playerId)
+    storage().read(playerId)
       .tap {
         case Right(_) => PlayerSkillsLogger.SKILLS.debug(s"Restoring saved skills for $playerId")
         case Left(SkillFileMissing(_)) => ()
@@ -57,7 +59,7 @@ trait PersistedPlayers {
   private def serializeSkills(skills: List[Skill[_]]): List[String] = skills.flatMap(SkillType.serialize(_))
 
   protected def writeToStorage(playerId: UUID, skills: List[Skill[_]]): Boolean =
-    SkillStorage.write(playerId, serializeSkills(skills))
+    storage().write(playerId, serializeSkills(skills))
       .tap {
         case Right(_) => PlayerSkillsLogger.SKILLS.info(s"Saving skills for $playerId")
         case Left(e) => PlayerSkillsLogger.SKILLS.warn(e.toString)
@@ -70,6 +72,7 @@ trait PersistedPlayers {
  * Orchestrated handling of player skills
  */
 object Players extends CachedPlayers with PersistedPlayers {
+  override def storage: () => SkillStorage = () => EventHandlers.withServer.pipe(SkillStorage.apply)
   private def save(playerId: UUID, skills: List[Skill[_]]): Boolean = {
     writeToCache(playerId, skills)
     writeToStorage(playerId, skills)

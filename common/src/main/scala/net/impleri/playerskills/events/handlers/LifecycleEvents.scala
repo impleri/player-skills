@@ -27,9 +27,6 @@ case class LifecycleEvents(onServerChange: Option[MinecraftServer] => Unit) {
 
   private def beforeServerStart(server: MinecraftServer): Unit = {
     onServerChange(Some(server))
-
-    // Connect Player Skills Registry file storage
-    SkillStorage.setup(server)
   }
 
   private def onServerStart(): Unit = {
