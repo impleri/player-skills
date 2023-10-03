@@ -4,6 +4,7 @@ import net.impleri.playerskills.BaseSpec
 import net.minecraft.server.MinecraftServer
 
 import java.nio.file.Path
+import java.util.UUID
 
 class SkillStorageSpec extends BaseSpec {
   "SkillStorage.setup" should "prepare SkillResourceFile" in {
@@ -25,5 +26,16 @@ class SkillStorageSpec extends BaseSpec {
     SkillStorage.cleanup()
 
     SkillResourceFile.instance should be (None)
+  }
+
+  "SkillStorage.read" should "error if server hasn't been set up" in {
+    val storageMock = mock[PersistentStorage]
+
+    val target = new SkillStorage(storageMock)
+    val uuid = UUID.randomUUID()
+
+    val received = target.read(uuid)
+
+    received.left.value should be (ReadBeforeServerLoaded())
   }
 }
