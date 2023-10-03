@@ -29,9 +29,9 @@ class SkillStorage(private val storage: PersistentStorage) {
 }
 
 object SkillStorage {
-  private lazy val instance: SkillStorage = apply()
+  private[storage] lazy val instance: SkillStorage = apply()
 
-  def apply(storage: PersistentStorage = SkillNbtStorage()): SkillStorage = new SkillStorage(storage)
+  private[storage] def apply(storage: PersistentStorage = SkillNbtStorage()): SkillStorage = new SkillStorage(storage)
 
   def setup(server: MinecraftServer): Unit = SkillResourceFile.createInstance(server)
 
