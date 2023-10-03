@@ -23,7 +23,8 @@ class SkillResourceFile private[storage] (private[storage] val storage: Path) {
       .pipe(new File(_, "players"))
       .tap(_.mkdirs())
 
-  private def getPlayerFile(playerId: UUID): File =
+  @VisibleForTesting
+  protected[storage] def getPlayerFile(playerId: UUID): File =
     playerDirectory
       .pipe(new File(_, s"$playerId.skills"))
 }
