@@ -3,6 +3,7 @@ package net.impleri.playerskills.skills.registry.storage
 import net.impleri.playerskills.BaseSpec
 import net.minecraft.server.MinecraftServer
 
+import java.io.File
 import java.nio.file.Path
 import java.util.UUID
 
@@ -37,5 +38,24 @@ class SkillStorageSpec extends BaseSpec {
     val received = target.read(uuid)
 
     received.left.value should be (ReadBeforeServerLoaded())
+  }
+
+  it should "return file contents" in {
+    val returnedContents = List("file-contents")
+    val storageMock = mock[PersistentStorage]
+    val resourceMock = mock[SkillResourceFile]
+    val file = new File("/tmp")
+
+    val uuid = UUID.randomUUID()
+
+    resourceMock.getPlayerFile(uuid) returns file
+    storageMock.read(file) returns Right(returnedContents)
+
+    SkillResourceFile.instance = Some(resourceMock)
+    val target = new SkillStorage(storageMock)
+
+    val received = target.read(uuid)
+
+    received.value should be (returnedContents)
   }
 }
