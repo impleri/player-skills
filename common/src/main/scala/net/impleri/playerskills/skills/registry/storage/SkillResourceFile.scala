@@ -30,20 +30,10 @@ class SkillResourceFile private[storage] (private[storage] val storage: Path) {
 }
 
 object SkillResourceFile {
-  @VisibleForTesting
-  private[storage] var instance: Option[SkillResourceFile] = None
+  private[storage] def apply(storage: Path): SkillResourceFile = new SkillResourceFile(storage)
 
-  private def apply(storage: Path): SkillResourceFile = new SkillResourceFile(storage)
-
-  protected[storage] def createInstance(server: MinecraftServer): Unit =
-    instance = new LevelResource(PlayerSkills.MOD_ID)
+  protected[storage] def apply(server: MinecraftServer): SkillResourceFile =
+    new LevelResource(PlayerSkills.MOD_ID)
       .pipe(server.getWorldPath)
       .pipe(apply)
-      .pipe(Option(_))
-
-  protected[storage] def destroyInstance(): Unit = instance = None
-
-  protected[storage] def forPlayer(playerId: UUID): Option[File] =
-    instance
-      .map(_.getPlayerFile(playerId))
 }
