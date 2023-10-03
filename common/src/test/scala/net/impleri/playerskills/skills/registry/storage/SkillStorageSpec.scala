@@ -62,7 +62,7 @@ class SkillStorageSpec extends BaseSpec {
   "SkillStorage.write" should "error if server hasn't been set up" in {
     val storageMock = mock[PersistentStorage]
 
-    val target = new SkillStorage(storageMock)
+    val target = SkillStorage(storageMock)
     val uuid = UUID.randomUUID()
 
     SkillResourceFile.instance = None
