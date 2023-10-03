@@ -21,3 +21,6 @@ classes/
 
 /.env
 /common/logs
+reports/
+/cc-test-reporter
+/codeclimate.json
