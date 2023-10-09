@@ -1,26 +1,30 @@
 package net.impleri.playerskills.api.skills
 
-import net.impleri.playerskills.skills.registry.Skills
+import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.resources.ResourceLocation
 
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 trait Skill[T] extends SkillData[T] with ChangeableSkill[T] with TranslatableSkill[T]
 
+/**
+ * Facade to Skills registry for interacting with the registered skills
+ */
 object Skill {
-  val REGISTRY_KEY: ResourceLocation = Skills.REGISTRY_KEY
+  val REGISTRY_KEY: ResourceLocation = SkillRegistry.REGISTRY_KEY
 
-  def all(): List[Skill[_]] = Skills.entries
+  def all(): List[Skill[_]] = StateContainer.SKILLS.entries
 
-  def get[T](name: ResourceLocation): Option[Skill[T]] = Skills.find(name).asInstanceOf[Option[Skill[T]]]
+  def get[T](name: ResourceLocation): Option[Skill[T]] = StateContainer.SKILLS.find(name).asInstanceOf[Option[Skill[T]]]
 
-  def upsert[T](skill: Skill[T]): Boolean =
+  def upsert[T](skill: Skill[T]): Unit =
     skill
-      .tap(s => PlayerSkillsLogger.SKILLS.info(s"Saving skill ${s.name}"))
-      .pipe(Skills.upsert)
+      .tap(PlayerSkillsLogger.SKILLS.infoP(s => s"Saving skill ${s.name}"))
+      .pipe(StateContainer.SKILLS.upsert)
 
-  def remove(skill: Skill[_]): Boolean = Skills.remove(skill)
+  def remove(skill: Skill[_]): Unit = StateContainer.SKILLS.remove(skill)
 
   def calculatePrev[T](skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T] =
     SkillType.get(skill.skillType)

@@ -1,22 +1,19 @@
 package net.impleri.playerskills.events.handlers
 
 import dev.architectury.event.events.common.LifecycleEvent
-import net.impleri.playerskills.skills.registry.Players
-import net.impleri.playerskills.skills.registry.Skills
-import net.impleri.playerskills.skills.registry.storage.SkillStorage
+import net.impleri.playerskills.server.ServerStateContainer
 import net.minecraft.server.MinecraftServer
 
-case class LifecycleEvents(onServerChange: Option[MinecraftServer] => Unit) {
+case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[MinecraftServer] => Unit) {
   private[handlers] def registerEvents(): Unit = {
-    LifecycleEvent.SETUP.register(() => onSetup())
+    LifecycleEvent.SETUP.register(() => setup())
     LifecycleEvent.SERVER_BEFORE_START.register(beforeServerStart(_))
     LifecycleEvent.SERVER_STARTED.register(_ => onServerStart())
     LifecycleEvent.SERVER_STOPPING.register(_ => beforeSeverStops())
   }
 
-  private def onSetup(): Unit = {
-    // Fill up the deferred skills registry
-    Skills.resync()
+  private def setup(): Unit = {
+    onSetup()
 
     // TODO: Move to integration class
     // Enable FTB Teams integration if the mod is there
@@ -35,7 +32,7 @@ case class LifecycleEvents(onServerChange: Option[MinecraftServer] => Unit) {
   }
 
   private def beforeSeverStops(): Unit = {
-    Players.close()
+    ServerStateContainer.PLAYERS.close()
     onServerChange(None)
   }
 }

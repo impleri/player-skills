@@ -1,8 +1,8 @@
 package net.impleri.playerskills.server
 
-import net.impleri.playerskills.api.skills.Player
 import net.impleri.playerskills.events.SkillChangedEvent
 import net.impleri.playerskills.network.SyncSkillsMessage
+import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.level.ServerPlayer
 

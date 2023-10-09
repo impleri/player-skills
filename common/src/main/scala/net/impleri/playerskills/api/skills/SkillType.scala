@@ -1,12 +1,13 @@
 package net.impleri.playerskills.api.skills
 
-import net.impleri.playerskills.skills.registry.SkillTypes
+import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
 import scala.util.Try
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 trait SkillType[T] {
   def name: ResourceLocation = SkillResourceLocation.of("skill").get
@@ -22,48 +23,48 @@ trait SkillType[T] {
   def can(skill: Skill[T], threshold: Option[T] = None): Boolean =
     skill.value.exists(v => threshold.forall(v == _))
 
-  protected def serialize(skill: Skill[T]): String = List(
+  def serialize(skill: Skill[T]): String = List(
     s"${skill.name}",
     s"${skill.skillType}",
     castToString(skill.value).getOrElse(SkillType.stringValueNone),
     s"${skill.changesAllowed}"
   ).mkString(SkillType.stringValueSeparator)
 
-  protected def deserialize(name: String, value: Option[String], changesAllowed: Int): Option[Skill[T]] =
+  def deserialize(name: String, value: Option[String], changesAllowed: Int): Option[Skill[T]] =
     SkillResourceLocation.of(name)
       .flatMap(Skill.get)
       .asInstanceOf[Option[Skill[T] with ChangeableSkillOps[T, Skill[T]]]]
       .map(_.mutate(castFromString(value), changesAllowed))
 }
 
-object SkillType {
-  val REGISTRY_KEY: ResourceLocation = SkillTypes.REGISTRY_KEY
+/**
+ * Facade to Skill Types registry for interacting with registered skill types
+ */
+sealed trait SkillRegistryFacade {
+  def all(): List[SkillType[_]] = StateContainer.SKILL_TYPES.entries
 
-  private val stringValueNone: String = "[NULL]"
-  private val stringValueSeparator: String = ";"
+  def get[T](name: ResourceLocation): Option[SkillType[T]] = StateContainer.SKILL_TYPES.find(name)
 
-  def all(): List[SkillType[_]] = SkillTypes.entries
-
-  def get[T](name: ResourceLocation): Option[SkillType[T]] = SkillTypes.find(name)
-
-  def get[T](name: String): Option[SkillType[T]] = SkillResourceLocation.of(name).flatMap(SkillTypes.find)
+  def get[T](name: String): Option[SkillType[T]] = SkillResourceLocation.of(name).flatMap(StateContainer.SKILL_TYPES.find)
 
   def get[T](skill: Skill[T]): Option[SkillType[T]] = get(skill.skillType)
+}
 
+sealed trait SkillTypeOps extends SkillRegistryFacade {
   def serialize[T](skill: Skill[T]): Option[String] =
     get(skill)
       .map(_.serialize(skill))
-      .tap(v => PlayerSkillsLogger.SKILLS.debug(s"Dehydrated skill ${skill.name} of type ${skill.skillType} for storage: $v"))
+      .tap(PlayerSkillsLogger.SKILLS.debugP(v => s"Dehydrated skill ${skill.name} of type ${skill.skillType} for storage: $v"))
 
   private def splitRawSkill(value: String) =
-    value.split(stringValueSeparator)
+    value.split(SkillType.stringValueSeparator)
       .toList
       .reverse
       .dropWhile(_.isEmpty)
       .reverse
 
   private def parseValue(value: String): Option[String] =
-    if (value == stringValueNone) None else Some(value)
+    if (value == SkillType.stringValueNone) None else Some(value)
 
   private def parseChanges(value: String): Int =
     Try(value.toInt)
@@ -92,8 +93,17 @@ object SkillType {
   def deserializeAll(values: List[String]): List[Skill[_]] =
     values
       .partition(_.isEmpty)
-      .tap(_._1.foreach(v => PlayerSkillsLogger.SKILLS.warn(s"Unable to unpack skill $v from storage")))
+      .tap(_._1.foreach(PlayerSkillsLogger.SKILLS.warnP(v => s"Unable to unpack skill $v from storage")))
       ._2
       .flatMap(deserialize)
+}
 
+/**
+ * Facade to Skill Types registry for interacting with registered skill types
+ */
+object SkillType extends SkillRegistryFacade with SkillTypeOps {
+  val REGISTRY_KEY: ResourceLocation = SkillTypeRegistry.REGISTRY_KEY
+
+  private[skills] val stringValueNone: String = "[NULL]"
+  private[skills] val stringValueSeparator: String = ";"
 }

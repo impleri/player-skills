@@ -1,4 +1,4 @@
-package net.impleri.playerskills.skills.registry.storage
+package net.impleri.playerskills.server.skills.storage
 
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -10,8 +10,9 @@ import java.util.{List => JavaList}
 import scala.jdk.javaapi.CollectionConverters
 import scala.util.chaining._
 
-trait ReadNbtSkills {
+sealed trait ReadNbtSkills {
   protected val mcNbt: MinecraftNbt
+
   protected def readFile(file: File): Either[SkillFileMissing, CompoundTag] =
     mcNbt.read(file)
       .left
@@ -22,7 +23,7 @@ trait ReadNbtSkills {
     else Left(SkillFileHasNoData())
 }
 
-trait WriteNbtSkills {
+sealed trait WriteNbtSkills {
   protected val mcNbt: MinecraftNbt
 
   protected def convertSkills(skills: List[String]): JavaList[StringTag] =
@@ -46,7 +47,8 @@ trait WriteNbtSkills {
 /**
  * Save data in NBT format
  */
-class SkillNbtStorage(override val mcNbt: MinecraftNbt) extends PersistentStorage with ReadNbtSkills with WriteNbtSkills {
+class SkillNbtStorage private[skills](override val mcNbt: MinecraftNbt)
+  extends PersistentStorage with ReadNbtSkills with WriteNbtSkills {
   override def read(file: File): Either[NbtFileReadError, List[String]] =
     for {
       rawFile <- readFile(file)
@@ -65,5 +67,6 @@ class SkillNbtStorage(override val mcNbt: MinecraftNbt) extends PersistentStorag
 object SkillNbtStorage {
   private[storage] val SKILLS_TAG: String = "acquiredSkills"
 
-  protected[storage] def apply(mcNbt:MinecraftNbt = MinecraftNbtImpl) = new SkillNbtStorage(mcNbt)
+  // package-private as this should be accessed through SkillStorage
+  private[skills] def apply(mcNbt: MinecraftNbt = MinecraftNbtImpl) = new SkillNbtStorage(mcNbt)
 }

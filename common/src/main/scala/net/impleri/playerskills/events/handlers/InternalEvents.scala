@@ -1,20 +1,15 @@
 package net.impleri.playerskills.events.handlers
 
-//import dev.architectury.event.events.common.PlayerEvent
 import dev.architectury.registry.ReloadListenerRegistry
 import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.events.SkillChangedEvent
 import net.impleri.playerskills.server.NetHandler
-import net.impleri.playerskills.skills.registry.Players
 import net.minecraft.server.MinecraftServer
-//import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
 import java.util.UUID
-//import scala.collection.mutable
-import scala.jdk.javaapi.CollectionConverters
 import scala.util.chaining._
 
 //trait BlockSync {
@@ -41,7 +36,7 @@ import scala.util.chaining._
 //  }
 //}
 
-case class InternalEvents() extends ResourceManagerReloadListener {
+case class InternalEvents(onReload: ResourceManager => Unit) extends ResourceManagerReloadListener {
   private[handlers] def registerEvents(): Unit = {
     // Player Skills Events
     SkillChangedEvent.EVENT.register(onSkillChanged _)
@@ -54,20 +49,11 @@ case class InternalEvents() extends ResourceManagerReloadListener {
     ReloadListenerRegistry.register(PackType.SERVER_DATA, SkillsDataLoader())
   }
 
-  override def onResourceManagerReload(resourceManager: ResourceManager): Unit = {
-    val players = Players.close()
-    Players.open(players)
+  override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
 
-    EventHandlers.server
-      .map(_.getPlayerList.getPlayers)
-      .map(ps => CollectionConverters.asScala(ps))
-      .foreach(_.foreach(NetHandler.syncPlayer(_)))
-  }
-
-  def resyncPlayer(server: Option[MinecraftServer], playerId: UUID): Unit =
-    server.map(_.getPlayerList)
-      .map(_.getPlayer(playerId))
-      .tap(_.map(NetHandler.syncPlayer(_)))
+  def resyncPlayer(server: MinecraftServer, playerId: UUID): Unit =
+    server.getPlayerList.getPlayer(playerId)
+      .tap(NetHandler.syncPlayer(_))
 
 
   private def onSkillChanged(event: SkillChangedEvent[_]): Unit = {

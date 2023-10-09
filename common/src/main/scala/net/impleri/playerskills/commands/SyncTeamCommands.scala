@@ -2,7 +2,7 @@ package net.impleri.playerskills.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.Command
-import net.impleri.playerskills.api.skills.Team
+import net.impleri.playerskills.server.api.Team
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands

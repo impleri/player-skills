@@ -19,7 +19,7 @@ case class BasicSkillType() extends SkillType[Boolean] {
 
   override def can(skill: Skill[Boolean], threshold: Option[Boolean]): Boolean =
     (threshold.getOrElse(true) == skill.value.getOrElse(false))
-      .tap(c => PlayerSkillsLogger.SKILLS.debug(
+      .tap(PlayerSkillsLogger.SKILLS.debugP(c =>
         s"Checking if player can ${skill.name} (does $threshold == ${skill.value}? $c)",
       ))
 
