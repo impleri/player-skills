@@ -3,7 +3,9 @@ package net.impleri.playerskills.network
 import dev.architectury.networking.NetworkManager
 import dev.architectury.networking.simple.BaseC2SMessage
 import dev.architectury.networking.simple.MessageType
+import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.events.handlers.EventHandlers
+import net.impleri.playerskills.server.ServerStateContainer
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.entity.player.Player
 
@@ -14,7 +16,7 @@ case class ResyncSkillsMessage(private val playerId: UUID) extends BaseC2SMessag
 
   override def write(buffer: FriendlyByteBuf): Unit = buffer.writeUUID(playerId)
 
-  override def handle(context: NetworkManager.PacketContext): Unit = EventHandlers.resync(playerId)
+  override def handle(context: NetworkManager.PacketContext): Unit = ServerStateContainer.server.foreach(ServerStateContainer.EVENT_HANDLERS.resync(playerId, _))
 }
 
 object ResyncSkillsMessage {

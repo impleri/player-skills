@@ -1,4 +1,4 @@
-package net.impleri.playerskills.skills.registry.storage
+package net.impleri.playerskills.server.skills.storage
 
 import net.impleri.playerskills.BaseSpec
 import net.minecraft.nbt.CompoundTag

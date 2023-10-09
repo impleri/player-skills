@@ -35,11 +35,19 @@ class PlayerSkillsLogger(modId: String, private val prefix: String) {
 
   def error(message: String): Unit = instance.error(addPrefix(message))
 
+  def errorP[T](f: T => String)(value: T): Unit = error(f(value))
+
   def warn(message: String): Unit = instance.warn(addPrefix(message))
+
+  def warnP[T](f: T => String)(value: T): Unit = warn(f(value))
 
   def info(message: String): Unit = instance.info(addPrefix(message))
 
+  def infoP[T](f: T => String)(value: T): Unit = info(f(value))
+
   def debug(message: String): Unit = if (debugEnabled) info(s"[DEBUG]$message") else instance.debug(addPrefix(message))
+
+  def debugP[T](f: T => String)(value: T): Unit = debug(f(value))
 }
 
 object PlayerSkillsLogger {

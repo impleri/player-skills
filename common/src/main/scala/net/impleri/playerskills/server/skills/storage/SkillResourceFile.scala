@@ -1,4 +1,4 @@
-package net.impleri.playerskills.skills.registry.storage
+package net.impleri.playerskills.server.skills.storage
 
 import net.impleri.playerskills.PlayerSkills
 import net.minecraft.server.MinecraftServer
@@ -13,7 +13,7 @@ import scala.util.chaining._
 /**
  * Manages _where_ to save data
  */
-class SkillResourceFile private[storage] (private[storage] val storage: Path) {
+class SkillResourceFile private[skills](private[skills] val storage: Path) {
   private def storageDirectory: File =
     storage.toFile
       .tap(_.mkdirs())
@@ -23,16 +23,17 @@ class SkillResourceFile private[storage] (private[storage] val storage: Path) {
       .pipe(new File(_, "players"))
       .tap(_.mkdirs())
 
-  @VisibleForTesting
-  protected[storage] def getPlayerFile(playerId: UUID): File =
+  // package-private as this should be accessed through SkillStorage
+  private[skills] def getPlayerFile(playerId: UUID): File =
     playerDirectory
       .pipe(new File(_, s"$playerId.skills"))
 }
 
 object SkillResourceFile {
-  private[storage] def apply(storage: Path): SkillResourceFile = new SkillResourceFile(storage)
+  @VisibleForTesting
+  private[skills] def apply(storage: Path): SkillResourceFile = new SkillResourceFile(storage)
 
-  protected[storage] def apply(server: MinecraftServer): SkillResourceFile =
+  protected[skills] def apply(server: MinecraftServer): SkillResourceFile =
     new LevelResource(PlayerSkills.MOD_ID)
       .pipe(server.getWorldPath)
       .pipe(apply)

@@ -3,9 +3,9 @@ package net.impleri.playerskills.commands
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.api.skills.ChangeableSkillOps
-import net.impleri.playerskills.api.skills.Player
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
+import net.impleri.playerskills.server.api.Player
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.CommandSourceStack

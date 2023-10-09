@@ -23,7 +23,7 @@ case class TieredSkillType() extends SkillType[String] {
 
   override def can(skill: Skill[String], threshold: Option[String]): Boolean =
     (index(skill.value, skill.options, -1) >= index(threshold, skill.options))
-      .tap(c => PlayerSkillsLogger.SKILLS.debug(
+      .tap(PlayerSkillsLogger.SKILLS.debugP(c =>
         s"Checking if player can ${skill.name} (is $threshold above ${skill.value}? $c)",
       ))
 

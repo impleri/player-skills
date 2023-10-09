@@ -1,6 +1,8 @@
-package net.impleri.playerskills.api.skills
+package net.impleri.playerskills.server.api
 
 import net.impleri.playerskills.PlayerSkills
+import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.api.skills.TeamMode
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.{Player => MinePlayer}

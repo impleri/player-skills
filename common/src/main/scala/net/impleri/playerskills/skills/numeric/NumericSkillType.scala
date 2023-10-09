@@ -19,7 +19,7 @@ case class NumericSkillType() extends SkillType[Double] {
 
   override def can(skill: Skill[Double], threshold: Option[Double]): Boolean =
     (skill.value.getOrElse(0.0) >= threshold.getOrElse(skill.asInstanceOf[NumericSkill].step))
-      .tap(c => PlayerSkillsLogger.SKILLS.debug(
+      .tap(PlayerSkillsLogger.SKILLS.debugP(c =>
       s"Checking if player can ${skill.name} (is $threshold >= ${skill.value}? $c)",
     ))
 
