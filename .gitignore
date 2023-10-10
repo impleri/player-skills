@@ -24,3 +24,5 @@ classes/
 reports/
 /cc-test-reporter
 /codeclimate.json
+kotlin
+oldjava
