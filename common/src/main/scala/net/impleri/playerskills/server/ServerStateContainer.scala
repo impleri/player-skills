@@ -2,7 +2,7 @@ package net.impleri.playerskills.server
 
 import net.impleri.playerskills.events.handlers.EventHandlers
 import net.impleri.playerskills.server.skills.PlayerStorageIO
-import net.impleri.playerskills.server.skills.PlayersRegistry
+import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.packs.resources.ResourceManager
@@ -15,7 +15,7 @@ import scala.jdk.javaapi.CollectionConverters
 object ServerStateContainer {
   var server: Option[MinecraftServer] = None
   var storage: Option[PlayerStorageIO] = None
-  var PLAYERS: PlayersRegistry = PlayersRegistry()
+  var PLAYERS: PlayerRegistry = PlayerRegistry()
 
   val EVENT_HANDLERS: EventHandlers = EventHandlers(onServerChange = onServerChange, onReloadResources = onReload)
 
@@ -24,7 +24,7 @@ object ServerStateContainer {
   private def onServerChange(next: Option[MinecraftServer] = None): Unit = {
     server = next
     storage = next.map(PlayerStorageIO(_))
-    PLAYERS = PlayersRegistry(next, PLAYERS.getState)
+    PLAYERS = PlayerRegistry(next, PLAYERS.getState)
   }
 
   private def onReload(resourceManager: ResourceManager): Unit = {

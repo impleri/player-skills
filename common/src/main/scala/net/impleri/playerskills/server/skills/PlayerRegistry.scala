@@ -1,11 +1,13 @@
 package net.impleri.playerskills.server.skills
 
-import cats.data.State
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.playerskills.utils.StatefulRegistry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import org.jetbrains.annotations.VisibleForTesting
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
@@ -13,17 +15,15 @@ import scala.util.chaining.scalaUtilChainingOps
 /**
  * Orchestrated handling of player skills
  */
-case class PlayersRegistry(
-  private[skills] var state: PlayerRegistryState.CachedPlayers,
-  private val storage: Option[PlayerStorageIO]
-) {
-  if (storage.isEmpty) PlayerSkillsLogger.SKILLS
-    .warn("Player registry opened without server") else PlayerSkillsLogger.SKILLS.debug("Opened player registry")
+case class PlayerRegistry(
+  override var state: PlayerRegistryState.CachedPlayers,
+  private[skills] val storage: Option[PlayerStorageIO],
+  private val skillsRegistry: SkillRegistry,
+  private val logger: PlayerSkillsLogger,
+) extends StatefulRegistry[PlayerRegistryState.CachedPlayers] {
+  if (storage.isEmpty) logger.warn("Player registry opened without server") else logger.debug("Opened player registry")
 
-  private def maintainState[T](op: State[PlayerRegistryState.CachedPlayers, T]) = op.run(state).map(r => {
-    state = r._1
-    r._2
-  }).value
+  def entries: List[(UUID, List[Skill[_]])] = PlayerRegistryState.entries().pipe(maintainState)
 
   private def save(playerId: UUID, skills: List[Skill[_]]): Boolean = {
     PlayerRegistryState.upsert(playerId, skills).pipe(maintainState)
@@ -32,8 +32,8 @@ case class PlayersRegistry(
 
   private def openFor(playerId: UUID) =
     storage.map(_.read(playerId))
-      .map(PlayersRegistry.filterRegisteredSkills(StateContainer.SKILLS.entries, _))
-      .map(s => s ++ PlayersRegistry.ensureRegisteredSkills(StateContainer.SKILLS.entries, s))
+      .map(PlayerRegistry.filterRegisteredSkills(skillsRegistry.entries, _))
+      .map(s => s ++ PlayerRegistry.ensureRegisteredSkills(skillsRegistry.entries, s))
       .tap(_.foreach(save(playerId, _)))
       .toList
       .flatten
@@ -65,20 +65,17 @@ case class PlayersRegistry(
       .has(playerId)
       .pipe(maintainState)
 
-  def upsert(playerId: UUID, skill: Skill[_]): List[Skill[_]] = {
-    val skills = get(playerId)
+  def upsert(playerId: UUID, skill: Skill[_]): List[Skill[_]] =
+    get(playerId)
       .filterNot(_.name == skill.name)
-      .tap(ss => if (ss.nonEmpty) PlayerSkillsLogger.SKILLS.info(s"Replacing ${skill.name} for $playerId"))
+      .tap(ss => if (ss.nonEmpty) logger.info(s"Replacing ${skill.name} for $playerId"))
       .pipe(_ ++ List(skill))
+      .tap(save(playerId, _))
 
-    storage.foreach(_.write(playerId, skills))
-
-    skills
-  }
 
   def addSkill(playerId: UUID, skill: Skill[_]): List[Skill[_]] =
     get(playerId)
-      .pipe(PlayersRegistry.safeAdd(skill))
+      .pipe(PlayerRegistry.safeAdd(skill))
       .tap(save(playerId, _))
 
   def removeSkill(playerId: UUID, name: ResourceLocation): List[Skill[_]] =
@@ -89,7 +86,7 @@ case class PlayersRegistry(
   def removeSkill(playerId: UUID, skill: Skill[_]): List[Skill[_]] = removeSkill(playerId, skill.name)
 
   private def closeFor(playerId: UUID) = {
-    PlayerSkillsLogger.SKILLS.info(s"Closing player $playerId, ensuring skills are saved")
+    logger.info(s"Closing player $playerId, ensuring skills are saved")
     get(playerId)
       .pipe(s => storage.map(_.write(playerId, s)))
   }
@@ -99,8 +96,7 @@ case class PlayersRegistry(
       .map(p => (p, closeFor(p)))
       .toMap
       .partition(_._2.forall(_ == true))
-      .tap(p => if (p._1.nonEmpty) PlayerSkillsLogger.SKILLS
-        .warn(s"Could not save player data for: ${p._1.keys.mkString(",")}"))
+      .tap(p => if (p._1.nonEmpty) logger.warn(s"Could not save player data for: ${p._1.keys.mkString(",")}"))
       ._2
       .keys
       .toList
@@ -110,18 +106,15 @@ case class PlayersRegistry(
     close(List(playerId))
       .contains(playerId)
 
-
   def close(): List[UUID] =
     PlayerRegistryState.entries()
       .pipe(maintainState)
       .map(_._1)
       .pipe(close)
       .tap(_ => state = PlayerRegistryState.empty)
-
-  def getState: PlayerRegistryState.CachedPlayers = state
 }
 
-object PlayersRegistry {
+object PlayerRegistry {
   private def filterRegisteredSkills(source: List[Skill[_]], target: List[Skill[_]]) =
     source
       .map(_.name)
@@ -135,8 +128,18 @@ object PlayersRegistry {
   private def safeAdd(skill: Skill[_])(skills: List[Skill[_]]): List[Skill[_]] =
     if (skills.exists(_.name == skill.name)) skills else skills ++ List(skill)
 
+  @VisibleForTesting
+  private[skills] def apply(
+    storage: PlayerStorageIO,
+    state: PlayerRegistryState.CachedPlayers,
+    skillsRegistry: SkillRegistry,
+    logger: PlayerSkillsLogger,
+  ) = new PlayerRegistry(state, Some(storage), skillsRegistry, logger)
+
   def apply(
     server: Option[MinecraftServer] = None,
     state: PlayerRegistryState.CachedPlayers = PlayerRegistryState.empty,
-  ) = new PlayersRegistry(state, server.map(PlayerStorageIO(_)))
+    skillsRegistry: SkillRegistry = StateContainer.SKILLS,
+    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  ): PlayerRegistry = new PlayerRegistry(state, server.map(PlayerStorageIO(_)), skillsRegistry, logger)
 }
