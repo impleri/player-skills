@@ -36,17 +36,6 @@ unifiedPublishing {
     }
 }
 
-repositories {
-    maven {
-        name = "TerraformersMC"
-        url = uri("https://maven.terraformersmc.com/")
-    }
-    maven {
-        name = "Ladysnake Libs"
-        url = uri("https://maven.ladysnake.org/releases")
-    }
-}
-
 dependencies {
     modImplementation "net.fabricmc:fabric-language-scala:$slpVersion+scala.$scalaVersion"
 
