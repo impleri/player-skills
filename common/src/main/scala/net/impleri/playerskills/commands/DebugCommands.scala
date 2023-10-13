@@ -21,18 +21,20 @@ trait DebugCommands {
         )
         .`then`(
           Commands.literal("blocks")
-            .executes(c => toggleDebug("Block Restrictions",
-              c.getSource,
-              () => PlayerSkillsLogger.BLOCKS.toggleDebug(),
-            ),
+            .executes(
+              c => toggleDebug("Block Restrictions",
+                c.getSource,
+                () => PlayerSkillsLogger.BLOCKS.toggleDebug(),
+              ),
             ),
         )
         .`then`(
           Commands.literal("fluids")
-            .executes(c => toggleDebug("Fluid Restrictions",
-              c.getSource,
-              () => PlayerSkillsLogger.FLUIDS.toggleDebug(),
-            ),
+            .executes(
+              c => toggleDebug("Fluid Restrictions",
+                c.getSource,
+                () => PlayerSkillsLogger.FLUIDS.toggleDebug(),
+              ),
             ),
         )
         .`then`(

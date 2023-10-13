@@ -24,21 +24,23 @@ trait ImproveSkillCommand extends SetCommandUtils {
           Commands.argument("player", EntityArgument.player())
             .`then`(
               Commands.argument("skill", ResourceLocationArgument.id())
-                .executes(c => improvePlayerSkill(
-                  c.getSource,
-                  Try(EntityArgument.getPlayer(c, "player")).toOption,
-                  Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-                ),
+                .executes(
+                  c => improvePlayerSkill(
+                    c.getSource,
+                    Try(EntityArgument.getPlayer(c, "player")).toOption,
+                    Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+                  ),
                 ),
             ),
         )
         .`then`(
           Commands.argument("skill", ResourceLocationArgument.id())
-            .executes(c => improvePlayerSkill(
-              c.getSource,
-              Try(c.getSource.getPlayerOrException).toOption,
-              Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-            ),
+            .executes(
+              c => improvePlayerSkill(
+                c.getSource,
+                Try(c.getSource.getPlayerOrException).toOption,
+                Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+              ),
             ),
         ),
     )
@@ -52,13 +54,14 @@ trait ImproveSkillCommand extends SetCommandUtils {
     skillName
       .flatMap(Skill().get[T])
       .flatMap(s => player.flatMap(p => Team.improve(p, s, None, None)))
-      .pipe(notifyPlayer(
-        source,
-        player,
-        skillName,
-        successMessage = "commands.playerskills.skill_improved",
-        failureMessage = "commands.playerskills.skill_improve_failed",
-      ),
+      .pipe(
+        notifyPlayer(
+          source,
+          player,
+          skillName,
+          successMessage = "commands.playerskills.skill_improved",
+          failureMessage = "commands.playerskills.skill_improve_failed",
+        ),
       )
   }
 }
