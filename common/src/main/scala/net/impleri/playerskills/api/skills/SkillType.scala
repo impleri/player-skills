@@ -48,7 +48,7 @@ trait SkillType[T] extends ChangeableSkillType[T] with SerializableSkillType[T] 
 /**
  * Facade to Skill Types registry for interacting with registered skill types
  */
-sealed trait SkillRegistryFacade {
+sealed trait SkillTypeRegistryFacade {
   protected def state: SkillTypeRegistry
 
   def all(): List[SkillType[_]] = state.entries
@@ -63,7 +63,7 @@ sealed trait SkillRegistryFacade {
 class SkillTypeOps(
   override val state: SkillTypeRegistry,
   protected val logger: PlayerSkillsLogger,
-) extends SkillRegistryFacade {
+) extends SkillTypeRegistryFacade {
   def serialize[T](skill: Skill[T]): Option[String] = {
     get(skill)
       .map(_.serialize(skill))
