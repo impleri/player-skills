@@ -1,10 +1,10 @@
 root = true
 
-[*]
+[*.{scala,java,json,properties,gradle,txt,accesswidener,mcmeta,toml,md}]
 end_of_line = lf
 insert_final_newline = true
-
-[*.{scala,java}]
 charset = utf-8
+
+[*.{scala,java,json,properties,gradle,mcmeta,toml}]
 indent_style = space
 indent_size = 2
