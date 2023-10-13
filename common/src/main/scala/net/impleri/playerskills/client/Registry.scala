@@ -11,10 +11,19 @@ object Registry {
 
   def get: List[Skill[_]] = playerSkills.toList
 
-  def syncFromServer(skills: List[Skill[_]], force: Boolean): Unit =
+  def syncFromServer(skills: List[Skill[_]], force: Boolean): Unit = {
     get
       .tap(_ => playerSkills.clear())
-      .tap(_ => PlayerSkillsLogger.SKILLS.info(s"Syncing Client-side skills: ${skills.map(s => s"(${s.name}=${s.value.getOrElse("None")})").mkString(", ")}"))
+      .tap(_ => PlayerSkillsLogger
+        .SKILLS
+        .info(s"Syncing Client-side skills: ${
+          skills
+            .map(s => s"(${s.name}=${s.value.getOrElse("None")})")
+            .mkString(", ")
+        }",
+        ),
+      )
       .tap(_ => playerSkills.addAll(skills))
       .pipe(PlayerSkillsClient.emitSkillsUpdated(skills, _, force))
+  }
 }

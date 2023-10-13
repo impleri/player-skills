@@ -1,12 +1,13 @@
 package net.impleri.playerskills.server
 
 import net.impleri.playerskills.events.handlers.EventHandlers
-import net.impleri.playerskills.server.skills.PlayerStorageIO
 import net.impleri.playerskills.server.skills.PlayerRegistry
+import net.impleri.playerskills.server.skills.PlayerStorageIO
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.packs.resources.ResourceManager
 
+import scala.annotation.unused
 import scala.jdk.javaapi.CollectionConverters
 
 /**
@@ -27,7 +28,7 @@ object ServerStateContainer {
     PLAYERS = PlayerRegistry(next, PLAYERS.getState)
   }
 
-  private def onReload(resourceManager: ResourceManager): Unit = {
+  private def onReload(@unused resourceManager: ResourceManager): Unit = {
     val playerList = PLAYERS.close()
     PLAYERS.open(playerList)
 

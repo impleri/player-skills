@@ -11,62 +11,75 @@ import scala.jdk.javaapi.CollectionConverters
 import scala.util.chaining._
 
 sealed trait ReadNbtSkills {
-  protected val mcNbt: MinecraftNbt
+  protected def mcNbt: MinecraftNbt
 
-  protected def readFile(file: File): Either[SkillFileMissing, CompoundTag] =
+  protected def readFile(file: File): Either[SkillFileMissing, CompoundTag] = {
     mcNbt.read(file)
       .left
       .map(_ => SkillFileMissing(file))
+  }
 
-  protected def getList(tag: CompoundTag): Either[SkillFileHasNoData, ListTag] =
-    if (tag.contains(SkillNbtStorage.SKILLS_TAG)) Right(tag.getList(SkillNbtStorage.SKILLS_TAG, Tag.TAG_STRING.toInt))
-    else Left(SkillFileHasNoData())
+  protected def getList(tag: CompoundTag): Either[SkillFileHasNoData, ListTag] = {
+    if (tag.contains(SkillNbtStorage.SKILLS_TAG)) {
+      Right(tag.getList(SkillNbtStorage.SKILLS_TAG, Tag.TAG_STRING.toInt))
+    } else {
+      Left(SkillFileHasNoData())
+    }
+  }
 }
 
 sealed trait WriteNbtSkills {
-  protected val mcNbt: MinecraftNbt
+  protected def mcNbt: MinecraftNbt
 
-  protected def convertSkills(skills: List[String]): JavaList[StringTag] =
+  protected def convertSkills(skills: List[String]): JavaList[StringTag] = {
     skills.map(StringTag.valueOf)
       .pipe(CollectionConverters.asJava(_))
+  }
 
-  protected def createSkillList(skillsList: JavaList[StringTag]): ListTag =
+  protected def createSkillList(skillsList: JavaList[StringTag]): ListTag = {
     new ListTag()
       .tap(_.addAll(skillsList))
+  }
 
-  protected def createCompoundTag(skillListTag: ListTag): CompoundTag =
+  protected def createCompoundTag(skillListTag: ListTag): CompoundTag = {
     new CompoundTag()
       .tap(_.put(SkillNbtStorage.SKILLS_TAG, skillListTag))
+  }
 
-  protected def tryWrite(file: File)(tag: CompoundTag): Either[NbtFileWriteError, Boolean] =
+  protected def tryWrite(file: File)(tag: CompoundTag): Either[NbtFileWriteError, Boolean] = {
     mcNbt.write(file, tag)
       .map(_ => true)
       .left.map(_ => FailedToWrite(file))
+  }
 }
 
 /**
  * Save data in NBT format
  */
-class SkillNbtStorage private[skills](override val mcNbt: MinecraftNbt)
+class SkillNbtStorage private[skills] (override val mcNbt: MinecraftNbt)
   extends PersistentStorage with ReadNbtSkills with WriteNbtSkills {
-  override def read(file: File): Either[NbtFileReadError, List[String]] =
+  override def read(file: File): Either[NbtFileReadError, List[String]] = {
     for {
       rawFile <- readFile(file)
       skills <- getList(rawFile)
     } yield CollectionConverters.asScala(skills.iterator)
       .toList
       .map(_.getAsString)
+  }
 
-  override def write(file: File, skills: List[String]): Either[NbtFileWriteError, Boolean] =
+  override def write(file: File, skills: List[String]): Either[NbtFileWriteError, Boolean] = {
     convertSkills(skills)
       .pipe(createSkillList)
       .pipe(createCompoundTag)
       .pipe(tryWrite(file))
+  }
 }
 
 object SkillNbtStorage {
   private[storage] val SKILLS_TAG: String = "acquiredSkills"
 
   // package-private as this should be accessed through SkillStorage
-  private[skills] def apply(mcNbt: MinecraftNbt = MinecraftNbtImpl) = new SkillNbtStorage(mcNbt)
+  private[skills] def apply(mcNbt: MinecraftNbt = MinecraftNbtImpl) = {
+    new SkillNbtStorage(mcNbt)
+  }
 }

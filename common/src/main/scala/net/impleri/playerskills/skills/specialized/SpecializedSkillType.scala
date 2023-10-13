@@ -12,12 +12,13 @@ case class SpecializedSkillType() extends SkillType[String] {
 
   override def castFromString(value: Option[String]): Option[String] = value
 
-  override def can(skill: Skill[String], threshold: Option[String]): Boolean =
+  override def can(skill: Skill[String], threshold: Option[String]): Boolean = {
     (skill.value, threshold) match {
       case (Some(v), Some(t)) => v == t
       case (Some(_), None) => true
       case _ => false
     }
+  }
 
   override def getPrevValue(skill: Skill[String], min: Option[String], max: Option[String]): Option[String] = None
 

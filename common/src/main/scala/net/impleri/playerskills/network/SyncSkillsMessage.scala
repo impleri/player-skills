@@ -25,7 +25,7 @@ class SyncSkillsMessage(
       .writeBoolean(force)
       .writeInt(skills.size)
 
-    skills.flatMap(SkillType.serialize(_))
+    skills.flatMap(SkillType().serialize(_))
       .map(s => (s, s.length))
       .tap(_.map(t => buffer.writeInt(t._2)))
       .tap(_.map(t => buffer.writeUtf(t._1, t._2)))
@@ -46,12 +46,13 @@ object SyncSkillsMessage {
 
     val skills = (0 to size)
       .map(_ => buffer.readInt().pipe(buffer.readUtf))
-      .flatMap(SkillType.deserialize)
+      .flatMap(SkillType().deserialize)
       .toList
 
     new SyncSkillsMessage(playerId, skills, force)
   }
 
-  def apply(player: Player, skills: List[Skill[_]], force: Boolean): SyncSkillsMessage =
+  def apply(player: Player, skills: List[Skill[_]], force: Boolean): SyncSkillsMessage = {
     new SyncSkillsMessage(player.getUUID, skills, force)
+  }
 }

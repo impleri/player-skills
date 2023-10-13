@@ -8,7 +8,7 @@ import java.util.UUID
 case class EventHandlers(
   onSetup: () => Unit,
   onServerChange: Option[MinecraftServer] => Unit,
-  onReloadResources: ResourceManager => Unit
+  onReloadResources: ResourceManager => Unit,
 ) {
   private val INTERNAL = InternalEvents(onReloadResources)
   private val COMMAND = CommandEvents()
@@ -33,5 +33,7 @@ object EventHandlers {
     onSetup: () => Unit = noOp,
     onServerChange: Option[MinecraftServer] => Unit = noOp1,
     onReloadResources: ResourceManager => Unit = noOp1,
-  ) = new EventHandlers(onSetup, onServerChange, onReloadResources)
+  ) = {
+    new EventHandlers(onSetup, onServerChange, onReloadResources)
+  }
 }

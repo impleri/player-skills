@@ -17,13 +17,13 @@ import scala.util.chaining.scalaUtilChainingOps
 /**
  * Public wrapper to rest of storage package
  */
-case class PlayerStorageIO private[skills](
+case class PlayerStorageIO private[skills] (
   private val storage: PersistentStorage,
   private[skills] val skillFile: SkillResourceFile,
   private val skillTypeOps: SkillTypeOps,
   private val logger: PlayerSkillsLogger,
 ) {
-  def read(playerId: UUID): List[Skill[_]] =
+  def read(playerId: UUID): List[Skill[_]] = {
     skillFile.getPlayerFile(playerId)
       .tap(logger.debugP(file => s"Reading from file ${file.getPath}"))
       .pipe(storage.read)
@@ -35,6 +35,7 @@ case class PlayerStorageIO private[skills](
       .map(skillTypeOps.deserializeAll)
       .toList
       .flatten
+  }
 
   def write(playerId: UUID, skills: List[Skill[_]]): Boolean = {
     val skillsAsString = skills.flatMap(skillTypeOps.serialize(_))
@@ -56,12 +57,16 @@ object PlayerStorageIO {
     storage: PersistentStorage,
     skillTypeOps: SkillTypeOps,
     logger: PlayerSkillsLogger,
-  ): PlayerStorageIO = new PlayerStorageIO(storage, resourceFile, skillTypeOps, logger)
+  ): PlayerStorageIO = {
+    new PlayerStorageIO(storage, resourceFile, skillTypeOps, logger)
+  }
 
   protected[server] def apply(
     server: MinecraftServer,
     storage: PersistentStorage = SkillNbtStorage(),
-    skillTypeOps: SkillTypeOps = SkillType,
+    skillTypeOps: SkillTypeOps = SkillType(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
-  ): PlayerStorageIO = SkillResourceFile(server).pipe(apply(_, storage, skillTypeOps, logger))
+  ): PlayerStorageIO = {
+    SkillResourceFile(server).pipe(apply(_, storage, skillTypeOps, logger))
+  }
 }

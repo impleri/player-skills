@@ -13,21 +13,25 @@ class SkillTypeRegistrySpec extends BaseSpec {
   private case class TestSkillType(
     override val name: ResourceLocation,
   ) extends SkillType[String] {
-    override protected def castToString(value: Option[String]): Option[String] = Some("test-skill")
+    override protected def castToString(value: Option[String]): Option[String] = Option("test-skill")
 
-    override def castFromString(value: Option[String]): Option[String] = Some("test-value")
+    override def castFromString(value: Option[String]): Option[String] = Option("test-value")
 
     override def getPrevValue(
       skill: Skill[String],
       min: Option[String],
-      max: Option[String]
-    ): Option[String] = None
+      max: Option[String],
+    ): Option[String] = {
+      None
+    }
 
     override def getNextValue(
       skill: Skill[String],
       min: Option[String],
-      max: Option[String]
-    ): Option[String] = None
+      max: Option[String],
+    ): Option[String] = {
+      None
+    }
   }
 
   "SkillTypeRegistry.resync" should "update state with the skills from the async registrar" in {
@@ -37,13 +41,15 @@ class SkillTypeRegistrySpec extends BaseSpec {
     val expectedType = TestSkillType(expectedName)
     val resourceKey = mock[ResourceKey[SkillType[_]]]
 
-    val registeredTypes = CollectionConverters.asJava(Map[ResourceKey[SkillType[_]], SkillType[_]](resourceKey -> expectedType)).entrySet()
+    val registeredTypes = CollectionConverters
+      .asJava(Map[ResourceKey[SkillType[_]], SkillType[_]](resourceKey -> expectedType))
+      .entrySet()
     registrarMock.entrySet() returns registeredTypes
 
     val target = SkillTypeRegistry(registrarMock)
     target.resync()
 
     target.entries.size should be(1)
-    target.find(expectedName).value should be (expectedType)
+    target.find(expectedName).value should be(expectedType)
   }
 }

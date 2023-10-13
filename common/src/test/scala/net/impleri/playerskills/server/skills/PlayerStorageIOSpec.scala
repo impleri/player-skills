@@ -38,7 +38,7 @@ class PlayerStorageIOSpec extends BaseSpec {
 
     val received = target.read(givenUuid)
 
-    received should be (returnedSkills)
+    received should be(returnedSkills)
   }
 
   "PlayerStorageIO.read" should "return an empty list if the file isn't found" in {
@@ -58,7 +58,7 @@ class PlayerStorageIOSpec extends BaseSpec {
 
     val received = target.read(givenUuid)
 
-    received should be (List.empty)
+    received should be(List.empty)
   }
 
   "PlayerStorageIO.write" should "return success" in {
@@ -71,7 +71,7 @@ class PlayerStorageIOSpec extends BaseSpec {
     val givenSkills = List(TestSkill())
 
     val serializedSkill = "test-skill"
-    typeOpsMock.serialize(TestSkill()) returns Some(serializedSkill)
+    typeOpsMock.serialize(TestSkill()) returns Option(serializedSkill)
 
     val file = new File("/tmp")
     resourceMock.getPlayerFile(givenUuid) returns file
@@ -82,7 +82,7 @@ class PlayerStorageIOSpec extends BaseSpec {
 
     val received = target.write(givenUuid, givenSkills)
 
-    received should be (true)
+    received should be(true)
   }
 
   "PlayerStorageIO.write" should "return failure if the write fails" in {
@@ -95,7 +95,7 @@ class PlayerStorageIOSpec extends BaseSpec {
     val givenSkills = List(TestSkill())
 
     val serializedSkill = "test-skill"
-    typeOpsMock.serialize(TestSkill()) returns Some(serializedSkill)
+    typeOpsMock.serialize(TestSkill()) returns Option(serializedSkill)
 
     val file = new File("/tmp")
     resourceMock.getPlayerFile(givenUuid) returns file
@@ -106,7 +106,7 @@ class PlayerStorageIOSpec extends BaseSpec {
 
     val received = target.write(givenUuid, givenSkills)
 
-    received should be (false)
+    received should be(false)
   }
 
   "PlayerStorageIO.apply" should "return the correct class" in {
@@ -120,6 +120,6 @@ class PlayerStorageIOSpec extends BaseSpec {
 
     val target = PlayerStorageIO(serverMock, storageMock, typeOpsMock, loggerMock)
 
-    target.skillFile.storage should be (pathMock)
+    target.skillFile.storage should be(pathMock)
   }
 }

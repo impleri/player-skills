@@ -11,21 +11,37 @@ import scala.util.chaining._
 case class BasicSkillType() extends SkillType[Boolean] {
   override def name: ResourceLocation = BasicSkillType.NAME
 
-  override def castToString(value: Option[Boolean]): Option[String] =
+  override def castToString(value: Option[Boolean]): Option[String] = {
     value.map(if (_) BasicSkillType.STRING_TRUE else BasicSkillType.STRING_FALSE)
+  }
 
-  override def castFromString(value: Option[String]): Option[Boolean] =
+  override def castFromString(value: Option[String]): Option[Boolean] = {
     value.map(_ == BasicSkillType.STRING_TRUE)
+  }
 
-  override def can(skill: Skill[Boolean], threshold: Option[Boolean]): Boolean =
+  override def can(skill: Skill[Boolean], threshold: Option[Boolean]): Boolean = {
     (threshold.getOrElse(true) == skill.value.getOrElse(false))
       .tap(PlayerSkillsLogger.SKILLS.debugP(c =>
         s"Checking if player can ${skill.name} (does $threshold == ${skill.value}? $c)",
-      ))
+      ),
+      )
+  }
 
-  override def getPrevValue(skill: Skill[Boolean], min: Option[Boolean], max: Option[Boolean]): Option[Boolean] = Some(false)
+  override def getPrevValue(
+    skill: Skill[Boolean],
+    min: Option[Boolean],
+    max: Option[Boolean],
+  ): Option[Boolean] = {
+    Option(false)
+  }
 
-  override def getNextValue(skill: Skill[Boolean], min: Option[Boolean], max: Option[Boolean]): Option[Boolean] = Some(true)
+  override def getNextValue(
+    skill: Skill[Boolean],
+    min: Option[Boolean],
+    max: Option[Boolean],
+  ): Option[Boolean] = {
+    Option(true)
+  }
 }
 
 object BasicSkillType {

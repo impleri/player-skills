@@ -11,7 +11,7 @@ import java.util.UUID
 class PlayerRegistrySpec extends BaseSpec {
   private case class TestSkill(
     override val name: ResourceLocation,
-    override val value: Option[String] = None
+    override val value: Option[String] = None,
   ) extends Skill[String]
 
   private val playerOne = UUID.randomUUID()
@@ -58,7 +58,10 @@ class PlayerRegistrySpec extends BaseSpec {
   }
 
   "PlayerRegistry.has" should "return true if the player is found in memory" in {
-    val (state, _) = PlayerRegistryState.upsert(playerOne, List(testSkill, otherSkill)).run(PlayerRegistryState.empty).value
+    val (state, _) = PlayerRegistryState
+      .upsert(playerOne, List(testSkill, otherSkill))
+      .run(PlayerRegistryState.empty)
+      .value
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
@@ -72,7 +75,10 @@ class PlayerRegistrySpec extends BaseSpec {
   }
 
   "PlayerRegistry.get" should "return all the skills of the player from memory" in {
-    val (state, _) = PlayerRegistryState.upsert(playerOne, List(testSkill, otherSkill)).run(PlayerRegistryState.empty).value
+    val (state, _) = PlayerRegistryState
+      .upsert(playerOne, List(testSkill, otherSkill))
+      .run(PlayerRegistryState.empty)
+      .value
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
@@ -80,7 +86,10 @@ class PlayerRegistrySpec extends BaseSpec {
   }
 
   it should "return an empty list if the player is not in memory" in {
-    val (state, _) = PlayerRegistryState.upsert(playerOne, List(testSkill, otherSkill)).run(PlayerRegistryState.empty).value
+    val (state, _) = PlayerRegistryState
+      .upsert(playerOne, List(testSkill, otherSkill))
+      .run(PlayerRegistryState.empty)
+      .value
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
@@ -120,7 +129,10 @@ class PlayerRegistrySpec extends BaseSpec {
   }
 
   "PlayerRegistry.removeSkill" should "removes a skill from the player in memory if it is already there" in {
-    val (state, _) = PlayerRegistryState.upsert(playerOne, List(TestSkill(testName, Some("test-value")), otherSkill)).run(PlayerRegistryState.empty).value
+    val (state, _) = PlayerRegistryState
+      .upsert(playerOne, List(TestSkill(testName, Some("test-value")), otherSkill))
+      .run(PlayerRegistryState.empty)
+      .value
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
@@ -130,7 +142,10 @@ class PlayerRegistrySpec extends BaseSpec {
   }
 
   "PlayerRegistry.close" should "remove a player info from memory and sync to storage" in {
-    val (state, _) = PlayerRegistryState.upsert(playerOne, List(testSkill, otherSkill)).run(PlayerRegistryState.empty).value
+    val (state, _) = PlayerRegistryState
+      .upsert(playerOne, List(testSkill, otherSkill))
+      .run(PlayerRegistryState.empty)
+      .value
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
@@ -142,13 +157,16 @@ class PlayerRegistrySpec extends BaseSpec {
   }
 
   it should "empty the state" in {
-    val (initialState, _) = PlayerRegistryState.upsert(playerOne, List(testSkill, otherSkill)).run(PlayerRegistryState.empty).value
+    val (initialState, _) = PlayerRegistryState
+      .upsert(playerOne, List(testSkill, otherSkill))
+      .run(PlayerRegistryState.empty)
+      .value
     val (state, _) = PlayerRegistryState.upsert(playerTwo, List.empty).run(initialState).value
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
     target.close()
 
-    target.entries.isEmpty should be (true)
+    target.entries.isEmpty should be(true)
   }
 }

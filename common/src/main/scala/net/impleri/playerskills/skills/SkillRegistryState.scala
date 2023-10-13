@@ -7,13 +7,13 @@ import net.impleri.playerskills.server.skills.storage.ErrorOr
 import net.minecraft.resources.ResourceLocation
 
 case class SkillAlreadyExistsException(skill: Skill[_])
-    extends RuntimeException(s"${skill.name.toString} cannot be added again.")
+  extends RuntimeException(s"${skill.name.toString} cannot be added again.")
 
 object SkillRegistryState {
   /**
    * Internal state representation and low-level operations
    */
-  final case class Skills private(skills: List[Skill[_]]) {
+  final case class Skills private (skills: List[Skill[_]]) {
     def entries: List[Skill[_]] = skills
 
     def get(key: ResourceLocation): Option[Skill[_]] = skills.find(_.name == key)
@@ -22,8 +22,15 @@ object SkillRegistryState {
 
     def upsert(skill: Skill[_]): Skills = Skills(remove(skill.name).skills :+ skill)
 
-    def add(skill: Skill[_]): Either[SkillAlreadyExistsException, Skills] = if (has(skill.name)) Left(
-      SkillAlreadyExistsException(skill)) else Right(upsert(skill))
+    def add(skill: Skill[_]): Either[SkillAlreadyExistsException, Skills] = {
+      if (has(skill.name)) {
+        Left(
+          SkillAlreadyExistsException(skill),
+        )
+      } else {
+        Right(upsert(skill))
+      }
+    }
 
     def remove(key: ResourceLocation): Skills = Skills(skills.filter(_.name != key))
   }

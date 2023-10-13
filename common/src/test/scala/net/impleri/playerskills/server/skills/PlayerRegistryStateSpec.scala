@@ -9,7 +9,7 @@ import java.util.UUID
 class PlayerRegistryStateSpec extends BaseSpec {
   private case class TestSkill(
     override val name: ResourceLocation,
-    override val value: Option[String] = None
+    override val value: Option[String] = None,
   ) extends Skill[String]
 
   "PlayerRegistryState.empty" should "create an empty state" in {
@@ -39,9 +39,12 @@ class PlayerRegistryStateSpec extends BaseSpec {
     val expectedName = new ResourceLocation("skills", "test")
     val unneededName = new ResourceLocation("skills", "bad")
     val firstSkill = TestSkill(expectedName)
-    val replacedSkill = TestSkill(expectedName, Some("test"))
+    val replacedSkill = TestSkill(expectedName, Option("test"))
 
-    val (nextState, _) = PlayerRegistryState.upsert(givenPlayer, List(firstSkill, TestSkill(unneededName))).run(initialState).value
+    val (nextState, _) = PlayerRegistryState
+      .upsert(givenPlayer, List(firstSkill, TestSkill(unneededName)))
+      .run(initialState)
+      .value
     val (finalState, _) = PlayerRegistryState.upsert(givenPlayer, List(replacedSkill)).run(nextState).value
 
     PlayerRegistryState.entries().run(finalState).value._2.size should be(1)
@@ -63,7 +66,7 @@ class PlayerRegistryStateSpec extends BaseSpec {
 
     val givenMap = Map(
       givenPlayer -> List(testSkill),
-      otherPlayer -> List(TestSkill(otherName))
+      otherPlayer -> List(TestSkill(otherName)),
     )
 
     val (nextState, _) = PlayerRegistryState.upsertMany(givenMap).run(initialState).value
@@ -82,7 +85,10 @@ class PlayerRegistryStateSpec extends BaseSpec {
     val unneededName = new ResourceLocation("skills", "other")
     val testSkill = TestSkill(expectedName)
 
-    val (nextState, _) = PlayerRegistryState.upsert(givenPlayer, List(testSkill, TestSkill(unneededName))).run(initialState).value
+    val (nextState, _) = PlayerRegistryState
+      .upsert(givenPlayer, List(testSkill, TestSkill(unneededName)))
+      .run(initialState)
+      .value
     val (finalState, _) = PlayerRegistryState.remove(givenPlayer).run(nextState).value
 
     PlayerRegistryState.entries().run(finalState).value._2.isEmpty should be(true)
@@ -100,7 +106,7 @@ class PlayerRegistryStateSpec extends BaseSpec {
 
     val givenMap = Map(
       givenPlayer -> List(testSkill),
-      otherPlayer -> List(TestSkill(otherName))
+      otherPlayer -> List(TestSkill(otherName)),
     )
 
     val (nextState, _) = PlayerRegistryState.upsertMany(givenMap).run(initialState).value

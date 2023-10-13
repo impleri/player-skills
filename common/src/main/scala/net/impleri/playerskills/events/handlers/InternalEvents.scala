@@ -51,13 +51,13 @@ case class InternalEvents(onReload: ResourceManager => Unit) extends ResourceMan
 
   override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
 
-  def resyncPlayer(server: MinecraftServer, playerId: UUID): Unit =
+  def resyncPlayer(server: MinecraftServer, playerId: UUID): Unit = {
     server.getPlayerList.getPlayer(playerId)
       .tap(NetHandler.syncPlayer(_))
-
+  }
 
   private def onSkillChanged(event: SkillChangedEvent[_]): Unit = {
     NetHandler.syncPlayer(event)
-//    maybeUpdateBlocks(event.player.getUUID)
+    //    maybeUpdateBlocks(event.player.getUUID)
   }
 }

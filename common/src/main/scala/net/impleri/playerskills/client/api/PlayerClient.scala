@@ -5,8 +5,7 @@ import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.server.api.Player
 
 object PlayerClient {
-  def can[T](skill: Skill[T], expectedValue: Option[T]): Boolean =
-    SkillType.get(skill)
-      .map(_.can(skill, expectedValue))
-      .getOrElse(Player.DEFAULT_SKILL_RESPONSE)
+  def can[T](skill: Skill[T], expectedValue: Option[T]): Boolean = {
+    SkillType().get(skill).fold(Player.DEFAULT_SKILL_RESPONSE)(_.can(skill, expectedValue))
+  }
 }

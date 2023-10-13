@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation
 class SkillRegistryStateSpec extends BaseSpec {
   private case class TestSkill(
     override val name: ResourceLocation,
-    override val value: Option[String] = None
+    override val value: Option[String] = None,
   ) extends Skill[String]
 
   "SkillRegistryState.empty" should "create an empty state" in {
@@ -58,7 +58,7 @@ class SkillRegistryStateSpec extends BaseSpec {
     val expectedName = new ResourceLocation("skills", "test")
     val unneededName = new ResourceLocation("skills", "bad")
     val firstSkill = TestSkill(expectedName)
-    val replacedSkill = TestSkill(expectedName, Some("test"))
+    val replacedSkill = TestSkill(expectedName, Option("test"))
 
     val (nextState, _) = SkillRegistryState.upsert(firstSkill).run(initialState).value
     val (finalState, _) = SkillRegistryState.upsert(replacedSkill).run(nextState).value

@@ -5,17 +5,24 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 sealed trait LoggerType
+
 object LoggerType {
-  case object BLOCKS extends LoggerType
-  case object FLUIDS extends LoggerType
-  case object ITEMS extends LoggerType
-  case object MOBS extends LoggerType
-  case object SKILLS extends LoggerType
-  case object SKIPS extends LoggerType
+  final case object BLOCKS extends LoggerType
+
+  final case object FLUIDS extends LoggerType
+
+  final case object ITEMS extends LoggerType
+
+  final case object MOBS extends LoggerType
+
+  final case object SKILLS extends LoggerType
+
+  final case object SKIPS extends LoggerType
 }
 
 class PlayerSkillsLogger(modId: String, private val prefix: String) {
   private def instance: Logger = LogManager.getLogger(modId)
+
   private var debugEnabled = false
 
   def enableDebug(): Unit = {
@@ -51,22 +58,28 @@ class PlayerSkillsLogger(modId: String, private val prefix: String) {
 }
 
 object PlayerSkillsLogger {
-  private def apply(prefix: String, modId: String = PlayerSkills.MOD_ID): PlayerSkillsLogger = new PlayerSkillsLogger(modId, prefix)
+  private def apply(prefix: String, modId: String = PlayerSkills.MOD_ID): PlayerSkillsLogger = {
+    new PlayerSkillsLogger(
+      modId,
+      prefix,
+    )
+  }
 
   val SKILLS: PlayerSkillsLogger = PlayerSkillsLogger("CORE")
-  val SKIPS: PlayerSkillsLogger  = PlayerSkillsLogger("REST")
+  val SKIPS: PlayerSkillsLogger = PlayerSkillsLogger("REST")
   val BLOCKS: PlayerSkillsLogger = PlayerSkillsLogger("BLOCKS")
   val FLUIDS: PlayerSkillsLogger = PlayerSkillsLogger("FLUIDS")
-  val ITEMS: PlayerSkillsLogger  = PlayerSkillsLogger("ITEMS")
-  val MOBS: PlayerSkillsLogger   = PlayerSkillsLogger("MOBS")
+  val ITEMS: PlayerSkillsLogger = PlayerSkillsLogger("ITEMS")
+  val MOBS: PlayerSkillsLogger = PlayerSkillsLogger("MOBS")
 
-  def toggleDebug(logType: Option[LoggerType] = None): Boolean =
+  def toggleDebug(logType: Option[LoggerType] = None): Boolean = {
     logType match {
       case Some(LoggerType.BLOCKS) => BLOCKS.toggleDebug()
       case Some(LoggerType.FLUIDS) => FLUIDS.toggleDebug()
-      case Some(LoggerType.ITEMS)  => ITEMS.toggleDebug()
-      case Some(LoggerType.MOBS)   => MOBS.toggleDebug()
-      case Some(LoggerType.SKIPS)  => SKIPS.toggleDebug()
-      case _                       => SKILLS.toggleDebug()
+      case Some(LoggerType.ITEMS) => ITEMS.toggleDebug()
+      case Some(LoggerType.MOBS) => MOBS.toggleDebug()
+      case Some(LoggerType.SKIPS) => SKIPS.toggleDebug()
+      case _ => SKILLS.toggleDebug()
     }
+  }
 }

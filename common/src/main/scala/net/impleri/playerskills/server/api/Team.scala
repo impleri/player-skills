@@ -15,36 +15,44 @@ trait Team {
 }
 
 case class StubTeam() extends Team {
-  override protected def getTeamMembersFor(player: MinePlayer): List[UUID] =
+  override protected def getTeamMembersFor(player: MinePlayer): List[UUID] = {
     List(player.getUUID)
+  }
 }
 
 trait TeamSkillCalculator {
-  protected def getSharedSkills(player: MinePlayer): Seq[Skill[_]] =
+  protected def getSharedSkills(player: MinePlayer): Seq[Skill[_]] = {
     Player.get(player)
       .filter(_.teamMode == TeamMode.Shared())
+  }
 
-  private def getMaxSkill[T](players: Seq[UUID], skill: Skill[T]): Option[Skill[T]] =
+  private def getMaxSkill[T](players: Seq[UUID], skill: Skill[T]): Option[Skill[T]] = {
     players
       .flatMap(Player.get(_, skill.name))
       .asInstanceOf[Seq[Skill[T]]]
-      .maxOption(ord = Skill.sortHelper[T])
+      .maxOption(ord = Skill().sortHelper[T])
+  }
 
-  protected def getMaxTeamSkills(players: Seq[UUID], skills: Seq[Skill[_]]): Seq[Skill[_]] =
+  protected def getMaxTeamSkills(players: Seq[UUID], skills: Seq[Skill[_]]): Seq[Skill[_]] = {
     skills.flatMap(getMaxSkill(players, _))
+  }
 }
 
 trait TeamUpdater {
-  protected def emitHelper[T](player: ServerPlayer, next: Skill[T], prev: Option[Skill[_]]): Unit = PlayerSkills.emitSkillChanged(player, next, prev.asInstanceOf[Option[Skill[T]]])
+  protected def emitHelper[T](player: ServerPlayer, next: Skill[T], prev: Option[Skill[_]]): Unit = {
+    PlayerSkills
+      .emitSkillChanged(player, next, prev.asInstanceOf[Option[Skill[T]]])
+  }
 
-  protected def ensurePlayerOpen[V](playerId: UUID)(f: () => V): V =
+  protected def ensurePlayerOpen[V](playerId: UUID)(f: () => V): V = {
     Player.isOnline(playerId)
       .tap(a => if (!a) Player.open(playerId))
       .pipe(a => (a, f()))
       .tap(t => if (!t._1) Player.close(playerId))
       ._2
+  }
 
-  protected def updateMemberSkill[T](skill: Skill[T])(playerId: UUID): Option[(UUID, Option[Skill[T]])] =
+  protected def updateMemberSkill[T](skill: Skill[T])(playerId: UUID): Option[(UUID, Option[Skill[T]])] = {
     ensurePlayerOpen(playerId) { () =>
       Player.can(playerId, skill, skill.value)
         .pipe(c => (c, Player.get(playerId, skill.name)))
@@ -52,6 +60,7 @@ trait TeamUpdater {
         .pipe(t => (t._2, if (!t._1) Player.upsert(playerId, skill) else Seq.empty))
         .pipe(t => if (t._2.nonEmpty) Some(playerId, t._1) else None)
     }
+  }
 }
 
 object Team extends TeamUpdater with TeamSkillCalculator {
@@ -60,67 +69,81 @@ object Team extends TeamUpdater with TeamSkillCalculator {
   def setInstance(instance: Team): Unit = Team.instance = instance
 
 
-  private def countPlayerIf[T](skill: Skill[T])(playerId: UUID): Boolean =
+  private def countPlayerIf[T](skill: Skill[T])(playerId: UUID): Boolean = {
     ensurePlayerOpen(playerId)(() => Player.can(playerId, skill, skill.value))
+  }
 
-  private def countWith(playerIds: Seq[UUID], skill: Skill[_]): Int =
+  private def countWith(playerIds: Seq[UUID], skill: Skill[_]): Int = {
     playerIds.count(countPlayerIf(skill))
+  }
 
-  private def getTeamLimit[T](players: Seq[UUID], skill: Skill[T]) =
-    Some(players.size)
+  private def getTeamLimit[T](players: Seq[UUID], skill: Skill[T]) = {
+    Option(players.size)
       .filter(_ > 1)
       .filter(_ => skill.teamMode match {
         case TeamMode.Off() => false
         case TeamMode.Shared() => false
         case _ => true
-      })
+      },
+      )
       .map(skill.teamMode.getLimit(skill, _))
+  }
 
-  private def hasRoomToGrow(count: Int, limit: Option[Int]) =
+  private def hasRoomToGrow(count: Int, limit: Option[Int]) = {
     limit.forall(count < _)
+  }
 
-  private def allows[T](player: MinePlayer, skill: Skill[T]): Boolean =
+  private def allows[T](player: MinePlayer, skill: Skill[T]): Boolean = {
     player
       .pipe(instance.getTeamMembersFor)
       .pipe(s => (countWith(s, skill), getTeamLimit(s, skill)))
       .tap(t => PlayerSkillsLogger.SKILLS.info(s"Does the team allow updating skill? (${t._1} < ${t._2})"))
       .pipe(t => hasRoomToGrow(t._1, t._2))
+  }
 
-  private def updateTeamSkill[T](player: MinePlayer, skill: Skill[T], emit: Boolean = true) =
+  private def updateTeamSkill[T](player: MinePlayer, skill: Skill[T], emit: Boolean = true) = {
     player
       .pipe(instance.getTeamMembersFor)
       .flatMap(updateMemberSkill(skill))
       .map(t => (player.getServer.getPlayerList.getPlayer(t._1), t._2))
       .tap(e => if (emit) e.foreach(t => emitHelper(t._1, skill, t._2)))
       .nonEmpty
+  }
 
-  private def updateSkill[T](player: MinePlayer)(skill: Skill[T]) =
+  private def updateSkill[T](player: MinePlayer)(skill: Skill[T]) = {
     if (skill.teamMode == TeamMode.Shared()) updateTeamSkill(player, skill) else Player.upsert(player, skill).nonEmpty
+  }
 
   def changeSkill[T](player: MinePlayer, skill: Skill[T], value: Option[T]): Option[Boolean] = {
     value.orElse(skill.value)
       .pipe(Player.calculateValue(player, skill, _))
-      .tap(_ => PlayerSkillsLogger.SKILLS.info(s"Changing skill ${skill.name} to $value for ${player.getName.getString}"))
+      .tap(_ => PlayerSkillsLogger
+        .SKILLS
+        .info(s"Changing skill ${skill.name} to $value for ${player.getName.getString}"),
+      )
       .filter(_ => allows(player, skill))
       .tap(a => PlayerSkillsLogger.SKILLS.info(s"Is skill change allowed? $a"))
       .map(updateSkill(player))
   }
 
-  def degrade[T](player: MinePlayer, skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] =
-    Skill.calculatePrev(skill, min, max)
-      .flatMap(v => changeSkill(player, skill, Some(v)))
+  def degrade[T](player: MinePlayer, skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] = {
+    Skill().calculatePrev(skill, min, max)
+      .flatMap(v => changeSkill(player, skill, Option(v)))
+  }
 
-  def improve[T](player: MinePlayer, skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] =
-    Skill.calculateNext(skill, min, max)
+  def improve[T](player: MinePlayer, skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] = {
+    Skill().calculateNext(skill, min, max)
       .tap(_ => PlayerSkillsLogger.SKILLS.info(s"Improving skill ${skill.name} for ${player.getName.getString}"))
-      .flatMap(v => changeSkill(player, skill, Some(v)))
+      .flatMap(v => changeSkill(player, skill, Option(v)))
+  }
 
-  def syncFromPlayer(player: ServerPlayer): Boolean =
+  def syncFromPlayer(player: ServerPlayer): Boolean = {
     player
       .tap(p => PlayerSkillsLogger.SKILLS.debug(s"Syncing skills from ${p.getName}"))
       .pipe(getSharedSkills)
       .map(updateTeamSkill(player, _))
       .forall(_ == true)
+  }
 
   def syncEntireTeam(player: ServerPlayer): Boolean = {
     PlayerSkillsLogger.SKILLS.debug(s"Syncing entire team connected to ${player.getName}")
@@ -136,7 +159,9 @@ object Team extends TeamUpdater with TeamSkillCalculator {
     updated
       .filterNot(t => offlinePlayers.contains(t._1))
       .filter(t => t._2.nonEmpty)
-      .map(t => (player.server.getPlayerList.getPlayer(t._1), t._2.flatMap(s => maxSkills.find(_.name == s.name)), t._2))
+      .map(t => (player.server.getPlayerList.getPlayer(t._1), t._2.flatMap(s => maxSkills.find(_.name == s.name)), t
+        ._2),
+      )
       .foreach(t => emitHelper(t._1, t._2.get, t._3))
 
     updated.nonEmpty

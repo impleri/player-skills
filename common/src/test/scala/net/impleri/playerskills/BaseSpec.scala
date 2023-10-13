@@ -3,7 +3,6 @@ package net.impleri.playerskills
 import org.apache.logging.log4j.LogManager
 import org.mockito.ArgumentMatchersSugar
 import org.mockito.IdiomaticMockito
-import org.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.EitherValues
 import org.scalatest.OneInstancePerTest
