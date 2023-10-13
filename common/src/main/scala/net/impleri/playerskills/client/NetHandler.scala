@@ -7,10 +7,11 @@ import net.minecraft.client.Minecraft
 import scala.util.chaining._
 
 object NetHandler {
-  def resyncPlayer(): Unit =
+  def resyncPlayer(): Unit = {
     Minecraft.getInstance()
       .player
       .tap(p => PlayerSkillsLogger.SKILLS.debug(s"Requesting skills resync for ${p.getName}"))
       .pipe(ResyncSkillsMessage(_))
       .pipe(_.sendToServer())
+  }
 }

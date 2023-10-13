@@ -23,7 +23,7 @@ case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[Minecraft
   }
 
   private def beforeServerStart(server: MinecraftServer): Unit = {
-    onServerChange(Some(server))
+    onServerChange(Option(server))
   }
 
   private def onServerStart(): Unit = {

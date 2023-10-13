@@ -8,8 +8,8 @@ import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.server.api.Player
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
-import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
+import net.minecraft.commands.CommandSourceStack
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.{Player => MinePlayer}
 
@@ -19,7 +19,7 @@ import scala.util.chaining._
 trait SetSkillCommand extends SetCommandUtils {
   private val REQUIRED_PERMISSION = 2
 
-  protected def registerSetCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] =
+  protected def registerSetCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
     builder.`then`(
       Commands.literal("set")
         .requires(c => c.hasPermission(REQUIRED_PERMISSION))
@@ -34,9 +34,10 @@ trait SetSkillCommand extends SetCommandUtils {
                       Try(EntityArgument.getPlayer(c, "player")).toOption,
                       Try(ResourceLocationArgument.getId(c, "skill")).toOption,
                       StringArgumentType.getString(c, "value"),
-                    ))
-                )
-            )
+                    ),
+                    ),
+                ),
+            ),
         )
         .`then`(
           Commands.argument("skill", ResourceLocationArgument.id())
@@ -47,17 +48,20 @@ trait SetSkillCommand extends SetCommandUtils {
                   Try(c.getSource.getPlayerOrException).toOption,
                   Try(ResourceLocationArgument.getId(c, "skill")).toOption,
                   StringArgumentType.getString(c, "value"),
-                ))
-            )
-        )
+                ),
+                ),
+            ),
+        ),
     )
+  }
 
-  private def grantFoundSkillTo[T](player: Option[MinePlayer], skill: Skill[T], value: String) =
-    SkillType.get(skill)
+  private def grantFoundSkillTo[T](player: Option[MinePlayer], skill: Skill[T], value: String) = {
+    SkillType().get(skill)
       .map(_.castFromString(Option(value)))
       .map(v => skill.asInstanceOf[Skill[T] with ChangeableSkillOps[T, Skill[T]]].mutate(v))
       .map(s => player.map(Player.upsert(_, s)))
       .pipe(_.nonEmpty)
+  }
 
   private def grantPlayerSkill[T](
     source: CommandSourceStack,
@@ -66,7 +70,7 @@ trait SetSkillCommand extends SetCommandUtils {
     value: String,
   ): Int = {
     skillName
-      .flatMap(Skill.get[T])
+      .flatMap(Skill().get[T])
       .map(grantFoundSkillTo[T](player, _, value))
       .pipe(notifyPlayer(
         source,
@@ -74,7 +78,8 @@ trait SetSkillCommand extends SetCommandUtils {
         skillName,
         successMessage = "commands.playerskills.skill_changed",
         failureMessage = "commands.playerskills.skill_change_failed",
-      ))
+      ),
+      )
   }
 
 }

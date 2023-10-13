@@ -9,7 +9,7 @@ import java.util.UUID
  * Handles the cache side of interacting with player skills
  */
 object PlayerRegistryState {
-  final case class CachedPlayers private(protected val state: Map[UUID, List[Skill[_]]]) {
+  final case class CachedPlayers private (protected val state: Map[UUID, List[Skill[_]]]) {
     def entries(): List[(UUID, List[Skill[_]])] = state.toList
 
     def has(playerId: UUID): Boolean = state.contains(playerId)
@@ -18,15 +18,25 @@ object PlayerRegistryState {
 
     def upsert(
       playerId: UUID,
-      skills: List[Skill[_]]
-    ): CachedPlayers = CachedPlayers(remove(playerId).state + (playerId -> skills))
+      skills: List[Skill[_]],
+    ): CachedPlayers = {
+      CachedPlayers(remove(playerId).state + (playerId -> skills))
+    }
 
-    def upsertMany(values: Map[UUID, List[Skill[_]]]): CachedPlayers = CachedPlayers(removeMany(values.keys.toList).state ++ values)
+    def upsertMany(values: Map[UUID, List[Skill[_]]]): CachedPlayers = {
+      CachedPlayers(removeMany(values.keys.toList)
+        .state ++ values,
+      )
+    }
 
     def remove(playerId: UUID): CachedPlayers = CachedPlayers(state.filterNot(_._1 == playerId))
 
-    def removeMany(playerIds: List[UUID]): CachedPlayers = CachedPlayers(state.filterNot(
-      e => playerIds.contains(e._1)))
+    def removeMany(playerIds: List[UUID]): CachedPlayers = {
+      CachedPlayers(state.filterNot(
+        e => playerIds.contains(e._1),
+      ),
+      )
+    }
   }
 
   private def readOp[T](f: CachedPlayers => T): State[CachedPlayers, T] = State[CachedPlayers, T](s => (s, f(s)))

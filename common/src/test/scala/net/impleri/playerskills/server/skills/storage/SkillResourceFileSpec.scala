@@ -15,9 +15,9 @@ class SkillResourceFileSpec extends BaseSpec {
 
     pathMock.toFile returns fileMock
 
-    val unit= SkillResourceFile(pathMock)
+    val unit = SkillResourceFile(pathMock)
 
-    unit.getPlayerFile(testId).toString should be (s"/tmp/players/${testId.toString}.skills")
+    unit.getPlayerFile(testId).toString should be(s"/tmp/players/${testId.toString}.skills")
   }
 
   "SkillStorage.apply" should "create the right class" in {
@@ -28,6 +28,6 @@ class SkillResourceFileSpec extends BaseSpec {
 
     val received = SkillResourceFile(serverMock)
 
-    received.storage should be (pathMock)
+    received.storage should be(pathMock)
   }
 }

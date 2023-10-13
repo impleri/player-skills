@@ -12,7 +12,7 @@ import scala.jdk.javaapi.CollectionConverters
 class SkillRegistrySpec extends BaseSpec {
   private case class TestSkill(
     override val name: ResourceLocation,
-    override val value: Option[String] = None
+    override val value: Option[String] = None,
   ) extends Skill[String]
 
   private val testName = new ResourceLocation("skills", "test")
@@ -106,7 +106,7 @@ class SkillRegistrySpec extends BaseSpec {
 
     val target = SkillRegistry(state, registrarMock)
 
-    val newSkill = TestSkill(testName, Some("test-value"))
+    val newSkill = TestSkill(testName, Option("test-value"))
 
     target.upsert(newSkill)
 
@@ -116,7 +116,7 @@ class SkillRegistrySpec extends BaseSpec {
   "SkillRegistry.add" should "insert a new skill into state" in {
     val registrarMock = mock[Registrar[Skill[_]]]
 
-    val target = SkillRegistry(gameRegistrar =  registrarMock)
+    val target = SkillRegistry(gameRegistrar = registrarMock)
 
     target.find(testName) should be(None)
 

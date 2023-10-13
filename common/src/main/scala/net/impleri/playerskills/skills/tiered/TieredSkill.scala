@@ -17,6 +17,9 @@ case class TieredSkill(
 ) extends Skill[String] with ChangeableSkillOps[String, TieredSkill] {
   override val skillType: ResourceLocation = TieredSkillType.NAME
 
-  override protected[playerskills] def mutate(value: Option[String], changesAllowed: Int): TieredSkill = copy(
-    value = value, changesAllowed = changesAllowed)
+  override protected[playerskills] def mutate(value: Option[String], changesAllowed: Int): TieredSkill = {
+    copy(
+      value = value, changesAllowed = changesAllowed,
+    )
+  }
 }

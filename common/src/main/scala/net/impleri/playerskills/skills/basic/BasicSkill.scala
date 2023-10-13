@@ -17,12 +17,14 @@ case class BasicSkill(
 ) extends Skill[Boolean] with ChangeableSkillOps[Boolean, BasicSkill] {
   override val skillType: ResourceLocation = BasicSkillType.NAME
 
-  override protected[playerskills] def mutate(value: Option[Boolean], changesAllowed: Int): BasicSkill =
+  override protected[playerskills] def mutate(value: Option[Boolean], changesAllowed: Int): BasicSkill = {
     copy(value = value, changesAllowed = changesAllowed)
+  }
 
-  override def getMessageKey: String =
+  override def getMessageKey: String = {
     value match {
       case Some(true) => "playerskills.notify.basic_skill_enabled"
       case _ => "playerskills.notify.basic_skill_disabled"
     }
+  }
 }

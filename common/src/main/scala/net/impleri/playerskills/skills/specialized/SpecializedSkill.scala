@@ -17,8 +17,11 @@ case class SpecializedSkill(
 ) extends Skill[String] with ChangeableSkillOps[String, SpecializedSkill] {
   override val skillType: ResourceLocation = SpecializedSkillType.NAME
 
-  override protected[playerskills] def mutate(value: Option[String], changesAllowed: Int): SpecializedSkill = copy(
-    value = value, changesAllowed = changesAllowed)
+  override protected[playerskills] def mutate(value: Option[String], changesAllowed: Int): SpecializedSkill = {
+    copy(
+      value = value, changesAllowed = changesAllowed,
+    )
+  }
 
   override def getMessageKey: String = "playerskills.notify.specialized_skill_selected"
 }

@@ -27,25 +27,28 @@ object PlayerSkills {
   }
 
   // @TODO: Maybe move elsewhere?
-    //    if (Platform.isModLoaded("ftbquests")) {
-    //      net.impleri.playerskills.integrations.ftbquests.PlayerSkillsIntegration.init()
-    //    }
+  //    if (Platform.isModLoaded("ftbquests")) {
+  //      net.impleri.playerskills.integrations.ftbquests.PlayerSkillsIntegration.init()
+  //    }
 
   def emitSkillChanged[T](player: Player, newSkill: Skill[T], oldSkill: Option[Skill[T]]): Unit = {
-    SkillChangedEvent.EVENT.invoker().accept(SkillChangedEvent[T](player, Some(newSkill), oldSkill))
+    SkillChangedEvent.EVENT.invoker().accept(SkillChangedEvent[T](player, Option(newSkill), oldSkill))
 
     player match {
-      case sp: ServerPlayer => newSkill
-        .getNotification(oldSkill.flatMap(_.value))
-        .foreach(sp.sendSystemMessage(_, true))
+      case sp: ServerPlayer => {
+        newSkill
+          .getNotification(oldSkill.flatMap(_.value))
+          .foreach(sp.sendSystemMessage(_, true))
+      }
     }
   }
 
-  private def registerTypes() =
-  SKILL_TYPES
-    .tap(_.register(BasicSkillType.NAME, () => BasicSkillType()))
-    .tap(_.register(NumericSkillType.NAME, () => NumericSkillType()))
-    .tap(_.register(TieredSkillType.NAME, () => TieredSkillType()))
-    .tap(_.register(SpecializedSkillType.NAME, () => SpecializedSkillType()))
-    .tap(_.register())
+  private def registerTypes() = {
+    SKILL_TYPES
+      .tap(_.register(BasicSkillType.NAME, () => BasicSkillType()))
+      .tap(_.register(NumericSkillType.NAME, () => NumericSkillType()))
+      .tap(_.register(TieredSkillType.NAME, () => TieredSkillType()))
+      .tap(_.register(SpecializedSkillType.NAME, () => SpecializedSkillType()))
+      .tap(_.register())
+  }
 }

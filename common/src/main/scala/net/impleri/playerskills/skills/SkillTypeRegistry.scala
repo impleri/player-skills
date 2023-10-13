@@ -12,13 +12,19 @@ import scala.jdk.javaapi.CollectionConverters
 case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillType[_]]) {
   private[skills] var state: List[SkillType[_]] = List.empty
 
-  def resync(): Unit = state = CollectionConverters.asScala(gameRegistrar.entrySet())
-    .toList
-    .map(_.getValue)
+  def resync(): Unit = {
+    state = CollectionConverters.asScala(gameRegistrar.entrySet())
+      .toList
+      .map(_.getValue)
+  }
 
   def entries: List[SkillType[_]] = state
 
-  def find[T](key: ResourceLocation): Option[SkillType[T]] = state.find(_.name == key).asInstanceOf[Option[SkillType[T]]]
+  def find[T](key: ResourceLocation): Option[SkillType[T]] = {
+    state
+      .find(_.name == key)
+      .asInstanceOf[Option[SkillType[T]]]
+  }
 }
 
 object SkillTypeRegistry {
@@ -29,6 +35,8 @@ object SkillTypeRegistry {
     .build()
 
   def apply(
-    gameRegistrar: Registrar[SkillType[_]] = REGISTRY
-  ): SkillTypeRegistry = new SkillTypeRegistry(gameRegistrar)
+    gameRegistrar: Registrar[SkillType[_]] = REGISTRY,
+  ): SkillTypeRegistry = {
+    new SkillTypeRegistry(gameRegistrar)
+  }
 }
