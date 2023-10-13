@@ -23,21 +23,23 @@ trait SkillValueCommand extends ValuesCommandUtils {
             .requires(c => c.hasPermission(REQUIRED_PERMISSION))
             .`then`(
               Commands.argument("skill", ResourceLocationArgument.id())
-                .executes(c => getSkillValue(
-                  c.getSource,
-                  Try(EntityArgument.getPlayer(c, "player")).toOption,
-                  Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-                ),
+                .executes(
+                  c => getSkillValue(
+                    c.getSource,
+                    Try(EntityArgument.getPlayer(c, "player")).toOption,
+                    Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+                  ),
                 ),
             ),
         )
         .`then`(
           Commands.argument("skill", ResourceLocationArgument.id())
-            .executes(c => getSkillValue(
-              c.getSource,
-              Try(c.getSource.getPlayerOrException).toOption,
-              Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-            ),
+            .executes(
+              c => getSkillValue(
+                c.getSource,
+                Try(c.getSource.getPlayerOrException).toOption,
+                Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+              ),
             ),
         ),
     )

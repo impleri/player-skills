@@ -29,12 +29,13 @@ trait SetSkillCommand extends SetCommandUtils {
               Commands.argument("skill", ResourceLocationArgument.id())
                 .`then`(
                   Commands.argument("value", StringArgumentType.string())
-                    .executes(c => grantPlayerSkill(
-                      c.getSource,
-                      Try(EntityArgument.getPlayer(c, "player")).toOption,
-                      Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-                      StringArgumentType.getString(c, "value"),
-                    ),
+                    .executes(
+                      c => grantPlayerSkill(
+                        c.getSource,
+                        Try(EntityArgument.getPlayer(c, "player")).toOption,
+                        Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+                        StringArgumentType.getString(c, "value"),
+                      ),
                     ),
                 ),
             ),
@@ -43,12 +44,13 @@ trait SetSkillCommand extends SetCommandUtils {
           Commands.argument("skill", ResourceLocationArgument.id())
             .`then`(
               Commands.argument("value", StringArgumentType.string())
-                .executes(c => grantPlayerSkill(
-                  c.getSource,
-                  Try(c.getSource.getPlayerOrException).toOption,
-                  Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-                  StringArgumentType.getString(c, "value"),
-                ),
+                .executes(
+                  c => grantPlayerSkill(
+                    c.getSource,
+                    Try(c.getSource.getPlayerOrException).toOption,
+                    Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+                    StringArgumentType.getString(c, "value"),
+                  ),
                 ),
             ),
         ),
@@ -72,13 +74,14 @@ trait SetSkillCommand extends SetCommandUtils {
     skillName
       .flatMap(Skill().get[T])
       .map(grantFoundSkillTo[T](player, _, value))
-      .pipe(notifyPlayer(
-        source,
-        player,
-        skillName,
-        successMessage = "commands.playerskills.skill_changed",
-        failureMessage = "commands.playerskills.skill_change_failed",
-      ),
+      .pipe(
+        notifyPlayer(
+          source,
+          player,
+          skillName,
+          successMessage = "commands.playerskills.skill_changed",
+          failureMessage = "commands.playerskills.skill_change_failed",
+        ),
       )
   }
 

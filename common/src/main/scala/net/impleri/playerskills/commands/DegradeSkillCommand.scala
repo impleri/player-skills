@@ -24,21 +24,23 @@ trait DegradeSkillCommand extends SetCommandUtils {
           Commands.argument("player", EntityArgument.player())
             .`then`(
               Commands.argument("skill", ResourceLocationArgument.id())
-                .executes(c => degradePlayerSkill(
-                  c.getSource,
-                  Try(EntityArgument.getPlayer(c, "player")).toOption,
-                  Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-                ),
+                .executes(
+                  c => degradePlayerSkill(
+                    c.getSource,
+                    Try(EntityArgument.getPlayer(c, "player")).toOption,
+                    Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+                  ),
                 ),
             ),
         )
         .`then`(
           Commands.argument("skill", ResourceLocationArgument.id())
-            .executes(c => degradePlayerSkill(
-              c.getSource,
-              Try(c.getSource.getPlayerOrException).toOption,
-              Try(ResourceLocationArgument.getId(c, "skill")).toOption,
-            ),
+            .executes(
+              c => degradePlayerSkill(
+                c.getSource,
+                Try(c.getSource.getPlayerOrException).toOption,
+                Try(ResourceLocationArgument.getId(c, "skill")).toOption,
+              ),
             ),
         ),
     )
@@ -52,13 +54,14 @@ trait DegradeSkillCommand extends SetCommandUtils {
     skillName
       .flatMap(Skill().get[T])
       .flatMap(s => player.flatMap(p => Team.degrade(p, s, None, None)))
-      .pipe(notifyPlayer(
-        source,
-        player,
-        skillName,
-        successMessage = "commands.playerskills.skill_degraded",
-        failureMessage = "commands.playerskills.skill_degrade_failed",
-      ),
+      .pipe(
+        notifyPlayer(
+          source,
+          player,
+          skillName,
+          successMessage = "commands.playerskills.skill_degraded",
+          failureMessage = "commands.playerskills.skill_degrade_failed",
+        ),
       )
   }
 }
