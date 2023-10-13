@@ -75,19 +75,29 @@ trait Skill[T] extends SkillData[T] with ChangeableSkill[T] with TranslatableSki
 /**
  * Facade to Skills registry for interacting with the registered skills
  */
-class SkillOps(private val skillType: SkillTypeOps) {
-  def all(): List[Skill[_]] = StateContainer.SKILLS.entries
+trait SkillRegistryFacade {
+  protected def state: SkillRegistry
 
-  def get[T](name: ResourceLocation): Option[Skill[T]] = StateContainer.SKILLS.find(name).asInstanceOf[Option[Skill[T]]]
+  protected def logger: PlayerSkillsLogger
+
+  def all(): List[Skill[_]] = state.entries
+
+  def get[T](name: ResourceLocation): Option[Skill[T]] = state.find(name).asInstanceOf[Option[Skill[T]]]
 
   def upsert[T](skill: Skill[T]): Unit = {
     skill
-      .tap(PlayerSkillsLogger.SKILLS.infoP(s => s"Saving skill ${s.name}"))
-      .pipe(StateContainer.SKILLS.upsert)
+      .tap(logger.infoP(s => s"Saving skill ${s.name}"))
+      .pipe(state.upsert)
   }
 
-  def remove(skill: Skill[_]): Unit = StateContainer.SKILLS.remove(skill)
+  def remove(skill: Skill[_]): Unit = state.remove(skill)
+}
 
+class SkillOps(
+  private val skillType: SkillTypeOps,
+  protected val state: SkillRegistry,
+  protected val logger: PlayerSkillsLogger,
+) extends SkillRegistryFacade {
   def calculatePrev[T](skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T] = {
     skillType.get(skill.skillType)
       .asInstanceOf[Option[SkillType[T]]]
@@ -119,5 +129,11 @@ object Skill {
 
   val UNLIMITED_CHANGES: Int = -1
 
-  def apply(skillType: SkillTypeOps = SkillType()) = new SkillOps(skillType)
+  def apply(
+    skillType: SkillTypeOps = SkillType(),
+    state: SkillRegistry = StateContainer.SKILLS,
+    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  ): SkillOps = {
+    new SkillOps(skillType, state, logger)
+  }
 }
