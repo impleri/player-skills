@@ -64,12 +64,11 @@ object Player {
   def reset(player: MinePlayer, skill: Skill[_]): List[Skill[_]] = reset(player.getUUID, skill)
 
   def calculateValue[T](player: MinePlayer, skill: Skill[T], value: Option[T]): Option[Skill[T]] = {
-    get(player, skill.name)
-      .orElse(Skill().get(skill.name))
-      .asInstanceOf[Option[Skill[T]]]
+    get[T](player, skill.name)
+      .orElse(Skill().get[T](skill.name))
       .filter(_.areChangesAllowed())
       .filter(_.isAllowedValue(value))
       .filter(_.value != value)
-      .map(_.asInstanceOf[Skill[T] with ChangeableSkillOps[T, Skill[T]]].mutate(value))
+      .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(value))
   }
 }

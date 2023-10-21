@@ -87,7 +87,7 @@ class SkillRegistry(
       .pipe(maintainState)
   }
 
-  def remove(skill: Skill[_]): Unit = remove(skill.name)
+  def removeSkill(skill: Skill[_]): Unit = remove(skill.name)
 }
 
 object SkillRegistry {

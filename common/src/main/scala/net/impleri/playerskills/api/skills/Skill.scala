@@ -8,8 +8,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.ChatFormatting
 
-import scala.util.chaining.scalaUtilChainingOps
-
 sealed trait SkillData[T] {
   val name: ResourceLocation = SkillResourceLocation.of("empty").get
   val skillType: ResourceLocation = SkillResourceLocation.of("empty").get
@@ -38,7 +36,7 @@ trait ChangeableSkillOps[T, S <: ChangeableSkill[T]] extends ChangeableSkill[T] 
 }
 
 sealed trait TranslatableSkill[T] extends SkillData[T] {
-  def announceChange: Boolean = false
+  val announceChange: Boolean = false
 
   def notifyKey: Option[String] = None
 
@@ -50,12 +48,10 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
       .withStyle(ChatFormatting.BOLD)
   }
 
-  protected def formatSkillValue(value: Option[T]): Component = {
+  protected def formatSkillValue(value: Option[T] = this.value): Component = {
     Component.literal(value.fold("")(v => s"$v"))
       .withStyle(ChatFormatting.GOLD)
   }
-
-  protected def formatSkillValue(): Component = formatSkillValue(value)
 
   protected def formatNotificationMessage(messageKey: String, oldValue: Option[T] = None): Component = {
     Component.translatable(messageKey, formatSkillName(), formatSkillValue(), formatSkillValue(oldValue))
@@ -85,12 +81,11 @@ trait SkillRegistryFacade {
   def get[T](name: ResourceLocation): Option[Skill[T]] = state.find(name).asInstanceOf[Option[Skill[T]]]
 
   def upsert[T](skill: Skill[T]): Unit = {
-    skill
-      .tap(logger.infoP(s => s"Saving skill ${s.name}"))
-      .pipe(state.upsert)
+    logger.info(s"Saving skill ${skill.name}")
+    state.upsert(skill)
   }
 
-  def remove(skill: Skill[_]): Unit = state.remove(skill)
+  def remove(skill: Skill[_]): Unit = state.removeSkill(skill)
 }
 
 class SkillOps(
@@ -99,14 +94,12 @@ class SkillOps(
   protected val logger: PlayerSkillsLogger,
 ) extends SkillRegistryFacade {
   def calculatePrev[T](skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T] = {
-    skillType.get(skill.skillType)
-      .asInstanceOf[Option[SkillType[T]]]
+    skillType.get(skill)
       .flatMap(_.getPrevValue(skill, min, max))
   }
 
   def calculateNext[T](skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T] = {
-    skillType.get(skill.skillType)
-      .asInstanceOf[Option[SkillType[T]]]
+    skillType.get(skill)
       .flatMap(_.getNextValue(skill, min, max))
   }
 

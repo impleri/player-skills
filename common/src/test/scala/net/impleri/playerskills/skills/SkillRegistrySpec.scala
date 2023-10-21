@@ -125,7 +125,7 @@ class SkillRegistrySpec extends BaseSpec {
     target.find(testName).value should be(testSkill)
   }
 
-  "SkillRegistry.remove" should "replace a skill in state" in {
+  "SkillRegistry.removeSkill" should "remove a skill from state" in {
     val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
 
     val registrarMock = mock[Registrar[Skill[_]]]
@@ -134,7 +134,7 @@ class SkillRegistrySpec extends BaseSpec {
 
     target.find(testName).value should be(testSkill)
 
-    target.remove(testSkill)
+    target.removeSkill(testSkill)
 
     target.find(testName) should be(None)
   }

@@ -31,9 +31,8 @@ sealed trait SerializableSkillType[T] {
 
   def deserialize(name: String, value: Option[String], changesAllowed: Int): Option[Skill[T]] = {
     SkillResourceLocation.of(name)
-      .flatMap(Skill().get)
-      .asInstanceOf[Option[Skill[T] with ChangeableSkillOps[T, Skill[T]]]]
-      .map(_.mutate(castFromString(value), changesAllowed))
+      .flatMap(Skill().get[T])
+      .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(castFromString(value), changesAllowed))
   }
 }
 
@@ -96,8 +95,7 @@ class SkillTypeOps(
       case name :: skillType :: value :: changesAllowed :: _ => {
         logger.debug(s"Hydrating $skillType skill named $name: $value")
         SkillResourceLocation.of(skillType)
-          .flatMap(get)
-          .asInstanceOf[Option[SkillType[T]]] // Unfortunately we need to cast it because it comes back as Any
+          .flatMap(get[T])
           .flatMap(_.deserialize(name, parseValue(value), parseChanges(changesAllowed)))
       }
       case _ => {
