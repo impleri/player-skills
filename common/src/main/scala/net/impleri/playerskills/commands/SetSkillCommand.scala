@@ -60,7 +60,7 @@ trait SetSkillCommand extends SetCommandUtils {
   private def grantFoundSkillTo[T](player: Option[MinePlayer], skill: Skill[T], value: String) = {
     SkillType().get(skill)
       .map(_.castFromString(Option(value)))
-      .map(v => skill.asInstanceOf[Skill[T] with ChangeableSkillOps[T, Skill[T]]].mutate(v))
+      .map(v => skill.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(v))
       .map(s => player.map(Player.upsert(_, s)))
       .pipe(_.nonEmpty)
   }

@@ -28,8 +28,7 @@ trait TeamSkillCalculator {
 
   private def getMaxSkill[T](players: Seq[UUID], skill: Skill[T]): Option[Skill[T]] = {
     players
-      .flatMap(Player.get(_, skill.name))
-      .asInstanceOf[Seq[Skill[T]]]
+      .flatMap(Player.get[T](_, skill.name))
       .maxOption(ord = Skill().sortHelper[T])
   }
 
@@ -55,8 +54,7 @@ trait TeamUpdater {
   protected def updateMemberSkill[T](skill: Skill[T])(playerId: UUID): Option[(UUID, Option[Skill[T]])] = {
     ensurePlayerOpen(playerId) { () =>
       Player.can(playerId, skill, skill.value)
-        .pipe(c => (c, Player.get(playerId, skill.name)))
-        .asInstanceOf[(Boolean, Option[Skill[T]])]
+        .pipe(c => (c, Player.get[T](playerId, skill.name)))
         .pipe(t => (t._2, if (!t._1) Player.upsert(playerId, skill) else Seq.empty))
         .pipe(t => if (t._2.nonEmpty) Some(playerId, t._1) else None)
     }
