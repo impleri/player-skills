@@ -3,6 +3,7 @@ package net.impleri.playerskills.skills
 import dev.architectury.registry.registries.Registrar
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -10,9 +11,13 @@ import net.minecraft.resources.ResourceLocation
 import scala.jdk.javaapi.CollectionConverters
 
 class SkillTypeRegistrySpec extends BaseSpec {
+  private val skillOpsMock = mock[SkillOps]
+
   private case class TestSkillType(
     override val name: ResourceLocation,
   ) extends SkillType[String] {
+    override val skillOps: SkillOps = skillOpsMock
+
     override protected def castToString(value: Option[String]): Option[String] = Option("test-skill")
 
     override def castFromString(value: Option[String]): Option[String] = Option("test-value")
