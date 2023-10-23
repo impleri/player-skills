@@ -16,6 +16,8 @@ sealed trait ChangeableSkillType[T] {
 }
 
 sealed trait SerializableSkillType[T] {
+  protected def skillOps: SkillOps
+
   protected def castToString(value: Option[T]): Option[String]
 
   def castFromString(value: Option[String]): Option[T]
@@ -30,14 +32,14 @@ sealed trait SerializableSkillType[T] {
   }
 
   def deserialize(name: String, value: Option[String], changesAllowed: Int): Option[Skill[T]] = {
-    SkillResourceLocation.of(name)
-      .flatMap(Skill().get[T])
+    SkillResourceLocation(name)
+      .flatMap(skillOps.get[T])
       .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(castFromString(value), changesAllowed))
   }
 }
 
 trait SkillType[T] extends ChangeableSkillType[T] with SerializableSkillType[T] {
-  def name: ResourceLocation = SkillResourceLocation.of("skill").get
+  def name: ResourceLocation = SkillResourceLocation("skill").get
 
   def can(skill: Skill[T], threshold: Option[T] = None): Boolean = {
     skill.value.exists(v => threshold.forall(v == _))
@@ -106,7 +108,7 @@ class SkillTypeOps(
   }
 
   def deserialize(value: String): Option[Skill[_]] = {
-    value.pipe(splitRawSkill)
+    splitRawSkill(value)
       .pipe(createSkill)
   }
 
