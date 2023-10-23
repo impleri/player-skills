@@ -4,7 +4,7 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 
 import scala.collection.mutable
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 object Registry {
   private val playerSkills: mutable.ListBuffer[Skill[_]] = mutable.ListBuffer()

@@ -23,7 +23,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
 
 import scala.jdk.javaapi.CollectionConverters
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 case class LimitRequiredForTeamMode() extends Exception
 

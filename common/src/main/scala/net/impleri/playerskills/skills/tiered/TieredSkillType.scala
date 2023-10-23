@@ -1,14 +1,15 @@
 package net.impleri.playerskills.skills.tiered
 
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
-case class TieredSkillType() extends SkillType[String] {
+case class TieredSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[String] {
   override def name: ResourceLocation = TieredSkillType.NAME
 
   override def castToString(value: Option[String]): Option[String] = value

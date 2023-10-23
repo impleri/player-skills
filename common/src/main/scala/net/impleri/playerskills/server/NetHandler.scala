@@ -6,7 +6,7 @@ import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.level.ServerPlayer
 
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 object NetHandler {
   def syncPlayer(player: ServerPlayer, force: Boolean = true): Unit = {

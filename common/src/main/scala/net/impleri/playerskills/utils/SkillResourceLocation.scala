@@ -4,9 +4,11 @@ import net.minecraft.resources.ResourceLocation
 
 import scala.util.Failure
 import scala.util.Try
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 object SkillResourceLocation {
+  def apply(original: String): Option[ResourceLocation] = of(original)
+
   private def toOptionLog(original: String)(result: Try[ResourceLocation]): Option[ResourceLocation] = {
     result
       .tap {

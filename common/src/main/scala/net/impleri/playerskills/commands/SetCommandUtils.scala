@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.{Player => MinePlayer}
 
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 trait SetCommandUtils {
   private val COMMAND_FAILURE = 0

@@ -1,14 +1,15 @@
 package net.impleri.playerskills.skills.numeric
 
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
-case class NumericSkillType() extends SkillType[Double] {
+case class NumericSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[Double] {
   override def name: ResourceLocation = NumericSkillType.NAME
 
   override def castToString(value: Option[Double]): Option[String] = {

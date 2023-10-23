@@ -7,7 +7,7 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import scala.jdk.javaapi.CollectionConverters
 import scala.util.Failure
 import scala.util.Try
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 trait JsonDataParser {
   private def getElement(

@@ -10,7 +10,7 @@ import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
 import java.util.UUID
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 //trait BlockSync {
 //    private var playerMap: mutable.HashMap[ServerPlayer, Long] = mutable.HashMap()
