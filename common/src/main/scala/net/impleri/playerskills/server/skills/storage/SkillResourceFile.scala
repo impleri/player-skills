@@ -8,7 +8,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import java.io.File
 import java.nio.file.Path
 import java.util.UUID
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 /**
  * Manages _where_ to save data

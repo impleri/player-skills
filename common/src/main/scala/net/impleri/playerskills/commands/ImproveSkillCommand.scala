@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.{Player => MinePlayer}
 
 import scala.util.Try
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 trait ImproveSkillCommand extends SetCommandUtils {
   private val REQUIRED_PERMISSION = 2

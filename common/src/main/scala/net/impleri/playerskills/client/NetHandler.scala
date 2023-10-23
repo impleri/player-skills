@@ -4,7 +4,7 @@ import net.impleri.playerskills.network.ResyncSkillsMessage
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.client.Minecraft
 
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 object NetHandler {
   def resyncPlayer(): Unit = {

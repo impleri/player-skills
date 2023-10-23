@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.{Player => MinePlayer}
 
 import java.util.UUID
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 trait Team {
   protected def getTeamMembersFor(player: MinePlayer): List[UUID]

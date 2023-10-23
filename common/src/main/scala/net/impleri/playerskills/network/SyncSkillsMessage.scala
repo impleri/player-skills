@@ -11,7 +11,7 @@ import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.entity.player.Player
 
 import java.util.UUID
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 class SyncSkillsMessage(
   private val playerId: UUID,

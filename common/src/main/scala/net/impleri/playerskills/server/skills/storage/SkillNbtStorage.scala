@@ -8,7 +8,7 @@ import net.minecraft.nbt.Tag
 import java.io.File
 import java.util.{List => JavaList}
 import scala.jdk.javaapi.CollectionConverters
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 sealed trait ReadNbtSkills {
   protected def mcNbt: MinecraftNbt

@@ -3,7 +3,7 @@ package net.impleri.playerskills.api.skills
 import org.jetbrains.annotations.VisibleForTesting
 
 import scala.util.Try
-import scala.util.chaining._
+import scala.util.chaining.scalaUtilChainingOps
 
 sealed trait TeamMode {
   def getLimit[T](skill: Skill[T], count: Int = 0): Int = count
