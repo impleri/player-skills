@@ -101,7 +101,7 @@ class PlayerRegistrySpec extends BaseSpec {
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
-    val newSkill = TestSkill(testName, Some("test-value"))
+    val newSkill = TestSkill(testName, Option("test-value"))
 
     target.upsert(playerOne, newSkill)
 
@@ -123,14 +123,14 @@ class PlayerRegistrySpec extends BaseSpec {
 
     val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
 
-    target.addSkill(playerOne, TestSkill(testName, Some("test-value")))
+    target.addSkill(playerOne, TestSkill(testName, Option("test-value")))
 
     target.get(playerOne).find(_.name == testName).value should be(testSkill)
   }
 
   "PlayerRegistry.removeSkill" should "removes a skill from the player in memory if it is already there" in {
     val (state, _) = PlayerRegistryState
-      .upsert(playerOne, List(TestSkill(testName, Some("test-value")), otherSkill))
+      .upsert(playerOne, List(TestSkill(testName, Option("test-value")), otherSkill))
       .run(PlayerRegistryState.empty)
       .value
 
