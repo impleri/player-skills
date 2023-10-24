@@ -87,7 +87,7 @@ class SkillTypeOps(
     Try(value.toInt)
       .toOption
       .getOrElse {
-        logger.error(s"Unable to parse changesAllowed ($value) back into an integer, data possibly corrupted")
+        logger.warn(s"Unable to parse changesAllowed ($value) back into an integer, data possibly corrupted")
         0
       }
   }
@@ -96,7 +96,7 @@ class SkillTypeOps(
     parts match {
       case name :: skillType :: value :: changesAllowed :: _ => {
         logger.debug(s"Hydrating $skillType skill named $name: $value")
-        SkillResourceLocation.of(skillType)
+        SkillResourceLocation(skillType)
           .flatMap(get[T])
           .flatMap(_.deserialize(name, parseValue(value), parseChanges(changesAllowed)))
       }
