@@ -203,4 +203,141 @@ class SkillTypeSpec extends BaseSpec {
 
     loggerMock.debugP(*)(*) was called
   }
+
+  "SkillTypeOps.deserialize" should "makes an appropriate skill from the string" in {
+    val skillName = "skilltest:skill"
+    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val mockType = mock[SkillType[String]]
+
+    val expectedSkill = TestSkill()
+
+    val testUnit = new SkillTypeOps(registryMock, loggerMock)
+
+    registryMock.find[String](skillType) returns Option(mockType)
+    mockType.deserialize(skillName, Option(defaultStringValue), Skill.UNLIMITED_CHANGES) returns Option(expectedSkill)
+
+    testUnit.deserialize(List(skillName, skillType.toString, defaultStringValue, Skill
+      .UNLIMITED_CHANGES,
+    ).mkString(SkillType.stringValueSeparator),
+    ).value should be(expectedSkill)
+
+    loggerMock.debug(*) was called
+    loggerMock.error(*) wasNever called
+  }
+
+  it should "error out on incomplete string data" in {
+    val skillName = "skilltest:skill"
+    val skillType = new ResourceLocation("skilltest", "skill_type")
+
+    val testUnit = new SkillTypeOps(registryMock, loggerMock)
+
+    testUnit.deserialize(List(skillName, skillType.toString).mkString(SkillType.stringValueSeparator),
+    ) should be(None)
+
+    loggerMock.debug(*) wasNever called
+    loggerMock.error(*) was called
+  }
+
+  it should "return nothing if unable to parse the skill name" in {
+    val skillName = "skilltest:skill"
+
+    val testUnit = new SkillTypeOps(registryMock, loggerMock)
+
+    testUnit.deserialize(List(skillName, "skillType:invalidSkill", defaultStringValue, Skill
+      .UNLIMITED_CHANGES,
+    ).mkString(SkillType.stringValueSeparator),
+    ) should be(None)
+
+    loggerMock.debug(*) was called
+    loggerMock.error(*) wasNever called
+  }
+
+  it should "return nothing if unable to find the skill type" in {
+    val skillName = "skilltest:skill"
+    val skillType = new ResourceLocation("skilltest", "skill_type")
+
+    val testUnit = new SkillTypeOps(registryMock, loggerMock)
+
+    registryMock.find[String](skillType) returns None
+
+    testUnit.deserialize(List(skillName, skillType.toString, defaultStringValue, Skill
+      .UNLIMITED_CHANGES,
+    ).mkString(SkillType.stringValueSeparator),
+    ) should be(None)
+
+    loggerMock.debug(*) was called
+    loggerMock.error(*) wasNever called
+  }
+
+  it should "return nothing if deserialization fails" in {
+    val skillName = "skilltest:skill"
+    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val mockType = mock[SkillType[String]]
+
+    val testUnit = new SkillTypeOps(registryMock, loggerMock)
+
+    registryMock.find[String](skillType) returns Option(mockType)
+    mockType.deserialize(skillName, Option(defaultStringValue), Skill.UNLIMITED_CHANGES) returns None
+
+    testUnit.deserialize(List(skillName, skillType.toString, defaultStringValue, Skill
+      .UNLIMITED_CHANGES,
+    ).mkString(SkillType.stringValueSeparator),
+    ) should be(None)
+
+    loggerMock.debug(*) was called
+    loggerMock.error(*) wasNever called
+  }
+
+  it should "default to 0 changes if that value cannot be parsed" in {
+    val skillName = "skilltest:skill"
+    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val mockType = mock[SkillType[String]]
+
+    val expectedSkill = TestSkill()
+
+    val testUnit = new SkillTypeOps(registryMock, loggerMock)
+
+    registryMock.find[String](skillType) returns Option(mockType)
+    mockType.deserialize(skillName, Option(defaultStringValue), 0) returns Option(expectedSkill)
+
+    testUnit.deserialize(List(skillName, skillType.toString, defaultStringValue, "pi",
+    ).mkString(SkillType.stringValueSeparator),
+    ).value should be(expectedSkill)
+
+    loggerMock.debug(*) was called
+    loggerMock.warn(*) was called
+    loggerMock.error(*) wasNever called
+  }
+
+  "SkillTypeOps.deserializeAll" should "make appropriate skills from the strings given" in {
+    val skillName = "skilltest:skill"
+    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val mockType = mock[SkillType[String]]
+    val changes = 5
+
+    val expectedSkill = TestSkill()
+
+    val testUnit = new SkillTypeOps(registryMock, loggerMock)
+
+    registryMock.find[String](skillType) returns Option(mockType)
+    mockType.deserialize(skillName, Option(defaultStringValue), changes) returns Option(expectedSkill)
+
+    testUnit.deserializeAll(
+      List(
+        List(skillName, skillType.toString, defaultStringValue, changes).mkString(SkillType.stringValueSeparator),
+        ""
+        ,
+      ),
+    ) should be(List(expectedSkill))
+
+    loggerMock.debug(*) was called
+    loggerMock.warnP(*)(*) was called
+    loggerMock.error(*) wasNever called
+  }
+
+  "SkillType.apply" should "create a SkillTypeOps instance" in {
+    val testUnit = SkillType(registryMock, loggerMock)
+
+    testUnit.isInstanceOf[SkillTypeOps] should be(true)
+  }
 }

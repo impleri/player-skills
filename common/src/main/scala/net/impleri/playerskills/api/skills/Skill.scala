@@ -29,6 +29,8 @@ sealed trait ChangeableSkill[T] extends SkillData[T] {
   }
 }
 
+// This is separated from ChangeableSkill above in order to get mutate's return type to be the resolved skill rather
+// than the generic Skill[T]. Each new skill class should inherit ChangeableSkillOps in addition to Skill.
 trait ChangeableSkillOps[T, S <: ChangeableSkill[T]] extends ChangeableSkill[T] {
   def mutate(newValue: Option[T] = None): S = mutate(newValue, changesAllowed - 1)
 
@@ -40,7 +42,7 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
 
   def notifyKey: Option[String] = None
 
-  protected def getMessageKey: String = "playerskills.notify.skill_change"
+  protected[playerskills] def getMessageKey: String = "playerskills.notify.skill_change"
 
   protected def formatSkillName(): Component = {
     Component.literal(name.getPath.replace("_", " "))
