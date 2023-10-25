@@ -7,13 +7,13 @@ import net.minecraft.resources.ResourceLocation
 
 case class NumericSkill(
   override val name: ResourceLocation,
-  override val value: Option[Double],
-  override val description: Option[String],
-  override val options: List[Double],
-  override val changesAllowed: Int,
-  override val teamMode: TeamMode,
-  override val announceChange: Boolean,
-  override val notifyKey: Option[String],
+  override val value: Option[Double] = None,
+  override val description: Option[String] = None,
+  override val options: List[Double] = List.empty,
+  override val changesAllowed: Int = Skill.UNLIMITED_CHANGES,
+  override val teamMode: TeamMode = TeamMode.Off(),
+  override val announceChange: Boolean = false,
+  override val notifyKey: Option[String] = None,
   step: Double = NumericSkill.DefaultStep,
 ) extends Skill[Double] with ChangeableSkillOps[Double, NumericSkill] {
   override val skillType: ResourceLocation = NumericSkillType.NAME
