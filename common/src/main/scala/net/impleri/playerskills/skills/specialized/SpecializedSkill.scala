@@ -7,13 +7,13 @@ import net.minecraft.resources.ResourceLocation
 
 case class SpecializedSkill(
   override val name: ResourceLocation,
-  override val value: Option[String],
-  override val description: Option[String],
-  override val options: List[String],
-  override val changesAllowed: Int,
-  override val teamMode: TeamMode,
-  override val announceChange: Boolean,
-  override val notifyKey: Option[String],
+  override val value: Option[String] = None,
+  override val description: Option[String] = None,
+  override val options: List[String] = List.empty,
+  override val changesAllowed: Int = Skill.UNLIMITED_CHANGES,
+  override val teamMode: TeamMode = TeamMode.Off(),
+  override val announceChange: Boolean = false,
+  override val notifyKey: Option[String] = None,
 ) extends Skill[String] with ChangeableSkillOps[String, SpecializedSkill] {
   override val skillType: ResourceLocation = SpecializedSkillType.NAME
 
