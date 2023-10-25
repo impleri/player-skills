@@ -12,9 +12,9 @@ import scala.util.chaining.scalaUtilChainingOps
 case class TieredSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[String] {
   override def name: ResourceLocation = TieredSkillType.NAME
 
-  override def castToString(value: Option[String]): Option[String] = value
+  override def castToString(value: String): Option[String] = Option(value)
 
-  override def castFromString(value: Option[String]): Option[String] = value
+  override def castFromString(value: String): Option[String] = Option(value)
 
   private def index(target: Option[String], options: Seq[String], fallback: Int = 0): Int = {
     target
