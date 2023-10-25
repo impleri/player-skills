@@ -9,9 +9,9 @@ import net.minecraft.resources.ResourceLocation
 case class SpecializedSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[String] {
   override def name: ResourceLocation = SpecializedSkillType.NAME
 
-  override def castToString(value: Option[String]): Option[String] = value
+  override def castToString(value: String): Option[String] = Option(value)
 
-  override def castFromString(value: Option[String]): Option[String] = value
+  override def castFromString(value: String): Option[String] = Option(value)
 
   override def can(skill: Skill[String], threshold: Option[String]): Boolean = {
     (skill.value, threshold) match {

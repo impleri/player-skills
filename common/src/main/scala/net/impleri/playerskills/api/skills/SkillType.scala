@@ -18,15 +18,15 @@ sealed trait ChangeableSkillType[T] {
 sealed trait SerializableSkillType[T] {
   protected def skillOps: SkillOps
 
-  protected def castToString(value: Option[T]): Option[String]
+  protected def castToString(value: T): Option[String]
 
-  def castFromString(value: Option[String]): Option[T]
+  def castFromString(value: String): Option[T]
 
   def serialize(skill: Skill[T]): String = {
     List(
       s"${skill.name}",
       s"${skill.skillType}",
-      castToString(skill.value).getOrElse(SkillType.stringValueNone),
+      skill.value.flatMap(castToString).getOrElse(SkillType.stringValueNone),
       s"${skill.changesAllowed}",
     ).mkString(SkillType.stringValueSeparator)
   }
@@ -34,7 +34,7 @@ sealed trait SerializableSkillType[T] {
   def deserialize(name: String, value: Option[String], changesAllowed: Int): Option[Skill[T]] = {
     SkillResourceLocation(name)
       .flatMap(skillOps.get[T])
-      .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(castFromString(value), changesAllowed))
+      .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(value.flatMap(castFromString), changesAllowed))
   }
 }
 

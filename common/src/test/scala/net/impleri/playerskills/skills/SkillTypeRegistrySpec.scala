@@ -18,9 +18,9 @@ class SkillTypeRegistrySpec extends BaseSpec {
   ) extends SkillType[String] {
     override val skillOps: SkillOps = skillOpsMock
 
-    override protected def castToString(value: Option[String]): Option[String] = Option("test-skill")
+    override protected def castToString(value: String): Option[String] = Option("test-skill")
 
-    override def castFromString(value: Option[String]): Option[String] = Option("test-value")
+    override def castFromString(value: String): Option[String] = Option("test-value")
 
     override def getPrevValue(
       skill: Skill[String],

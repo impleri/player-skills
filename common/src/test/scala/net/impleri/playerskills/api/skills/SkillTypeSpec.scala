@@ -27,12 +27,11 @@ class SkillTypeSpec extends BaseSpec {
       Option("next")
     }
 
-    override protected def castToString(value: Option[String]): Option[String] = {
-      value
-        .orElse(Option(defaultStringValue))
+    override protected def castToString(value: String): Option[String] = {
+      Option(value)
     }
 
-    override def castFromString(value: Option[String]): Option[String] = value.orElse(Option(defaultStringValue))
+    override def castFromString(value: String): Option[String] = Option(value)
 
     override protected def skillOps: SkillOps = skillOpsMock
   }
@@ -87,7 +86,7 @@ class SkillTypeSpec extends BaseSpec {
     defaultType.serialize(skillMock) should be(s"skilltest:skill${
       SkillType
         .stringValueSeparator
-    }skilltest:skill_type${SkillType.stringValueSeparator}$defaultStringValue${SkillType.stringValueSeparator}${
+    }skilltest:skill_type${SkillType.stringValueSeparator}${SkillType.stringValueNone}${SkillType.stringValueSeparator}${
       Skill
         .UNLIMITED_CHANGES
     }",
@@ -214,9 +213,9 @@ class SkillTypeSpec extends BaseSpec {
     val testUnit = new SkillTypeOps(registryMock, loggerMock)
 
     registryMock.find[String](skillType) returns Option(mockType)
-    mockType.deserialize(skillName, Option(defaultStringValue), Skill.UNLIMITED_CHANGES) returns Option(expectedSkill)
+    mockType.deserialize(skillName, None, Skill.UNLIMITED_CHANGES) returns Option(expectedSkill)
 
-    testUnit.deserialize(List(skillName, skillType.toString, defaultStringValue, Skill
+    testUnit.deserialize(List(skillName, skillType.toString, SkillType.stringValueNone, Skill
       .UNLIMITED_CHANGES,
     ).mkString(SkillType.stringValueSeparator),
     ).value should be(expectedSkill)

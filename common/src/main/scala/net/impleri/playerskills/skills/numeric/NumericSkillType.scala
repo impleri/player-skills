@@ -12,12 +12,12 @@ import scala.util.chaining.scalaUtilChainingOps
 case class NumericSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[Double] {
   override def name: ResourceLocation = NumericSkillType.NAME
 
-  override def castToString(value: Option[Double]): Option[String] = {
-    value.map(_.toString)
+  override def castToString(value: Double): Option[String] = {
+    Option(value.toString)
   }
 
-  override def castFromString(value: Option[String]): Option[Double] = {
-    value.flatMap(_.toDoubleOption)
+  override def castFromString(value: String): Option[Double] = {
+    value.toDoubleOption
   }
 
   override def can(skill: Skill[Double], threshold: Option[Double]): Boolean = {
