@@ -37,7 +37,7 @@ class PlayerRegistrySpec extends BaseSpec {
     skillRegistryMock.entries returns List(testSkill)
     storageMock.read(*) returns List.empty
 
-    val target = PlayerRegistry(storageMock, PlayerRegistryState.empty, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), PlayerRegistryState.empty, skillRegistryMock, loggerMock)
 
     target.entries.isEmpty should be(true)
 
@@ -50,7 +50,7 @@ class PlayerRegistrySpec extends BaseSpec {
     skillRegistryMock.entries returns List(testSkill)
     storageMock.read(playerOne) returns List(otherSkill)
 
-    val target = PlayerRegistry(storageMock, PlayerRegistryState.empty, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), PlayerRegistryState.empty, skillRegistryMock, loggerMock)
 
     val response = target.open(playerOne)
 
@@ -63,13 +63,13 @@ class PlayerRegistrySpec extends BaseSpec {
       .run(PlayerRegistryState.empty)
       .value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.has(playerOne) should be(true)
   }
 
   it should "return false if the player is not found in memory" in {
-    val target = PlayerRegistry(storageMock, PlayerRegistryState.empty, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), PlayerRegistryState.empty, skillRegistryMock, loggerMock)
 
     target.has(playerOne) should be(false)
   }
@@ -80,7 +80,7 @@ class PlayerRegistrySpec extends BaseSpec {
       .run(PlayerRegistryState.empty)
       .value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.get(playerOne) should be(List(testSkill, otherSkill))
   }
@@ -91,7 +91,7 @@ class PlayerRegistrySpec extends BaseSpec {
       .run(PlayerRegistryState.empty)
       .value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.get(playerTwo) should be(List.empty)
   }
@@ -99,7 +99,7 @@ class PlayerRegistrySpec extends BaseSpec {
   "PlayerRegistry.upsert" should "replace a skill in state" in {
     val (state, _) = PlayerRegistryState.upsert(playerOne, List(otherSkill)).run(PlayerRegistryState.empty).value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     val newSkill = TestSkill(testName, Option("test-value"))
 
@@ -111,7 +111,7 @@ class PlayerRegistrySpec extends BaseSpec {
   "PlayerRegistry.addSkill" should "adds a skill to the player in memory if it is not already there" in {
     val (state, _) = PlayerRegistryState.upsert(playerOne, List(otherSkill)).run(PlayerRegistryState.empty).value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.addSkill(playerOne, testSkill)
 
@@ -121,7 +121,7 @@ class PlayerRegistrySpec extends BaseSpec {
   it should "not add a skill to the player in memory if it is already there" in {
     val (state, _) = PlayerRegistryState.upsert(playerOne, List(testSkill)).run(PlayerRegistryState.empty).value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.addSkill(playerOne, TestSkill(testName, Option("test-value")))
 
@@ -134,7 +134,7 @@ class PlayerRegistrySpec extends BaseSpec {
       .run(PlayerRegistryState.empty)
       .value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.removeSkill(playerOne, testSkill)
 
@@ -147,7 +147,7 @@ class PlayerRegistrySpec extends BaseSpec {
       .run(PlayerRegistryState.empty)
       .value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.has(playerOne) should be(true)
 
@@ -163,7 +163,7 @@ class PlayerRegistrySpec extends BaseSpec {
       .value
     val (state, _) = PlayerRegistryState.upsert(playerTwo, List.empty).run(initialState).value
 
-    val target = PlayerRegistry(storageMock, state, skillRegistryMock, loggerMock)
+    val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
     target.close()
 

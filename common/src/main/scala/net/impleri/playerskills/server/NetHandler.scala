@@ -10,7 +10,7 @@ import scala.util.chaining.scalaUtilChainingOps
 
 object NetHandler {
   def syncPlayer(player: ServerPlayer, force: Boolean = true): Unit = {
-    Player.get(player)
+    Player().get(player)
       .tap(s => PlayerSkillsLogger.SKILLS.debug(s"Syncing ${s.size} player skills to ${player.getName}"))
       .pipe(SyncSkillsMessage(player, _, force))
   }

@@ -50,7 +50,7 @@ trait SkillValueCommand extends ValuesCommandUtils {
     player: Option[MinePlayer],
     skillName: Option[ResourceLocation],
   ): Int = {
-    val foundSkill = player.flatMap(p => skillName.flatMap(Player.get(p, _)))
+    val foundSkill = player.flatMap(p => skillName.flatMap(Player().get(p, _)))
     val message = if (foundSkill.nonEmpty) {
       Component.translatable("commands.playerskills.acquired_skills",
         1,

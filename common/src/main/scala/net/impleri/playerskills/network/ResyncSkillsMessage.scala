@@ -16,7 +16,7 @@ case class ResyncSkillsMessage(private val playerId: UUID) extends BaseC2SMessag
 
   override def handle(context: NetworkManager.PacketContext): Unit = {
     ServerStateContainer
-      .server
+      .SERVER
       .foreach(ServerStateContainer.EVENT_HANDLERS.resync(playerId, _))
   }
 }
