@@ -16,7 +16,8 @@ trait ListAcquiredCommand extends ValuesCommandUtils {
   }
 
   private def listOwnSkills(source: CommandSourceStack): Int = {
-    val acquiredSkills = Player.get(source.getPlayer).filter(Player.can(source.getPlayer.getUUID, _))
+    val player = Player()
+    val acquiredSkills = player.get(source.getPlayer).filter(player.can(source.getPlayer.getUUID, _))
     val message = if (acquiredSkills.nonEmpty) {
       Component
         .translatable("commands.playerskills.acquired_skills", acquiredSkills.size)

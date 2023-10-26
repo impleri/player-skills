@@ -6,8 +6,6 @@ import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.StatefulRegistry
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.MinecraftServer
-import org.jetbrains.annotations.VisibleForTesting
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
@@ -140,22 +138,12 @@ object PlayerRegistry {
     if (skills.exists(_.name == skill.name)) skills else skills ++ List(skill)
   }
 
-  @VisibleForTesting
-  private[skills] def apply(
-    storage: PlayerStorageIO,
-    state: PlayerRegistryState.CachedPlayers,
-    skillsRegistry: SkillRegistry,
-    logger: PlayerSkillsLogger,
-  ) = {
-    new PlayerRegistry(state, Option(storage), skillsRegistry, logger)
-  }
-
   def apply(
-    server: Option[MinecraftServer] = None,
+    storage: Option[PlayerStorageIO] = None,
     state: PlayerRegistryState.CachedPlayers = PlayerRegistryState.empty,
     skillsRegistry: SkillRegistry = StateContainer.SKILLS,
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): PlayerRegistry = {
-    new PlayerRegistry(state, server.map(PlayerStorageIO(_)), skillsRegistry, logger)
+    new PlayerRegistry(state, storage, skillsRegistry, logger)
   }
 }

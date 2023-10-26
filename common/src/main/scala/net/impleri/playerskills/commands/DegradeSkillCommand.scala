@@ -53,7 +53,7 @@ trait DegradeSkillCommand extends SetCommandUtils {
   ): Int = {
     skillName
       .flatMap(Skill().get[T])
-      .flatMap(s => player.flatMap(p => Team.degrade(p, s, None, None)))
+      .flatMap(s => player.flatMap(p => Team().degrade(p, s, None, None)))
       .pipe(
         notifyPlayer(
           source,

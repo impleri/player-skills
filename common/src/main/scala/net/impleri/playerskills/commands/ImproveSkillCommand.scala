@@ -53,7 +53,7 @@ trait ImproveSkillCommand extends SetCommandUtils {
   ): Int = {
     skillName
       .flatMap(Skill().get[T])
-      .flatMap(s => player.flatMap(p => Team.improve(p, s, None, None)))
+      .flatMap(s => player.flatMap(p => Team().improve(p, s, None, None)))
       .pipe(
         notifyPlayer(
           source,

@@ -61,7 +61,7 @@ trait SetSkillCommand extends SetCommandUtils {
     SkillType().get(skill)
       .map(_.castFromString(value))
       .map(v => skill.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(v))
-      .map(s => player.map(Player.upsert(_, s)))
+      .map(s => player.map(Player().upsert(_, s)))
       .pipe(_.nonEmpty)
   }
 
