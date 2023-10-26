@@ -13,6 +13,7 @@
   "playerskills.notify.skill_change": "Your skill %1$s has changed to %2$s",
   "playerskills.notify.basic_skill_enabled": "You have acquired the skill %1$s",
   "playerskills.notify.basic_skill_disabled": "You have lost the skill %1$s",
+  "playerskills.notify.specialized_skill_empty": "You have not specialized in anything for the skill %1$s",
   "playerskills.notify.specialized_skill_selected": "You have specialized in %2$s for the skill %1$s",
   "playerskills.quests.reward.downgrade": "Skill %1$s was downgraded",
   "playerskills.quests.reward.downgrade_value": "Skill %1$s was downgraded to %2$s",

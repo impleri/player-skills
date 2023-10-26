@@ -23,5 +23,11 @@ case class SpecializedSkill(
     )
   }
 
-  override def getMessageKey: String = "playerskills.notify.specialized_skill_selected"
+  override def getMessageKey: String = {
+    if (value.nonEmpty) {
+      "playerskills.notify.specialized_skill_selected"
+    } else {
+      "playerskills.notify.specialized_skill_empty"
+    }
+  }
 }
