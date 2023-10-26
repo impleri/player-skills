@@ -7,7 +7,7 @@ import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
 case class SpecializedSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[String] {
-  override def name: ResourceLocation = SpecializedSkillType.NAME
+  override val name: ResourceLocation = SpecializedSkillType.NAME
 
   override def castToString(value: String): Option[String] = Option(value)
 

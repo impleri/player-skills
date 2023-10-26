@@ -112,7 +112,7 @@ class BasicSkillTypeSpec extends BaseSpec {
     testUnit.getNextValue(truthySkill).value should be(true)
   }
 
-  "BasicSkillType.getPrev" should "return boolean false regardless of current value" in {
+  "BasicSkillType.getPrevValue" should "return boolean false regardless of current value" in {
     val testUnit = BasicSkillType(skillOpsMock, loggerMock)
 
     testUnit.getPrevValue(dumbSkill).value should be(false)
