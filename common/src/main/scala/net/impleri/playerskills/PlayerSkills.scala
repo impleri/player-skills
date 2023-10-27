@@ -25,7 +25,7 @@ object PlayerSkills {
     registerTypes()
     StateContainer.init()
   }
-  
+
   def emitSkillChanged[T](player: Player, newSkill: Skill[T], oldSkill: Option[Skill[T]]): Unit = {
     SkillChangedEvent.EVENT.invoker().accept(SkillChangedEvent[T](player, Option(newSkill), oldSkill))
 
