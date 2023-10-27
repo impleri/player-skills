@@ -14,12 +14,6 @@ case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[Minecraft
 
   private def setup(): Unit = {
     onSetup()
-
-    // TODO: Move to integration class
-    // Enable FTB Teams integration if the mod is there
-    //    if (Platform.isModLoaded("ftbteams")) {
-    //      net.impleri.playerskills.integrations.ftbteams.FTBTeamsPlugin.registerInstance()
-    //    }
   }
 
   private def beforeServerStart(server: MinecraftServer): Unit = {
