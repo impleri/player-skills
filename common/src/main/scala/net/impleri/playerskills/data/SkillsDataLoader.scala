@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
 import net.impleri.playerskills.data.utils.JsonDataParser
 import net.impleri.playerskills.skills.basic.BasicSkill
@@ -29,7 +30,10 @@ case class LimitRequiredForTeamMode() extends Exception
 
 case class ProportionRequiredForTeamMode() extends Exception
 
-case class SkillsDataLoader()
+case class SkillsDataLoader(
+  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  protected val skillOps: SkillOps = Skill(),
+)
   extends SimpleJsonResourceReloadListener(SkillsDataLoader.GsonService, "skills") with JsonDataParser {
   override def apply(
     data: java.util.Map[ResourceLocation, JsonElement],
@@ -38,7 +42,7 @@ case class SkillsDataLoader()
   ): Unit = {
     CollectionConverters.asScala(data)
       .flatMap(t => parseSkill(t._1, t._2))
-      .foreach(Skill().upsert(_))
+      .foreach(skillOps.upsert(_))
   }
 
   private def parseSkill(name: ResourceLocation, json: JsonElement): Option[Skill[_]] = {
@@ -48,12 +52,12 @@ case class SkillsDataLoader()
     val changesAllowed = parseInt(raw, "changesAllowed").getOrElse(Skill.UNLIMITED_CHANGES)
     val (notify, notifyString) = parseNotify(raw)
     val skillType = parseString(raw, "type").tap {
-      case None => PlayerSkillsLogger.SKILLS.warn("Tried to parse undefined skill type")
+      case None => logger.warn("Tried to parse undefined skill type")
       case _ => ()
     }
 
     skillType
-      .flatMap(SkillResourceLocation.of)
+      .flatMap(SkillResourceLocation.apply)
       .flatMap {
         case BasicSkillType.NAME => Option(BasicSkill(
           value = parseBoolean(raw, "initialValue"),
@@ -105,7 +109,7 @@ case class SkillsDataLoader()
         )
 
         case _ =>
-        PlayerSkillsLogger.SKILLS.warn(s"Unknown skill $name with type $skillType")
+        logger.warn(s"Unknown skill $name with type $skillType")
         None
       }
   }
