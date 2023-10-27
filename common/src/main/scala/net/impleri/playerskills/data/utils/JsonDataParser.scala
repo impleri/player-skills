@@ -10,14 +10,16 @@ import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
 
 trait JsonDataParser {
+  protected def logger: PlayerSkillsLogger
+
   private def getElement(
     raw: JsonObject,
     key: String,
   ): Option[JsonElement] = {
     Try(raw.get(key)).tap {
       case Failure(e: NullPointerException) =>
-      PlayerSkillsLogger.SKILLS.info(s"Could not get value for $key")
-      PlayerSkillsLogger.SKILLS.error(e.getMessage)
+      logger.info(s"Could not get value for $key")
+      logger.error(e.getMessage)
       case _ => ()
     }.toOption.flatMap(Option(_))
   }
@@ -25,8 +27,8 @@ trait JsonDataParser {
   private def parseValueHelper[T](parser: JsonElement => T)(element: JsonElement): Option[T] = {
     Try(parser(element)).tap {
       case Failure(e) =>
-      PlayerSkillsLogger.SKILLS.info(s"Could not parse value for ${element.getAsString}")
-      PlayerSkillsLogger.SKILLS.error(e.getMessage)
+      logger.info(s"Could not parse value for ${element.getAsString}")
+      logger.error(e.getMessage)
       case _ => ()
     }.toOption
   }
