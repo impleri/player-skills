@@ -25,12 +25,7 @@ object PlayerSkills {
     registerTypes()
     StateContainer.init()
   }
-
-  // @TODO: Maybe move elsewhere?
-  //    if (Platform.isModLoaded("ftbquests")) {
-  //      net.impleri.playerskills.integrations.ftbquests.PlayerSkillsIntegration.init()
-  //    }
-
+  
   def emitSkillChanged[T](player: Player, newSkill: Skill[T], oldSkill: Option[Skill[T]]): Unit = {
     SkillChangedEvent.EVENT.invoker().accept(SkillChangedEvent[T](player, Option(newSkill), oldSkill))
 
