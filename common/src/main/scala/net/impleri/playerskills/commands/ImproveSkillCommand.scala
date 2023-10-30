@@ -2,6 +2,7 @@ package net.impleri.playerskills.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.api.Team
 import net.minecraft.commands.Commands
 import net.minecraft.commands.CommandSourceStack
@@ -53,7 +54,7 @@ trait ImproveSkillCommand extends SetCommandUtils {
   ): Int = {
     skillName
       .flatMap(Skill().get[T])
-      .flatMap(s => player.flatMap(p => Team().improve(p, s, None, None)))
+      .flatMap(s => player.flatMap(p => Team().improve(MinecraftPlayer(p), s, None, None)))
       .pipe(
         notifyPlayer(
           source,

@@ -1,11 +1,13 @@
 package net.impleri.playerskills.events.handlers
 
-import net.minecraft.server.MinecraftServer
+import net.impleri.playerskills.facades.MinecraftServer
+import net.impleri.playerskills.server.NetHandler
 import net.minecraft.server.packs.resources.ResourceManager
 
 import java.util.UUID
 
 case class EventHandlers(
+  netHandler: NetHandler,
   onSetup: () => Unit,
   onServerChange: Option[MinecraftServer] => Unit,
   onReloadResources: ResourceManager => Unit,
@@ -20,7 +22,10 @@ case class EventHandlers(
     INTERNAL.registerEvents()
   }
 
-  def resync(playerId: UUID, server: MinecraftServer): Unit = INTERNAL.resyncPlayer(server, playerId)
+  def resync(playerId: UUID, server: MinecraftServer): Unit = {
+    server.getPlayer(playerId)
+      .foreach(netHandler.syncPlayer(_))
+  }
 }
 
 
@@ -30,10 +35,11 @@ object EventHandlers {
   private def noOp1[T] = (_: T) => ()
 
   def apply(
+    netHandler: NetHandler = NetHandler(),
     onSetup: () => Unit = noOp,
     onServerChange: Option[MinecraftServer] => Unit = noOp1,
     onReloadResources: ResourceManager => Unit = noOp1,
-  ) = {
-    new EventHandlers(onSetup, onServerChange, onReloadResources)
+  ): EventHandlers = {
+    new EventHandlers(netHandler, onSetup, onServerChange, onReloadResources)
   }
 }

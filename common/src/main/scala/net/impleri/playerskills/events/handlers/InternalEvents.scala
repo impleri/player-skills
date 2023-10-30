@@ -3,14 +3,10 @@ package net.impleri.playerskills.events.handlers
 import dev.architectury.registry.ReloadListenerRegistry
 import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.events.SkillChangedEvent
-import net.impleri.playerskills.server.NetHandler
-import net.minecraft.server.MinecraftServer
+import net.impleri.playerskills.server.ServerStateContainer
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
-
-import java.util.UUID
-import scala.util.chaining.scalaUtilChainingOps
 
 //trait BlockSync {
 //    private var playerMap: mutable.HashMap[ServerPlayer, Long] = mutable.HashMap()
@@ -51,13 +47,8 @@ case class InternalEvents(onReload: ResourceManager => Unit) extends ResourceMan
 
   override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
 
-  def resyncPlayer(server: MinecraftServer, playerId: UUID): Unit = {
-    server.getPlayerList.getPlayer(playerId)
-      .tap(NetHandler.syncPlayer(_))
-  }
-
   private def onSkillChanged(event: SkillChangedEvent[_]): Unit = {
-    NetHandler.syncPlayer(event)
+    ServerStateContainer.NETWORK.syncPlayer(event)
     //    maybeUpdateBlocks(event.player.getUUID)
   }
 }

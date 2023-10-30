@@ -6,9 +6,9 @@ import dev.architectury.networking.simple.MessageType
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.client.PlayerSkillsClient
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.world.entity.player.Player
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
@@ -52,7 +52,7 @@ object SyncSkillsMessage {
     new SyncSkillsMessage(playerId, skills, force)
   }
 
-  def apply(player: Player, skills: List[Skill[_]], force: Boolean): SyncSkillsMessage = {
-    new SyncSkillsMessage(player.getUUID, skills, force)
+  def apply(player: MinecraftPlayer[_], skills: List[Skill[_]], force: Boolean): SyncSkillsMessage = {
+    new SyncSkillsMessage(player.uuid, skills, force)
   }
 }

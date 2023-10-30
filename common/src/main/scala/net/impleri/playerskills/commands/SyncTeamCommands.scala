@@ -2,6 +2,7 @@ package net.impleri.playerskills.commands
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.api.Team
 import net.minecraft.commands.Commands
 import net.minecraft.commands.CommandSourceStack
@@ -34,11 +35,13 @@ trait SyncTeamCommands {
 
   private def syncTeamFor(player: Option[ServerPlayer]): Int = {
     player
+      .map(MinecraftPlayer.apply)
       .map(Team().syncEntireTeam).fold(2)(s => if (s) Command.SINGLE_SUCCESS else 3)
   }
 
   private def syncToTeam(player: Option[ServerPlayer]): Int = {
     player
+      .map(MinecraftPlayer.apply)
       .map(Team().syncFromPlayer).fold(2)(s => if (s) Command.SINGLE_SUCCESS else 3)
   }
 }
