@@ -1,4 +1,4 @@
-package net.impleri.playerskills.server.skills.storage
+package net.impleri.playerskills.facades
 
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
@@ -7,7 +7,7 @@ import java.io.File
 import scala.util.Try
 
 // Facade to Minecraft class for dependency injection
-trait MinecraftNbt {
+case class MinecraftNbtIO() {
   def read(file: File): Either[Throwable, CompoundTag] = {
     Try(NbtIo.readCompressed(file))
       .toEither
@@ -18,5 +18,3 @@ trait MinecraftNbt {
       .toEither
   }
 }
-
-object MinecraftNbtImpl extends MinecraftNbt

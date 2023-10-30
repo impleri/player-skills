@@ -4,28 +4,28 @@ import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.player.{Player => MinePlayer}
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
 
 trait Team {
-  protected[server] def getTeamMembersFor(player: MinePlayer): List[UUID]
+  protected[server] def getTeamMembersFor(player: UUID): List[UUID]
+
 }
 
 case class StubTeam() extends Team {
-  override def getTeamMembersFor(player: MinePlayer): List[UUID] = {
-    List(player.getUUID)
+  override def getTeamMembersFor(player: UUID): List[UUID] = {
+    List(player)
   }
 }
 
 trait TeamSkillCalculator {
   protected def playerOps: Player
 
-  protected def getSharedSkills(player: MinePlayer): Seq[Skill[_]] = {
+  protected[api] def getSharedSkills(player: UUID): Seq[Skill[_]] = {
     playerOps.get(player)
       .filter(_.teamMode == TeamMode.Shared())
   }
@@ -36,18 +36,17 @@ trait TeamSkillCalculator {
       .maxOption(ord = Skill().sortHelper[T])
   }
 
-  protected def getMaxTeamSkills(players: Seq[UUID], skills: Seq[Skill[_]]): Seq[Skill[_]] = {
+  protected[api] def getMaxTeamSkills(players: Seq[UUID], skills: Seq[Skill[_]]): Seq[Skill[_]] = {
     skills.flatMap(getMaxSkill(players, _))
   }
 }
 
-trait TeamUpdater {
+trait TeamUpdater extends TeamSkillCalculator {
+  protected def logger: PlayerSkillsLogger
+
   protected def playerOps: Player
 
-  protected def emitHelper[T](player: ServerPlayer, next: Skill[T], prev: Option[Skill[_]]): Unit = {
-    PlayerSkills
-      .emitSkillChanged(player, next, prev.asInstanceOf[Option[Skill[T]]])
-  }
+  protected def team: Team
 
   protected def ensurePlayerOpen[V](playerId: UUID)(f: () => V): V = {
     playerOps.isOnline(playerId)
@@ -65,14 +64,31 @@ trait TeamUpdater {
         .pipe(t => if (t._2.nonEmpty) Some(playerId, t._1) else None)
     }
   }
+
+  protected def updateSkillsForTeam(player: UUID): (Seq[Skill[_]], List[UUID], Seq[(UUID, Option[Skill[_]])]) = {
+    logger.debug(s"Syncing entire team connected to $player")
+    val skills = getSharedSkills(player)
+    val allPlayers = team.getTeamMembersFor(player)
+    val offlinePlayers = playerOps.open(allPlayers)
+    val maxSkills = getMaxTeamSkills(allPlayers, skills)
+
+    val updated = maxSkills
+      .flatMap(s => allPlayers.map(updateMemberSkill(s)))
+      .flatten
+
+    playerOps.close(offlinePlayers)
+
+    (maxSkills, offlinePlayers, updated)
+  }
 }
 
-class TeamOps(
-  override val playerOps: Player,
-  protected val skillOps: SkillOps,
-  protected val instance: Team,
-  protected val logger: PlayerSkillsLogger,
-) extends TeamUpdater with TeamSkillCalculator {
+trait TeamLimit extends TeamUpdater {
+  protected def playerOps: Player
+
+  protected def team: Team
+
+  protected def logger: PlayerSkillsLogger
+
   private def countPlayerIf[T](skill: Skill[T])(playerId: UUID): Boolean = {
     ensurePlayerOpen(playerId)(() => playerOps.can(playerId, skill, skill.value))
   }
@@ -97,79 +113,91 @@ class TeamOps(
     limit.forall(count < _)
   }
 
-  private def allows[T](player: MinePlayer, skill: Skill[T]): Boolean = {
-    player
-      .pipe(instance.getTeamMembersFor)
+  protected def allows[T](player: UUID, skill: Skill[T]): Boolean = {
+    team.getTeamMembersFor(player)
       .pipe(s => (countWith(s, skill), getTeamLimit(s, skill)))
       .tap(logger.infoP(t => s"Does the team allow updating skill? (${t._1} < ${t._2})"))
       .pipe(t => hasRoomToGrow(t._1, t._2))
   }
+}
 
-  private def updateTeamSkill[T](player: MinePlayer, skill: Skill[T], emit: Boolean = true) = {
-    player
-      .pipe(instance.getTeamMembersFor)
-      .flatMap(updateMemberSkill(skill))
-      .map(t => (player.getServer.getPlayerList.getPlayer(t._1), t._2))
-      .tap(e => if (emit) e.foreach(t => emitHelper(t._1, skill, t._2)))
-      .nonEmpty
-  }
+trait TeamNotifier {
+  protected def playerOps: Player
 
-  private def updateSkill[T](player: MinePlayer)(skill: Skill[T]) = {
-    if (skill.teamMode == TeamMode.Shared()) {
-      updateTeamSkill(player, skill)
-    } else {
-      playerOps
-        .upsert(player, skill)
-        .nonEmpty
+  protected def notifyPlayers[T](player: MinecraftPlayer[_], originalSkill: Skill[T], emit: Boolean = true)
+    (updates: List[(UUID, Option[Skill[_]])]): Unit = {
+    if (emit) {
+      updates
+        .foreach(tuple =>
+          player.server.getPlayer(tuple._1)
+            .foreach(emitHelper(_, originalSkill, tuple._2)),
+        )
     }
   }
 
-  def changeSkill[T](player: MinePlayer, skill: Skill[T], value: Option[T]): Option[Boolean] = {
+  protected def emitHelper[T](player: MinecraftPlayer[_], next: Skill[T], prev: Option[Skill[_]]): Unit = {
+    PlayerSkills
+      .emitSkillChanged(player, next, prev.asInstanceOf[Option[Skill[T]]])
+  }
+}
+
+class TeamOps(
+  override val playerOps: Player,
+  protected val skillOps: SkillOps,
+  override val team: Team,
+  override val logger: PlayerSkillsLogger,
+) extends TeamUpdater with TeamSkillCalculator with TeamNotifier with TeamLimit {
+  def changeSkill[T](player: UUID, skill: Skill[T], value: Option[T]): Option[Skill[T]] = {
     value.orElse(skill.value)
       .pipe(playerOps.calculateValue(player, skill, _))
-      .tap(_ => logger.info(s"Changing skill ${skill.name} to $value for ${player.getName.getString}"))
+      .tap(_ => logger.info(s"Changing skill ${skill.name} to $value for $player"))
       .filter(_ => allows(player, skill))
       .tap(a => logger.info(s"Is skill change allowed? $a"))
-      .map(updateSkill(player))
   }
 
-  def degrade[T](player: MinePlayer, skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] = {
+  private def updateTeamSkill[T](player: MinecraftPlayer[_], skill: Skill[T], emit: Boolean = true): Boolean = {
+    team.getTeamMembersFor(player.uuid)
+      .flatMap(updateMemberSkill(skill))
+      .tap(notifyPlayers(player, skill, emit))
+      .nonEmpty
+  }
+
+  private def updateSkill[T](player: MinecraftPlayer[_])(skill: Option[Skill[T]]): Option[Boolean] = {
+    skill match {
+      case Some(s) if s.teamMode == TeamMode.Shared() => Option(updateTeamSkill(player, s))
+      case Some(s) => Option(playerOps.upsert(player.uuid, s).nonEmpty)
+      case None => None
+    }
+  }
+
+  def degrade[T](player: MinecraftPlayer[_], skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] = {
     skillOps.calculatePrev(skill, min, max)
-      .flatMap(v => changeSkill(player, skill, Option(v)))
+      .pipe(v => changeSkill(player.uuid, skill, v))
+      .pipe(updateSkill[T](player))
   }
 
-  def improve[T](player: MinePlayer, skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] = {
+  def improve[T](player: MinecraftPlayer[_], skill: Skill[T], min: Option[T], max: Option[T]): Option[Boolean] = {
     skillOps.calculateNext(skill, min, max)
-      .tap(_ => logger.info(s"Improving skill ${skill.name} for ${player.getName.getString}"))
-      .flatMap(v => changeSkill(player, skill, Option(v)))
+      .tap(_ => logger.info(s"Improving skill ${skill.name} for ${player.name}"))
+      .pipe(v => changeSkill(player.uuid, skill, v))
+      .pipe(updateSkill[T](player))
   }
 
-  def syncFromPlayer(player: ServerPlayer): Boolean = {
-    player
-      .tap(p => logger.debug(s"Syncing skills from ${p.getName}"))
-      .pipe(getSharedSkills)
+  def syncFromPlayer(player: MinecraftPlayer[_]): Boolean = {
+    logger.debug(s"Syncing skills from ${player.name}")
+    getSharedSkills(player.uuid)
       .map(updateTeamSkill(player, _))
       .forall(_ == true)
   }
 
-  def syncEntireTeam(player: ServerPlayer): Boolean = {
-    logger.debug(s"Syncing entire team connected to ${player.getName}")
-    val skills = getSharedSkills(player)
-    val allPlayers = instance.getTeamMembersFor(player)
-    val offlinePlayers = playerOps.open(allPlayers)
-    val maxSkills = getMaxTeamSkills(allPlayers, skills)
+  def syncEntireTeam(player: MinecraftPlayer[_]): Boolean = {
+    logger.debug(s"Syncing entire team connected to ${player.name}")
+    val (maxSkills, offlinePlayers, updated) = updateSkillsForTeam(player.uuid)
 
-    val updated = maxSkills.flatMap(s => allPlayers.map(updateMemberSkill(s)))
-      .flatten
-
-    playerOps.close(offlinePlayers)
     updated
       .filterNot(t => offlinePlayers.contains(t._1))
       .filter(t => t._2.nonEmpty)
-      .map(t => (player.server.getPlayerList.getPlayer(t._1), t._2.flatMap(s => maxSkills.find(_.name == s.name)), t
-        ._2),
-      )
-      .foreach(t => emitHelper(t._1, t._2.get, t._3))
+      .foreach(t => notifyPlayers(player, t._2.flatMap(s => maxSkills.find(_.name == s.name)).get)(List(t)))
 
     updated.nonEmpty
   }

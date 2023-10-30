@@ -5,10 +5,10 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.entity.player.{Player => MinePlayer}
 
 import java.util.UUID
 
@@ -20,7 +20,7 @@ trait PlayerRegistryFacade {
 
   def get(playerId: UUID): List[Skill[_]] = registry.get(playerId)
 
-  def get(player: MinePlayer): List[Skill[_]] = get(player.getUUID)
+  def get(player: MinecraftPlayer[_]): List[Skill[_]] = get(player.uuid)
 
   def get[T](playerId: UUID, name: ResourceLocation): Option[Skill[T]] = {
     registry.get(playerId)
@@ -28,8 +28,8 @@ trait PlayerRegistryFacade {
       .asInstanceOf[Option[Skill[T]]]
   }
 
-  def get[T](player: MinePlayer, name: ResourceLocation): Option[Skill[T]] = {
-    get(player.getUUID, name)
+  def get[T](player: MinecraftPlayer[_], name: ResourceLocation): Option[Skill[T]] = {
+    get(player.uuid, name)
   }
 
   def isOnline(playerId: UUID): Boolean = registry.has(playerId)
@@ -40,7 +40,7 @@ trait PlayerRegistryFacade {
 
   def upsert(playerId: UUID, skill: Skill[_]): List[Skill[_]] = registry.upsert(playerId, skill)
 
-  def upsert(player: MinePlayer, skill: Skill[_]): List[Skill[_]] = upsert(player.getUUID, skill)
+  def upsert(player: MinecraftPlayer[_], skill: Skill[_]): List[Skill[_]] = upsert(player.uuid, skill)
 
   def close(playerId: UUID): Boolean = registry.close(playerId)
 
@@ -70,7 +70,7 @@ class Player(
       .getOrElse(List.empty)
   }
 
-  def reset(player: MinePlayer, skill: Skill[_]): List[Skill[_]] = reset(player.getUUID, skill)
+  def reset(player: MinecraftPlayer[_], skill: Skill[_]): List[Skill[_]] = reset(player.uuid, skill)
 
   def calculateValue[T](player: UUID, skill: Skill[T], value: Option[T]): Option[Skill[T]] = {
     get[T](player, skill.name)
@@ -81,8 +81,8 @@ class Player(
       .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(value))
   }
 
-  def calculateValue[T](player: MinePlayer, skill: Skill[T], value: Option[T]): Option[Skill[T]] = {
-    calculateValue(player.getUUID, skill, value)
+  def calculateValue[T](player: MinecraftPlayer[_], skill: Skill[T], value: Option[T]): Option[Skill[T]] = {
+    calculateValue(player.uuid, skill, value)
   }
 }
 

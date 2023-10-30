@@ -1,6 +1,7 @@
 package net.impleri.playerskills.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.api.Player
 import net.minecraft.commands.Commands
 import net.minecraft.commands.CommandSourceStack
@@ -50,7 +51,8 @@ trait SkillValueCommand extends ValuesCommandUtils {
     player: Option[MinePlayer],
     skillName: Option[ResourceLocation],
   ): Int = {
-    val foundSkill = player.flatMap(p => skillName.flatMap(Player().get(p, _)))
+    val playerFacade = player.map(MinecraftPlayer.apply)
+    val foundSkill = playerFacade.flatMap(p => skillName.flatMap(Player().get(p, _)))
     val message = if (foundSkill.nonEmpty) {
       Component.translatable("commands.playerskills.acquired_skills",
         1,

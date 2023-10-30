@@ -1,10 +1,11 @@
 package net.impleri.playerskills.events.handlers
 
 import dev.architectury.event.events.common.LifecycleEvent
+import net.impleri.playerskills.facades.{MinecraftServer => ServerFacade}
 import net.impleri.playerskills.server.ServerStateContainer
 import net.minecraft.server.MinecraftServer
 
-case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[MinecraftServer] => Unit) {
+case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[ServerFacade] => Unit) {
   private[handlers] def registerEvents(): Unit = {
     LifecycleEvent.SETUP.register(() => setup())
     LifecycleEvent.SERVER_BEFORE_START.register(beforeServerStart(_))
@@ -17,7 +18,7 @@ case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[Minecraft
   }
 
   private def beforeServerStart(server: MinecraftServer): Unit = {
-    onServerChange(Option(server))
+    onServerChange(Option(server).map(ServerFacade.apply))
   }
 
   private def onServerStart(): Unit = {

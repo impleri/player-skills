@@ -3,12 +3,12 @@ package net.impleri.playerskills.server.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillTypeOps
+import net.impleri.playerskills.facades.MinecraftServer
 import net.impleri.playerskills.server.skills.storage.FailedToWrite
 import net.impleri.playerskills.server.skills.storage.PersistentStorage
 import net.impleri.playerskills.server.skills.storage.SkillFileMissing
 import net.impleri.playerskills.server.skills.storage.SkillResourceFile
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.server.MinecraftServer
 
 import java.io.File
 import java.nio.file.Path

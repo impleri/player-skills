@@ -1,6 +1,7 @@
 package net.impleri.playerskills.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.api.Player
 import net.minecraft.commands.Commands
 import net.minecraft.commands.CommandSourceStack
@@ -16,8 +17,9 @@ trait ListAcquiredCommand extends ValuesCommandUtils {
   }
 
   private def listOwnSkills(source: CommandSourceStack): Int = {
-    val player = Player()
-    val acquiredSkills = player.get(source.getPlayer).filter(player.can(source.getPlayer.getUUID, _))
+    val playerOps = Player()
+    val player = MinecraftPlayer(source.getPlayer)
+    val acquiredSkills = playerOps.get(player).filter(playerOps.can(player.uuid, _))
     val message = if (acquiredSkills.nonEmpty) {
       Component
         .translatable("commands.playerskills.acquired_skills", acquiredSkills.size)

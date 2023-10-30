@@ -1,8 +1,6 @@
 package net.impleri.playerskills.server.skills.storage
 
-import net.impleri.playerskills.PlayerSkills
-import net.minecraft.server.MinecraftServer
-import net.minecraft.world.level.storage.LevelResource
+import net.impleri.playerskills.facades.MinecraftServer
 import org.jetbrains.annotations.VisibleForTesting
 
 import java.io.File
@@ -39,8 +37,6 @@ object SkillResourceFile {
   }
 
   protected[skills] def apply(server: MinecraftServer): SkillResourceFile = {
-    new LevelResource(PlayerSkills.MOD_ID)
-      .pipe(server.getWorldPath)
-      .pipe(apply)
+    apply(server.getWorldPath())
   }
 }

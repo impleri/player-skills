@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.api.skills.ChangeableSkillOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.api.Player
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
@@ -58,10 +59,11 @@ trait SetSkillCommand extends SetCommandUtils {
   }
 
   private def grantFoundSkillTo[T](player: Option[MinePlayer], skill: Skill[T], value: String) = {
+    val playerFacade = player.map(MinecraftPlayer.apply)
     SkillType().get(skill)
       .map(_.castFromString(value))
       .map(v => skill.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(v))
-      .map(s => player.map(Player().upsert(_, s)))
+      .map(s => playerFacade.map(Player().upsert(_, s)))
       .pipe(_.nonEmpty)
   }
 
