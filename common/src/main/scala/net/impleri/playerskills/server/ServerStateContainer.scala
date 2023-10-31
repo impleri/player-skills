@@ -14,7 +14,7 @@ import scala.annotation.unused
 /**
  * Single place for all stateful classes
  */
-object ServerStateContainer {
+case class ServerStateContainer() {
   var SERVER: Option[MinecraftServer] = None
   private var STORAGE: Option[PlayerStorageIO] = None
   var PLAYERS: PlayerRegistry = PlayerRegistry()

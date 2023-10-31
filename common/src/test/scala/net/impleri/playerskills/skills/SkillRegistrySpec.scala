@@ -1,13 +1,11 @@
 package net.impleri.playerskills.skills
 
-import dev.architectury.registry.registries.Registrar
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.facades.ArchitecturyRegistrar
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
-
-import scala.jdk.javaapi.CollectionConverters
 
 class SkillRegistrySpec extends BaseSpec {
   private case class TestSkill(
@@ -20,27 +18,24 @@ class SkillRegistrySpec extends BaseSpec {
   private val otherName = new ResourceLocation("skills", "other")
   private val otherSkill = TestSkill(otherName)
 
-  "SkillRegistry.apply" should "return the correct class" in {
-    val state = SkillRegistryState.empty
-    val registrarMock = mock[Registrar[Skill[_]]]
+  private val emptyState = SkillRegistryState.empty
+  private val registrarMock = mock[ArchitecturyRegistrar[Skill[_]]]
 
-    val target = SkillRegistry(state, registrarMock)
+  "SkillRegistry.apply" should "return the correct class" in {
+    val target = SkillRegistry(emptyState, registrarMock)
 
     target.entries.isEmpty should be(true)
   }
 
   "SkillRegistryState.resync" should "return a new state with the synced skills" in {
-    val initialState = SkillRegistryState.empty
-    val registrarMock = mock[Registrar[Skill[_]]]
-
     val registryKey = mock[ResourceKey[Registry[Skill[_]]]]
     val entries = Map[ResourceKey[Skill[_]], Skill[_]](
       ResourceKey.create(registryKey, testName) -> testSkill,
       ResourceKey.create(registryKey, otherName) -> otherSkill,
     )
-    registrarMock.entrySet() returns CollectionConverters.asJava(entries).entrySet()
+    registrarMock.entries() returns entries
 
-    val target = SkillRegistry(initialState, registrarMock)
+    val target = SkillRegistry(emptyState, registrarMock)
 
     target.entries.isEmpty should be(true)
 
@@ -50,9 +45,7 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   "SkillRegistry.has" should "return true if there is a skill with the given name" in {
-    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
-
-    val registrarMock = mock[Registrar[Skill[_]]]
+    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(emptyState).value
 
     val target = SkillRegistry(state, registrarMock)
 
@@ -60,9 +53,7 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   it should "return true if there is a skill with a matching name" in {
-    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
-
-    val registrarMock = mock[Registrar[Skill[_]]]
+    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(emptyState).value
 
     val target = SkillRegistry(state, registrarMock)
 
@@ -70,9 +61,7 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   it should "return false if there is no skill with the given name" in {
-    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
-
-    val registrarMock = mock[Registrar[Skill[_]]]
+    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(emptyState).value
 
     val target = SkillRegistry(state, registrarMock)
 
@@ -80,9 +69,7 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   "SkillRegistry.find" should "return a skill with the given name" in {
-    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
-
-    val registrarMock = mock[Registrar[Skill[_]]]
+    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(emptyState).value
 
     val target = SkillRegistry(state, registrarMock)
 
@@ -90,9 +77,7 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   it should "return nothing if there is no match" in {
-    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
-
-    val registrarMock = mock[Registrar[Skill[_]]]
+    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(emptyState).value
 
     val target = SkillRegistry(state, registrarMock)
 
@@ -100,9 +85,7 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   "SkillRegistry.upsert" should "replace a skill in state" in {
-    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
-
-    val registrarMock = mock[Registrar[Skill[_]]]
+    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(emptyState).value
 
     val target = SkillRegistry(state, registrarMock)
 
@@ -114,8 +97,6 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   "SkillRegistry.add" should "insert a new skill into state" in {
-    val registrarMock = mock[Registrar[Skill[_]]]
-
     val target = SkillRegistry(gameRegistrar = registrarMock)
 
     target.find(testName) should be(None)
@@ -126,9 +107,7 @@ class SkillRegistrySpec extends BaseSpec {
   }
 
   "SkillRegistry.removeSkill" should "remove a skill from state" in {
-    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(SkillRegistryState.empty).value
-
-    val registrarMock = mock[Registrar[Skill[_]]]
+    val (state, _) = SkillRegistryState.resync(List(testSkill, otherSkill)).run(emptyState).value
 
     val target = SkillRegistry(state, registrarMock)
 

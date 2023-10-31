@@ -6,7 +6,6 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.facades.MinecraftPlayer
-import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.minecraft.resources.ResourceLocation
 
@@ -90,7 +89,7 @@ object Player {
   val DEFAULT_SKILL_RESPONSE: Boolean = true
 
   def apply(
-    registry: PlayerRegistry = ServerStateContainer.PLAYERS,
+    registry: PlayerRegistry = PlayerRegistry(),
     skillTypeOps: SkillTypeOps = SkillType(),
     skillOps: SkillOps = Skill(),
   ): Player = {

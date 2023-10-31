@@ -2,7 +2,7 @@ package net.impleri.playerskills.events.handlers
 
 import dev.architectury.event.events.common.LifecycleEvent
 import net.impleri.playerskills.facades.{MinecraftServer => ServerFacade}
-import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.playerskills.server.PlayerSkillsServer
 import net.minecraft.server.MinecraftServer
 
 case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[ServerFacade] => Unit) {
@@ -27,7 +27,7 @@ case class LifecycleEvents(onSetup: () => Unit, onServerChange: Option[ServerFac
   }
 
   private def beforeSeverStops(): Unit = {
-    ServerStateContainer.PLAYERS.close()
+    PlayerSkillsServer.STATE.PLAYERS.close()
     onServerChange(None)
   }
 }

@@ -1,14 +1,11 @@
 package net.impleri.playerskills.skills
 
-import dev.architectury.registry.registries.Registrar
-import dev.architectury.registry.registries.Registries
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.facades.ArchitecturyRegistrar
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.impleri.playerskills.utils.StatefulRegistry
 import net.minecraft.resources.ResourceLocation
 
-import scala.jdk.javaapi.CollectionConverters
 import scala.util.chaining.scalaUtilChainingOps
 
 /**
@@ -16,17 +13,13 @@ import scala.util.chaining.scalaUtilChainingOps
  */
 class SkillRegistry(
   override var state: SkillRegistryState.Skills,
-  private val gameRegistrar: Registrar[Skill[_]],
+  private val gameRegistrar: ArchitecturyRegistrar[Skill[_]],
 ) extends StatefulRegistry[SkillRegistryState.Skills] {
   /**
    * Helper method to aggregate the skills created directly by mods
    */
   private def getInitialSkills = {
-    CollectionConverters.asScala(gameRegistrar
-        .entrySet(),
-      )
-      .map(_.getValue)
-      .pipe(_.toList)
+    gameRegistrar.entries().values.toList
   }
 
   /**
@@ -93,16 +86,11 @@ class SkillRegistry(
 object SkillRegistry {
   val REGISTRY_KEY: ResourceLocation = SkillResourceLocation.of("skills_registry").get
 
-  /**
-   * Architectury Registry used for pulling in skills registered by  other mods
-   */
-  private lazy val INITIAL_REGISTRY: Registrar[Skill[_]] = Registries.get(PlayerSkills.MOD_ID)
-    .builder(REGISTRY_KEY)
-    .build()
+  lazy val REGISTRAR: ArchitecturyRegistrar[Skill[_]] = ArchitecturyRegistrar(REGISTRY_KEY)
 
   def apply(
     state: SkillRegistryState.Skills = SkillRegistryState.empty,
-    gameRegistrar: Registrar[Skill[_]] = INITIAL_REGISTRY,
+    gameRegistrar: ArchitecturyRegistrar[Skill[_]] = ArchitecturyRegistrar(None),
   ): SkillRegistry = {
     new SkillRegistry(state, gameRegistrar)
   }

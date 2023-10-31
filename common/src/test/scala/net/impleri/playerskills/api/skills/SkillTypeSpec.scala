@@ -339,4 +339,10 @@ class SkillTypeSpec extends BaseSpec {
 
     testUnit.isInstanceOf[SkillTypeOps] should be(true)
   }
+
+  it should "create a SkillTypeOps instance without parameters" in {
+    val testUnit = SkillType()
+
+    testUnit.isInstanceOf[SkillTypeOps] should be(true)
+  }
 }

@@ -1,6 +1,5 @@
 package net.impleri.playerskills.api.skills
 
-import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
@@ -39,7 +38,7 @@ sealed trait SerializableSkillType[T] {
 }
 
 trait SkillType[T] extends ChangeableSkillType[T] with SerializableSkillType[T] {
-  def name: ResourceLocation = SkillResourceLocation("skill").get
+  val name: ResourceLocation = SkillResourceLocation("skill").get
 
   def can(skill: Skill[T], threshold: Option[T] = None): Boolean = {
     skill.value.exists(v => threshold.forall(v == _))
@@ -131,7 +130,7 @@ object SkillType {
   private[skills] val stringValueSeparator: String = ";"
 
   def apply(
-    state: SkillTypeRegistry = StateContainer.SKILL_TYPES,
+    state: SkillTypeRegistry = SkillTypeRegistry(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): SkillTypeOps = {
     new SkillTypeOps(state, logger)

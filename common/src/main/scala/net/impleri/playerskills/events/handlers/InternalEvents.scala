@@ -3,7 +3,7 @@ package net.impleri.playerskills.events.handlers
 import dev.architectury.registry.ReloadListenerRegistry
 import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.events.SkillChangedEvent
-import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.playerskills.server.PlayerSkillsServer
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
@@ -48,7 +48,7 @@ case class InternalEvents(onReload: ResourceManager => Unit) extends ResourceMan
   override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
 
   private def onSkillChanged(event: SkillChangedEvent[_]): Unit = {
-    ServerStateContainer.NETWORK.syncPlayer(event)
+    PlayerSkillsServer.STATE.NETWORK.syncPlayer(event)
     //    maybeUpdateBlocks(event.player.getUUID)
   }
 }
