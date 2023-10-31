@@ -8,12 +8,12 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 /**
  * Single place for all stateful classes shared between client and server
  */
-object StateContainer {
-  val SKILLS: SkillRegistry = SkillRegistry()
-  val SKILL_TYPES: SkillTypeRegistry = SkillTypeRegistry()
-  val EVENT_HANDLERS: EventHandlers = EventHandlers(onSetup = onSetup)
+case class StateContainer() {
+  PlayerSkillsLogger.SKILLS.info("PlayerSkills Loaded")
 
-  def init(): Unit = PlayerSkillsLogger.SKILLS.info("PlayerSkills Loaded")
+  val SKILLS: SkillRegistry = SkillRegistry(gameRegistrar = SkillRegistry.REGISTRAR)
+  val SKILL_TYPES: SkillTypeRegistry = SkillTypeRegistry(SkillTypeRegistry.REGISTRAR)
+  val EVENT_HANDLERS: EventHandlers = EventHandlers(onSetup = onSetup)
 
   private def onSetup(): Unit = {
     SKILL_TYPES.resync()

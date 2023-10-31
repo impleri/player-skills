@@ -1,6 +1,5 @@
 package net.impleri.playerskills.api.skills
 
-import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.SkillResourceLocation
@@ -126,7 +125,7 @@ object Skill {
 
   def apply(
     skillType: SkillTypeOps = SkillType(),
-    state: SkillRegistry = StateContainer.SKILLS,
+    state: SkillRegistry = SkillRegistry(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): SkillOps = {
     new SkillOps(skillType, state, logger)

@@ -232,4 +232,10 @@ class SkillSpec extends BaseSpec {
 
     facade.isInstanceOf[SkillOps] should be(true)
   }
+
+  it should "return a SkillOps instance without arguments" in {
+    val facade = Skill()
+
+    facade.isInstanceOf[SkillOps] should be(true)
+  }
 }

@@ -1,21 +1,15 @@
 package net.impleri.playerskills.skills
 
-import dev.architectury.registry.registries.Registrar
-import dev.architectury.registry.registries.Registries
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillType
+import net.impleri.playerskills.facades.ArchitecturyRegistrar
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
-import scala.jdk.javaapi.CollectionConverters
-
-case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillType[_]]) {
+case class SkillTypeRegistry(private[skills] val gameRegistrar: ArchitecturyRegistrar[SkillType[_]]) {
   private[skills] var state: List[SkillType[_]] = List.empty
 
   def resync(): Unit = {
-    state = CollectionConverters.asScala(gameRegistrar.entrySet())
-      .toList
-      .map(_.getValue)
+    state = gameRegistrar.entries().values.toList
   }
 
   def entries: List[SkillType[_]] = state
@@ -30,12 +24,10 @@ case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillT
 object SkillTypeRegistry {
   val REGISTRY_KEY: ResourceLocation = SkillResourceLocation.of("skill_types_registry").get
 
-  private lazy val REGISTRY: Registrar[SkillType[_]] = Registries.get(PlayerSkills.MOD_ID)
-    .builder(REGISTRY_KEY)
-    .build()
+  lazy val REGISTRAR: ArchitecturyRegistrar[SkillType[_]] = ArchitecturyRegistrar(REGISTRY_KEY)
 
   def apply(
-    gameRegistrar: Registrar[SkillType[_]] = REGISTRY,
+    gameRegistrar: ArchitecturyRegistrar[SkillType[_]] = ArchitecturyRegistrar(None),
   ): SkillTypeRegistry = {
     new SkillTypeRegistry(gameRegistrar)
   }

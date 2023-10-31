@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation
 
 import java.util.UUID
 
-class PlayerRegistrySpec extends BaseSpec {
+class PlayerArchitecturyRegistrarSpec extends BaseSpec {
   private case class TestSkill(
     override val name: ResourceLocation,
     override val value: Option[String] = None,

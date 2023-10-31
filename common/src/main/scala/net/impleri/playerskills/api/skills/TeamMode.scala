@@ -16,11 +16,9 @@ object TeamMode {
 
   case class SplitEvenly() extends TeamMode {
     override def getLimit[T](skill: Skill[T], count: Int): Int = {
-      skill.options
-        .size
-        .pipe(math.max(_, 1))
-        .pipe(count / _)
-        .pipe(_.toDouble.ceil.toInt)
+      math.max(skill.options.size, 1)
+        .pipe(count.toDouble / _)
+        .pipe(_.ceil.toInt)
     }
   }
 
@@ -36,7 +34,8 @@ object TeamMode {
         .toMap
     }
 
-    private def getOptionLimit(skill: Skill[_])(index: Int): Option[Int] = {
+    @VisibleForTesting
+    private[api] def getOptionLimit(skill: Skill[_])(index: Int): Option[Int] = {
       getOptionLimits(skill.options.size)
         .pipe(ls => Try(ls.apply(index)))
         .toOption
@@ -45,8 +44,12 @@ object TeamMode {
     override def getLimit[T](skill: Skill[T], count: Int): Int = {
       skill.value
         .map(skill.options.indexOf)
-        .flatMap(getOptionLimit(skill))
-        .getOrElse(count)
+        .flatMap {
+          case -1 => Option(0)
+          case 0 => Option(count)
+          case i => getOptionLimit(skill)(i)
+        }
+        .getOrElse(0)
     }
   }
 

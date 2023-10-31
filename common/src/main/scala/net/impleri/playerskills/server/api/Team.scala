@@ -1,12 +1,11 @@
 package net.impleri.playerskills.server.api
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
 import net.impleri.playerskills.facades.MinecraftPlayer
-import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.playerskills.PlayerSkills
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
@@ -136,7 +135,7 @@ trait TeamNotifier {
   }
 
   protected def emitHelper[T](player: MinecraftPlayer[_], next: Skill[T], prev: Option[Skill[_]]): Unit = {
-    PlayerSkills
+    PlayerSkills.STATE.EVENT_HANDLERS
       .emitSkillChanged(player, next, prev.asInstanceOf[Option[Skill[T]]])
   }
 }
@@ -205,7 +204,7 @@ class TeamOps(
 
 object Team {
   def apply(
-    instance: Team = ServerStateContainer.TEAM,
+    instance: Team = StubTeam(),
     playerOps: Player = Player(),
     skillOps: SkillOps = Skill(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,

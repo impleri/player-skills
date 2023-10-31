@@ -32,6 +32,12 @@ class TeamModeSpec extends BaseSpec {
     TeamMode.SplitEvenly().getLimit(testSkillWithOptions, givenCount) should be(expectedLimit)
   }
 
+  it should "round up when uneven" in {
+    val givenCount = testSkillWithOptions.options.size + 2
+    val expectedLimit = 2
+    TeamMode.SplitEvenly().getLimit(testSkillWithOptions, givenCount) should be(expectedLimit)
+  }
+
   "TeamMode.Pyramid" should "generate appropriate option limits" in {
     val givenCount = 5
     val expectedMap = Map(
@@ -44,9 +50,47 @@ class TeamModeSpec extends BaseSpec {
     TeamMode.Pyramid().getOptionLimits(givenCount) should be(expectedMap)
   }
 
-  "TeamMode.Pyramid" should "echo the count if the new value is the first option" in {
+  it should "generate small pyramids" in {
+    val givenCount = 3
+    val expectedMap = Map(
+      1 -> 4,
+      2 -> 2,
+      3 -> 1, // This is a purposely inaccessible value in order to allow the first option value to be unlimited
+    )
+    TeamMode.Pyramid().getOptionLimits(givenCount) should be(expectedMap)
+  }
+
+  it should "generate large pyramids" in {
+    val givenCount = 8
+    val expectedMap = Map(
+      1 -> 128,
+      2 -> 64,
+      3 -> 32,
+      4 -> 16,
+      5 -> 8,
+      6 -> 4,
+      7 -> 2,
+      8 -> 1, // This is a purposely inaccessible value in order to allow the first option value to be unlimited
+    )
+    TeamMode.Pyramid().getOptionLimits(givenCount) should be(expectedMap)
+  }
+
+  it should "get the right size for the given index" in {
+    TeamMode.Pyramid().getOptionLimit(testSkillWithOptions)(4).value should be(2)
+  }
+
+  it should "handle indices out of bounds" in {
+    TeamMode.Pyramid().getOptionLimit(testSkillWithOptions)(6) should be(None)
+  }
+
+  it should "echo the count if the new value is the first option" in {
     val givenCount = 55
     TeamMode.Pyramid().getLimit(testSkillWithOptions.copy(value = Option("A")), givenCount) should be(givenCount)
+  }
+
+  it should "return 0 if the new value is not found in the options" in {
+    val givenCount = 55
+    TeamMode.Pyramid().getLimit(testSkillWithOptions.copy(value = Option("Z")), givenCount) should be(0)
   }
 
   it should "return 2 for the last option" in {
