@@ -26,6 +26,12 @@ class NumericSkillTypeSpec extends BaseSpec {
     changesAllowed = stepChanges,
   )
 
+  "NumericSkillType" should "return a NumericSkillType instance" in {
+    val facade = NumericSkillType()
+
+    facade.isInstanceOf[NumericSkillType] should be(true)
+  }
+
   "NumericSkillType.serialize" should "cast integer value to a string" in {
     val testUnit = NumericSkillType(skillOpsMock, loggerMock)
 

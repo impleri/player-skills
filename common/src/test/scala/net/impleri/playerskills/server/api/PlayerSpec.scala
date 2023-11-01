@@ -6,6 +6,7 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.minecraft.resources.ResourceLocation
 
@@ -15,6 +16,7 @@ class PlayerSpec extends BaseSpec {
   private val registryMock = mock[PlayerRegistry]
   private val skillTypeOpsMock = mock[SkillTypeOps]
   private val skillOpsMock = mock[SkillOps]
+  private val playerMock = mock[MinecraftPlayer[_]]
 
   private val testUnit = new Player(registryMock, skillTypeOpsMock, skillOpsMock)
 
@@ -25,6 +27,16 @@ class PlayerSpec extends BaseSpec {
     registryMock.get(givenUuid) returns expected
 
     testUnit.get(givenUuid) should be(expected)
+  }
+
+  it should "proxy PlayerRegistry.get with a player" in {
+    val givenUuid = UUID.randomUUID()
+    playerMock.uuid returns givenUuid
+    val expected = List.empty[Skill[_]]
+
+    registryMock.get(givenUuid) returns expected
+
+    testUnit.get(playerMock) should be(expected)
   }
 
   it should "return a skill matching the given name" in {
@@ -38,6 +50,21 @@ class PlayerSpec extends BaseSpec {
     registryMock.get(givenUuid) returns returnedList
 
     testUnit.get(givenUuid, givenName).value should be(expected)
+  }
+
+  it should "return a skill matching the given player name" in {
+    val givenUuid = UUID.randomUUID()
+    val givenName = new ResourceLocation("skillstest", "test_skill")
+    val expected = mock[Skill[_]]
+    expected.name returns givenName
+
+    playerMock.uuid returns givenUuid
+
+    val returnedList = List(expected)
+
+    registryMock.get(givenUuid) returns returnedList
+
+    testUnit.get(playerMock, givenName).value should be(expected)
   }
 
   it should "return None if it cannot find a skill matching the given name" in {
@@ -88,6 +115,18 @@ class PlayerSpec extends BaseSpec {
     registryMock.upsert(givenUuid, givenSkill) returns expected
 
     testUnit.upsert(givenUuid, givenSkill) should be(expected)
+  }
+
+  it should "proxy PlayerRegistry.upsert with a player" in {
+    val givenUuid = UUID.randomUUID()
+    val givenSkill = mock[Skill[_]]
+    val expected = List(givenSkill)
+
+    playerMock.uuid returns givenUuid
+
+    registryMock.upsert(givenUuid, givenSkill) returns expected
+
+    testUnit.upsert(playerMock, givenSkill) should be(expected)
   }
 
   "PlayerRegistryFacade.close" should "proxy PlayerRegistry.close" in {
@@ -198,7 +237,9 @@ class PlayerSpec extends BaseSpec {
 
     skillOpsMock.get[String](skillName) returns None
 
-    testUnit.reset(givenUuid, givenSkill) should be(List.empty)
+    playerMock.uuid returns givenUuid
+
+    testUnit.reset(playerMock, givenSkill) should be(List.empty)
 
     registryMock.upsert(givenUuid, *) wasNever called
   }
@@ -250,7 +291,9 @@ class PlayerSpec extends BaseSpec {
     val createdSkill = mock[Skill[String]]
     foundSkill.mutate(givenValue) returns createdSkill
 
-    testUnit.calculateValue(givenUuid, givenSkill, givenValue).value should be(createdSkill)
+    playerMock.uuid returns givenUuid
+
+    testUnit.calculateValue(playerMock, givenSkill, givenValue).value should be(createdSkill)
   }
 
   it should "returns None if the skill cannot be changed" in {
@@ -333,6 +376,12 @@ class PlayerSpec extends BaseSpec {
 
   "Player.apply" should "return a Player instance" in {
     val facade = Player(registryMock, skillTypeOpsMock, skillOpsMock)
+
+    facade.isInstanceOf[Player] should be(true)
+  }
+
+  "Player.apply" should "return a Player instance without parameters" in {
+    val facade = Player()
 
     facade.isInstanceOf[Player] should be(true)
   }
