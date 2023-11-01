@@ -48,7 +48,7 @@ case class InternalEvents(onReload: ResourceManager => Unit) extends ResourceMan
   override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
 
   private def onSkillChanged(event: SkillChangedEvent[_]): Unit = {
-    PlayerSkillsServer.STATE.NETWORK.syncPlayer(event)
+    PlayerSkillsServer.STATE.getNetHandler.syncPlayer(event)
     //    maybeUpdateBlocks(event.player.getUUID)
   }
 }
