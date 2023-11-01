@@ -4,7 +4,6 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.StatefulRegistry
-import net.impleri.playerskills.PlayerSkills
 import net.minecraft.resources.ResourceLocation
 
 import java.util.UUID
@@ -141,7 +140,7 @@ object PlayerRegistry {
   def apply(
     storage: Option[PlayerStorageIO] = None,
     state: PlayerRegistryState.CachedPlayers = PlayerRegistryState.empty,
-    skillsRegistry: SkillRegistry = PlayerSkills.STATE.SKILLS,
+    skillsRegistry: SkillRegistry = SkillRegistry(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): PlayerRegistry = {
     new PlayerRegistry(state, storage, skillsRegistry, logger)

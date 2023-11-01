@@ -16,6 +16,12 @@ class SpecializedSkillTypeSpec extends BaseSpec {
   private val dumbSkill = SpecializedSkill(skillName)
   private val valuedSkill = SpecializedSkill(skillName, value = Option(skillValue))
 
+  "SpecializedSkillType" should "return a SpecializedSkillType instance" in {
+    val facade = SpecializedSkillType()
+
+    facade.isInstanceOf[SpecializedSkillType] should be(true)
+  }
+
   "SpecializedSkillType.serialize" should "cast value to a string" in {
     val testUnit = SpecializedSkillType(skillOpsMock)
 

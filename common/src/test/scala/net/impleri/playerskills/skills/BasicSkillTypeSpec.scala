@@ -18,6 +18,12 @@ class BasicSkillTypeSpec extends BaseSpec {
   private val truthySkill = BasicSkill(skillName, value = Option(true))
   private val falsySkill = BasicSkill(skillName, value = Option(false))
 
+  "BasicSkillType" should "return a BasicSkillType instance" in {
+    val facade = BasicSkillType()
+
+    facade.isInstanceOf[BasicSkillType] should be(true)
+  }
+
   "BasicSkillType.serialize" should "cast true boolean value to a string" in {
     val testUnit = BasicSkillType(skillOpsMock, loggerMock)
 

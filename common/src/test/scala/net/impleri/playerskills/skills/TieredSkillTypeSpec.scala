@@ -23,6 +23,12 @@ class TieredSkillTypeSpec extends BaseSpec {
 
   private val testUnit = TieredSkillType(skillOpsMock, loggerMock)
 
+  "TieredSkillType" should "return a TieredSkillType instance" in {
+    val facade = TieredSkillType()
+
+    facade.isInstanceOf[TieredSkillType] should be(true)
+  }
+
   "TieredSkillType.serialize" should "cast value to a string" in {
     val result = testUnit.serialize(valuedSkill)
 

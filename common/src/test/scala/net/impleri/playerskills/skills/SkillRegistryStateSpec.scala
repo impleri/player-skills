@@ -31,13 +31,14 @@ class SkillRegistryStateSpec extends BaseSpec {
 
   it should "throw an error if the skill is already added" in {
     val initialState = SkillRegistryState.empty
-    val skillName = new ResourceLocation("skills", "test")
+    val skillName = new ResourceLocation("skills", "testname")
     val testSkill = TestSkill(skillName)
 
     val (nextState, _) = SkillRegistryState.add(testSkill).run(initialState).value
     val result = SkillRegistryState.add(testSkill).run(nextState)
 
     result.isLeft should be(true)
+    result.left.value.getMessage.contains("testname") should be(true)
   }
 
   "SkillRegistryState.upsert" should "return a new state with the added skill" in {
