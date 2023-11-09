@@ -47,73 +47,118 @@ case class SkillsDataLoader(
 
   private def parseSkill(name: ResourceLocation, json: JsonElement): Option[Skill[_]] = {
     val raw = json.getAsJsonObject
-
     val description = parseString(raw, "description")
     val changesAllowed = parseInt(raw, "changesAllowed").getOrElse(Skill.UNLIMITED_CHANGES)
     val (notify, notifyString) = parseNotify(raw)
-    val skillType = parseString(raw, "type").tap {
-      case None => logger.warn("Tried to parse undefined skill type")
-      case _ => ()
-    }
+    val skillType = parseSkillType(raw)
 
     skillType
       .flatMap(SkillResourceLocation.apply)
       .flatMap {
-        case BasicSkillType.NAME => Option(BasicSkill(
-          value = parseBoolean(raw, "initialValue"),
-          options = parseOptions(raw, _.getAsBoolean),
-          teamMode = parseTeamMode(raw),
-          name = name,
-          description = description,
-          changesAllowed = changesAllowed,
-          announceChange = notify,
-          notifyKey = notifyString,
-        ),
+        case BasicSkillType.NAME => createBasicSkill(raw, name, description, changesAllowed, notify, notifyString)
+        case NumericSkillType.NAME => createNumericSkill(raw, name, description, changesAllowed, notify, notifyString)
+        case TieredSkillType.NAME => createTieredSkill(raw, name, description, changesAllowed, notify, notifyString)
+        case SpecializedSkillType.NAME => createSpecializedSkill(raw,
+          name,
+          description,
+          changesAllowed,
+          notify,
+          notifyString,
         )
-
-        case NumericSkillType.NAME => Option(NumericSkill(
-          value = parseDouble(raw, "initialValue"),
-          options = parseOptions(raw, _.getAsDouble),
-          teamMode = parseTeamMode(raw),
-          name = name,
-          description = description,
-          step = parseDouble(raw, "step").getOrElse(NumericSkill.DefaultStep),
-          changesAllowed = changesAllowed,
-          announceChange = notify,
-          notifyKey = notifyString,
-        ),
-        )
-
-        case TieredSkillType.NAME => Option(TieredSkill(
-          value = parseString(raw, "initialValue"),
-          options = parseOptions(raw, _.getAsString),
-          teamMode = parseTeamMode(raw, Option(TeamMode.Pyramid())),
-          name = name,
-          description = description,
-          changesAllowed = changesAllowed,
-          announceChange = notify,
-          notifyKey = notifyString,
-        ),
-        )
-
-        case SpecializedSkillType.NAME => Option(SpecializedSkill(
-          value = parseString(raw, "initialValue"),
-          options = parseOptions(raw, _.getAsString),
-          teamMode = parseTeamMode(raw, Option(TeamMode.SplitEvenly())),
-          name = name,
-          description = description,
-          changesAllowed = changesAllowed,
-          announceChange = notify,
-          notifyKey = notifyString,
-        ),
-        )
-
         case _ =>
         logger.warn(s"Unknown skill $name with type $skillType")
         None
       }
   }
 
+  private def createBasicSkill(
+    raw: JsonObject,
+    name: ResourceLocation,
+    description: Option[String],
+    changesAllowed: Int,
+    announceChange: Boolean,
+    notifyString: Option[String],
+  ): Option[BasicSkill] = {
+    Option(
+      BasicSkill(
+        value = parseBoolean(raw, "initialValue"),
+        options = parseOptions(raw, _.getAsBoolean),
+        teamMode = parseTeamMode(raw),
+        name = name,
+        description = description,
+        changesAllowed = changesAllowed,
+        announceChange = announceChange,
+        notifyKey = notifyString,
+      ),
+    )
+  }
+
+  private def createNumericSkill(
+    raw: JsonObject,
+    name: ResourceLocation,
+    description: Option[String],
+    changesAllowed: Int,
+    announceChange: Boolean,
+    notifyString: Option[String],
+  ): Option[NumericSkill] = {
+    Option(
+      NumericSkill(
+        value = parseDouble(raw, "initialValue"),
+        options = parseOptions(raw, _.getAsDouble),
+        teamMode = parseTeamMode(raw),
+        name = name,
+        description = description,
+        step = parseDouble(raw, "step").getOrElse(NumericSkill.DefaultStep),
+        changesAllowed = changesAllowed,
+        announceChange = announceChange,
+        notifyKey = notifyString,
+      ),
+    )
+  }
+
+  private def createTieredSkill(
+    raw: JsonObject,
+    name: ResourceLocation,
+    description: Option[String],
+    changesAllowed: Int,
+    announceChange: Boolean,
+    notifyString: Option[String],
+  ): Option[TieredSkill] = {
+    Option(
+      TieredSkill(
+        value = parseString(raw, "initialValue"),
+        options = parseOptions(raw, _.getAsString),
+        teamMode = parseTeamMode(raw, Option(TeamMode.Pyramid())),
+        name = name,
+        description = description,
+        changesAllowed = changesAllowed,
+        announceChange = announceChange,
+        notifyKey = notifyString,
+      ),
+    )
+  }
+
+  private def createSpecializedSkill(
+    raw: JsonObject,
+    name: ResourceLocation,
+    description: Option[String],
+    changesAllowed: Int,
+    announceChange: Boolean,
+    notifyString: Option[String],
+  ): Option[SpecializedSkill] = {
+    Option(
+      SpecializedSkill(
+        value = parseString(raw, "initialValue"),
+        options = parseOptions(raw, _.getAsString),
+        teamMode = parseTeamMode(raw, Option(TeamMode.SplitEvenly())),
+        name = name,
+        description = description,
+        changesAllowed = changesAllowed,
+        announceChange = announceChange,
+        notifyKey = notifyString,
+      ),
+    )
+  }
 
   private def createTeamMode(mode: String, rate: Option[Double] = None): Either[Exception, TeamMode] = {
     mode match {
@@ -136,6 +181,13 @@ case class SkillsDataLoader(
       case Some(_: TeamMode.Pyramid) if mode == TeamMode.Pyramid() => TeamMode.Off()
       case Some(_: TeamMode.SplitEvenly) if mode == TeamMode.SplitEvenly() => TeamMode.Off()
       case _ => mode
+    }
+  }
+
+  private def parseSkillType(raw: JsonObject): Option[String] = {
+    parseString(raw, "type").tap {
+      case None => logger.warn("Tried to parse undefined skill type")
+      case _ => ()
     }
   }
 
