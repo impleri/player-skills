@@ -47,7 +47,7 @@ object TeamMode {
         .flatMap {
           case -1 => Option(0)
           case 0 => Option(count)
-          case i => getOptionLimit(skill)(i)
+          case i: Int => getOptionLimit(skill)(i)
         }
         .getOrElse(0)
     }
