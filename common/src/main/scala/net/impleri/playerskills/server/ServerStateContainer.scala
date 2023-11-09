@@ -45,7 +45,7 @@ case class ServerStateContainer() {
 
   def getPlayerOps: Player = Player(PLAYERS, PlayerSkills.STATE.getSkillTypeOps, PlayerSkills.STATE.getSkillOps)
 
-  def getTeamOps: TeamOps = Team(TEAM, getPlayerOps, PlayerSkills.STATE.getSkillOps)
+  def getTeamOps: TeamOps = Team(TEAM, getPlayerOps, PlayerSkills.STATE.getSkillOps, EVENT_HANDLERS)
 
   def getNetHandler: NetHandler = NetHandler(getPlayerOps)
 }
