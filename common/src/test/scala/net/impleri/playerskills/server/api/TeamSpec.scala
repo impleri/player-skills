@@ -4,8 +4,12 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
+import net.impleri.playerskills.events.handlers.EventHandlers
+import net.impleri.playerskills.facades.MinecraftPlayer
+import net.impleri.playerskills.facades.MinecraftServer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 
 import java.util.UUID
 
@@ -19,10 +23,11 @@ class TeamSpec extends BaseSpec {
   private val playerOpsMock = mock[Player]
   private val skillOpsMock = mock[SkillOps]
   private val teamMock = mock[Team]
+  private val eventHandlersMock = mock[EventHandlers]
   private val loggerMock = mock[PlayerSkillsLogger]
 
   private val givenUuid = UUID.randomUUID()
-  private val testUnit = new TeamOps(playerOpsMock, skillOpsMock, teamMock, loggerMock)
+  private val testUnit = new TeamOps(playerOpsMock, skillOpsMock, teamMock, eventHandlersMock, loggerMock)
 
   "StubTeam" should "always return just the given user ID" in {
     StubTeam().getTeamMembersFor(givenUuid) should be(List(givenUuid))
@@ -117,7 +122,7 @@ class TeamSpec extends BaseSpec {
     testUnit.updateMemberSkill(updatedSkill)(givenUuid) should be(None)
   }
 
-  "TeamUpdater.syncSkills" should "" in {
+  "TeamUpdater.syncSkills" should "ensure every team member has the new value" in {
     val secondUuid = UUID.randomUUID()
     val skill1Name = new ResourceLocation("testskills", "alpha")
     val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
@@ -163,5 +168,233 @@ class TeamSpec extends BaseSpec {
 
     playerOpsMock.upsert(givenUuid, *) wasCalled once
     playerOpsMock.upsert(secondUuid, *) wasCalled once
+  }
+
+  "TeamUpdater.notifyPlayers" should "trigger notifications" in {
+    val serverMock = mock[MinecraftServer]
+    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val oldSkill = TestSkill(skillName, teamMode = TeamMode.Shared())
+    val newSkill = oldSkill.copy(value = Option("newvalue"))
+
+    val updates = List((givenUuid, Option(oldSkill)))
+
+    serverMock.getPlayer(givenUuid) returns Option(playerMock)
+
+    testUnit.notifyPlayers(serverMock, newSkill)(updates)
+
+    eventHandlersMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
+  }
+
+  it should "should not trigger notifications if emit is false" in {
+    val serverMock = mock[MinecraftServer]
+
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val oldSkill = TestSkill(skillName, teamMode = TeamMode.Shared())
+    val newSkill = oldSkill.copy(value = Option("newvalue"))
+
+    val updates = List((givenUuid, Option(oldSkill)))
+
+    testUnit.notifyPlayers(serverMock, newSkill, emit = false)(updates)
+
+    serverMock.getPlayer(*) wasNever called
+
+    eventHandlersMock.emitSkillChanged(*, *, *) wasNever called
+  }
+
+  "TeamLimit.countWith" should "count all users with the value or better" in {
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillValue = Option("alpha")
+    val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Shared())
+
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(skill)
+    playerOpsMock.get[String](secondUuid, skillName) returns None
+
+    playerOpsMock.can(givenUuid, *, skillValue) returns true
+
+    val count = testUnit.countWith(List(givenUuid, secondUuid), skill)
+
+    count should be(1)
+
+    playerOpsMock.can(secondUuid, *, skillValue) wasNever called
+  }
+
+  "TeamLimit.getTeamLimit" should "returns None if the team is only one player" in {
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skill = TestSkill(skillName, teamMode = TeamMode.Limited(5))
+
+    testUnit.getTeamLimit(List(givenUuid), skill) should be(None)
+  }
+
+  "TeamLimit.getTeamLimit" should "returns None if the skill team mode is off" in {
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skill = TestSkill(skillName, teamMode = TeamMode.Off())
+
+    testUnit.getTeamLimit(List(givenUuid, secondUuid), skill) should be(None)
+  }
+
+  "TeamLimit.getTeamLimit" should "returns None if the skill team mode is shared" in {
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skill = TestSkill(skillName, teamMode = TeamMode.Shared())
+
+    testUnit.getTeamLimit(List(givenUuid, secondUuid), skill) should be(None)
+  }
+
+  "TeamLimit.getTeamLimit" should "returns the team mode limit otherwise" in {
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val expectedLimit = 5
+    val skill = TestSkill(skillName, teamMode = TeamMode.Limited(expectedLimit))
+
+    testUnit.getTeamLimit(List(givenUuid, secondUuid), skill).value should be(expectedLimit)
+  }
+
+  "TeamLimit.allows" should "return true if there are fewer players than the limit allows" in {
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val expectedLimit = 5
+    val skillValue = Option("alpha")
+    val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Limited(expectedLimit))
+
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(skill)
+    playerOpsMock.get[String](secondUuid, skillName) returns None
+
+    playerOpsMock.can(givenUuid, *, skillValue) returns true
+
+    testUnit.allows(List(givenUuid, secondUuid), skill) should be(true)
+  }
+
+  "TeamLimit.allows" should "return true if there is no limit" in {
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillValue = Option("alpha")
+    val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Shared())
+
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(skill)
+    playerOpsMock.get[String](secondUuid, skillName) returns None
+
+    playerOpsMock.can(givenUuid, *, skillValue) returns true
+
+    testUnit.allows(List(givenUuid, secondUuid), skill) should be(true)
+  }
+
+  "TeamLimit.allows" should "return false if there are more players than the limit allows" in {
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val expectedLimit = 1
+    val skillValue = Option("alpha")
+    val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Limited(expectedLimit))
+
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(skill)
+    playerOpsMock.get[String](secondUuid, skillName) returns None
+
+    playerOpsMock.can(givenUuid, *, skillValue) returns true
+
+    testUnit.allows(List(givenUuid, secondUuid), skill) should be(false)
+  }
+
+  "TeamOps.degrade" should "updates shared skill to a lower value" in {
+    val serverMock = mock[MinecraftServer]
+    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillValue = Option("oldvalue")
+    val newValue = None
+    val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Shared())
+    val newSkill = oldSkill.copy(value = newValue)
+
+    val offline = List(secondUuid)
+
+    playerMock.uuid returns givenUuid
+    playerMock.server returns serverMock
+
+    serverMock.getPlayer(givenUuid) returns Option(playerMock)
+
+    teamMock.getTeamMembersFor(givenUuid) returns List(givenUuid, secondUuid)
+
+    skillOpsMock.calculatePrev(oldSkill) returns newValue
+
+    playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
+    playerOpsMock.get[String](secondUuid, skillName) returns None
+    playerOpsMock.can(givenUuid, oldSkill, newValue) returns false
+    playerOpsMock.can(secondUuid, *, newValue) returns true
+    playerOpsMock.upsert(givenUuid, *) returns List(newSkill)
+    playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns Option(newSkill)
+
+    testUnit.degrade(playerMock, oldSkill)
+
+    eventHandlersMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
+  }
+
+  "TeamOps.improve" should "updates shared skill to a higher value" in {
+    val serverMock = mock[MinecraftServer]
+    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillValue = None
+    val newValue = Option("newvalue")
+    val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Off())
+    val newSkill = oldSkill.copy(value = newValue)
+
+    val offline = List(secondUuid)
+
+    playerMock.uuid returns givenUuid
+    playerMock.server returns serverMock
+
+    serverMock.getPlayer(givenUuid) returns Option(playerMock)
+
+    teamMock.getTeamMembersFor(givenUuid) returns List(givenUuid, secondUuid)
+
+    skillOpsMock.calculateNext(oldSkill) returns newValue
+
+    playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
+    playerOpsMock.get[String](secondUuid, skillName) returns None
+    playerOpsMock.can(givenUuid, oldSkill, newValue) returns false
+    playerOpsMock.upsert(givenUuid, *) returns List(newSkill)
+    playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns Option(newSkill)
+
+    testUnit.improve(playerMock, oldSkill)
+
+    eventHandlersMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
+  }
+
+  it should "does nothing if there is no update" in {
+    val serverMock = mock[MinecraftServer]
+    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+
+    val secondUuid = UUID.randomUUID()
+    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillValue = None
+    val newValue = Option("newvalue")
+    val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Off())
+    val newSkill = oldSkill.copy(value = newValue)
+
+    val offline = List(secondUuid)
+
+    playerMock.uuid returns givenUuid
+    playerMock.server returns serverMock
+
+    serverMock.getPlayer(givenUuid) returns Option(playerMock)
+
+    teamMock.getTeamMembersFor(givenUuid) returns List(givenUuid, secondUuid)
+
+    skillOpsMock.calculateNext(oldSkill) returns newValue
+
+    playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
+    playerOpsMock.can(givenUuid, oldSkill, newValue) returns false
+    playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns None
+
+    testUnit.improve(playerMock, oldSkill)
+
+    eventHandlersMock.emitSkillChanged(*, *, *) wasNever called
   }
 }
