@@ -83,12 +83,14 @@ trait TeamUpdater {
     updates: List[(UUID, Option[Skill[_]])],
   ): Unit = {
     if (emit) {
-      updates.foreach(tuple =>
-        server
-          .getPlayer(tuple._1)
-          .foreach(eventHandlers.emitSkillChanged(_, originalSkill, tuple._2.asInstanceOf[Option[Skill[T]]]),
-          ),
-      )
+      updates
+        .filter(t => playerOps.isOnline(t._1))
+        .foreach(tuple =>
+          server
+            .getPlayer(tuple._1)
+            .foreach(eventHandlers.emitSkillChanged(_, originalSkill, tuple._2.asInstanceOf[Option[Skill[T]]]),
+            ),
+        )
     }
   }
 }
@@ -209,8 +211,7 @@ class TeamOps(
         .pipe(getMaxTeamSkills(team))
         .pipe(syncSkills(team))
     }
-    updates.filter(t => playerOps.isOnline(t._1))
-      .foreach(t => notifyPlayers(player.server, t._3.get)(List((t._1, t._3))))
+    updates.foreach(t => notifyPlayers(player.server, t._3.get)(List((t._1, t._3))))
 
     updates.nonEmpty
   }

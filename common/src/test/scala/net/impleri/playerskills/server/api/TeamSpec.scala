@@ -1,12 +1,12 @@
 package net.impleri.playerskills.server.api
 
+import net.impleri.playerskills.api.skills.TeamMode
+import net.impleri.playerskills.facades.MinecraftPlayer
+import net.impleri.playerskills.facades.MinecraftServer
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
-import net.impleri.playerskills.api.skills.TeamMode
 import net.impleri.playerskills.events.handlers.EventHandlers
-import net.impleri.playerskills.facades.MinecraftPlayer
-import net.impleri.playerskills.facades.MinecraftServer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -180,6 +180,7 @@ class TeamSpec extends BaseSpec {
 
     val updates = List((givenUuid, Option(oldSkill)))
 
+    playerOpsMock.isOnline(givenUuid) returns true
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
 
     testUnit.notifyPlayers(serverMock, newSkill)(updates)
@@ -326,6 +327,8 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.can(secondUuid, *, newValue) returns true
     playerOpsMock.upsert(givenUuid, *) returns List(newSkill)
     playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns Option(newSkill)
+    playerOpsMock.isOnline(givenUuid) returns true
+    playerOpsMock.isOnline(secondUuid) returns false
 
     testUnit.degrade(playerMock, oldSkill)
 
@@ -360,6 +363,8 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.can(givenUuid, oldSkill, newValue) returns false
     playerOpsMock.upsert(givenUuid, *) returns List(newSkill)
     playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns Option(newSkill)
+    playerOpsMock.isOnline(givenUuid) returns true
+    playerOpsMock.isOnline(secondUuid) returns false
 
     testUnit.improve(playerMock, oldSkill)
 
@@ -396,5 +401,139 @@ class TeamSpec extends BaseSpec {
     testUnit.improve(playerMock, oldSkill)
 
     eventHandlersMock.emitSkillChanged(*, *, *) wasNever called
+  }
+
+  "TeamOps.syncFromPlayer" should "pass all shared skills to the team" in {
+    val secondUuid = UUID.randomUUID()
+
+    val serverMock = mock[MinecraftServer]
+    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+
+    val skill1Name = new ResourceLocation("testskills", "alpha")
+    val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
+    val skill2Name = new ResourceLocation("testskills", "beta")
+    val skill2 = TestSkill(skill2Name, teamMode = TeamMode.Pyramid())
+    val skill3Name = new ResourceLocation("testskills", "gamma")
+    val skill3 = TestSkill(skill3Name)
+    val skill4Name = new ResourceLocation("testskills", "delta")
+    val skill4 = TestSkill(skill4Name, teamMode = TeamMode.Shared())
+
+    val allSkills = List(skill1, skill2, skill3, skill4)
+
+    val players = List(givenUuid, secondUuid)
+    val offline = List(secondUuid)
+
+    playerMock.uuid returns givenUuid
+
+    teamMock.getTeamMembersFor(givenUuid) returns players
+
+    playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
+    playerOpsMock.get(givenUuid) returns allSkills
+
+    playerOpsMock.get[String](givenUuid, skill1Name) returns Option(skill1.copy(value = Option("alpha")))
+    playerOpsMock.get[String](givenUuid, skill2Name) returns Option(skill2)
+    playerOpsMock.get[String](givenUuid, skill3Name) returns Option(skill3.copy(value = Option("gamma")))
+    playerOpsMock.get[String](givenUuid, skill4Name) returns Option(skill4)
+
+    playerOpsMock.get[String](secondUuid, skill1Name) returns Option(skill1)
+    playerOpsMock.get[String](secondUuid, skill2Name) returns Option(skill2.copy(value = Option("beta")))
+    playerOpsMock.get[String](secondUuid, skill3Name) returns Option(skill3)
+    playerOpsMock.get[String](secondUuid, skill4Name) returns Option(skill4)
+
+    playerOpsMock.can(givenUuid, *, Option("delta")) returns false
+    playerOpsMock.can(givenUuid, *, Option("alpha")) returns true
+
+    playerOpsMock.can(secondUuid, *, Option("alpha")) returns false
+    playerOpsMock.can(secondUuid, *, Option("delta")) returns true
+
+    playerOpsMock.upsert(givenUuid, *) returns List.empty
+    playerOpsMock.upsert(secondUuid, *) returns List(
+      skill1.copy(value = Option("alpha")),
+      skill2,
+    )
+
+    playerOpsMock.isOnline(givenUuid) returns true
+    playerOpsMock.isOnline(secondUuid) returns false
+
+    serverMock.getPlayer(givenUuid) returns Option(playerMock)
+
+    testUnit.syncEntireTeam(playerMock)
+
+    eventHandlersMock.emitSkillChanged(*, *, *) wasNever called
+  }
+
+  "TeamOps.syncEntireTeam" should "syncs all of the best values to the entire team" in {
+    val secondUuid = UUID.randomUUID()
+
+    val serverMock = mock[MinecraftServer]
+    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+
+    val skill1Name = new ResourceLocation("testskills", "alpha")
+    val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
+    val skill2Name = new ResourceLocation("testskills", "beta")
+    val skill2 = TestSkill(skill2Name, teamMode = TeamMode.Pyramid())
+    val skill3Name = new ResourceLocation("testskills", "gamma")
+    val skill3 = TestSkill(skill3Name)
+    val skill4Name = new ResourceLocation("testskills", "delta")
+    val skill4 = TestSkill(skill4Name, teamMode = TeamMode.Shared())
+
+    val allSkills = List(skill1, skill2, skill3, skill4)
+
+    val players = List(givenUuid, secondUuid)
+    val offline = List(secondUuid)
+
+    playerMock.uuid returns givenUuid
+    playerMock.server returns serverMock
+
+    skillOpsMock.sortHelper(*, *) answers ((a: Skill[String], b: Skill[String]) => (a.value, b.value) match {
+      case (Some(_), None) => 1
+      case (None, Some(_)) => -1
+      case _ => 0
+    })
+
+    teamMock.getTeamMembersFor(givenUuid) returns players
+
+    playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
+    playerOpsMock.get(givenUuid) returns allSkills
+
+    playerOpsMock.get[String](givenUuid, skill1Name) returns Option(skill1.copy(value = Option("alpha")))
+    playerOpsMock.get[String](givenUuid, skill4Name) returns Option(skill4)
+
+    playerOpsMock.get[String](secondUuid, skill1Name) returns Option(skill1)
+    playerOpsMock.get[String](secondUuid, skill4Name) returns Option(skill4.copy(value = Option("delta")))
+
+    playerOpsMock.can(givenUuid, *, Option("delta")) returns false
+    playerOpsMock.can(givenUuid, *, Option("alpha")) returns true
+
+    playerOpsMock.can(secondUuid, *, Option("alpha")) returns false
+    playerOpsMock.can(secondUuid, *, Option("delta")) returns true
+
+    playerOpsMock.upsert(givenUuid, *) returns List(
+      skill1.copy(value = Option("alpha")),
+      skill2,
+      skill4.copy(value = Option("delta")),
+    )
+    playerOpsMock.upsert(secondUuid, *) returns List(
+      skill1.copy(value = Option("alpha")),
+      skill2,
+      skill4.copy(value = Option("delta")),
+    )
+
+    playerOpsMock.isOnline(givenUuid) returns true
+    playerOpsMock.isOnline(secondUuid) returns false
+
+    serverMock.getPlayer(givenUuid) returns Option(playerMock)
+
+    testUnit.syncFromPlayer(playerMock)
+
+    serverMock.getPlayer(secondUuid) wasNever called
+
+    eventHandlersMock.emitSkillChanged(playerMock, skill4.copy(value = Option("delta")), *) wasCalled once
+  }
+
+  "Team.apply" should "create a TeamOps instance" in {
+    val response = Team()
+
+    response.isInstanceOf[TeamOps] should be(true)
   }
 }
