@@ -10,6 +10,7 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.api.TeamOps
+import net.impleri.playerskills.StateContainer
 import net.minecraft.server.packs.resources.ResourceManager
 
 import scala.annotation.unused
@@ -17,7 +18,10 @@ import scala.annotation.unused
 /**
  * Single place for all stateful classes
  */
-case class ServerStateContainer() {
+case class ServerStateContainer(
+  globalState: StateContainer = PlayerSkills.STATE,
+  logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+) {
   var SERVER: Option[MinecraftServer] = None
   private var STORAGE: Option[PlayerStorageIO] = None
   var PLAYERS: PlayerRegistry = PlayerRegistry()
@@ -25,17 +29,17 @@ case class ServerStateContainer() {
 
   val EVENT_HANDLERS: EventHandlers = EventHandlers(onServerChange = onServerChange, onReloadResources = onReload)
 
-  def init(): Unit = PlayerSkillsLogger.SKILLS.info("PlayerSkills Server Loaded")
+  def init(): Unit = logger.info("PlayerSkills Server Loaded")
 
   def setTeam(instance: Team): Unit = TEAM = instance
 
-  private def onServerChange(next: Option[MinecraftServer] = None): Unit = {
+  private[server] def onServerChange(next: Option[MinecraftServer] = None): Unit = {
     SERVER = next
     STORAGE = next.map(PlayerStorageIO(_))
-    PLAYERS = PlayerRegistry(STORAGE, PLAYERS.getState, PlayerSkills.STATE.SKILLS)
+    PLAYERS = PlayerRegistry(STORAGE, PLAYERS.getState, globalState.SKILLS)
   }
 
-  private def onReload(@unused resourceManager: ResourceManager): Unit = {
+  private[server] def onReload(@unused resourceManager: ResourceManager): Unit = {
     val playerList = PLAYERS.close()
     PLAYERS.open(playerList)
 
@@ -43,9 +47,9 @@ case class ServerStateContainer() {
       .foreach(_.foreach(getNetHandler.syncPlayer(_)))
   }
 
-  def getPlayerOps: Player = Player(PLAYERS, PlayerSkills.STATE.getSkillTypeOps, PlayerSkills.STATE.getSkillOps)
+  def getPlayerOps: Player = Player(PLAYERS, globalState.getSkillTypeOps, globalState.getSkillOps)
 
-  def getTeamOps: TeamOps = Team(TEAM, getPlayerOps, PlayerSkills.STATE.getSkillOps, EVENT_HANDLERS)
+  def getTeamOps: TeamOps = Team(TEAM, getPlayerOps, globalState.getSkillOps, EVENT_HANDLERS)
 
   def getNetHandler: NetHandler = NetHandler(getPlayerOps)
 }
