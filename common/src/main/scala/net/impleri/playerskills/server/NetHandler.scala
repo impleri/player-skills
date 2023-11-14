@@ -13,6 +13,7 @@ class NetHandler(private val playerOps: Player, private val logger: PlayerSkills
     playerOps.get(player)
       .tap(logger.debugP(s => s"Syncing ${s.size} player skills to ${player.name}"))
       .pipe(SyncSkillsMessage(player, _, force))
+      .pipe(player.sendMessage)
   }
 
   def syncPlayer(event: SkillChangedEvent[_]): Unit = {

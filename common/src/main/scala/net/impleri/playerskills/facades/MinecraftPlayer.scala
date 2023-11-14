@@ -1,5 +1,6 @@
 package net.impleri.playerskills.facades
 
+import dev.architectury.networking.simple.BaseS2CMessage
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
@@ -18,6 +19,12 @@ class MinecraftPlayer[T <: Player](private val player: T) {
   def sendMessage(message: Component, notifyPlayer: Boolean = true): Unit = {
     if (isServer) {
       player.asInstanceOf[ServerPlayer].sendSystemMessage(message, notifyPlayer)
+    }
+  }
+
+  def sendMessage(message: BaseS2CMessage): Unit = {
+    if (isServer) {
+      message.sendTo(player.asInstanceOf[ServerPlayer])
     }
   }
 }
