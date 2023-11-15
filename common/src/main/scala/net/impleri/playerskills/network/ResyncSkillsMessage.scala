@@ -3,9 +3,9 @@ package net.impleri.playerskills.network
 import dev.architectury.networking.NetworkManager
 import dev.architectury.networking.simple.BaseC2SMessage
 import dev.architectury.networking.simple.MessageType
+import net.impleri.playerskills.facades.MinecraftPlayer
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.world.entity.player.Player
 
 import java.util.UUID
 
@@ -27,7 +27,7 @@ object ResyncSkillsMessage {
     new ResyncSkillsMessage(playerId)
   }
 
-  def apply(player: Player): ResyncSkillsMessage = {
-    new ResyncSkillsMessage(player.getUUID)
+  def apply(player: MinecraftPlayer[_]): ResyncSkillsMessage = {
+    new ResyncSkillsMessage(player.uuid)
   }
 }
