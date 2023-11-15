@@ -8,6 +8,7 @@ import net.impleri.playerskills.skills.basic.BasicSkillType
 import net.impleri.playerskills.skills.numeric.NumericSkillType
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 import net.impleri.playerskills.skills.tiered.TieredSkillType
+import net.impleri.playerskills.skills.SkillRegistry
 import net.minecraft.resources.ResourceKey
 
 import scala.util.chaining.scalaUtilChainingOps
@@ -15,7 +16,7 @@ import scala.util.chaining.scalaUtilChainingOps
 object PlayerSkills {
   final val MOD_ID = "playerskills"
 
-  val STATE: StateContainer = StateContainer()
+  val STATE: StateContainer = StateContainer(SkillRegistry.REGISTRAR, SkillTypeRegistry.REGISTRAR)
 
   private val SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY)
   private val SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY)

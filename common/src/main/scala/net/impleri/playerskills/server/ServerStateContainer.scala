@@ -2,14 +2,13 @@ package net.impleri.playerskills.server
 
 import net.impleri.playerskills.events.handlers.EventHandlers
 import net.impleri.playerskills.facades.MinecraftServer
+import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.api.StubTeam
 import net.impleri.playerskills.server.api.Team
+import net.impleri.playerskills.server.api.TeamOps
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.playerskills.server.skills.PlayerStorageIO
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.PlayerSkills
-import net.impleri.playerskills.server.api.Player
-import net.impleri.playerskills.server.api.TeamOps
 import net.impleri.playerskills.StateContainer
 import net.minecraft.server.packs.resources.ResourceManager
 
@@ -19,13 +18,16 @@ import scala.annotation.unused
  * Single place for all stateful classes
  */
 case class ServerStateContainer(
-  globalState: StateContainer = PlayerSkills.STATE,
+  playerRegistry: PlayerRegistry = PlayerRegistry(),
+  globalState: StateContainer = StateContainer(),
+  teamInstance: Team = StubTeam(),
+  server: Option[MinecraftServer] = None,
   logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 ) {
-  var SERVER: Option[MinecraftServer] = None
-  private var STORAGE: Option[PlayerStorageIO] = None
-  var PLAYERS: PlayerRegistry = PlayerRegistry()
-  var TEAM: Team = StubTeam()
+  var SERVER: Option[MinecraftServer] = server
+  var PLAYERS: PlayerRegistry = playerRegistry
+  var TEAM: Team = teamInstance
+  private var STORAGE: Option[PlayerStorageIO] = getPlayerStorageIO
 
   val EVENT_HANDLERS: EventHandlers = EventHandlers(onServerChange = onServerChange, onReloadResources = onReload)
 
@@ -35,7 +37,7 @@ case class ServerStateContainer(
 
   private[server] def onServerChange(next: Option[MinecraftServer] = None): Unit = {
     SERVER = next
-    STORAGE = next.map(PlayerStorageIO(_))
+    STORAGE = getPlayerStorageIO
     PLAYERS = PlayerRegistry(STORAGE, PLAYERS.getState, globalState.SKILLS)
   }
 
@@ -44,7 +46,15 @@ case class ServerStateContainer(
     PLAYERS.open(playerList)
 
     SERVER.map(_.getPlayers)
-      .foreach(_.foreach(getNetHandler.syncPlayer(_)))
+      .foreach { players =>
+        val netHandler = getNetHandler
+        players.foreach(netHandler.syncPlayer(_))
+      }
+  }
+
+  private def getPlayerStorageIO: Option[PlayerStorageIO] = {
+    SERVER
+      .map(PlayerStorageIO(_, skillTypeOps = globalState.getSkillTypeOps))
   }
 
   def getPlayerOps: Player = Player(PLAYERS, globalState.getSkillTypeOps, globalState.getSkillOps)

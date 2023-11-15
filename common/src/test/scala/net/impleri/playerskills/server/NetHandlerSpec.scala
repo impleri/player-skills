@@ -1,5 +1,6 @@
 package net.impleri.playerskills.server
 
+import dev.architectury.networking.simple.BaseS2CMessage
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.events.SkillChangedEvent
 import net.impleri.playerskills.facades.MinecraftPlayer
@@ -48,7 +49,7 @@ class NetHandlerSpec extends BaseSpec {
     loggerMock.warn(*) wasCalled once
     playerOpsMock.get(playerMock) wasNever called
     loggerMock.debugP(*)(*) wasNever called
-    playerMock.sendMessage(*) wasNever called
+    playerMock.sendMessage(any[BaseS2CMessage]) wasNever called
   }
 
   "NetHandler.apply" should "return a workable instance" in {
