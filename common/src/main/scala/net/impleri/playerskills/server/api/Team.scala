@@ -3,9 +3,9 @@ package net.impleri.playerskills.server.api
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
-import net.impleri.playerskills.events.handlers.EventHandlers
-import net.impleri.playerskills.facades.MinecraftPlayer
-import net.impleri.playerskills.facades.MinecraftServer
+import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
+import net.impleri.playerskills.facades.minecraft.Server
+import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 
 import java.util.UUID
@@ -52,7 +52,7 @@ trait TeamUpdater {
 
   protected def team: Team
 
-  protected def eventHandlers: EventHandlers
+  protected def eventHandler: EventHandler
 
   protected[api] def withFullTeam[T](player: UUID)(f: List[UUID] => T): T = {
     val allPlayers = team.getTeamMembersFor(player)
@@ -79,7 +79,7 @@ trait TeamUpdater {
       .map(t => (t._1, t._2, t._2.flatMap(s => skills.find(_.name == s.name))))
   }
 
-  protected[api] def notifyPlayers[T](server: MinecraftServer, originalSkill: Skill[T], emit: Boolean = true)(
+  protected[api] def notifyPlayers[T](server: Server, originalSkill: Skill[T], emit: Boolean = true)(
     updates: List[(UUID, Option[Skill[_]])],
   ): Unit = {
     if (emit) {
@@ -88,7 +88,13 @@ trait TeamUpdater {
         .foreach(tuple =>
           server
             .getPlayer(tuple._1)
-            .foreach(eventHandlers.emitSkillChanged(_, originalSkill, tuple._2.asInstanceOf[Option[Skill[T]]]),
+            .foreach(
+              player => {
+                eventHandler.emitSkillChanged(player, originalSkill, tuple._2.asInstanceOf[Option[Skill[T]]])
+                originalSkill
+                  .getNotification(tuple._2.asInstanceOf[Option[Skill[T]]].flatMap(_.value))
+                  .foreach(player.sendMessage(_))
+              },
             ),
         )
     }
@@ -129,7 +135,7 @@ class TeamOps(
   override val playerOps: Player,
   override val skillOps: SkillOps,
   override val team: Team,
-  override val eventHandlers: EventHandlers,
+  override val eventHandler: EventHandler,
   override val logger: PlayerSkillsLogger,
 ) extends TeamUpdater with TeamSkillCalculator with TeamLimit {
   private def calculateNextValue[T](
@@ -222,9 +228,9 @@ object Team {
     instance: Team = StubTeam(),
     playerOps: Player = Player(),
     skillOps: SkillOps = Skill(),
-    eventHandlers: EventHandlers = EventHandlers(),
+    eventHandler: EventHandler = EventHandler(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): TeamOps = {
-    new TeamOps(playerOps, skillOps, instance, eventHandlers, logger)
+    new TeamOps(playerOps, skillOps, instance, eventHandler, logger)
   }
 }

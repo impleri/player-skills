@@ -2,7 +2,7 @@ package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.ArchitecturyRegistrar
+import net.impleri.playerskills.facades.architectury.Registrar
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -19,7 +19,7 @@ class SkillRegistrySpec extends BaseSpec {
   private val otherSkill = TestSkill(otherName)
 
   private val emptyState = SkillRegistryState.empty
-  private val registrarMock = mock[ArchitecturyRegistrar[Skill[_]]]
+  private val registrarMock = mock[Registrar[Skill[_]]]
 
   "SkillRegistry.apply" should "return the correct class" in {
     val target = SkillRegistry(emptyState, registrarMock)

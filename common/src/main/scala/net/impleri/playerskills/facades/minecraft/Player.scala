@@ -1,21 +1,21 @@
-package net.impleri.playerskills.facades
+package net.impleri.playerskills.facades.minecraft
 
 import dev.architectury.networking.simple.BaseC2SMessage
 import dev.architectury.networking.simple.BaseS2CMessage
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.{Player => MinecraftPlayer}
 
 import java.util.UUID
 
-class MinecraftPlayer[T <: Player](private val player: T) {
+class Player[T <: MinecraftPlayer](private val player: T) {
   val isClient: Boolean = player.isInstanceOf[LocalPlayer]
   val isServer: Boolean = player.isInstanceOf[ServerPlayer]
 
   lazy val uuid: UUID = player.getUUID
 
-  lazy val server: MinecraftServer = MinecraftServer(player.getServer)
+  lazy val server: Server = Server(player.getServer)
 
   lazy val name: String = player.getName.getString
 
@@ -38,6 +38,6 @@ class MinecraftPlayer[T <: Player](private val player: T) {
   }
 }
 
-object MinecraftPlayer {
-  def apply[T <: Player](player: T): MinecraftPlayer[T] = new MinecraftPlayer(player)
+object Player {
+  def apply[T <: MinecraftPlayer](player: T): Player[T] = new Player(player)
 }

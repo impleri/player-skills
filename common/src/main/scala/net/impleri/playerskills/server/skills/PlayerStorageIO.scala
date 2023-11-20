@@ -4,7 +4,7 @@ import cats.implicits.toFoldableOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.MinecraftServer
+import net.impleri.playerskills.facades.minecraft.Server
 import net.impleri.playerskills.server.skills.storage.PersistentStorage
 import net.impleri.playerskills.server.skills.storage.SkillFileMissing
 import net.impleri.playerskills.server.skills.storage.SkillNbtStorage
@@ -62,7 +62,7 @@ object PlayerStorageIO {
   }
 
   protected[server] def apply(
-    server: MinecraftServer,
+    server: Server,
     storage: PersistentStorage = SkillNbtStorage(),
     skillTypeOps: SkillTypeOps = SkillType(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,

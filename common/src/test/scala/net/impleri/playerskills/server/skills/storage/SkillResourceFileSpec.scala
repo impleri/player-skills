@@ -1,7 +1,7 @@
 package net.impleri.playerskills.server.skills.storage
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.MinecraftServer
+import net.impleri.playerskills.facades.minecraft.Server
 
 import java.io.File
 import java.nio.file.Path
@@ -21,7 +21,7 @@ class SkillResourceFileSpec extends BaseSpec {
   }
 
   "SkillStorage.apply" should "create the right class" in {
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val pathMock = mock[Path]
 
     serverMock.getWorldPath(*) returns pathMock

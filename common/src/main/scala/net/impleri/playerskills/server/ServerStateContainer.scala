@@ -1,7 +1,5 @@
 package net.impleri.playerskills.server
 
-import net.impleri.playerskills.events.handlers.EventHandlers
-import net.impleri.playerskills.facades.MinecraftServer
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.api.StubTeam
 import net.impleri.playerskills.server.api.Team
@@ -10,6 +8,13 @@ import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.playerskills.server.skills.PlayerStorageIO
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.facades.architectury.ReloadListeners
+import net.impleri.playerskills.facades.minecraft.Server
+import net.impleri.playerskills.network.Manager
+import net.impleri.playerskills.server.bindings.CommandEvents
+import net.impleri.playerskills.server.bindings.InternalEvents
+import net.impleri.playerskills.server.bindings.LifecycleEvents
+import net.impleri.playerskills.server.commands.PlayerSkillsCommands
 import net.minecraft.server.packs.resources.ResourceManager
 
 import scala.annotation.unused
@@ -18,48 +23,67 @@ import scala.annotation.unused
  * Single place for all stateful classes
  */
 case class ServerStateContainer(
-  playerRegistry: PlayerRegistry = PlayerRegistry(),
   globalState: StateContainer = StateContainer(),
+  playerRegistry: PlayerRegistry = PlayerRegistry(),
+  eventHandler: EventHandler = EventHandler(),
+  reloadListeners: ReloadListeners = ReloadListeners(true),
   teamInstance: Team = StubTeam(),
-  server: Option[MinecraftServer] = None,
+  server: Option[Server] = None,
   logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 ) {
-  var SERVER: Option[MinecraftServer] = server
+  var SERVER: Option[Server] = server
+  private var STORAGE: Option[PlayerStorageIO] = SERVER.map(
+    PlayerStorageIO(_, skillTypeOps = globalState.getSkillTypeOps),
+  )
+
   var PLAYERS: PlayerRegistry = playerRegistry
   var TEAM: Team = teamInstance
-  private var STORAGE: Option[PlayerStorageIO] = getPlayerStorageIO
 
-  val EVENT_HANDLERS: EventHandlers = EventHandlers(onServerChange = onServerChange, onReloadResources = onReload)
+  private var PLAYER_OPS: Player = Player(PLAYERS, globalState.getSkillTypeOps, globalState.getSkillOps)
+  private var TEAM_OPS: TeamOps = Team(TEAM, PLAYER_OPS, globalState.getSkillOps, eventHandler)
 
-  def init(): Unit = logger.info("PlayerSkills Server Loaded")
+  lazy private val MANAGER = Manager(globalState, serverStateContainer = this)
 
-  def setTeam(instance: Team): Unit = TEAM = instance
+  private val LIFECYCLE = LifecycleEvents(onServerChange)
+  private val INTERNAL = InternalEvents(eventHandler, onReload, reloadListeners)
+  private val COMMAND = CommandEvents()
 
-  private[server] def onServerChange(next: Option[MinecraftServer] = None): Unit = {
+  LIFECYCLE.registerEvents()
+  INTERNAL.registerEvents()
+  COMMAND.registerEvents(
+    PlayerSkillsCommands(
+      globalState.getSkillOps,
+      globalState.getSkillTypeOps,
+      PLAYER_OPS,
+      TEAM_OPS,
+    ),
+  )
+
+  logger.info("PlayerSkills Server Loaded")
+
+  def setTeam(instance: Team): Unit = {
+    TEAM = instance
+    TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.getSkillOps, eventHandler)
+  }
+
+  private[server] def onServerChange(next: Option[Server] = None): Unit = {
     SERVER = next
-    STORAGE = getPlayerStorageIO
+    STORAGE = SERVER.map(PlayerStorageIO(_, skillTypeOps = globalState.getSkillTypeOps))
     PLAYERS = PlayerRegistry(STORAGE, PLAYERS.getState, globalState.SKILLS)
+    PLAYER_OPS = Player(PLAYERS, globalState.getSkillTypeOps, globalState.getSkillOps)
+    TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.getSkillOps, eventHandler)
+    //    NET_HANDLER = NetHandler(PLAYER_OPS, MANAGER.SYNC_SKILLS)
   }
 
   private[server] def onReload(@unused resourceManager: ResourceManager): Unit = {
     val playerList = PLAYERS.close()
     PLAYERS.open(playerList)
 
-    SERVER.map(_.getPlayers)
-      .foreach { players =>
-        val netHandler = getNetHandler
-        players.foreach(netHandler.syncPlayer(_))
-      }
+    SERVER.map(_.getPlayers).foreach {
+      val netHandler = getNetHandler
+      _.foreach(netHandler.syncPlayer(_))
+    }
   }
 
-  private def getPlayerStorageIO: Option[PlayerStorageIO] = {
-    SERVER
-      .map(PlayerStorageIO(_, skillTypeOps = globalState.getSkillTypeOps))
-  }
-
-  def getPlayerOps: Player = Player(PLAYERS, globalState.getSkillTypeOps, globalState.getSkillOps)
-
-  def getTeamOps: TeamOps = Team(TEAM, getPlayerOps, globalState.getSkillOps, EVENT_HANDLERS)
-
-  def getNetHandler: NetHandler = NetHandler(getPlayerOps)
+  def getNetHandler: NetHandler = NetHandler(PLAYER_OPS, MANAGER.SYNC_SKILLS)
 }

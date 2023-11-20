@@ -3,7 +3,7 @@ package net.impleri.playerskills.server.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.MinecraftServer
+import net.impleri.playerskills.facades.minecraft.Server
 import net.impleri.playerskills.server.skills.storage.FailedToWrite
 import net.impleri.playerskills.server.skills.storage.PersistentStorage
 import net.impleri.playerskills.server.skills.storage.SkillFileMissing
@@ -110,7 +110,7 @@ class PlayerStorageIOSpec extends BaseSpec {
   }
 
   "PlayerStorageIO.apply" should "return the correct class" in {
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val storageMock = mock[PersistentStorage]
     val typeOpsMock = mock[SkillTypeOps]
     val loggerMock = mock[PlayerSkillsLogger]

@@ -1,12 +1,12 @@
 package net.impleri.playerskills.server.api
 
 import net.impleri.playerskills.api.skills.TeamMode
-import net.impleri.playerskills.facades.MinecraftPlayer
-import net.impleri.playerskills.facades.MinecraftServer
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
-import net.impleri.playerskills.events.handlers.EventHandlers
+import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
+import net.impleri.playerskills.facades.minecraft.Server
+import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -23,11 +23,11 @@ class TeamSpec extends BaseSpec {
   private val playerOpsMock = mock[Player]
   private val skillOpsMock = mock[SkillOps]
   private val teamMock = mock[Team]
-  private val eventHandlersMock = mock[EventHandlers]
+  private val eventHandlerMock = mock[EventHandler]
   private val loggerMock = mock[PlayerSkillsLogger]
 
   private val givenUuid = UUID.randomUUID()
-  private val testUnit = new TeamOps(playerOpsMock, skillOpsMock, teamMock, eventHandlersMock, loggerMock)
+  private val testUnit = new TeamOps(playerOpsMock, skillOpsMock, teamMock, eventHandlerMock, loggerMock)
 
   "StubTeam" should "always return just the given user ID" in {
     StubTeam().getTeamMembersFor(givenUuid) should be(List(givenUuid))
@@ -171,7 +171,7 @@ class TeamSpec extends BaseSpec {
   }
 
   "TeamUpdater.notifyPlayers" should "trigger notifications" in {
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val skillName = new ResourceLocation("testskills", "alpha")
@@ -185,11 +185,11 @@ class TeamSpec extends BaseSpec {
 
     testUnit.notifyPlayers(serverMock, newSkill)(updates)
 
-    eventHandlersMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
+    eventHandlerMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
   }
 
   it should "should not trigger notifications if emit is false" in {
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
 
     val skillName = new ResourceLocation("testskills", "alpha")
     val oldSkill = TestSkill(skillName, teamMode = TeamMode.Shared())
@@ -201,7 +201,7 @@ class TeamSpec extends BaseSpec {
 
     serverMock.getPlayer(*) wasNever called
 
-    eventHandlersMock.emitSkillChanged(*, *, *) wasNever called
+    eventHandlerMock.emitSkillChanged(*, *, *) wasNever called
   }
 
   "TeamLimit.countWith" should "count all users with the value or better" in {
@@ -299,7 +299,7 @@ class TeamSpec extends BaseSpec {
   }
 
   "TeamOps.degrade" should "updates shared skill to a lower value" in {
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val secondUuid = UUID.randomUUID()
@@ -332,11 +332,11 @@ class TeamSpec extends BaseSpec {
 
     testUnit.degrade(playerMock, oldSkill)
 
-    eventHandlersMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
+    eventHandlerMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
   }
 
   "TeamOps.improve" should "updates shared skill to a higher value" in {
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val secondUuid = UUID.randomUUID()
@@ -368,11 +368,11 @@ class TeamSpec extends BaseSpec {
 
     testUnit.improve(playerMock, oldSkill)
 
-    eventHandlersMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
+    eventHandlerMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
   }
 
   it should "does nothing if there is no update" in {
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val secondUuid = UUID.randomUUID()
@@ -380,7 +380,6 @@ class TeamSpec extends BaseSpec {
     val skillValue = None
     val newValue = Option("newvalue")
     val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Off())
-    val newSkill = oldSkill.copy(value = newValue)
 
     val offline = List(secondUuid)
 
@@ -400,13 +399,13 @@ class TeamSpec extends BaseSpec {
 
     testUnit.improve(playerMock, oldSkill)
 
-    eventHandlersMock.emitSkillChanged(*, *, *) wasNever called
+    eventHandlerMock.emitSkillChanged(*, *, *) wasNever called
   }
 
   "TeamOps.syncFromPlayer" should "pass all shared skills to the team" in {
     val secondUuid = UUID.randomUUID()
 
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val skill1Name = new ResourceLocation("testskills", "alpha")
@@ -459,13 +458,13 @@ class TeamSpec extends BaseSpec {
 
     testUnit.syncEntireTeam(playerMock)
 
-    eventHandlersMock.emitSkillChanged(*, *, *) wasNever called
+    eventHandlerMock.emitSkillChanged(*, *, *) wasNever called
   }
 
   "TeamOps.syncEntireTeam" should "syncs all of the best values to the entire team" in {
     val secondUuid = UUID.randomUUID()
 
-    val serverMock = mock[MinecraftServer]
+    val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val skill1Name = new ResourceLocation("testskills", "alpha")
@@ -528,7 +527,7 @@ class TeamSpec extends BaseSpec {
 
     serverMock.getPlayer(secondUuid) wasNever called
 
-    eventHandlersMock.emitSkillChanged(playerMock, skill4.copy(value = Option("delta")), *) wasCalled once
+    eventHandlerMock.emitSkillChanged(playerMock, skill4.copy(value = Option("delta")), *) wasCalled once
   }
 
   "Team.apply" should "create a TeamOps instance" in {
