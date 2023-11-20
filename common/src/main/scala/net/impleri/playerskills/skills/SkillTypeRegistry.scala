@@ -1,11 +1,11 @@
 package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.api.skills.SkillType
-import net.impleri.playerskills.facades.ArchitecturyRegistrar
+import net.impleri.playerskills.facades.architectury.Registrar
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.resources.ResourceLocation
 
-case class SkillTypeRegistry(private[skills] val gameRegistrar: ArchitecturyRegistrar[SkillType[_]]) {
+case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillType[_]]) {
   private[skills] var state: List[SkillType[_]] = List.empty
 
   def resync(): Unit = {
@@ -24,10 +24,10 @@ case class SkillTypeRegistry(private[skills] val gameRegistrar: ArchitecturyRegi
 object SkillTypeRegistry {
   val REGISTRY_KEY: ResourceLocation = SkillResourceLocation.of("skill_types_registry").get
 
-  lazy val REGISTRAR: ArchitecturyRegistrar[SkillType[_]] = ArchitecturyRegistrar(REGISTRY_KEY)
+  lazy val REGISTRAR: Registrar[SkillType[_]] = Registrar(REGISTRY_KEY)
 
   def apply(
-    gameRegistrar: ArchitecturyRegistrar[SkillType[_]] = ArchitecturyRegistrar(None),
+    gameRegistrar: Registrar[SkillType[_]] = Registrar(None),
   ): SkillTypeRegistry = {
     new SkillTypeRegistry(gameRegistrar)
   }

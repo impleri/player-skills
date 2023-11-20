@@ -9,5 +9,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 @EventBusSubscriber(value = Array(Dist.CLIENT))
 object PlayerSkillsClientForge {
   @SubscribeEvent
-  def onClientInit(event: FMLClientSetupEvent): Unit = PlayerSkillsClient.init()
+  def onClientInit(event: FMLClientSetupEvent): Unit = {
+    PlayerSkillsClient.resyncSkills()
+  }
 }

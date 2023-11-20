@@ -1,13 +1,30 @@
 package net.impleri.playerskills.network
 
 import dev.architectury.networking.simple.MessageType
-import dev.architectury.networking.simple.SimpleNetworkManager
-import net.impleri.playerskills.PlayerSkills
+import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.client.ClientSkillsRegistry
+import net.impleri.playerskills.server.ServerStateContainer
 
-object Manager {
-  private val NET = SimpleNetworkManager.create(PlayerSkills.MOD_ID)
+case class Manager(
+  globalState: StateContainer = StateContainer(),
+  clientSkills: ClientSkillsRegistry = ClientSkillsRegistry(),
+  serverStateContainer: ServerStateContainer = ServerStateContainer(),
+) {
+  val SYNC_SKILLS: SyncSkillsMessageFactory = SyncSkillsMessageFactory(
+    globalState.getSkillTypeOps,
+    clientSkills,
+    globalState.NETWORK,
+  )
 
-  val SYNC_SKILLS: MessageType = NET.registerS2C("sync_skills", b => SyncSkillsMessage(b))
+  private val SYNC_TYPE: MessageType = globalState.NETWORK
+    .registerClientboundMessage(SyncSkillsMessageFactory.NAME, SYNC_SKILLS.receive)
 
-  val RESYNC_SKILLS: MessageType = NET.registerC2S("resync_skills", b => ResyncSkillsMessage(b))
+  SYNC_SKILLS.setMessageType(SYNC_TYPE)
+
+  val RESYNC_SKILLS: ResyncSkillsMessageFactory = ResyncSkillsMessageFactory(serverStateContainer)
+
+  private val RESYNC_TYPE: MessageType = globalState.NETWORK
+    .registerServerboundMessage(ResyncSkillsMessageFactory.NAME, RESYNC_SKILLS.receive)
+
+  RESYNC_SKILLS.setMessageType(RESYNC_TYPE)
 }

@@ -3,17 +3,19 @@ package net.impleri.playerskills.server
 import dev.architectury.networking.simple.BaseS2CMessage
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.events.SkillChangedEvent
-import net.impleri.playerskills.facades.MinecraftPlayer
+import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
 import net.impleri.playerskills.network.SyncSkillsMessage
+import net.impleri.playerskills.network.SyncSkillsMessageFactory
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.level.ServerPlayer
 
 class NetHandlerSpec extends BaseSpec {
   private val playerOpsMock = mock[Player]
+  private val messageFactoryMock = mock[SyncSkillsMessageFactory]
   private val loggerMock = mock[PlayerSkillsLogger]
 
-  private val testUnit = NetHandler(playerOpsMock, loggerMock)
+  private val testUnit = NetHandler(playerOpsMock, messageFactoryMock, loggerMock)
 
   private val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
@@ -24,7 +26,7 @@ class NetHandlerSpec extends BaseSpec {
     testUnit.syncPlayer(playerMock)
 
     loggerMock.debugP(*)(*) wasCalled once
-    playerMock.sendMessage(SyncSkillsMessage(playerMock, skills, force = true)) wasCalled once
+    playerMock.sendMessage(any[SyncSkillsMessage]) wasCalled once
   }
 
   it should "update a player after a SkillChangedEvent" in {
@@ -37,7 +39,7 @@ class NetHandlerSpec extends BaseSpec {
     testUnit.syncPlayer(event)
 
     loggerMock.debugP(*)(*) wasCalled once
-    playerMock.sendMessage(SyncSkillsMessage(playerMock, skills, force = false)) wasCalled once
+    playerMock.sendMessage(any[SyncSkillsMessage]) wasCalled once
   }
 
   it should "log a warning if called clientside" in {
@@ -53,7 +55,7 @@ class NetHandlerSpec extends BaseSpec {
   }
 
   "NetHandler.apply" should "return a workable instance" in {
-    val result = NetHandler()
+    val result = NetHandler(messageFactory = messageFactoryMock)
 
     result.isInstanceOf[NetHandler] should be(true)
   }

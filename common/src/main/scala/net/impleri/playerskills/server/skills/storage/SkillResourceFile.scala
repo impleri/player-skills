@@ -1,6 +1,6 @@
 package net.impleri.playerskills.server.skills.storage
 
-import net.impleri.playerskills.facades.MinecraftServer
+import net.impleri.playerskills.facades.minecraft.Server
 import org.jetbrains.annotations.VisibleForTesting
 
 import java.io.File
@@ -36,7 +36,7 @@ object SkillResourceFile {
     new SkillResourceFile(storage)
   }
 
-  protected[skills] def apply(server: MinecraftServer): SkillResourceFile = {
+  protected[skills] def apply(server: Server): SkillResourceFile = {
     apply(server.getWorldPath())
   }
 }

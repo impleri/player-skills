@@ -1,7 +1,7 @@
-package net.impleri.playerskills.facades
+package net.impleri.playerskills.facades.minecraft
 
 import net.impleri.playerskills.PlayerSkills
-import net.minecraft.server.{MinecraftServer => Server}
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.LevelResource
 
@@ -10,25 +10,25 @@ import java.util.UUID
 import scala.jdk.javaapi.CollectionConverters
 import scala.util.chaining.scalaUtilChainingOps
 
-class MinecraftServer(private val server: Server) {
+class Server(private val server: MinecraftServer) {
   private val levelResource = new LevelResource(PlayerSkills.MOD_ID)
 
   def getWorldPath(level: LevelResource = levelResource): Path = server.getWorldPath(level)
 
-  def getPlayer(playerId: UUID): Option[MinecraftPlayer[ServerPlayer]] = {
+  def getPlayer(playerId: UUID): Option[Player[ServerPlayer]] = {
     server
       .getPlayerList
       .getPlayer(playerId)
       .pipe(Option.apply)
-      .map(MinecraftPlayer.apply)
+      .map(Player.apply)
   }
 
-  def getPlayers: List[MinecraftPlayer[ServerPlayer]] = {
+  def getPlayers: List[Player[ServerPlayer]] = {
     CollectionConverters.asScala(server.getPlayerList.getPlayers).toList
-      .map(MinecraftPlayer.apply)
+      .map(Player.apply)
   }
 }
 
-object MinecraftServer {
-  def apply(server: Server): MinecraftServer = new MinecraftServer(server)
+object Server {
+  def apply(server: MinecraftServer): Server = new Server(server)
 }

@@ -5,7 +5,7 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.MinecraftPlayer
+import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.minecraft.resources.ResourceLocation
 

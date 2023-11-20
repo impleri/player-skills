@@ -4,7 +4,7 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
-import net.impleri.playerskills.facades.ArchitecturyRegistrar
+import net.impleri.playerskills.facades.architectury.Registrar
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 
@@ -38,7 +38,7 @@ class SkillTypeRegistrySpec extends BaseSpec {
   }
 
   "SkillTypeRegistry.resync" should "update state with the skills from the async registrar" in {
-    val registrarMock = mock[ArchitecturyRegistrar[SkillType[_]]]
+    val registrarMock = mock[Registrar[SkillType[_]]]
 
     val expectedName = new ResourceLocation("skills", "test")
     val expectedType = TestSkillType(expectedName)

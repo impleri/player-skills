@@ -1,7 +1,7 @@
 package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.ArchitecturyRegistrar
+import net.impleri.playerskills.facades.architectury.Registrar
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.impleri.playerskills.utils.StatefulRegistry
 import net.minecraft.resources.ResourceLocation
@@ -13,7 +13,7 @@ import scala.util.chaining.scalaUtilChainingOps
  */
 class SkillRegistry(
   override var state: SkillRegistryState.Skills,
-  private val gameRegistrar: ArchitecturyRegistrar[Skill[_]],
+  private val gameRegistrar: Registrar[Skill[_]],
 ) extends StatefulRegistry[SkillRegistryState.Skills] {
   /**
    * Helper method to aggregate the skills created directly by mods
@@ -86,11 +86,11 @@ class SkillRegistry(
 object SkillRegistry {
   val REGISTRY_KEY: ResourceLocation = SkillResourceLocation.of("skills_registry").get
 
-  lazy val REGISTRAR: ArchitecturyRegistrar[Skill[_]] = ArchitecturyRegistrar(REGISTRY_KEY)
+  lazy val REGISTRAR: Registrar[Skill[_]] = Registrar(REGISTRY_KEY)
 
   def apply(
     state: SkillRegistryState.Skills = SkillRegistryState.empty,
-    gameRegistrar: ArchitecturyRegistrar[Skill[_]] = ArchitecturyRegistrar(None),
+    gameRegistrar: Registrar[Skill[_]] = Registrar(None),
   ): SkillRegistry = {
     new SkillRegistry(state, gameRegistrar)
   }

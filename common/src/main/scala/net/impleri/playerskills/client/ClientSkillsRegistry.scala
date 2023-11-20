@@ -4,6 +4,7 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 
 case class ClientSkillsRegistry(
+  eventHandler: EventHandler = EventHandler(),
   logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 ) {
   private var playerSkills: List[Skill[_]] = List.empty
@@ -23,6 +24,6 @@ case class ClientSkillsRegistry(
 
     playerSkills = skills
 
-    PlayerSkillsClient.emitSkillsUpdated(skills, old, force)
+    eventHandler.emitSkillsUpdated(skills, old, force)
   }
 }

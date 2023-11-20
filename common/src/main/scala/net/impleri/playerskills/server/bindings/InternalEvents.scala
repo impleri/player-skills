@@ -1,10 +1,10 @@
-package net.impleri.playerskills.events.handlers
+package net.impleri.playerskills.server.bindings
 
-import dev.architectury.registry.ReloadListenerRegistry
 import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.events.SkillChangedEvent
+import net.impleri.playerskills.facades.architectury.ReloadListeners
+import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.server.PlayerSkillsServer
-import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
@@ -32,17 +32,22 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 //  }
 //}
 
-case class InternalEvents(onReload: ResourceManager => Unit) extends ResourceManagerReloadListener {
-  private[handlers] def registerEvents(): Unit = {
+case class InternalEvents(
+  eventHandler: EventHandler,
+  onReload: ResourceManager => Unit,
+  reloadListeners: ReloadListeners = ReloadListeners(),
+)
+  extends ResourceManagerReloadListener {
+  private[server] def registerEvents(): Unit = {
     // Player Skills Events
-    SkillChangedEvent.EVENT.register(onSkillChanged _)
+    eventHandler.onSkillChanged(onSkillChanged)
 
     //    PlayerEvent.PLAYER_JOIN.register(onJoin _)
     //    PlayerEvent.PLAYER_QUIT.register(onQuit _ )
 
     // Vanilla Events
-    ReloadListenerRegistry.register(PackType.SERVER_DATA, this)
-    ReloadListenerRegistry.register(PackType.SERVER_DATA, SkillsDataLoader())
+    reloadListeners.register(this)
+    reloadListeners.register(SkillsDataLoader())
   }
 
   override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
