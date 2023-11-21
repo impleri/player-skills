@@ -17,7 +17,7 @@ trait SyncTeamCommands extends CommandHelpers with WithPlayer {
       Commands.literal("team")
         .`then`(
           Commands.literal("share")
-            .executes(withCurrentPlayer(syncToTeam).asInstanceOf[Command[CommandSourceStack]]),
+            .executes(withCurrentPlayerCommand(syncToTeam)),
         )
         .`then`(
           Commands.literal("sync")

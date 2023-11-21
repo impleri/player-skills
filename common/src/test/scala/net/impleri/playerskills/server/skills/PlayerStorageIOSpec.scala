@@ -112,13 +112,11 @@ class PlayerStorageIOSpec extends BaseSpec {
   "PlayerStorageIO.apply" should "return the correct class" in {
     val serverMock = mock[Server]
     val storageMock = mock[PersistentStorage]
-    val typeOpsMock = mock[SkillTypeOps]
-    val loggerMock = mock[PlayerSkillsLogger]
 
     val pathMock = mock[Path]
     serverMock.getWorldPath(*) returns pathMock
 
-    val target = PlayerStorageIO(serverMock, storageMock, typeOpsMock, loggerMock)
+    val target = PlayerStorageIO(serverMock, storageMock)
 
     target.skillFile.storage should be(pathMock)
   }

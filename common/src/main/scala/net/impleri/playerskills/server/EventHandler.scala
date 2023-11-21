@@ -7,9 +7,7 @@ import net.impleri.playerskills.facades.minecraft.Player
 
 import java.util.function.Consumer
 
-case class EventHandler() {
-  private val SKILL_CHANGED: EventEmitter[SkillChangedEvent[_]] = EventEmitter()
-
+case class EventHandler(SKILL_CHANGED: EventEmitter[SkillChangedEvent[_]] = EventEmitter()) {
   def onSkillChanged(listener: Consumer[SkillChangedEvent[_]]): Unit = SKILL_CHANGED.register(listener)
 
   def emitSkillChanged[T](player: Player[_], newSkill: Skill[T], oldSkill: Option[Skill[T]]): Unit = {
