@@ -17,19 +17,17 @@ trait CommandHelpers {
   protected val OWNER = 4
 
   protected def hasPermission(permission: Int = MOD): CommandSourceStack => Boolean = {
-    (source: CommandSourceStack) =>
-    source
-      .hasPermission(permission)
+    (source: CommandSourceStack) => source.hasPermission(permission)
   }
 
   protected def getCurrentPlayer(source: CommandSourceStack): Player[ServerPlayer] = Player(source.getPlayer)
 
   protected def withCurrentPlayer[T](f: Player[ServerPlayer] => T): CommandSourceStack => T = {
-    (source: CommandSourceStack) =>
-    f(getCurrentPlayer(
-      source,
-    ),
-    )
+    (source: CommandSourceStack) => f(getCurrentPlayer(source))
+  }
+
+  protected def withCurrentPlayerCommand(f: Player[ServerPlayer] => Int): Command[CommandSourceStack] = {
+    (context: CommandContext[CommandSourceStack]) => withCurrentPlayer(f)(context.getSource)
   }
 
   protected def withSuccessMessage(f: () => Component): Command[CommandSourceStack] = {
