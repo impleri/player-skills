@@ -21,11 +21,11 @@ trait ValuesCommandUtils {
     }
   }
 
-  protected def withListValuesSource(f: CommandSourceStack => (Component, List[String])): Command[CommandSourceStack] = {
+  protected[commands] def withListValuesSource(f: CommandSourceStack => (Component, List[String])): Command[CommandSourceStack] = {
     withListValuesContext(context => f(context.getSource))
   }
 
-  protected def withListValues(f: () => (Component, List[String])): Command[CommandSourceStack] = {
+  protected[commands] def withListValues(f: () => (Component, List[String])): Command[CommandSourceStack] = {
     withListValuesContext(_ => f())
   }
 }

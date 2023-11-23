@@ -16,7 +16,7 @@ trait SetCommandUtils extends WithPlayer with WithSkill with CommandHelpers {
 
   private val COMMAND_FAILURE = 0
 
-  protected def notifyPlayer(
+  protected[commands] def notifyPlayer(
     source: CommandSourceStack,
     player: Option[Player[_]],
     skillName: Option[ResourceLocation],
