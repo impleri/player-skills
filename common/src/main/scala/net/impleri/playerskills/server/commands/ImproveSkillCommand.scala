@@ -1,7 +1,6 @@
 package net.impleri.playerskills.server.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.facades.minecraft.Player
 import net.minecraft.commands.Commands
 import net.minecraft.commands.CommandSourceStack
@@ -38,12 +37,12 @@ trait ImproveSkillCommand extends SetCommandUtils with CommandHelpers {
     )
   }
 
-  private def improvePlayerSkill[T](
+  private[commands] def improvePlayerSkill[T](
     player: Option[Player[_]],
     skillName: Option[ResourceLocation],
   ): Option[Boolean] = {
     skillName
-      .flatMap(Skill().get[T])
+      .flatMap(skillOps.get[T])
       .flatMap(s => player.flatMap(p => teamOps.improve(p, s, None, None)))
   }
 }

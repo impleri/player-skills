@@ -62,14 +62,13 @@ trait SetSkillCommand extends SetCommandUtils {
       .forall(_.nonEmpty)
   }
 
-  private def grantPlayerSkill[T](
+  private[commands] def grantPlayerSkill[T](
     source: CommandSourceStack,
     player: Option[MinecraftPlayer[_]],
     skillName: Option[ResourceLocation],
     value: String,
   ): Int = {
-    skillName
-      .flatMap(skillOps.get[T])
+    skillName.flatMap(skillOps.get[T])
       .map(grantFoundSkillTo[T](player, _, value))
       .pipe(
         notifyPlayer(

@@ -27,11 +27,11 @@ trait SyncTeamCommands extends CommandHelpers with WithPlayer {
     )
   }
 
-  private def syncTeamFor(player: Option[Player[_]]): Int = {
+  private[commands] def syncTeamFor(player: Option[Player[_]]): Int = {
     player.map(teamOps.syncEntireTeam).fold(2)(s => if (s) Command.SINGLE_SUCCESS else 3)
   }
 
-  private def syncToTeam(player: Player[_]): Int = {
+  private[commands] def syncToTeam(player: Player[_]): Int = {
     if (teamOps.syncFromPlayer(player)) Command.SINGLE_SUCCESS else 3
   }
 }

@@ -33,7 +33,7 @@ trait SkillValueCommand extends ValuesCommandUtils with WithPlayer with WithSkil
     )
   }
 
-  private def getSkillValue(
+  private[commands] def getSkillValue(
     player: Option[MinecraftPlayer[_]],
     skillName: Option[ResourceLocation],
   ): (Component, List[String]) = {

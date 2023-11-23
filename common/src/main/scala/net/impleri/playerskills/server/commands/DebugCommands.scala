@@ -32,15 +32,13 @@ trait DebugCommands extends CommandHelpers {
     )
   }
 
-  private def toggleDebug(modLabel: String, logInstance: PlayerSkillsLogger): () => Component = {
+  private[commands] def toggleDebug(modLabel: String, logInstance: PlayerSkillsLogger): () => Component = {
     () => {
       if (logInstance.toggleDebug()) {
-        Component
-          .translatable("commands.playerskills.debug_enabled", modLabel)
+        Component.translatable("commands.playerskills.debug_enabled", modLabel)
           .withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
       } else {
-        Component
-          .translatable("commands.playerskills.debug_disabled", modLabel)
+        Component.translatable("commands.playerskills.debug_disabled", modLabel)
           .withStyle(ChatFormatting.GREEN, ChatFormatting.ITALIC)
       }
     }

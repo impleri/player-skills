@@ -16,7 +16,7 @@ trait ListAcquiredCommand extends ValuesCommandUtils with CommandHelpers {
     )
   }
 
-  private def listOwnSkills(player: MinecraftPlayer[_]): (Component, List[String]) = {
+  private[commands] def listOwnSkills(player: MinecraftPlayer[_]): (Component, List[String]) = {
     val acquiredSkills = playerOps.get(player).filter(playerOps.can(player.uuid, _))
     val message = if (acquiredSkills.nonEmpty) {
       Component.translatable("commands.playerskills.acquired_skills", acquiredSkills.size)
