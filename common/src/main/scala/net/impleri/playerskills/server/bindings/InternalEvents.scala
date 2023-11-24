@@ -5,6 +5,7 @@ import net.impleri.playerskills.events.SkillChangedEvent
 import net.impleri.playerskills.facades.architectury.ReloadListeners
 import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.server.PlayerSkillsServer
+import net.impleri.playerskills.server.ServerStateContainer
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
@@ -34,6 +35,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
 case class InternalEvents(
   eventHandler: EventHandler,
+  serverStateContainer: ServerStateContainer = PlayerSkillsServer.STATE,
   onReload: ResourceManager => Unit,
   reloadListeners: ReloadListeners = ReloadListeners(),
 )
@@ -52,8 +54,8 @@ case class InternalEvents(
 
   override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
 
-  private def onSkillChanged(event: SkillChangedEvent[_]): Unit = {
-    PlayerSkillsServer.STATE.getNetHandler.syncPlayer(event)
+  private[bindings] def onSkillChanged(event: SkillChangedEvent[_]): Unit = {
+    serverStateContainer.getNetHandler.syncPlayer(event)
     //    maybeUpdateBlocks(event.player.getUUID)
   }
 }

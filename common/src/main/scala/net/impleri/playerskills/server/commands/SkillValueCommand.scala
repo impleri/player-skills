@@ -33,11 +33,11 @@ trait SkillValueCommand extends ValuesCommandUtils with WithPlayer with WithSkil
     )
   }
 
-  private[commands] def getSkillValue(
+  private[commands] def getSkillValue[T](
     player: Option[MinecraftPlayer[_]],
     skillName: Option[ResourceLocation],
   ): (Component, List[String]) = {
-    val foundSkill = player.flatMap(p => skillName.flatMap(playerOps.get(p, _)))
+    val foundSkill = player.flatMap(p => skillName.flatMap(playerOps.get[T](p, _)))
 
     val message = if (foundSkill.nonEmpty) {
       Component.translatable("commands.playerskills.acquired_skills", 1)

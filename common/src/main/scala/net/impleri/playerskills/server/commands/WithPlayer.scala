@@ -13,8 +13,7 @@ import scala.util.Try
 
 trait WithPlayer {
   protected def getPlayerArg: RequiredArgumentBuilder[CommandSourceStack, EntitySelector] = {
-    Commands
-      .argument("player", EntityArgument.player())
+    Commands.argument("player", EntityArgument.player())
   }
 
   protected def getPlayer(context: CommandContext[CommandSourceStack]): Option[Player[ServerPlayer]] = {
