@@ -1,28 +1,36 @@
 package net.impleri.playerskills.server.bindings
 
 import dev.architectury.event.events.common.LifecycleEvent
+import dev.architectury.event.Event
 import net.impleri.playerskills.facades.minecraft.{Server => ServerFacade}
-import net.impleri.playerskills.server.PlayerSkillsServer
-import net.minecraft.server.MinecraftServer
+import net.impleri.playerskills.server.skills.PlayerRegistry
 
-case class LifecycleEvents(onServerChange: Option[ServerFacade] => Unit = _ => {}) {
+import scala.util.chaining.scalaUtilChainingOps
+
+case class LifecycleEvents(
+  playerRegistry: PlayerRegistry,
+  onServerChange: Option[ServerFacade] => Unit = _ => {},
+  beforeStartEvent: Event[LifecycleEvent.ServerState] = LifecycleEvent.SERVER_BEFORE_START,
+  onStartEvent: Event[LifecycleEvent.ServerState] = LifecycleEvent.SERVER_STARTED,
+  onStopEvent: Event[LifecycleEvent.ServerState] = LifecycleEvent.SERVER_STOPPING,
+) {
   private[server] def registerEvents(): Unit = {
-    LifecycleEvent.SERVER_BEFORE_START.register(beforeServerStart(_))
-    LifecycleEvent.SERVER_STARTED.register(_ => onServerStart())
-    LifecycleEvent.SERVER_STOPPING.register(_ => beforeSeverStops())
-  }
-  
-  private def beforeServerStart(server: MinecraftServer): Unit = {
-    onServerChange(Option(server).map(ServerFacade.apply))
+    beforeStartEvent.register(ServerFacade(_).pipe(beforeServerStart))
+    onStartEvent.register(_ => onServerStart())
+    onStopEvent.register(_ => beforeServerStops())
   }
 
-  private def onServerStart(): Unit = {
+  private[bindings] def beforeServerStart(server: ServerFacade): Unit = {
+    onServerChange(Option(server))
+  }
+
+  private[bindings] def onServerStart(): Unit = {
     //    MobRestrictionBuilder.register()
     //    ItemRestrictionBuilder.register()
   }
 
-  private def beforeSeverStops(): Unit = {
-    PlayerSkillsServer.STATE.PLAYERS.close()
+  private[bindings] def beforeServerStops(): Unit = {
+    playerRegistry.close()
     onServerChange(None)
   }
 }

@@ -44,8 +44,8 @@ case class ServerStateContainer(
 
   lazy private val MANAGER = Manager(globalState, serverStateContainer = this)
 
-  private val LIFECYCLE = LifecycleEvents(onServerChange)
-  private val INTERNAL = InternalEvents(eventHandler, onReload, reloadListeners)
+  private val LIFECYCLE = LifecycleEvents(PLAYERS, onServerChange)
+  private val INTERNAL = InternalEvents(eventHandler, this, onReload, reloadListeners)
   private val COMMAND = CommandEvents()
 
   LIFECYCLE.registerEvents()

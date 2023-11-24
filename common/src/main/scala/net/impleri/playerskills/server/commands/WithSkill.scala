@@ -19,9 +19,8 @@ trait WithSkill {
   }
 
   protected def getSkillName(context: CommandContext[CommandSourceStack]): Option[ResourceLocation] = {
-    Try(ResourceLocationArgument
-      .getId(context, "skill"),
-    ).toOption
+    Try(ResourceLocationArgument.getId(context, "skill"))
+      .toOption
   }
 
   protected def getSkill[T](context: CommandContext[CommandSourceStack]): Option[Skill[T]] = {

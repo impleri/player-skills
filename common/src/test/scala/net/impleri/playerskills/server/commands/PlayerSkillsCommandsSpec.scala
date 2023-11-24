@@ -1,8 +1,8 @@
 package net.impleri.playerskills.server.commands
 
+import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.Command
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.ChangeableSkillOps
 import net.impleri.playerskills.api.skills.Skill
@@ -432,7 +432,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     received should be(0)
   }
 
-  "SetSkillCommand.grantPlayerSkill" should "" in {
+  "SetSkillCommand.grantPlayerSkill" should "proxy upsert for player" in {
     val sourceMock = mock[CommandSourceStack]
     val playerMock = mock[Player[_]]
     val skillName = "testskills:name"
@@ -457,5 +457,123 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
     playerOpsMock.upsert(playerMock, newSkill) wasCalled once
     sourceMock.sendSuccess(*, false) wasCalled once
+  }
+
+  "SkillValueCommand.getSkillValue" should "proxy playerOps.get" in {
+    val playerMock = mock[Player[_]]
+    val skillName = "testskills:name"
+    val skillLocation = new ResourceLocation(skillName)
+
+    val skill = mock[Skill[Boolean]]
+    skill.name returns skillLocation
+    skill.value returns Option(true)
+
+    playerOpsMock.get[Boolean](playerMock, skillLocation) returns Option(skill)
+
+    val (message, values) = testUnit.getSkillValue(Option(playerMock), Option(skillLocation))
+
+    message.getString.contains("acquired_skills") should be(true)
+
+    values.length should be(1)
+    values.head.contains(skillName) should be(true)
+    values.head.contains("true") should be(true)
+  }
+
+  it should "provide a different message if no skill found" in {
+    val playerMock = mock[Player[_]]
+    val skillName = "testskills:name"
+    val skillLocation = new ResourceLocation(skillName)
+
+    playerOpsMock.get[Boolean](playerMock, skillLocation) returns None
+
+    val (message, values) = testUnit.getSkillValue(Option(playerMock), Option(skillLocation))
+
+    message.getString.contains("no_acquired_skills") should be(true)
+
+    values.length should be(0)
+  }
+
+  "SyncTeamCommands.syncTeamFor" should "proxy teamOps.syncEntireTeam" in {
+    val playerMock = mock[Player[_]]
+
+    teamOpsMock.syncEntireTeam(playerMock) returns true
+
+    val response = testUnit.syncTeamFor(Option(playerMock))
+
+    response should be(Command.SINGLE_SUCCESS)
+  }
+
+  it should "returns an error code if fails" in {
+    val playerMock = mock[Player[_]]
+
+    teamOpsMock.syncEntireTeam(playerMock) returns false
+
+    val response = testUnit.syncTeamFor(Option(playerMock))
+
+    response shouldNot be(Command.SINGLE_SUCCESS)
+  }
+
+  it should "returns an error code if player isn't found" in {
+    val response = testUnit.syncTeamFor(None)
+
+    response shouldNot be(Command.SINGLE_SUCCESS)
+
+    teamOpsMock.syncEntireTeam(*) wasNever called
+  }
+
+  "SyncTeamCommands.syncToTeam" should "proxy teamOps.syncFromPlayer" in {
+    val playerMock = mock[Player[_]]
+
+    teamOpsMock.syncFromPlayer(playerMock) returns true
+
+    val response = testUnit.syncToTeam(playerMock)
+
+    response should be(Command.SINGLE_SUCCESS)
+  }
+
+  it should "returns an error code if fails" in {
+    val playerMock = mock[Player[_]]
+
+    teamOpsMock.syncFromPlayer(playerMock) returns false
+
+    val response = testUnit.syncToTeam(playerMock)
+
+    response shouldNot be(Command.SINGLE_SUCCESS)
+  }
+
+  "ValuesCommandUtils.withListValuesSource" should "wrap callback function to list things" in {
+    val expectedMessage = Component.literal("test")
+    val expectedValues = List("one", "two")
+    val contextMock = mock[CommandContext[CommandSourceStack]]
+    val sourceMock = mock[CommandSourceStack]
+
+    contextMock.getSource returns sourceMock
+
+    def callback = (_: CommandSourceStack) => (expectedMessage, expectedValues)
+
+    val received = testUnit.withListValuesSource(callback).run(contextMock)
+
+    sourceMock.sendSuccess(expectedMessage, false) wasCalled once
+    sourceMock.sendSystemMessage(*) wasCalled twice
+
+    received should be(Command.SINGLE_SUCCESS)
+  }
+
+  "ValuesCommandUtils.withListValues" should "wrap callback function to list things" in {
+    val expectedMessage = Component.literal("test")
+    val expectedValues = List.empty
+    val contextMock = mock[CommandContext[CommandSourceStack]]
+    val sourceMock = mock[CommandSourceStack]
+
+    contextMock.getSource returns sourceMock
+
+    def callback = () => (expectedMessage, expectedValues)
+
+    val received = testUnit.withListValues(callback).run(contextMock)
+
+    sourceMock.sendSuccess(expectedMessage, false) wasCalled once
+    sourceMock.sendSystemMessage(*) wasNever called
+
+    received should be(Command.SINGLE_SUCCESS)
   }
 }
