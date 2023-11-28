@@ -11,7 +11,7 @@ case class ClientStateContainer(
 ) {
   val SKILLS: ClientSkillsRegistry = ClientSkillsRegistry(eventHandler)
 
-  private val MANAGER = Manager(globalState, SKILLS)
+  lazy private val MANAGER = Manager(globalState, SKILLS)
 
   def getNetHandler: NetHandler = NetHandler(client, MANAGER.RESYNC_SKILLS)
 }
