@@ -20,6 +20,7 @@ case class ResyncSkillsMessage(
 
   override def write(buffer: FriendlyByteBuf): Unit = buffer.writeUUID(playerId)
 
+  // Server-side
   override def handle(context: NetworkManager.PacketContext): Unit = {
     serverStateContainer.SERVER.foreach { server =>
       val netHandler = serverStateContainer.getNetHandler
@@ -38,6 +39,7 @@ case class ResyncSkillsMessageFactory(
     messageType = Option(newType)
   }
 
+  // Server-side
   def receive(
     buffer: FriendlyByteBuf,
 
@@ -51,6 +53,7 @@ case class ResyncSkillsMessageFactory(
     ResyncSkillsMessage(playerId, serverStateContainer, messageType.get)
   }
 
+  // Client-side
   def send(
     player: Player[_],
   ): ResyncSkillsMessage = {
