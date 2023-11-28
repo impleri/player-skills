@@ -16,6 +16,7 @@ object PlayerSkillsServer {
 
   lazy val EVENTS: EventHandler = EventHandler()
 
+  // TODO: Move out of this class
   def resync(playerId: UUID, server: Server): Unit = {
     val netHandler = STATE.getNetHandler
     server.getPlayer(playerId)

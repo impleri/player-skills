@@ -4,14 +4,12 @@ import dev.architectury.networking.NetworkManager
 import dev.architectury.networking.simple.BaseS2CMessage
 import dev.architectury.networking.simple.MessageType
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.client.ClientSkillsRegistry
-import net.impleri.playerskills.client.PlayerSkillsClient
-import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.PlayerSkills
-import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.facades.architectury.Network
 import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.network.FriendlyByteBuf
 
 import java.util.UUID
@@ -67,14 +65,14 @@ case class SyncSkillsMessageFactory(
 
     logger.debug(s"Received skill sync of $size skills for $playerId")
 
-    if (messageType.isEmpty) {
-      logger.error(s"Could not handle SYNC_SKILLS without a defined message type")
-    }
-
     val skills = (0 to size)
       .map(_ => buffer.readInt().pipe(buffer.readUtf))
       .flatMap(skillTypeOps.deserialize)
       .toList
+
+    if (messageType.isEmpty) {
+      logger.error(s"Could not handle SYNC_SKILLS without a defined message type")
+    }
 
     SyncSkillsMessage(playerId, skills, force, skillTypeOps, clientSkillsRegistry, messageType.get, logger)
   }
@@ -96,8 +94,8 @@ object SyncSkillsMessageFactory {
   val NAME: String = "sync_skills"
 
   def apply(
-    skillTypeOps: SkillTypeOps = PlayerSkills.STATE.getSkillTypeOps,
-    clientSkillsRegistry: ClientSkillsRegistry = PlayerSkillsClient.STATE.SKILLS,
+    skillTypeOps: SkillTypeOps = SkillType(),
+    clientSkillsRegistry: ClientSkillsRegistry = ClientSkillsRegistry(),
     network: Network = Network(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): SyncSkillsMessageFactory = {
