@@ -114,7 +114,6 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     val messageTypeMock = mock[MessageType]
     networkMock.registerClientboundMessage[SyncSkillsMessage](*, *) returns messageTypeMock
-    //    networkMock.registerServerboundMessage(*, *) returns mock[MessageType]
     globalStateMock.NETWORK returns networkMock
 
     registryMock.close() returns currentUsers

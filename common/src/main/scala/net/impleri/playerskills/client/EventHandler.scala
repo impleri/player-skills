@@ -6,9 +6,7 @@ import net.impleri.playerskills.facades.architectury.EventEmitter
 
 import java.util.function.Consumer
 
-case class EventHandler() {
-  private val CLIENT_SKILLS_UPDATED: EventEmitter[ClientSkillsUpdatedEvent] = EventEmitter()
-
+case class EventHandler(private val CLIENT_SKILLS_UPDATED: EventEmitter[ClientSkillsUpdatedEvent] = EventEmitter()) {
   def onSkillsUpdate(listener: Consumer[ClientSkillsUpdatedEvent]): Unit = {
     CLIENT_SKILLS_UPDATED.register(listener)
   }

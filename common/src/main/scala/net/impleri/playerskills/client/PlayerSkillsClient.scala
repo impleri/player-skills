@@ -7,7 +7,11 @@ object PlayerSkillsClient {
 
   val STATE: ClientStateContainer = ClientStateContainer(eventHandler = EVENTS)
 
-  def resyncSkills(): Unit = STATE.getNetHandler.resyncPlayer()
+
+  // TODO: Move from here
+  def resyncSkills(): Unit = {
+    STATE.getNetHandler.resyncPlayer()
+  }
 
   def syncFromServer(skills: List[Skill[_]], force: Boolean): Unit = STATE.SKILLS.syncFromServer(skills, force)
 }
