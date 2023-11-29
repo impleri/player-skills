@@ -57,6 +57,15 @@ allprojects {
       }
     }
     maven {
+      name = "Fabric"
+      url = uri("https://maven.fabricmc.net/")
+      content {
+        includeGroup "net.fabricmc"
+        includeGroup "net.fabricmc.fabric-api"
+        includeGroup "teamreborn"
+      }
+    }
+    maven {
       name = "Azure-SLP"
       url = uri("https://pkgs.dev.azure.com/Kotori316/minecraft/_packaging/mods/maven/v1")
       content {
@@ -124,7 +133,7 @@ allprojects {
       name = "Ladysnake Libs"
       url = uri("https://maven.ladysnake.org/releases")
       content {
-        includeGroup "dev.onyxstudios.cardinal-components-api"
+        includeGroupByRegex '(dev|io\\.github)\\.onyxstudios.*'
       }
     }
     maven {
@@ -133,6 +142,11 @@ allprojects {
       content {
         includeGroup "top.theillusivec4.curios"
       }
+    }
+
+    maven {
+      name = "Nexus Repository Manager"
+      url = "https://oss.sonatype.org/content/repositories/snapshots"
     }
 
     mavenCentral()
