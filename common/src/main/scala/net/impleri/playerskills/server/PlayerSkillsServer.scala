@@ -2,10 +2,7 @@ package net.impleri.playerskills.server
 
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.facades.architectury.ReloadListeners
-import net.impleri.playerskills.facades.minecraft.Server
 import net.impleri.playerskills.server.skills.PlayerRegistry
-
-import java.util.UUID
 
 object PlayerSkillsServer {
   val STATE: ServerStateContainer = ServerStateContainer(
@@ -16,10 +13,5 @@ object PlayerSkillsServer {
 
   lazy val EVENTS: EventHandler = EventHandler()
 
-  // TODO: Move out of this class
-  def resync(playerId: UUID, server: Server): Unit = {
-    val netHandler = STATE.getNetHandler
-    server.getPlayer(playerId)
-      .foreach(netHandler.syncPlayer(_))
-  }
+  def init(): Unit = {}
 }
