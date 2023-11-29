@@ -3,6 +3,7 @@ package net.impleri.playerskills
 import dev.architectury.registry.registries.DeferredRegister
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
+import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.skills.basic.BasicSkillType
 import net.impleri.playerskills.skills.numeric.NumericSkillType
@@ -20,6 +21,9 @@ object PlayerSkills {
 
   private val SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY)
   private val SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY)
+
+  // We create the server-side handling here in case we are running in an integrated server/single-player instance
+  PlayerSkillsServer.create()
 
   def init(): Unit = {
     registerTypes()

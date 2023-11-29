@@ -6,8 +6,8 @@ import net.impleri.playerskills.network.Manager
 
 case class ClientStateContainer(
   globalState: StateContainer = StateContainer(),
-  client: Client = Client(),
   eventHandler: EventHandler = EventHandler(),
+  client: Client = Client(),
 ) {
   val SKILLS: ClientSkillsRegistry = ClientSkillsRegistry(eventHandler)
 
