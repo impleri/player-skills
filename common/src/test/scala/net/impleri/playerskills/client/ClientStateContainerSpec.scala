@@ -12,11 +12,7 @@ private class ClientStateContainerSpec extends BaseSpec {
   private val clientMock = mock[Client]
   private val eventHandlerMock = mock[EventHandler]
 
-  lazy private val testUnit = ClientStateContainer(
-    globalStateMock,
-    clientMock,
-    eventHandlerMock,
-  )
+  lazy private val testUnit = ClientStateContainer(globalStateMock, eventHandlerMock, clientMock)
 
   "ClientStateContainer.getNetHandler" should "resync all players" in {
     val messageTypeMock = mock[MessageType]
