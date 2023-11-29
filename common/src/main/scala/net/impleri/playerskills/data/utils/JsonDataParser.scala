@@ -12,7 +12,7 @@ import scala.util.chaining.scalaUtilChainingOps
 trait JsonDataParser {
   protected def logger: PlayerSkillsLogger
 
-  private def getElement(
+  private[utils] def getElement(
     raw: JsonObject,
     key: String,
   ): Option[JsonElement] = {
@@ -24,7 +24,7 @@ trait JsonDataParser {
     }.toOption.flatMap(Option(_))
   }
 
-  private def parseValueHelper[T](parser: JsonElement => T)(element: JsonElement): Option[T] = {
+  private[utils] def parseValueHelper[T](parser: JsonElement => T)(element: JsonElement): Option[T] = {
     Try(parser(element)).tap {
       case Failure(e) =>
       logger.info(s"Could not parse value for ${element.getAsString}")
@@ -44,7 +44,7 @@ trait JsonDataParser {
       .orElse(defaultValue)
   }
 
-  protected def parseBoolean(
+  protected[utils] def parseBoolean(
     raw: JsonObject,
     key: String,
     defaultValue: Option[Boolean] = None,
@@ -52,7 +52,7 @@ trait JsonDataParser {
     parseValue(raw, key, _.getAsBoolean, defaultValue)
   }
 
-  protected def parseInt(
+  protected[utils] def parseInt(
     raw: JsonObject,
     key: String,
     defaultValue: Option[Int] = None,
@@ -60,7 +60,7 @@ trait JsonDataParser {
     parseValue(raw, key, _.getAsInt, defaultValue)
   }
 
-  protected def parseDouble(
+  protected[utils] def parseDouble(
     raw: JsonObject,
     key: String,
     defaultValue: Option[Double] = None,
@@ -68,7 +68,7 @@ trait JsonDataParser {
     parseValue(raw, key, _.getAsDouble, defaultValue)
   }
 
-  protected def parseString(
+  protected[utils] def parseString(
     raw: JsonObject,
     key: String,
     defaultValue: Option[String] = None,
@@ -76,7 +76,7 @@ trait JsonDataParser {
     parseValue(raw, key, _.getAsString, defaultValue)
   }
 
-  protected def parseArray[T](
+  protected[utils] def parseArray[T](
     raw: JsonElement,
     key: String,
     parser: JsonElement => T,
@@ -88,7 +88,7 @@ trait JsonDataParser {
     ).getOrElse(List.empty)
   }
 
-  protected def parseArrayEach(
+  protected[utils] def parseArrayEach(
     raw: JsonElement,
     key: String,
     callback: JsonElement => Unit,
@@ -108,7 +108,7 @@ trait JsonDataParser {
     }
   }
 
-  protected def parseOptions[T](
+  protected[utils] def parseOptions[T](
     raw: JsonObject,
     parser: JsonElement => T,
   ): List[T] = {
@@ -119,7 +119,7 @@ trait JsonDataParser {
     )
   }
 
-  protected def parseExclude[T](raw: JsonElement, callback: JsonElement => T): List[T] = {
+  protected[utils] def parseExclude[T](raw: JsonElement, callback: JsonElement => T): List[T] = {
     parseArray(raw, "exclude",
       callback,
     )
@@ -131,7 +131,7 @@ trait JsonDataParser {
     )
   }
 
-  protected def parseInclude[T](raw: JsonElement, callback: JsonElement => T): List[T] = {
+  protected[utils] def parseInclude[T](raw: JsonElement, callback: JsonElement => T): List[T] = {
     parseArray(raw, "include",
       callback,
     )
@@ -143,7 +143,7 @@ trait JsonDataParser {
     )
   }
 
-  protected def parseFacet(
+  protected[utils] def parseFacet(
     raw: JsonObject,
     key: String,
     onInclude: JsonElement => Unit,
