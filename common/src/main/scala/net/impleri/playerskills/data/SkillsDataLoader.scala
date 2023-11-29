@@ -31,8 +31,8 @@ case class LimitRequiredForTeamMode() extends Exception
 case class ProportionRequiredForTeamMode() extends Exception
 
 case class SkillsDataLoader(
-  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   protected val skillOps: SkillOps = Skill(),
+  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 )
   extends SimpleJsonResourceReloadListener(SkillsDataLoader.GsonService, "skills") with JsonDataParser {
   override def apply(
@@ -166,8 +166,7 @@ case class SkillsDataLoader(
       case "splitEvenly" => Right(TeamMode.SplitEvenly())
       case "pyramid" => Right(TeamMode.Pyramid())
       case "limited" => {
-        rate
-          .map(_.floor.toInt)
+        rate.map(_.floor.toInt)
           .map(TeamMode.Limited)
           .toRight(LimitRequiredForTeamMode())
       }
