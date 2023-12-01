@@ -1,6 +1,6 @@
 package net.impleri.playerskills
 
-class IntegrationLoader {
+case class IntegrationLoader() {
 
   def onSetup(): Unit = {
     //    if (Platform.isModLoaded("ftbquests")) {
