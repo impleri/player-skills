@@ -26,6 +26,8 @@ case class StateContainer(
 
   lazy val SKILL_OPS: SkillOps = Skill(getSkillTypeOps, SKILLS)
 
+  private val INTEGRATIONS = IntegrationLoader()
+
   val NETWORK: Network = Network()
   private val LIFECYCLE = LifecycleEvents(onSetup)
 
@@ -33,6 +35,8 @@ case class StateContainer(
   LIFECYCLE.registerEvents()
 
   private def onSetup(): Unit = {
+    INTEGRATIONS.onSetup()
+
     SKILL_TYPES.resync()
     SKILLS.resync()
   }

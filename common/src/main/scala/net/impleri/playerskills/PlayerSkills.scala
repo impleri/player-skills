@@ -1,7 +1,6 @@
 package net.impleri.playerskills
 
 import dev.architectury.registry.registries.DeferredRegister
-import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.skills.SkillTypeRegistry
@@ -11,8 +10,6 @@ import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 import net.impleri.playerskills.skills.tiered.TieredSkillType
 import net.impleri.playerskills.skills.SkillRegistry
 import net.minecraft.resources.ResourceKey
-
-import scala.util.chaining.scalaUtilChainingOps
 
 object PlayerSkills {
   final val MOD_ID = "playerskills"
@@ -28,15 +25,15 @@ object PlayerSkills {
   def init(): Unit = {
     registerTypes()
   }
+  
+  private def registerTypes(): Unit = {
+    val skillOps = STATE.getSkillOps
 
-  private def registerTypes() = {
-    val skillTypeOps = SkillType(STATE.SKILL_TYPES)
-    val skillOps = Skill(skillTypeOps, STATE.SKILLS)
-    SKILL_TYPES
-      .tap(_.register(BasicSkillType.NAME, () => BasicSkillType(skillOps)))
-      .tap(_.register(NumericSkillType.NAME, () => NumericSkillType(skillOps)))
-      .tap(_.register(TieredSkillType.NAME, () => TieredSkillType(skillOps)))
-      .tap(_.register(SpecializedSkillType.NAME, () => SpecializedSkillType(skillOps)))
-      .tap(_.register())
+    SKILL_TYPES.register(BasicSkillType.NAME, () => BasicSkillType(skillOps))
+    SKILL_TYPES.register(NumericSkillType.NAME, () => NumericSkillType(skillOps))
+    SKILL_TYPES.register(TieredSkillType.NAME, () => TieredSkillType(skillOps))
+    SKILL_TYPES.register(SpecializedSkillType.NAME, () => SpecializedSkillType(skillOps))
+
+    SKILL_TYPES.register()
   }
 }
