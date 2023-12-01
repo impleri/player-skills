@@ -120,12 +120,12 @@ class JsonDataParserSpec extends BaseSpec {
     testUnit.parseString(input, key).value should be(value)
   }
 
-  it should "cast ints to string values" in {
+  it should "fail to cast ints to string values" in {
     val key = "test"
     val input = new JsonObject()
     input.addProperty(key, 15)
 
-    testUnit.parseString(input, key, None).value should be("15")
+    testUnit.parseString(input, key, None) should be(None)
   }
 
   it should "return string default values" in {
@@ -137,7 +137,7 @@ class JsonDataParserSpec extends BaseSpec {
 
   "JsonDataParser.parseInclude" should "return a list of string values" in {
     val value1 = "alpha"
-    val value2 = "bets"
+    val value2 = "beta"
     val value = new JsonArray()
     value.add(value1)
     value.add(value2)
@@ -145,13 +145,13 @@ class JsonDataParserSpec extends BaseSpec {
     val input = new JsonObject()
     input.add("include", value)
 
-    testUnit.parseInclude(input, _.getAsString) should be(List(value1, value2))
+    testUnit.parseInclude(input, testUnit.castAsString) should be(List(value1, value2))
   }
 
   "JsonDataParser.parseExclude" should "return an empty list by default" in {
     val input = new JsonObject()
 
-    testUnit.parseExclude(input, _.getAsString).isEmpty should be(true)
+    testUnit.parseExclude(input, testUnit.castAsString).isEmpty should be(true)
   }
 
   "JsonDataParser.parseFacet" should "handles include and exclude parameters" in {
@@ -226,7 +226,7 @@ class JsonDataParserSpec extends BaseSpec {
     val wrapper = new JsonObject()
     wrapper.add("options", options)
 
-    val onOption = mock[JsonElement => Unit]
+    val onOption = mock[JsonElement => Option[Unit]]
 
     testUnit.parseOptions(wrapper, onOption)
 

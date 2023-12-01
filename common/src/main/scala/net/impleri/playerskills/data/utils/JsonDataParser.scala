@@ -2,6 +2,7 @@ package net.impleri.playerskills.data.utils
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 
 import scala.jdk.javaapi.CollectionConverters
@@ -36,12 +37,24 @@ trait JsonDataParser {
   protected def parseValue[T](
     raw: JsonObject,
     key: String,
-    parser: JsonElement => T,
+    parser: JsonElement => Option[T],
     defaultValue: Option[T] = None,
   ): Option[T] = {
     getElement(raw, key)
       .flatMap(parseValueHelper(parser))
-      .orElse(defaultValue)
+      .getOrElse(defaultValue)
+  }
+
+  protected def isPrimitiveType(value: JsonElement, f: JsonPrimitive => Boolean) = {
+    value.isJsonPrimitive && f(value.asInstanceOf[JsonPrimitive])
+  }
+
+  protected def wrapCast[T](raw: JsonElement, f: JsonPrimitive => Boolean, t: JsonElement => T): Option[T] = {
+    if (isPrimitiveType(raw, f)) Option(t(raw)) else None
+  }
+
+  protected[utils] def castAsBoolean(raw: JsonElement): Option[Boolean] = {
+    wrapCast(raw, _.isBoolean, _.getAsBoolean)
   }
 
   protected[utils] def parseBoolean(
@@ -49,7 +62,11 @@ trait JsonDataParser {
     key: String,
     defaultValue: Option[Boolean] = None,
   ): Option[Boolean] = {
-    parseValue(raw, key, _.getAsBoolean, defaultValue)
+    parseValue(raw, key, castAsBoolean, defaultValue)
+  }
+
+  protected[utils] def castAsInt(raw: JsonElement): Option[Int] = {
+    wrapCast(raw, _.isNumber, _.getAsInt)
   }
 
   protected[utils] def parseInt(
@@ -57,7 +74,11 @@ trait JsonDataParser {
     key: String,
     defaultValue: Option[Int] = None,
   ): Option[Int] = {
-    parseValue(raw, key, _.getAsInt, defaultValue)
+    parseValue(raw, key, castAsInt, defaultValue)
+  }
+
+  protected[utils] def castAsDouble(raw: JsonElement): Option[Double] = {
+    wrapCast(raw, _.isNumber, _.getAsDouble)
   }
 
   protected[utils] def parseDouble(
@@ -65,7 +86,11 @@ trait JsonDataParser {
     key: String,
     defaultValue: Option[Double] = None,
   ): Option[Double] = {
-    parseValue(raw, key, _.getAsDouble, defaultValue)
+    parseValue(raw, key, castAsDouble, defaultValue)
+  }
+
+  protected[utils] def castAsString(raw: JsonElement): Option[String] = {
+    wrapCast(raw, _.isString, _.getAsString)
   }
 
   protected[utils] def parseString(
@@ -73,19 +98,23 @@ trait JsonDataParser {
     key: String,
     defaultValue: Option[String] = None,
   ): Option[String] = {
-    parseValue(raw, key, _.getAsString, defaultValue)
+    parseValue(raw, key, castAsString, defaultValue)
   }
 
   protected[utils] def parseArray[T](
     raw: JsonElement,
     key: String,
-    parser: JsonElement => T,
+    parser: JsonElement => Option[T],
   ): List[T] = {
     parseValue(
       raw.getAsJsonObject,
       key,
-      _.getAsJsonArray.pipe(a => CollectionConverters.asScala(a)).map(parser).toList,
-    ).getOrElse(List.empty)
+      _.getAsJsonArray
+        .pipe(CollectionConverters.asScala(_))
+        .flatMap(parser)
+        .toList
+        .pipe(Option(_)),
+    ).toList.flatten
   }
 
   protected[utils] def parseArrayEach(
@@ -96,7 +125,10 @@ trait JsonDataParser {
     parseValue(
       raw.getAsJsonObject,
       key,
-      _.getAsJsonArray.pipe(a => CollectionConverters.asScala(a)).foreach(callback),
+      _.getAsJsonArray
+        .pipe(a => CollectionConverters.asScala(a))
+        .foreach(callback)
+        .pipe(_ => None),
     )
   }
 
@@ -110,7 +142,7 @@ trait JsonDataParser {
 
   protected[utils] def parseOptions[T](
     raw: JsonObject,
-    parser: JsonElement => T,
+    parser: JsonElement => Option[T],
   ): List[T] = {
     parseArray(
       raw,
@@ -119,7 +151,7 @@ trait JsonDataParser {
     )
   }
 
-  protected[utils] def parseExclude[T](raw: JsonElement, callback: JsonElement => T): List[T] = {
+  protected[utils] def parseExclude[T](raw: JsonElement, callback: JsonElement => Option[T]): List[T] = {
     parseArray(raw, "exclude",
       callback,
     )
@@ -131,7 +163,7 @@ trait JsonDataParser {
     )
   }
 
-  protected[utils] def parseInclude[T](raw: JsonElement, callback: JsonElement => T): List[T] = {
+  protected[utils] def parseInclude[T](raw: JsonElement, callback: JsonElement => Option[T]): List[T] = {
     parseArray(raw, "include",
       callback,
     )
