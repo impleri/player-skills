@@ -52,8 +52,7 @@ case class SkillsDataLoader(
     val (notify, notifyString) = parseNotify(raw)
     val skillType = parseSkillType(raw)
 
-    skillType
-      .flatMap(SkillResourceLocation.apply)
+    skillType.flatMap(SkillResourceLocation.apply)
       .flatMap {
         case BasicSkillType.NAME => createBasicSkill(raw, name, description, changesAllowed, notify, notifyString)
         case NumericSkillType.NAME => createNumericSkill(raw, name, description, changesAllowed, notify, notifyString)
@@ -82,7 +81,7 @@ case class SkillsDataLoader(
     Option(
       BasicSkill(
         value = parseBoolean(raw, "initialValue"),
-        options = parseOptions(raw, _.getAsBoolean),
+        options = parseOptions(raw, castAsBoolean),
         teamMode = parseTeamMode(raw),
         name = name,
         description = description,
@@ -104,7 +103,7 @@ case class SkillsDataLoader(
     Option(
       NumericSkill(
         value = parseDouble(raw, "initialValue"),
-        options = parseOptions(raw, _.getAsDouble),
+        options = parseOptions(raw, castAsDouble),
         teamMode = parseTeamMode(raw),
         name = name,
         description = description,
@@ -127,7 +126,7 @@ case class SkillsDataLoader(
     Option(
       TieredSkill(
         value = parseString(raw, "initialValue"),
-        options = parseOptions(raw, _.getAsString),
+        options = parseOptions(raw, castAsString),
         teamMode = parseTeamMode(raw, Option(TeamMode.Pyramid())),
         name = name,
         description = description,
@@ -149,7 +148,7 @@ case class SkillsDataLoader(
     Option(
       SpecializedSkill(
         value = parseString(raw, "initialValue"),
-        options = parseOptions(raw, _.getAsString),
+        options = parseOptions(raw, castAsString),
         teamMode = parseTeamMode(raw, Option(TeamMode.SplitEvenly())),
         name = name,
         description = description,
@@ -160,7 +159,7 @@ case class SkillsDataLoader(
     )
   }
 
-  private def createTeamMode(mode: String, rate: Option[Double] = None): Either[Exception, TeamMode] = {
+  private def createTeamMode(mode: String, rate: Option[Double]): Either[Exception, TeamMode] = {
     mode match {
       case "shared" => Right(TeamMode.Shared())
       case "splitEvenly" => Right(TeamMode.SplitEvenly())
@@ -175,10 +174,10 @@ case class SkillsDataLoader(
     }
   }
 
-  private def restrictTeamMode(allowed: Option[TeamMode] = None)(mode: TeamMode): TeamMode = {
-    allowed match {
-      case Some(_: TeamMode.Pyramid) if mode == TeamMode.Pyramid() => TeamMode.Off()
-      case Some(_: TeamMode.SplitEvenly) if mode == TeamMode.SplitEvenly() => TeamMode.Off()
+  private def restrictTeamMode(allowed: Option[TeamMode])(mode: TeamMode): TeamMode = {
+    mode match {
+      case _: TeamMode.Pyramid if !allowed.contains(TeamMode.Pyramid()) => TeamMode.Off()
+      case _: TeamMode.SplitEvenly if !allowed.contains(TeamMode.SplitEvenly()) => TeamMode.Off()
       case _ => mode
     }
   }
@@ -194,16 +193,18 @@ case class SkillsDataLoader(
     raw: JsonObject,
     allowed: Option[TeamMode] = None,
   ): TeamMode = {
-    parseValue(raw, "teamMode", {
-      case m if m.isJsonObject =>
-      val mode = parseString(m.getAsJsonObject, "mode")
-      val rate = parseDouble(m.getAsJsonObject, "rate")
-      mode.flatMap(createTeamMode(_, rate).toOption)
-      case s if s.isJsonPrimitive => createTeamMode(s.getAsString, None).toOption
-      case _ => None
-    },
+    parseValue(
+      raw,
+      "teamMode",
+      {
+        case m if m.isJsonObject =>
+        val mode = parseString(m.getAsJsonObject, "mode")
+        val rate = parseDouble(m.getAsJsonObject, "rate")
+        mode.flatMap(createTeamMode(_, rate).toOption)
+        case s if isPrimitiveType(s, _.isString) => createTeamMode(s.getAsString, None).toOption
+        case _ => None
+      },
     )
-      .flatten
       .map(restrictTeamMode(allowed))
       .getOrElse(TeamMode.Off())
   }
@@ -211,13 +212,22 @@ case class SkillsDataLoader(
   private def parseNotify(
     raw: JsonObject,
   ): (Boolean, Option[String]) = {
+    parseBoolean(raw, "notify") match {
+      case Some(v) => (v, None)
+      case _ => parseNotifyString(raw)
+    }
+  }
+
+  private def parseNotifyString(
+    raw: JsonObject,
+  ): (Boolean, Option[String]) = {
     parseString(raw, "notify") match {
-      case Some(v) if v.nonEmpty => (true, Option(v))
-      case _ => (parseBoolean(raw, "notify").getOrElse(false), None)
+      case Some(v) => (true, Option(v))
+      case _ => (false, None)
     }
   }
 }
 
 object SkillsDataLoader {
-  private val GsonService: Gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
+  private[data] val GsonService: Gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
 }
