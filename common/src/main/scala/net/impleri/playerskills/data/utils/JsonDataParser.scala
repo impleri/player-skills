@@ -10,7 +10,7 @@ import scala.util.Failure
 import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
 
-trait JsonDataParser {
+trait JsonValueParser {
   protected def logger: PlayerSkillsLogger
 
   private[utils] def getElement(
@@ -45,11 +45,11 @@ trait JsonDataParser {
       .getOrElse(defaultValue)
   }
 
-  protected def isPrimitiveType(value: JsonElement, f: JsonPrimitive => Boolean) = {
+  protected def isPrimitiveType(value: JsonElement, f: JsonPrimitive => Boolean): Boolean = {
     value.isJsonPrimitive && f(value.asInstanceOf[JsonPrimitive])
   }
 
-  protected def wrapCast[T](raw: JsonElement, f: JsonPrimitive => Boolean, t: JsonElement => T): Option[T] = {
+  private def wrapCast[T](raw: JsonElement, f: JsonPrimitive => Boolean, t: JsonElement => T): Option[T] = {
     if (isPrimitiveType(raw, f)) Option(t(raw)) else None
   }
 
@@ -100,7 +100,9 @@ trait JsonDataParser {
   ): Option[String] = {
     parseValue(raw, key, castAsString, defaultValue)
   }
+}
 
+trait JsonCollectionParser extends JsonValueParser {
   protected[utils] def parseArray[T](
     raw: JsonElement,
     key: String,
@@ -139,6 +141,9 @@ trait JsonDataParser {
       case _ => List.empty
     }
   }
+}
+
+trait JsonDataParser extends JsonCollectionParser {
 
   protected[utils] def parseOptions[T](
     raw: JsonObject,
@@ -157,7 +162,7 @@ trait JsonDataParser {
     )
   }
 
-  protected def parseExcludeAction(raw: JsonElement, callback: JsonElement => Unit) = {
+  protected def parseExcludeAction(raw: JsonElement, callback: JsonElement => Unit): Unit = {
     parseArrayEach(raw, "exclude",
       callback,
     )
@@ -169,7 +174,7 @@ trait JsonDataParser {
     )
   }
 
-  protected def parseIncludeAction(raw: JsonElement, callback: JsonElement => Unit) = {
+  protected def parseIncludeAction(raw: JsonElement, callback: JsonElement => Unit): Unit = {
     parseArrayEach(raw, "include",
       callback,
     )
