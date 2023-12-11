@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.tasks
+package net.impleri.playerskills.server.integrations.ftbquests.tasks
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import dev.ftb.mods.ftbquests.quest.Quest
@@ -8,8 +8,8 @@ import net.fabricmc.api.Environment
 import net.fabricmc.api.EnvType
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.integrations.ftbquests.helpers.SkillValueHandling
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
+import net.impleri.playerskills.server.integrations.ftbquests.helpers.SkillValueHandling
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.MutableComponent

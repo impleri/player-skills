@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.rewards
+package net.impleri.playerskills.server.integrations.ftbquests.rewards
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import dev.ftb.mods.ftbquests.quest.Quest
@@ -8,8 +8,8 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.integrations.ftbquests.helpers.MinMaxTagHandling
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
+import net.impleri.playerskills.server.integrations.ftbquests.helpers.MinMaxTagHandling
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 

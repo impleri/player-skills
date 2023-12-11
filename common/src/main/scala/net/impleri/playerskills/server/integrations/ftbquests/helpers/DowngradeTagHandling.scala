@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.helpers
+package net.impleri.playerskills.server.integrations.ftbquests.helpers
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import net.impleri.playerskills.facades.minecraft.Player

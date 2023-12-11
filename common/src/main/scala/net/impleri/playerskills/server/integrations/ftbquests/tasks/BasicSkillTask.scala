@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.tasks
+package net.impleri.playerskills.server.integrations.ftbquests.tasks
 
 import dev.ftb.mods.ftblibrary.icon.Icon
 import dev.ftb.mods.ftbquests.quest.Quest
@@ -10,7 +10,7 @@ import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.skills.basic.BasicSkillType
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.impleri.playerskills.PlayerSkills
-import net.impleri.playerskills.integrations.ftbquests.helpers.BooleanValueHandling
+import net.impleri.playerskills.server.integrations.ftbquests.helpers.BooleanValueHandling
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 

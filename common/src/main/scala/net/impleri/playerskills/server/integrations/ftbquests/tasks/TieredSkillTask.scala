@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.tasks
+package net.impleri.playerskills.server.integrations.ftbquests.tasks
 
 import dev.ftb.mods.ftblibrary.icon.Icon
 import dev.ftb.mods.ftbquests.quest.Quest
@@ -10,34 +10,34 @@ import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.utils.SkillResourceLocation
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.StringValueHandling
-import net.impleri.playerskills.skills.specialized.SpecializedSkillType
+import net.impleri.playerskills.server.integrations.ftbquests.helpers.StringValueHandling
+import net.impleri.playerskills.skills.tiered.TieredSkillType
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 
-case class SpecializedSkillTask(
+case class TieredSkillTask(
   q: Quest,
   override val playerOps: Player,
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
 )
   extends SkillTask[String](q, playerOps, skillOps) with StringValueHandling {
-  override val skillType: ResourceLocation = SpecializedSkillType.NAME
+  override val skillType: ResourceLocation = TieredSkillType.NAME
 
-  override def getType: TaskType = SpecializedSkillTask.TASK_TYPE
+  override def getType: TaskType = TieredSkillTask.TASK_TYPE
 }
 
-object SpecializedSkillTask {
+object TieredSkillTask {
   val TASK_TYPE: TaskType = TaskTypes.register(
-    SkillResourceLocation.of("specialized_skill_task").get,
+    SkillResourceLocation.of("tiered_skill_task").get,
     apply,
-    () => Icon.getIcon("minecraft:item/diamond_shovel"),
+    () => Icon.getIcon("minecraft:item/golden_shovel"),
   )
 
-  TASK_TYPE.setDisplayName(Component.translatable("playerskills.quests.specialized_skill"))
+  TASK_TYPE.setDisplayName(Component.translatable("playerskills.quests.tiered_skill"))
 
-  def apply(quest: Quest): SpecializedSkillTask = {
-    new SpecializedSkillTask(
+  def apply(quest: Quest): TieredSkillTask = {
+    new TieredSkillTask(
       quest,
       PlayerSkillsServer.STATE.PLAYER_OPS,
       PlayerSkills.STATE.getSkillOps,
