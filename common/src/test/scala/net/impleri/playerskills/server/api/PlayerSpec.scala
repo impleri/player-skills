@@ -153,11 +153,8 @@ class PlayerSpec extends BaseSpec {
     val skillName = new ResourceLocation("skillstest", "test_skill")
     val givenThreshold = Option("test-value")
 
-    val givenSkill = mock[Skill[String]]
-    givenSkill.name returns skillName
-
     val givenSkillType = mock[SkillType[String]]
-    skillTypeOpsMock.get(givenSkill) returns Option(givenSkillType)
+    skillTypeOpsMock.get[String](skillName) returns Option(givenSkillType)
 
     val otherSkill = mock[Skill[String]]
     otherSkill.name returns new ResourceLocation("skillstest", "other_skill")
@@ -169,7 +166,7 @@ class PlayerSpec extends BaseSpec {
     val expected = false
     givenSkillType.can(foundSkill, givenThreshold) returns expected
 
-    testUnit.can(givenUuid, givenSkill, givenThreshold) should be(expected)
+    testUnit.can(givenUuid, skillName, givenThreshold) should be(expected)
   }
 
   it should "return default value if the SkillType is not found" in {
@@ -188,7 +185,7 @@ class PlayerSpec extends BaseSpec {
     val foundSkills = List(otherSkill, foundSkill)
     registryMock.get(givenUuid) returns foundSkills
 
-    testUnit.can(givenUuid, givenSkill) should be(Player.DEFAULT_SKILL_RESPONSE)
+    testUnit.can(givenUuid, skillName) should be(Player.DEFAULT_SKILL_RESPONSE)
   }
 
   it should "return default value if the skill is not found for the player" in {
@@ -207,7 +204,7 @@ class PlayerSpec extends BaseSpec {
     val foundSkills = List(otherSkill)
     registryMock.get(givenUuid) returns foundSkills
 
-    testUnit.can(givenUuid, givenSkill) should be(Player.DEFAULT_SKILL_RESPONSE)
+    testUnit.can(givenUuid, skillName) should be(Player.DEFAULT_SKILL_RESPONSE)
 
     givenSkillType.can(*, None) wasNever called
   }

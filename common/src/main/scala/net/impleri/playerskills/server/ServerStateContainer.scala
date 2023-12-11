@@ -39,8 +39,8 @@ case class ServerStateContainer(
   var PLAYERS: PlayerRegistry = playerRegistry
   var TEAM: Team = teamInstance
 
-  private var PLAYER_OPS: Player = Player(PLAYERS, globalState.getSkillTypeOps, globalState.getSkillOps)
-  private var TEAM_OPS: TeamOps = Team(TEAM, PLAYER_OPS, globalState.getSkillOps, eventHandler)
+  var PLAYER_OPS: Player = Player(PLAYERS, globalState.getSkillTypeOps, globalState.getSkillOps)
+  var TEAM_OPS: TeamOps = Team(TEAM, PLAYER_OPS, globalState.getSkillOps, eventHandler)
 
   lazy private val MANAGER = Manager(globalState, serverStateContainer = this)
 

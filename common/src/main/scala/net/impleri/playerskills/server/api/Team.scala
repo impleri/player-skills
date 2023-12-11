@@ -67,7 +67,7 @@ trait TeamUpdater {
 
   protected[api] def updateMemberSkill[T](skill: Skill[T])(playerId: UUID): Option[(UUID, Option[Skill[T]])] = {
     playerOps.get[T](playerId, skill.name)
-      .map(s => (playerOps.can(playerId, s, skill.value), s))
+      .map(s => (playerOps.can(playerId, s.name, skill.value), s))
       .map(t => (t._2, if (!t._1) playerOps.upsert(playerId, skill) else Seq.empty))
       .flatMap(t => if (t._2.nonEmpty) Some(playerId, Option(t._1)) else None)
   }
@@ -109,7 +109,7 @@ trait TeamLimit {
   private[api] def countWith[T](playerIds: Seq[UUID], skill: Skill[T]): Int = {
     playerIds.map(p => (p, playerOps.get[T](p, skill.name)))
       .flatMap(t => t._2.map(v => (t._1, v)))
-      .count(t => playerOps.can(t._1, t._2, skill.value))
+      .count(t => playerOps.can(t._1, t._2.name, skill.value))
   }
 
   private[api] def getTeamLimit[T](players: Seq[UUID], skill: Skill[T]) = {

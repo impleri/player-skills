@@ -115,7 +115,7 @@ class TeamSpec extends BaseSpec {
 
     playerOpsMock.get[Double](givenUuid, skillName) returns Option(existingSkill)
 
-    playerOpsMock.can(givenUuid, existingSkill, skillValue) returns false
+    playerOpsMock.can(givenUuid, skillName, skillValue) returns false
 
     playerOpsMock.upsert(givenUuid, updatedSkill) returns List.empty
 
@@ -323,7 +323,7 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
     playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
     playerOpsMock.get[String](secondUuid, skillName) returns None
-    playerOpsMock.can(givenUuid, oldSkill, newValue) returns false
+    playerOpsMock.can(givenUuid, skillName, newValue) returns false
     playerOpsMock.can(secondUuid, *, newValue) returns true
     playerOpsMock.upsert(givenUuid, *) returns List(newSkill)
     playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns Option(newSkill)
@@ -360,7 +360,7 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
     playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
     playerOpsMock.get[String](secondUuid, skillName) returns None
-    playerOpsMock.can(givenUuid, oldSkill, newValue) returns false
+    playerOpsMock.can(givenUuid, skillName, newValue) returns false
     playerOpsMock.upsert(givenUuid, *) returns List(newSkill)
     playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns Option(newSkill)
     playerOpsMock.isOnline(givenUuid) returns true
@@ -394,7 +394,7 @@ class TeamSpec extends BaseSpec {
 
     playerOpsMock.open(List(givenUuid, secondUuid)) returns offline
     playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
-    playerOpsMock.can(givenUuid, oldSkill, newValue) returns false
+    playerOpsMock.can(givenUuid, skillName, newValue) returns false
     playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns None
 
     testUnit.improve(playerMock, oldSkill)

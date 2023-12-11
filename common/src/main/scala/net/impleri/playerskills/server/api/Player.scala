@@ -51,17 +51,17 @@ class Player(
   protected val skillTypeOps: SkillTypeOps,
   protected val skillOps: SkillOps,
 ) extends PlayerRegistryFacade {
-  private def canHelper[T](playerId: UUID, skill: Skill[T]): Option[(SkillType[T], Skill[T])] = {
-    (skillTypeOps.get(skill), get[T](playerId, skill.name)) match {
+  private def canHelper[T](playerId: UUID, skill: ResourceLocation): Option[(SkillType[T], Skill[T])] = {
+    (skillTypeOps.get[T](skill), get[T](playerId, skill)) match {
       case (Some(t), Some(s)) => Option((t, s))
       case _ => None
     }
   }
 
-  def can[T](playerId: UUID, skill: Skill[T], expectedValue: Option[T] = None): Boolean = {
+  def can[T](playerId: UUID, skill: ResourceLocation, expectedValue: Option[T] = None): Boolean = {
     canHelper[T](playerId, skill).fold(Player.DEFAULT_SKILL_RESPONSE)(t => t._1.can(t._2, expectedValue))
   }
-
+  
   def reset(playerId: UUID, skill: Skill[_]): List[Skill[_]] = {
     skillOps.get(skill.name)
       .asInstanceOf[Option[Skill[_]]]
