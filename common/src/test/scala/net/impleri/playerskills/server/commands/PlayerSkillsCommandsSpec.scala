@@ -227,20 +227,22 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     val playerMock = mock[Player[_]]
     playerMock.uuid returns givenUuid
 
+    val skill1Name = new ResourceLocation("skillstest:first")
     val skillOne = mock[Skill[_]]
-    playerOpsMock.can(givenUuid, skillOne) returns false
+    skillOne.name returns skill1Name
+    playerOpsMock.can(givenUuid, skill1Name) returns false
 
-    val skill2Name = "skillstest:name"
+    val skill2Name = new ResourceLocation("skillstest:name")
     val skillTwo = mock[Skill[Int]]
-    skillTwo.name returns new ResourceLocation(skill2Name)
+    skillTwo.name returns skill2Name
     skillTwo.value returns Option(42)
-    playerOpsMock.can(givenUuid, skillTwo) returns true
+    playerOpsMock.can(givenUuid, skill2Name) returns true
 
-    val skill3Name = "skillstest:other"
+    val skill3Name = new ResourceLocation("skillstest:other")
     val skillThree = mock[Skill[_]]
-    skillThree.name returns new ResourceLocation(skill3Name)
+    skillThree.name returns skill3Name
     skillThree.value returns None
-    playerOpsMock.can(givenUuid, skillThree) returns true
+    playerOpsMock.can(givenUuid, skill3Name) returns true
 
     val skills = List(skillOne, skillTwo, skillThree)
 
@@ -253,10 +255,10 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
     received.length should be(2)
 
-    received.head.contains(skill2Name) should be(true)
+    received.head.contains(skill2Name.toString) should be(true)
     received.head.contains("42") should be(true)
 
-    received.last.contains(skill3Name) should be(true)
+    received.last.contains(skill3Name.toString) should be(true)
     received.last.contains("None") should be(true)
   }
 
