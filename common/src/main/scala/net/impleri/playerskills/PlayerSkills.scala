@@ -25,7 +25,7 @@ object PlayerSkills {
   def init(): Unit = {
     registerTypes()
   }
-  
+
   private def registerTypes(): Unit = {
     val skillOps = STATE.getSkillOps
 
