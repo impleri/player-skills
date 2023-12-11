@@ -15,6 +15,7 @@ import net.impleri.playerskills.server.bindings.CommandEvents
 import net.impleri.playerskills.server.bindings.InternalEvents
 import net.impleri.playerskills.server.bindings.LifecycleEvents
 import net.impleri.playerskills.server.commands.PlayerSkillsCommands
+import net.impleri.playerskills.server.integrations.IntegrationLoader
 import net.minecraft.server.packs.resources.ResourceManager
 
 import scala.annotation.unused
@@ -44,9 +45,11 @@ case class ServerStateContainer(
 
   lazy private val MANAGER = Manager(globalState, serverStateContainer = this)
 
-  private val LIFECYCLE = LifecycleEvents(PLAYERS, onServerChange)
+  private val LIFECYCLE = LifecycleEvents(PLAYERS, onSetup, onServerChange)
   private val INTERNAL = InternalEvents(eventHandler, this, onReload, reloadListeners)
   private val COMMAND = CommandEvents()
+
+  private val INTEGRATIONS = IntegrationLoader(this)
 
   LIFECYCLE.registerEvents()
   INTERNAL.registerEvents()
@@ -64,6 +67,10 @@ case class ServerStateContainer(
   def setTeam(instance: Team): Unit = {
     TEAM = instance
     TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.getSkillOps, eventHandler)
+  }
+
+  private def onSetup(): Unit = {
+    INTEGRATIONS.onSetup()
   }
 
   private[server] def onServerChange(next: Option[Server] = None): Unit = {

@@ -1,15 +1,15 @@
-package net.impleri.playerskills.integrations.ftbquests
+package net.impleri.playerskills.server.integrations.ftbquests
 
 import dev.ftb.mods.ftbquests.quest.reward.RewardType
 import dev.ftb.mods.ftbquests.quest.task.TaskType
-import net.impleri.playerskills.integrations.ftbquests.rewards.BasicSkillReward
-import net.impleri.playerskills.integrations.ftbquests.rewards.NumericSkillReward
-import net.impleri.playerskills.integrations.ftbquests.rewards.SpecializedSkillReward
-import net.impleri.playerskills.integrations.ftbquests.rewards.TieredSkillReward
-import net.impleri.playerskills.integrations.ftbquests.tasks.BasicSkillTask
-import net.impleri.playerskills.integrations.ftbquests.tasks.NumericSkillTask
-import net.impleri.playerskills.integrations.ftbquests.tasks.SpecializedSkillTask
-import net.impleri.playerskills.integrations.ftbquests.tasks.TieredSkillTask
+import net.impleri.playerskills.server.integrations.ftbquests.rewards.BasicSkillReward
+import net.impleri.playerskills.server.integrations.ftbquests.rewards.NumericSkillReward
+import net.impleri.playerskills.server.integrations.ftbquests.rewards.SpecializedSkillReward
+import net.impleri.playerskills.server.integrations.ftbquests.rewards.TieredSkillReward
+import net.impleri.playerskills.server.integrations.ftbquests.tasks.BasicSkillTask
+import net.impleri.playerskills.server.integrations.ftbquests.tasks.NumericSkillTask
+import net.impleri.playerskills.server.integrations.ftbquests.tasks.SpecializedSkillTask
+import net.impleri.playerskills.server.integrations.ftbquests.tasks.TieredSkillTask
 
 class FtbQuestsIntegration(
   BASIC_TASK: TaskType,

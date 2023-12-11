@@ -7,7 +7,6 @@ import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.bindings.LifecycleEvents
 import net.impleri.playerskills.facades.architectury.Network
 import net.impleri.playerskills.facades.architectury.Registrar
-import net.impleri.playerskills.integrations.IntegrationLoader
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
@@ -26,9 +25,7 @@ case class StateContainer(
   lazy val SKILL_TYPE_OPS: SkillTypeOps = SkillType(SKILL_TYPES)
 
   lazy val SKILL_OPS: SkillOps = Skill(getSkillTypeOps, SKILLS)
-
-  private val INTEGRATIONS = IntegrationLoader()
-
+  
   val NETWORK: Network = Network()
   private val LIFECYCLE = LifecycleEvents(onSetup)
 
@@ -36,8 +33,6 @@ case class StateContainer(
   LIFECYCLE.registerEvents()
 
   private def onSetup(): Unit = {
-    INTEGRATIONS.onSetup()
-
     SKILL_TYPES.resync()
     SKILLS.resync()
   }
