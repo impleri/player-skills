@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
 
 case class Client() {
-  def getInstace: Minecraft = Minecraft.getInstance()
+  def getInstance: Minecraft = Minecraft.getInstance()
 
-  def getPlayer: Player[LocalPlayer] = Player(getInstace.player)
+  def getPlayer: Player[LocalPlayer] = Player(getInstance.player)
 }

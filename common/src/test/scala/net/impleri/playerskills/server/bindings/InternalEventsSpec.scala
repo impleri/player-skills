@@ -6,17 +6,23 @@ import net.impleri.playerskills.facades.architectury.ReloadListeners
 import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
 import net.minecraft.server.packs.resources.ResourceManager
 
 class InternalEventsSpec extends BaseSpec {
   private val eventHandlerMock = mock[EventHandler]
-  private val stateMock = mock[ServerStateContainer]
+  private val stateMock = mock[StateContainer]
+  private val serverStateMock = mock[ServerStateContainer]
   private val reloadMock = mock[ReloadListeners]
   private val reload = mock[ResourceManager => Unit]
+  private val itemBuilderMock = mock[ItemRestrictionBuilder]
 
   private val testUnit = InternalEvents(
+    itemBuilderMock,
     eventHandlerMock,
     stateMock,
+    serverStateMock,
     reload,
     reloadMock,
   )
@@ -25,7 +31,7 @@ class InternalEventsSpec extends BaseSpec {
     testUnit.registerEvents()
 
     eventHandlerMock.onSkillChanged(*) wasCalled once
-    reloadMock.register(*) wasCalled twice
+    reloadMock.register(*) wasCalled threeTimes
   }
 
   "InternalEvents.onResourceManagerReload" should "proxy calls to the reload listener" in {
@@ -40,7 +46,7 @@ class InternalEventsSpec extends BaseSpec {
 
     val netMock = mock[NetHandler]
 
-    stateMock.getNetHandler returns netMock
+    serverStateMock.getNetHandler returns netMock
 
     testUnit.onSkillChanged(eventMock)
 

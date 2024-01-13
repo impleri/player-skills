@@ -3,7 +3,10 @@
   "minVersion": "0.8",
   "package": "net.impleri.playerskills",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [],
+  "mixins": [
+    "mixins.crafting.MixinCraftingMenu",
+    "mixins.item.MixinRecipeManager"
+  ],
   "client": [],
   "server": [],
   "injectors": {

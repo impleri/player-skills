@@ -9,9 +9,9 @@ object PlayerSkillsServer {
 
   val STATE: ServerStateContainer = ServerStateContainer(
     globalState = PlayerSkills.STATE,
-    playerRegistry = PlayerRegistry(skillsRegistry = PlayerSkills.STATE.SKILLS),
-    reloadListeners = ReloadListeners(),
+    PLAYERS = PlayerRegistry(skillsRegistry = PlayerSkills.STATE.SKILLS),
     eventHandler = EVENTS,
+    reloadListeners = ReloadListeners(),
   )
 
   // no-op to get the server-side functionality created in both physical client and servers

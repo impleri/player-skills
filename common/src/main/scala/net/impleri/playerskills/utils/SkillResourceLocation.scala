@@ -6,6 +6,7 @@ import scala.util.Failure
 import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
 
+// @TODO: refactor to facade
 object SkillResourceLocation {
   def apply(original: String): Option[ResourceLocation] = of(original)
 

@@ -4,6 +4,7 @@ import dev.architectury.networking.NetworkManager
 import dev.architectury.networking.simple.BaseC2SMessage
 import dev.architectury.networking.simple.MessageType
 import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.network.FriendlyByteBuf
@@ -12,7 +13,7 @@ import java.util.UUID
 
 case class ResyncSkillsMessage(
   private val playerId: UUID,
-  private val serverStateContainer: ServerStateContainer,
+  private val serverStateContainer: Option[ServerStateContainer],
   private val messageType: MessageType,
 )
   extends BaseC2SMessage {
@@ -22,15 +23,18 @@ case class ResyncSkillsMessage(
 
   // Server-side
   override def handle(context: NetworkManager.PacketContext): Unit = {
-    serverStateContainer.SERVER.foreach { server =>
-      val netHandler = serverStateContainer.getNetHandler
-      server.getPlayer(playerId).foreach(netHandler.syncPlayer(_))
+    val player = serverStateContainer.flatMap(_.SERVER).flatMap(_.getPlayer(playerId))
+    val netHandler = serverStateContainer.map(_.getNetHandler)
+
+    (player, netHandler) match {
+      case (Some(player: Player[_]), Some(netHandler: NetHandler)) => netHandler.syncPlayer(player)
+      case _ =>
     }
   }
 }
 
 case class ResyncSkillsMessageFactory(
-  serverStateContainer: ServerStateContainer,
+  serverStateContainer: Option[ServerStateContainer],
   logger: PlayerSkillsLogger,
 ) {
   private var messageType: Option[MessageType] = None
@@ -69,7 +73,7 @@ object ResyncSkillsMessageFactory {
   val NAME: String = "resync_skills"
 
   def apply(
-    serverStateContainer: ServerStateContainer = ServerStateContainer(),
+    serverStateContainer: Option[ServerStateContainer] = None,
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): ResyncSkillsMessageFactory = {
     new ResyncSkillsMessageFactory(serverStateContainer, logger)

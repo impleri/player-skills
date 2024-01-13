@@ -3,7 +3,6 @@ package net.impleri.playerskills.skills
 import cats.data.State
 import cats.data.StateT
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.server.skills.storage.ErrorOr
 import net.minecraft.resources.ResourceLocation
 
 case class SkillAlreadyExistsException(skill: Skill[_])

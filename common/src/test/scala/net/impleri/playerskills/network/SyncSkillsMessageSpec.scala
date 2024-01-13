@@ -33,11 +33,15 @@ class SyncSkillsMessageSpec extends BaseSpec {
     skills,
     false,
     skillTypeOpsMock,
-    clientRegistryMock,
+    Option(clientRegistryMock),
     messageTypeMock,
     loggerMock,
   )
-  private val testFactory = SyncSkillsMessageFactory(skillTypeOpsMock, clientRegistryMock, networkMock, loggerMock)
+  private val testFactory = SyncSkillsMessageFactory(skillTypeOpsMock,
+    Option(clientRegistryMock),
+    networkMock,
+    loggerMock,
+  )
 
   private val packetContextMock = mock[NetworkManager.PacketContext]
   private val playerMock = mock[Player[ServerPlayer]]

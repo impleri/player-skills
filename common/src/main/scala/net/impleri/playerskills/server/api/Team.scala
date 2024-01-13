@@ -12,7 +12,7 @@ import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
 
 trait Team {
-  protected[server] def getTeamMembersFor(player: UUID): List[UUID]
+  protected[playerskills] def getTeamMembersFor(player: UUID): List[UUID]
 
 }
 

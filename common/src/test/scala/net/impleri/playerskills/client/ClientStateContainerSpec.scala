@@ -6,6 +6,7 @@ import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.facades.architectury.Network
 import net.impleri.playerskills.facades.minecraft.Client
 import net.impleri.playerskills.network.ResyncSkillsMessage
+import net.impleri.playerskills.network.SyncSkillsMessage
 
 private class ClientStateContainerSpec extends BaseSpec {
   private val globalStateMock = mock[StateContainer]
@@ -14,9 +15,10 @@ private class ClientStateContainerSpec extends BaseSpec {
 
   lazy private val testUnit = ClientStateContainer(globalStateMock, eventHandlerMock, clientMock)
 
-  "ClientStateContainer.getNetHandler" should "resync all players" in {
+  "ClientStateContainer.getNetHandler" should "create a C2S network handler" in {
     val messageTypeMock = mock[MessageType]
     val networkMock = mock[Network]
+    networkMock.registerClientboundMessage[SyncSkillsMessage](*, *) returns messageTypeMock
     networkMock.registerServerboundMessage[ResyncSkillsMessage](*, *) returns messageTypeMock
     globalStateMock.NETWORK returns networkMock
 
