@@ -43,22 +43,22 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
 
   protected[playerskills] def getMessageKey: String = "playerskills.notify.skill_change"
 
-  protected def formatSkillName(): Component = {
+  private def formatSkillName(): Component = {
     Component.literal(name.getPath.replace("_", " "))
       .withStyle(ChatFormatting.DARK_AQUA)
       .withStyle(ChatFormatting.BOLD)
   }
 
-  protected def formatSkillValue(value: Option[T] = this.value): Component = {
+  private def formatSkillValue(value: Option[T] = this.value): Component = {
     Component.literal(value.fold("")(v => s"$v"))
       .withStyle(ChatFormatting.GOLD)
   }
 
-  protected def formatNotificationMessage(messageKey: String, oldValue: Option[T] = None): Component = {
+  private def formatNotificationMessage(messageKey: String, oldValue: Option[T] = None): Component = {
     Component.translatable(messageKey, formatSkillName(), formatSkillValue(), formatSkillValue(oldValue))
   }
 
-  protected def formatNotification(oldValue: Option[T] = None): Component = {
+  private def formatNotification(oldValue: Option[T] = None): Component = {
     formatNotificationMessage(notifyKey.getOrElse(getMessageKey), oldValue)
   }
 

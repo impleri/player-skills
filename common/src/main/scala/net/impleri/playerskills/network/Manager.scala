@@ -7,11 +7,11 @@ import net.impleri.playerskills.server.ServerStateContainer
 
 case class Manager(
   globalState: StateContainer = StateContainer(),
-  clientSkills: ClientSkillsRegistry = ClientSkillsRegistry(),
-  serverStateContainer: ServerStateContainer = ServerStateContainer(),
+  clientSkills: Option[ClientSkillsRegistry] = None,
+  serverStateContainer: Option[ServerStateContainer] = None,
 ) {
   val SYNC_SKILLS: SyncSkillsMessageFactory = SyncSkillsMessageFactory(
-    globalState.getSkillTypeOps,
+    globalState.SKILL_TYPE_OPS,
     clientSkills,
     globalState.NETWORK,
   )

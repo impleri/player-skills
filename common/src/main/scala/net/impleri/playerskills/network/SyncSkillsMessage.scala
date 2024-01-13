@@ -20,7 +20,7 @@ case class SyncSkillsMessage(
   private val skills: List[Skill[_]],
   private val force: Boolean,
   private val skillTypeOps: SkillTypeOps,
-  private val clientSkillsRegistry: ClientSkillsRegistry,
+  private val clientSkillsRegistry: Option[ClientSkillsRegistry],
   private val messageType: MessageType,
   private val logger: PlayerSkillsLogger,
 ) extends BaseS2CMessage {
@@ -40,13 +40,13 @@ case class SyncSkillsMessage(
   }
 
   override def handle(context: NetworkManager.PacketContext): Unit = {
-    clientSkillsRegistry.syncFromServer(skills, force)
+    clientSkillsRegistry.foreach(_.syncFromServer(skills, force))
   }
 }
 
 case class SyncSkillsMessageFactory(
   skillTypeOps: SkillTypeOps = SkillType(),
-  clientSkillsRegistry: ClientSkillsRegistry = ClientSkillsRegistry(),
+  clientSkillsRegistry: Option[ClientSkillsRegistry] = None,
   network: Network = Network(),
   logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 ) {
@@ -95,7 +95,7 @@ object SyncSkillsMessageFactory {
 
   def apply(
     skillTypeOps: SkillTypeOps = SkillType(),
-    clientSkillsRegistry: ClientSkillsRegistry = ClientSkillsRegistry(),
+    clientSkillsRegistry: Option[ClientSkillsRegistry] = None,
     network: Network = Network(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): SyncSkillsMessageFactory = {

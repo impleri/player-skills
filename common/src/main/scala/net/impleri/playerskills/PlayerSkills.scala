@@ -27,12 +27,10 @@ object PlayerSkills {
   }
 
   private def registerTypes(): Unit = {
-    val skillOps = STATE.getSkillOps
-
-    SKILL_TYPES.register(BasicSkillType.NAME, () => BasicSkillType(skillOps))
-    SKILL_TYPES.register(NumericSkillType.NAME, () => NumericSkillType(skillOps))
-    SKILL_TYPES.register(TieredSkillType.NAME, () => TieredSkillType(skillOps))
-    SKILL_TYPES.register(SpecializedSkillType.NAME, () => SpecializedSkillType(skillOps))
+    SKILL_TYPES.register(BasicSkillType.NAME, () => BasicSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(NumericSkillType.NAME, () => NumericSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(TieredSkillType.NAME, () => TieredSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(SpecializedSkillType.NAME, () => SpecializedSkillType(STATE.SKILL_OPS))
 
     SKILL_TYPES.register()
   }

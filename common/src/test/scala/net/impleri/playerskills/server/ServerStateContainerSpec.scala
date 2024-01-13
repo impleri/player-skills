@@ -12,12 +12,14 @@ import net.impleri.playerskills.facades.architectury.Network
 import net.impleri.playerskills.facades.architectury.ReloadListeners
 import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
 import net.impleri.playerskills.facades.minecraft.Server
+import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.network.SyncSkillsMessage
 import net.impleri.playerskills.server.api.StubTeam
 import net.impleri.playerskills.server.skills.PlayerRegistryState
 import net.impleri.playerskills.skills.SkillRegistry
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.packs.resources.ResourceManager
+import net.minecraft.world.item.Item
 
 import java.util.UUID
 
@@ -25,29 +27,32 @@ private class ServerStateContainerSpec extends BaseSpec {
   private val globalStateMock = mock[StateContainer]
   private val loggerMock = mock[PlayerSkillsLogger]
   private val serverMock = mock[Server]
-  private val registryMock = mock[PlayerRegistry]
+  private val playerRegistryMock = mock[PlayerRegistry]
   private val eventHandlerMock = mock[EventHandler]
   private val teamMock = mock[Team]
   private val reloadListenersMock = mock[ReloadListeners]
   private val skillRegistryMock = mock[SkillRegistry]
   private val skillTypeOpsMock = mock[SkillTypeOps]
   private val networkMock = mock[Network]
+  private val registryMock = mock[Registry[Item]]
 
   lazy private val testUnit = ServerStateContainer(globalStateMock,
-    registryMock,
+    playerRegistryMock,
     eventHandlerMock,
     reloadListenersMock,
     StubTeam(),
     None,
+    registryMock,
     loggerMock,
   )
 
   lazy private val testUnitWithServer = ServerStateContainer(globalStateMock,
-    registryMock,
+    playerRegistryMock,
     eventHandlerMock,
     reloadListenersMock,
     StubTeam(),
     Option(serverMock),
+    registryMock,
     loggerMock,
   )
 
@@ -70,9 +75,9 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     globalStateMock.NETWORK returns networkMock
     globalStateMock.SKILLS returns skillRegistryMock
-    globalStateMock.getSkillTypeOps returns skillTypeOpsMock
+    globalStateMock.SKILL_TYPE_OPS returns skillTypeOpsMock
 
-    registryMock.getState returns playerRegistryState
+    playerRegistryMock.getState returns playerRegistryState
 
     testUnitWithServer.SERVER.value should be(serverMock)
 
@@ -80,9 +85,9 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     testUnitWithServer.SERVER should be(None)
 
-    globalStateMock.getSkillTypeOps wasCalled fourTimes
+    globalStateMock.SKILL_TYPE_OPS wasCalled sixTimes
     globalStateMock.SKILLS wasCalled once
-    registryMock.getState wasCalled once
+    playerRegistryMock.getState wasCalled once
   }
 
   it should "change the team instance" in {
@@ -90,9 +95,9 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     globalStateMock.NETWORK returns networkMock
     globalStateMock.SKILLS returns skillRegistryMock
-    globalStateMock.getSkillTypeOps returns skillTypeOpsMock
+    globalStateMock.SKILL_TYPE_OPS returns skillTypeOpsMock
 
-    registryMock.getState returns playerRegistryState
+    playerRegistryMock.getState returns playerRegistryState
 
     testUnit.SERVER should be(None)
 
@@ -100,9 +105,9 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     testUnit.SERVER.value should be(serverMock)
 
-    globalStateMock.getSkillTypeOps wasCalled fourTimes
+    globalStateMock.SKILL_TYPE_OPS wasCalled sixTimes
     globalStateMock.SKILLS wasCalled once
-    registryMock.getState wasCalled once
+    playerRegistryMock.getState wasCalled once
   }
 
   "ServerStateContainer.onReload" should "resync all players" in {
@@ -116,23 +121,17 @@ private class ServerStateContainerSpec extends BaseSpec {
     networkMock.registerClientboundMessage[SyncSkillsMessage](*, *) returns messageTypeMock
     globalStateMock.NETWORK returns networkMock
 
-    registryMock.close() returns currentUsers
+    playerRegistryMock.close() returns currentUsers
     serverMock.getPlayers returns List(playerMock)
 
     testUnitWithServer.SERVER.value should be(serverMock)
     val skills = List.empty
-    registryMock.get(givenUuid) returns skills
+    playerRegistryMock.get(givenUuid) returns skills
 
     testUnitWithServer.onReload(mock[ResourceManager])
 
-    registryMock.open(currentUsers) wasCalled once
+    playerRegistryMock.open(currentUsers) wasCalled once
 
     playerMock.sendMessage(any[BaseS2CMessage]) wasCalled once
-  }
-
-  "ServerStateContainer.apply" should "create a usable instance" in {
-    val result = ServerStateContainer()
-
-    result.isInstanceOf[ServerStateContainer] should be(true)
   }
 }
