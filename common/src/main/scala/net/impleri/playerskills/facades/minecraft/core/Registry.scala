@@ -1,6 +1,7 @@
 package net.impleri.playerskills.facades.minecraft.core
 
 import net.minecraft.core.{Registry => McRegistry}
+import net.minecraft.core.HolderLookup
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
@@ -35,6 +36,8 @@ case class Registry[T](private val registry: McRegistry[T]) {
       .flatMap(h => OptionConverters.toScala(h.unwrapKey()))
       .map(_.location())
   }
+
+  def getHolder: HolderLookup[T] = HolderLookup.forRegistry(registry)
 }
 
 object Registry {

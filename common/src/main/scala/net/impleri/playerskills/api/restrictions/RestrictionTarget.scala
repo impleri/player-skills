@@ -15,7 +15,13 @@ object RestrictionTarget {
 
   case class Single(target: ResourceLocation) extends RestrictionTarget
 
-  def apply[T](value: String, registryKey: ResourceKey[Registry[T]]): Option[RestrictionTarget] = {
+  case class SingleString(target: String) extends RestrictionTarget
+
+  def apply[T](
+    value: String,
+    registryKey: ResourceKey[Registry[T]],
+    singleAsString: Boolean = false,
+  ): Option[RestrictionTarget] = {
     value.trim match {
       case s"@$namespace" => Option(RestrictionTarget.Namespace(namespace))
       case s"$namespace:*" => Option(RestrictionTarget.Namespace(namespace))
@@ -25,7 +31,9 @@ object RestrictionTarget {
           .map(TagKey.create(registryKey, _))
           .map(RestrictionTarget.Tag(_))
       }
-      case _ => SkillResourceLocation.ofMinecraft(value).map(RestrictionTarget.Single)
+
+      case s if singleAsString => SkillResourceLocation.ofMinecraft(s).map(Single)
+      case s if !singleAsString => Option(RestrictionTarget.SingleString(s))
     }
   }
 }
