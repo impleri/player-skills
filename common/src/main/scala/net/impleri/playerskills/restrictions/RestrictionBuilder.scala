@@ -15,6 +15,8 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
 
   private var restrictions: Map[String, C] = Map.empty
 
+  protected def singleAsString: Boolean = false
+
   def add(restrictionName: String, builder: C): Unit = {
     restrictions += restrictionName -> builder
   }
@@ -28,13 +30,19 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
   private def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    RestrictionTarget(resourceName, registry.name) match {
+    RestrictionTarget(resourceName, registry.name, singleAsString) match {
       case Some(ns: RestrictionTarget.Namespace) => restrictNamespace(ns.target, builder)
       case Some(s: RestrictionTarget.Single) => restrictOne(s.target, builder)
+      case Some(s: RestrictionTarget.SingleString) => restrictString(s.target, builder)
       case Some(t: RestrictionTarget.Tag[_]) => restrictTag(t.target.asInstanceOf, builder)
       case _ =>
     }
   }
+
+  protected def restrictString(
+    targetName: String,
+    builder: C,
+  ): Unit
 
   protected def restrictOne(
     targetName: ResourceLocation,
@@ -61,7 +69,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
   }
 
   protected def logRestriction(
-    name: ResourceLocation,
+    name: String,
     restriction: Restriction[_],
     settings: Option[String] = None,
   ): Unit = {
