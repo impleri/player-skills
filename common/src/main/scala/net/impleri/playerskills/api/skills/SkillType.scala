@@ -1,9 +1,8 @@
 package net.impleri.playerskills.api.skills
 
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.utils.SkillResourceLocation
-import net.minecraft.resources.ResourceLocation
 
 import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
@@ -31,14 +30,14 @@ sealed trait SerializableSkillType[T] {
   }
 
   def deserialize(name: String, value: Option[String], changesAllowed: Int): Option[Skill[T]] = {
-    SkillResourceLocation(name)
+    ResourceLocation(name)
       .flatMap(skillOps.get[T])
       .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(value.flatMap(castFromString), changesAllowed))
   }
 }
 
 trait SkillType[T] extends ChangeableSkillType[T] with SerializableSkillType[T] {
-  val name: ResourceLocation = SkillResourceLocation("skill").get
+  val name: ResourceLocation = ResourceLocation("skill").get
 
   def can(skill: Skill[T], threshold: Option[T] = None): Boolean = {
     skill.value.exists(v => threshold.forall(v == _))
@@ -55,7 +54,7 @@ sealed trait SkillTypeRegistryFacade {
 
   def get[T](name: ResourceLocation): Option[SkillType[T]] = state.find(name)
 
-  def get[T](name: String): Option[SkillType[T]] = SkillResourceLocation.of(name).flatMap(state.find)
+  def get[T](name: String): Option[SkillType[T]] = ResourceLocation(name).flatMap(state.find)
 
   def get[T](skill: Skill[T]): Option[SkillType[T]] = get(skill.skillType)
 }
@@ -95,7 +94,7 @@ class SkillTypeOps(
     parts match {
       case name :: skillType :: value :: changesAllowed :: _ => {
         logger.debug(s"Hydrating $skillType skill named $name: $value")
-        SkillResourceLocation(skillType)
+        ResourceLocation(skillType)
           .flatMap(get[T])
           .flatMap(_.deserialize(name, parseValue(value), parseChanges(changesAllowed)))
       }

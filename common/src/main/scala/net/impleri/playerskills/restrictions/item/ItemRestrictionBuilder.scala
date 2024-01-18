@@ -1,11 +1,11 @@
 package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.facades.minecraft.core.Registry
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.restrictions.RestrictionBuilder
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.{Item => McItem}
 
 case class ItemRestrictionBuilder(

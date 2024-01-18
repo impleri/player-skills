@@ -2,8 +2,8 @@ package net.impleri.playerskills.client
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 
 class ClientSkillsRegistrySpec extends BaseSpec {
   private val eventHandlerMock = mock[EventHandler]
@@ -15,7 +15,7 @@ class ClientSkillsRegistrySpec extends BaseSpec {
     val forced = false
 
     val skill1 = mock[Skill[Boolean]]
-    skill1.name returns new ResourceLocation("skillstest", "skill")
+    skill1.name returns ResourceLocation("skillstest", "skill").get
     skill1.value returns None
 
     val givenSkills = List(

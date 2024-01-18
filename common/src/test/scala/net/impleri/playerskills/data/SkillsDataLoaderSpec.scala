@@ -5,12 +5,12 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.basic.BasicSkill
 import net.impleri.playerskills.skills.numeric.NumericSkill
 import net.impleri.playerskills.skills.specialized.SpecializedSkill
 import net.impleri.playerskills.skills.tiered.TieredSkill
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.profiling.ProfilerFiller
 
@@ -27,7 +27,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
   private val skillDescription = "Description of the skill"
   private val notifyMessage = "notify_message"
   private val changesAllowed = 4
-  private val skillName = new ResourceLocation("skillstest:skill_name")
+  private val skillName = ResourceLocation("skillstest:skill_name").get
 
   private val minimalSkillJson =
     s"""
@@ -173,7 +173,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
 
   private def testLoadData(json: String, expected: Skill[_]): Unit = {
     val jsonElement = SkillsDataLoader.GsonService.fromJson(json, classOf[JsonElement])
-    val input = CollectionConverters.asJava(Map(skillName -> jsonElement))
+    val input = CollectionConverters.asJava(Map(skillName.name -> jsonElement))
 
     testUnit.apply(input, resourceManagerMock, profileFillerMock)
 
@@ -222,7 +222,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
 
   "SkillsDataLoader.apply" should "ignore unknown skill types" in {
     val jsonElement = SkillsDataLoader.GsonService.fromJson(unknownTeamSkillJson, classOf[JsonElement])
-    val input = CollectionConverters.asJava(Map(skillName -> jsonElement))
+    val input = CollectionConverters.asJava(Map(skillName.name -> jsonElement))
 
     testUnit.apply(input, resourceManagerMock, profileFillerMock)
 

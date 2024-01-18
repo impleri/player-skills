@@ -6,12 +6,11 @@ import net.fabricmc.api.Environment
 import net.fabricmc.api.EnvType
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
-import net.impleri.playerskills.utils.SkillResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.MutableComponent
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.ChatFormatting
 
 import scala.jdk.javaapi.CollectionConverters
@@ -36,7 +35,7 @@ trait SkillTagHandling {
   }
 
   protected def readSkillTag(nbt: CompoundTag): Unit = {
-    setSkill(SkillResourceLocation.of(nbt.getString("skill")))
+    setSkill(ResourceLocation(nbt.getString("skill")))
   }
 
   protected def writeSkillBuffer(buffer: FriendlyByteBuf): Unit = {
@@ -44,7 +43,7 @@ trait SkillTagHandling {
   }
 
   protected def readSkillBuffer(buffer: FriendlyByteBuf): Unit = {
-    setSkill(SkillResourceLocation.of(buffer.readUtf(Int.MaxValue)))
+    setSkill(ResourceLocation(buffer.readUtf(Int.MaxValue)))
   }
 
   private def getSkills(skillType: ResourceLocation): List[ResourceLocation] = {
@@ -83,7 +82,7 @@ trait SkillTagHandling {
     config.addEnum(
       "skill",
       getSkillText,
-      (s: String) => setSkill(if (s.isEmpty) None else SkillResourceLocation.of(s)),
+      (s: String) => setSkill(if (s.isEmpty) None else ResourceLocation(s)),
       NameMap.of(firstSkill.fold("")(_.toString), CollectionConverters.asJava(skills.map(_.toString))).create(),
       firstSkill.fold("")(_.toString),
     ).setNameKey("playerskills.quests.ui.skill")

@@ -2,9 +2,9 @@ package net.impleri.playerskills.server.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.minecraft.commands.Commands
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.resources.ResourceLocation
 
 import scala.jdk.FunctionConverters.enrichAsJavaPredicate
 

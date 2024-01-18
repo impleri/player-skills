@@ -1,8 +1,8 @@
 package net.impleri.playerskills.facades.minecraft
 
 import net.impleri.playerskills.facades.minecraft.core.Position
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.facades.minecraft.world.Biome
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.{Entity => MinecraftEntity}
 import net.minecraft.world.entity.player.{Player => MinecraftPlayer}
@@ -20,7 +20,7 @@ class Entity[T <: MinecraftEntity](private val entity: T) {
 
   val mobTypeName: String = mobType.toString
 
-  val dimension: Option[ResourceLocation] = Try(level.dimension().location()).toOption
+  val dimension: Option[ResourceLocation] = Try(level.dimension().location()).toOption.map(ResourceLocation(_))
 
   val biome: Option[Biome] = biomeAt()
 
@@ -34,7 +34,7 @@ class Entity[T <: MinecraftEntity](private val entity: T) {
   }
 
   def biomeNameAt(pos: Option[Position] = None): Option[ResourceLocation] = {
-    biomeAt(pos).flatMap(_.name)
+    biomeAt(pos).flatMap(_.name).map(ResourceLocation(_))
   }
 
   def isEmpty: Boolean = Option(entity).isEmpty

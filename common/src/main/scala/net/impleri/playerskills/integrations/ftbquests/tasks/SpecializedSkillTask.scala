@@ -7,13 +7,12 @@ import dev.ftb.mods.ftbquests.quest.task.TaskTypes
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.PlayerSkillsServer
-import net.impleri.playerskills.utils.SkillResourceLocation
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillTypeOps
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.integrations.ftbquests.helpers.StringValueHandling
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 
 case class SpecializedSkillTask(
   q: Quest,
@@ -29,7 +28,7 @@ case class SpecializedSkillTask(
 
 object SpecializedSkillTask {
   val TASK_TYPE: TaskType = TaskTypes.register(
-    SkillResourceLocation.of("specialized_skill_task").get,
+    ResourceLocation("specialized_skill_task").get.name,
     apply,
     () => Icon.getIcon("minecraft:item/diamond_shovel"),
   )

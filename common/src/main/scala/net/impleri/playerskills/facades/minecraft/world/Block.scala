@@ -2,7 +2,7 @@ package net.impleri.playerskills.facades.minecraft.world
 
 import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.facades.minecraft.HasName
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.minecraft.world.level.block.{Block => McBlock}
 import net.minecraft.world.level.block.state.BlockState
 

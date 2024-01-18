@@ -3,9 +3,9 @@ package net.impleri.playerskills.restrictions
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.RestrictionTarget
 import net.impleri.playerskills.facades.minecraft.core.Registry
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 
 trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {

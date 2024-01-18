@@ -1,10 +1,10 @@
 package net.impleri.playerskills.server.skills
 
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.StatefulRegistry
-import net.minecraft.resources.ResourceLocation
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps

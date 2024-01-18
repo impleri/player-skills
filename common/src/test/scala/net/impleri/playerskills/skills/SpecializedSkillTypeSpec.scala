@@ -3,14 +3,14 @@ package net.impleri.playerskills.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.specialized.SpecializedSkill
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
-import net.impleri.playerskills.utils.SkillResourceLocation
 
 class SpecializedSkillTypeSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]
 
-  private val skillName = SkillResourceLocation("test_skill").get
+  private val skillName = ResourceLocation("test_skill").get
   private val skillValue = "test-value"
 
   private val dumbSkill = SpecializedSkill(skillName)

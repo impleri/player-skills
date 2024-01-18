@@ -4,7 +4,7 @@ import cats.data.State
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.RestrictionType
 import net.impleri.playerskills.facades.minecraft.HasName
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 
 import scala.collection.View
 

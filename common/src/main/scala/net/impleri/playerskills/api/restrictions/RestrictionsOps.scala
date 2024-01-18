@@ -3,10 +3,10 @@ package net.impleri.playerskills.api.restrictions
 import net.impleri.playerskills.facades.minecraft.HasName
 import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.facades.minecraft.core.Position
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.facades.minecraft.world.Biome
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 
 import scala.collection.View
 
@@ -53,7 +53,8 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
     biome: Option[Biome] = None,
     f: R => Boolean = _ => true,
   ): Boolean = {
-    val hasRestrictions = getRestrictionsFor(player,
+    val hasRestrictions = getRestrictionsFor(
+      player,
       target,
       dimension.orElse(player.dimension),
       biome.orElse(player.biomeAt(pos)),

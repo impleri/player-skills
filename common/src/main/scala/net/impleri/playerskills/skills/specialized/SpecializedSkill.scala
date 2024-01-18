@@ -3,7 +3,7 @@ package net.impleri.playerskills.skills.specialized
 import net.impleri.playerskills.api.skills.ChangeableSkillOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.TeamMode
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 
 case class SpecializedSkill(
   override val name: ResourceLocation,

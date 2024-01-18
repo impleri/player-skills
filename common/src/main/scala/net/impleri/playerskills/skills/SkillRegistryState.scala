@@ -3,7 +3,7 @@ package net.impleri.playerskills.skills
 import cats.data.State
 import cats.data.StateT
 import net.impleri.playerskills.api.skills.Skill
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 
 case class SkillAlreadyExistsException(skill: Skill[_])
   extends RuntimeException(s"${skill.name.toString} cannot be added again.")
