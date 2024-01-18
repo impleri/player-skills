@@ -1,8 +1,8 @@
 package net.impleri.playerskills.facades.minecraft.crafting
 
 import net.impleri.playerskills.facades.minecraft.HasName
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.facades.minecraft.world.Item
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.crafting.{Recipe => McRecipe}
 import net.minecraft.world.Container
 import net.minecraft.world.item.crafting.Ingredient
@@ -20,5 +20,5 @@ case class Recipe[C <: Container](private val data: McRecipe[C]) extends HasName
       .pipe(i => Item(i))
   }
 
-  override def getName: Option[ResourceLocation] = Option(data.getId)
+  override def getName: Option[ResourceLocation] = Option(data.getId).map(ResourceLocation(_))
 }

@@ -3,10 +3,9 @@ package net.impleri.playerskills.skills.numeric
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.utils.MinMaxCalculator
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.utils.SkillResourceLocation
-import net.minecraft.resources.ResourceLocation
 
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -47,5 +46,5 @@ case class NumericSkillType(
 }
 
 object NumericSkillType {
-  val NAME: ResourceLocation = SkillResourceLocation("numeric").get
+  val NAME: ResourceLocation = ResourceLocation("numeric").get
 }

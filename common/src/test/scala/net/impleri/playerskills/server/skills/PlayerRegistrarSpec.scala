@@ -2,9 +2,9 @@ package net.impleri.playerskills.server.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 
 import java.util.UUID
 
@@ -17,9 +17,9 @@ class PlayerRegistrarSpec extends BaseSpec {
   private val playerOne = UUID.randomUUID()
   private val playerTwo = UUID.randomUUID()
 
-  private val testName = new ResourceLocation("skills", "test")
+  private val testName = ResourceLocation("skills", "test").get
   private val testSkill = TestSkill(testName)
-  private val otherName = new ResourceLocation("skills", "other")
+  private val otherName = ResourceLocation("skills", "other").get
   private val otherSkill = TestSkill(otherName)
 
   private val skillRegistryMock = mock[SkillRegistry]

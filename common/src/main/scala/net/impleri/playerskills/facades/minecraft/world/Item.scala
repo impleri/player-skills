@@ -3,8 +3,8 @@ package net.impleri.playerskills.facades.minecraft.world
 import com.mojang.brigadier.StringReader
 import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.facades.minecraft.HasName
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.minecraft.commands.arguments.item.ItemParser
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.{Item => MCItem}
 import net.minecraft.world.item.Items
@@ -54,7 +54,7 @@ object Item {
       .map(_.item())
       .map(_.unwrap())
       .map(_.right())
-      .flatMap(OptionConverters.toScala)
+      .flatMap(OptionConverters.toScala(_))
       .map(Item(_))
   }
 }

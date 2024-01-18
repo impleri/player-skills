@@ -4,7 +4,7 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 
 class ClientPlayerSpec extends BaseSpec {
   private val skillTypeOpsMock = mock[SkillTypeOps]
@@ -13,7 +13,7 @@ class ClientPlayerSpec extends BaseSpec {
 
 
   "ClientPlayer.can" should "call the appropriate SkillType.can with the player's skill if both are found" in {
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
     val givenThreshold = Option("test-value")
 
     val givenSkill = mock[Skill[String]]
@@ -29,7 +29,7 @@ class ClientPlayerSpec extends BaseSpec {
   }
 
   it should "return default value if the SkillType is not found" in {
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName

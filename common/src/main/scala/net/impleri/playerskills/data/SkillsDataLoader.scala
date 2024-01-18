@@ -8,6 +8,7 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
 import net.impleri.playerskills.data.utils.JsonDataParser
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.basic.BasicSkill
 import net.impleri.playerskills.skills.basic.BasicSkillType
 import net.impleri.playerskills.skills.numeric.NumericSkill
@@ -17,8 +18,7 @@ import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 import net.impleri.playerskills.skills.tiered.TieredSkill
 import net.impleri.playerskills.skills.tiered.TieredSkillType
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.utils.SkillResourceLocation
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.{ResourceLocation => McResourceLocation}
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
@@ -36,12 +36,12 @@ case class SkillsDataLoader(
 )
   extends SimpleJsonResourceReloadListener(SkillsDataLoader.GsonService, "skills") with JsonDataParser {
   override def apply(
-    data: java.util.Map[ResourceLocation, JsonElement],
+    data: java.util.Map[McResourceLocation, JsonElement],
     resourceManager: ResourceManager,
     profilerFiller: ProfilerFiller,
   ): Unit = {
     CollectionConverters.asScala(data)
-      .flatMap(t => parseSkill(t._1, t._2))
+      .flatMap(t => parseSkill(ResourceLocation(t._1), t._2))
       .foreach(skillOps.upsert(_))
   }
 
@@ -52,7 +52,7 @@ case class SkillsDataLoader(
     val (notify, notifyString) = parseNotify(raw)
     val skillType = parseSkillType(raw)
 
-    skillType.flatMap(SkillResourceLocation.apply)
+    skillType.flatMap(ResourceLocation(_))
       .flatMap {
         case BasicSkillType.NAME => createBasicSkill(raw, name, description, changesAllowed, notify, notifyString)
         case NumericSkillType.NAME => createNumericSkill(raw, name, description, changesAllowed, notify, notifyString)

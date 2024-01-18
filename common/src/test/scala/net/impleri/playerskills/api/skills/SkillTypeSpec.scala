@@ -1,9 +1,9 @@
 package net.impleri.playerskills.api.skills
 
 import net.impleri.playerskills.BaseSpec
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 
 class SkillTypeSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]
@@ -42,8 +42,8 @@ class SkillTypeSpec extends BaseSpec {
     override val value: Option[String] = None,
     override val announceChange: Boolean = false,
   ) extends Skill[String] with ChangeableSkillOps[String, TestSkill] {
-    override val name: ResourceLocation = new ResourceLocation("skills", "testname")
-    override val skillType: ResourceLocation = new ResourceLocation("skills", "test_type")
+    override val name: ResourceLocation = ResourceLocation("skills", "testname").get
+    override val skillType: ResourceLocation = ResourceLocation("skills", "test_type").get
 
     override protected[playerskills] def mutate(
       value: Option[String],
@@ -62,8 +62,8 @@ class SkillTypeSpec extends BaseSpec {
   private val loggerMock = mock[PlayerSkillsLogger]
 
   "SerializableSkillType.serialize" should "makes a string with the value" in {
-    skillMock.name returns new ResourceLocation("skilltest", "skill")
-    skillMock.skillType returns new ResourceLocation("skilltest", "skill_type")
+    skillMock.name returns ResourceLocation("skilltest", "skill").get
+    skillMock.skillType returns ResourceLocation("skilltest", "skill_type").get
     skillMock.value returns Option("value")
     skillMock.changesAllowed returns Skill.UNLIMITED_CHANGES
 
@@ -78,8 +78,8 @@ class SkillTypeSpec extends BaseSpec {
   }
 
   it should "makes a string with default value" in {
-    skillMock.name returns new ResourceLocation("skilltest", "skill")
-    skillMock.skillType returns new ResourceLocation("skilltest", "skill_type")
+    skillMock.name returns ResourceLocation("skilltest", "skill").get
+    skillMock.skillType returns ResourceLocation("skilltest", "skill_type").get
     skillMock.value returns None
     skillMock.changesAllowed returns Skill.UNLIMITED_CHANGES
 
@@ -94,7 +94,7 @@ class SkillTypeSpec extends BaseSpec {
   }
 
   "SerializableSkillType.derialize" should "makes a Skill with the correct value" in {
-    val skillName = new ResourceLocation("skilltest", "skill")
+    val skillName = ResourceLocation("skilltest", "skill").get
     val rawValue = Option("value")
     val changes = 5
 
@@ -114,7 +114,7 @@ class SkillTypeSpec extends BaseSpec {
   }
 
   it should "return nothing if unable to find the skill" in {
-    val skillName = new ResourceLocation("skilltest", "skill")
+    val skillName = ResourceLocation("skilltest", "skill").get
 
     skillOpsMock.get[String](skillName) returns None
 
@@ -158,7 +158,7 @@ class SkillTypeSpec extends BaseSpec {
 
   "SkillTypeRegistryFacade.get" should "proxy SkillTypeRegistry.find with a ResourceLocation" in {
     val facade = new SkillTypeOps(registryMock, loggerMock)
-    val givenName = new ResourceLocation("skills", "test")
+    val givenName = ResourceLocation("skills", "test").get
     val expected = None
 
     registryMock.find(givenName) returns expected
@@ -168,7 +168,7 @@ class SkillTypeSpec extends BaseSpec {
 
   it should "proxy SkillTypeRegistry.find with a string" in {
     val facade = new SkillTypeOps(registryMock, loggerMock)
-    val givenName = new ResourceLocation("skills", "test")
+    val givenName = ResourceLocation("skills", "test").get
     val expected = None
 
     registryMock.find(givenName) returns expected
@@ -178,7 +178,7 @@ class SkillTypeSpec extends BaseSpec {
 
   it should "proxy SkillTypeRegistry.find with a class" in {
     val facade = new SkillTypeOps(registryMock, loggerMock)
-    val givenName = new ResourceLocation("skills", "test_type")
+    val givenName = ResourceLocation("skills", "test_type").get
     val expected = None
     val givenSkill = TestSkill()
 
@@ -188,11 +188,11 @@ class SkillTypeSpec extends BaseSpec {
   }
 
   "SkillTypeOps.serialize" should "makes a string with the value" in {
-    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val skillType = ResourceLocation("skilltest", "skill_type").get
     val mockType = mock[SkillType[String]]
     val testUnit = new SkillTypeOps(registryMock, loggerMock)
 
-    skillMock.name returns new ResourceLocation("skilltest", "skill")
+    skillMock.name returns ResourceLocation("skilltest", "skill").get
     skillMock.skillType returns skillType
     registryMock.find[String](skillType) returns Option(mockType)
 
@@ -205,7 +205,7 @@ class SkillTypeSpec extends BaseSpec {
 
   "SkillTypeOps.deserialize" should "makes an appropriate skill from the string" in {
     val skillName = "skilltest:skill"
-    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val skillType = ResourceLocation("skilltest", "skill_type").get
     val mockType = mock[SkillType[String]]
 
     val expectedSkill = TestSkill()
@@ -226,7 +226,7 @@ class SkillTypeSpec extends BaseSpec {
 
   it should "error out on incomplete string data" in {
     val skillName = "skilltest:skill"
-    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val skillType = ResourceLocation("skilltest", "skill_type").get
 
     val testUnit = new SkillTypeOps(registryMock, loggerMock)
 
@@ -253,7 +253,7 @@ class SkillTypeSpec extends BaseSpec {
 
   it should "return nothing if unable to find the skill type" in {
     val skillName = "skilltest:skill"
-    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val skillType = ResourceLocation("skilltest", "skill_type").get
 
     val testUnit = new SkillTypeOps(registryMock, loggerMock)
 
@@ -270,7 +270,7 @@ class SkillTypeSpec extends BaseSpec {
 
   it should "return nothing if deserialization fails" in {
     val skillName = "skilltest:skill"
-    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val skillType = ResourceLocation("skilltest", "skill_type").get
     val mockType = mock[SkillType[String]]
 
     val testUnit = new SkillTypeOps(registryMock, loggerMock)
@@ -289,7 +289,7 @@ class SkillTypeSpec extends BaseSpec {
 
   it should "default to 0 changes if that value cannot be parsed" in {
     val skillName = "skilltest:skill"
-    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val skillType = ResourceLocation("skilltest", "skill_type").get
     val mockType = mock[SkillType[String]]
 
     val expectedSkill = TestSkill()
@@ -310,7 +310,7 @@ class SkillTypeSpec extends BaseSpec {
 
   "SkillTypeOps.deserializeAll" should "make appropriate skills from the strings given" in {
     val skillName = "skilltest:skill"
-    val skillType = new ResourceLocation("skilltest", "skill_type")
+    val skillType = ResourceLocation("skilltest", "skill_type").get
     val mockType = mock[SkillType[String]]
     val changes = 5
 

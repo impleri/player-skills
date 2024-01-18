@@ -2,11 +2,11 @@ package net.impleri.playerskills.server.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.api.Player
 import net.minecraft.commands.Commands
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 
 import scala.jdk.FunctionConverters.enrichAsJavaPredicate
 

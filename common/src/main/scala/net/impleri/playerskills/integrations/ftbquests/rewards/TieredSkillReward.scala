@@ -7,13 +7,12 @@ import dev.ftb.mods.ftbquests.quest.reward.RewardTypes
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.PlayerSkillsServer
-import net.impleri.playerskills.utils.SkillResourceLocation
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillTypeOps
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.integrations.ftbquests.helpers.StringValueHandling
 import net.impleri.playerskills.skills.tiered.TieredSkillType
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 
 case class TieredSkillReward(
   q: Quest,
@@ -29,7 +28,7 @@ case class TieredSkillReward(
 
 object TieredSkillReward {
   val REWARD_TYPE: RewardType = RewardTypes.register(
-    SkillResourceLocation.of("tiered_skill_reward").get,
+    ResourceLocation("tiered_skill_reward").get.name,
     apply,
     () => Icon.getIcon("minecraft:item/golden_hoe"),
   )

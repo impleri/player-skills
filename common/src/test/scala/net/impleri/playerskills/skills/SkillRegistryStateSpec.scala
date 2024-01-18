@@ -2,7 +2,7 @@ package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 
 class SkillRegistryStateSpec extends BaseSpec {
   private case class TestSkill(
@@ -18,8 +18,8 @@ class SkillRegistryStateSpec extends BaseSpec {
 
   "SkillRegistryState.add" should "return a new state with the added skill" in {
     val initialState = SkillRegistryState.empty
-    val expectedName = new ResourceLocation("skills", "test")
-    val unneededName = new ResourceLocation("skills", "bad")
+    val expectedName = ResourceLocation("skills", "test").get
+    val unneededName = ResourceLocation("skills", "bad").get
     val testSkill = TestSkill(expectedName)
 
     val (nextState, _) = SkillRegistryState.add(testSkill).run(initialState).value
@@ -31,7 +31,7 @@ class SkillRegistryStateSpec extends BaseSpec {
 
   it should "throw an error if the skill is already added" in {
     val initialState = SkillRegistryState.empty
-    val skillName = new ResourceLocation("skills", "testname")
+    val skillName = ResourceLocation("skills", "testname").get
     val testSkill = TestSkill(skillName)
 
     val (nextState, _) = SkillRegistryState.add(testSkill).run(initialState).value
@@ -43,8 +43,8 @@ class SkillRegistryStateSpec extends BaseSpec {
 
   "SkillRegistryState.upsert" should "return a new state with the added skill" in {
     val initialState = SkillRegistryState.empty
-    val expectedName = new ResourceLocation("skills", "test")
-    val unneededName = new ResourceLocation("skills", "bad")
+    val expectedName = ResourceLocation("skills", "test").get
+    val unneededName = ResourceLocation("skills", "bad").get
     val testSkill = TestSkill(expectedName)
 
     val (nextState, _) = SkillRegistryState.upsert(testSkill).run(initialState).value
@@ -56,8 +56,8 @@ class SkillRegistryStateSpec extends BaseSpec {
 
   it should "replace the existing skill rather than add a new one" in {
     val initialState = SkillRegistryState.empty
-    val expectedName = new ResourceLocation("skills", "test")
-    val unneededName = new ResourceLocation("skills", "bad")
+    val expectedName = ResourceLocation("skills", "test").get
+    val unneededName = ResourceLocation("skills", "bad").get
     val firstSkill = TestSkill(expectedName)
     val replacedSkill = TestSkill(expectedName, Option("test"))
 
@@ -71,8 +71,8 @@ class SkillRegistryStateSpec extends BaseSpec {
 
   "SkillRegistryState.resync" should "return a new state with the synced skills" in {
     val initialState = SkillRegistryState.empty
-    val expectedName = new ResourceLocation("skills", "test")
-    val unneededName = new ResourceLocation("skills", "bad")
+    val expectedName = ResourceLocation("skills", "test").get
+    val unneededName = ResourceLocation("skills", "bad").get
     val testSkill = TestSkill(expectedName)
     val badSkill = TestSkill(unneededName)
 
@@ -86,8 +86,8 @@ class SkillRegistryStateSpec extends BaseSpec {
 
   "SkillRegistryState.remove" should "return a new state with the skill removed" in {
     val initialState = SkillRegistryState.empty
-    val expectedName = new ResourceLocation("skills", "test")
-    val unneededName = new ResourceLocation("skills", "other")
+    val expectedName = ResourceLocation("skills", "test").get
+    val unneededName = ResourceLocation("skills", "other").get
     val testSkill = TestSkill(expectedName)
     val otherSkill = TestSkill(unneededName)
 

@@ -6,8 +6,8 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.skills.PlayerRegistry
-import net.minecraft.resources.ResourceLocation
 
 import java.util.UUID
 
@@ -61,7 +61,7 @@ class Player(
   def can[T](playerId: UUID, skill: ResourceLocation, expectedValue: Option[T] = None): Boolean = {
     canHelper[T](playerId, skill).fold(Player.DEFAULT_SKILL_RESPONSE)(t => t._1.can(t._2, expectedValue))
   }
-  
+
   def reset(playerId: UUID, skill: Skill[_]): List[Skill[_]] = {
     skillOps.get(skill.name)
       .asInstanceOf[Option[Skill[_]]]

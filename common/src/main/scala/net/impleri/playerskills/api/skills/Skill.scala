@@ -1,15 +1,14 @@
 package net.impleri.playerskills.api.skills
 
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.utils.SkillResourceLocation
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.ChatFormatting
 
 sealed trait SkillData[T] {
-  val name: ResourceLocation = SkillResourceLocation.of("empty").get
-  val skillType: ResourceLocation = SkillResourceLocation.of("empty").get
+  val name: ResourceLocation = ResourceLocation("empty").get
+  val skillType: ResourceLocation = ResourceLocation("empty").get
   val value: Option[T] = None
   val description: Option[String] = None
   val teamMode: TeamMode = TeamMode.Off()

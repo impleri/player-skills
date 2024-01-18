@@ -1,11 +1,11 @@
 package net.impleri.playerskills.api.skills
 
 import net.impleri.playerskills.BaseSpec
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 
 class SkillSpec extends BaseSpec {
   private case class TestSkill(
@@ -14,8 +14,8 @@ class SkillSpec extends BaseSpec {
     override val value: Option[String] = None,
     override val announceChange: Boolean = false,
   ) extends Skill[String] with ChangeableSkillOps[String, TestSkill] {
-    override val name: ResourceLocation = new ResourceLocation("skills", "testname")
-    override val skillType: ResourceLocation = new ResourceLocation("skills", "test_type")
+    override val name: ResourceLocation = ResourceLocation("skills", "testname").get
+    override val skillType: ResourceLocation = ResourceLocation("skills", "test_type").get
 
     override protected[playerskills] def mutate(
       value: Option[String],
@@ -117,7 +117,7 @@ class SkillSpec extends BaseSpec {
 
   "SkillRegistryFacade.get" should "proxy SkillRegistry.find" in {
     val facade = new SkillOps(skillTypeOpsMock, skillRegistryMock, loggerMock)
-    val givenName = new ResourceLocation("skills", "test")
+    val givenName = ResourceLocation("skills", "test").get
     val expected = None
 
     skillRegistryMock.find(givenName) returns expected

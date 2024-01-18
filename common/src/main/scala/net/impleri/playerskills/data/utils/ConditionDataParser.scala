@@ -5,8 +5,8 @@ import com.google.gson.JsonObject
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
-import net.impleri.playerskills.utils.SkillResourceLocation
 
 trait ConditionDataParser extends JsonDataParser {
   protected def skillOps: SkillOps
@@ -17,7 +17,7 @@ trait ConditionDataParser extends JsonDataParser {
 
   private def marseSkill[T](raw: JsonObject) = {
     parseString(raw, "skill")
-      .flatMap(SkillResourceLocation.ofMinecraft)
+      .flatMap(ResourceLocation(_, isSkill = false))
       .flatMap(skillOps.get[T])
   }
 

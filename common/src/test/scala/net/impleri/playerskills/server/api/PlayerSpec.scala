@@ -7,8 +7,8 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.skills.PlayerRegistry
-import net.minecraft.resources.ResourceLocation
 
 import java.util.UUID
 
@@ -41,7 +41,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "return a skill matching the given name" in {
     val givenUuid = UUID.randomUUID()
-    val givenName = new ResourceLocation("skillstest", "test_skill")
+    val givenName = ResourceLocation("skillstest", "test_skill").get
     val expected = mock[Skill[_]]
     expected.name returns givenName
 
@@ -54,7 +54,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "return a skill matching the given player name" in {
     val givenUuid = UUID.randomUUID()
-    val givenName = new ResourceLocation("skillstest", "test_skill")
+    val givenName = ResourceLocation("skillstest", "test_skill").get
     val expected = mock[Skill[_]]
     expected.name returns givenName
 
@@ -69,7 +69,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "return None if it cannot find a skill matching the given name" in {
     val givenUuid = UUID.randomUUID()
-    val givenName = new ResourceLocation("skillstest", "test_skill")
+    val givenName = ResourceLocation("skillstest", "test_skill").get
     val expected = mock[Skill[_]]
 
     val returnedList = List(expected)
@@ -150,14 +150,14 @@ class PlayerSpec extends BaseSpec {
 
   "Player.can" should "call the appropriate SkillType.can with the player's skill if both are found" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
     val givenThreshold = Option("test-value")
 
     val givenSkillType = mock[SkillType[String]]
     skillTypeOpsMock.get[String](skillName) returns Option(givenSkillType)
 
     val otherSkill = mock[Skill[String]]
-    otherSkill.name returns new ResourceLocation("skillstest", "other_skill")
+    otherSkill.name returns ResourceLocation("skillstest", "other_skill").get
     val foundSkill = mock[Skill[String]]
     foundSkill.name returns skillName
     val foundSkills = List(otherSkill, foundSkill)
@@ -171,7 +171,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "return default value if the SkillType is not found" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -179,7 +179,7 @@ class PlayerSpec extends BaseSpec {
     skillTypeOpsMock.get(givenSkill) returns None
 
     val otherSkill = mock[Skill[String]]
-    otherSkill.name returns new ResourceLocation("skillstest", "other_skill")
+    otherSkill.name returns ResourceLocation("skillstest", "other_skill").get
     val foundSkill = mock[Skill[String]]
     foundSkill.name returns skillName
     val foundSkills = List(otherSkill, foundSkill)
@@ -190,7 +190,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "return default value if the skill is not found for the player" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -199,7 +199,7 @@ class PlayerSpec extends BaseSpec {
     skillTypeOpsMock.get(givenSkill) returns Option(givenSkillType)
 
     val otherSkill = mock[Skill[String]]
-    otherSkill.name returns new ResourceLocation("skillstest", "other_skill")
+    otherSkill.name returns ResourceLocation("skillstest", "other_skill").get
 
     val foundSkills = List(otherSkill)
     registryMock.get(givenUuid) returns foundSkills
@@ -211,7 +211,7 @@ class PlayerSpec extends BaseSpec {
 
   "Player.reset" should "upsert player with the default skill value" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -227,7 +227,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "do nothing if the default skill value cannot be found" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -243,7 +243,7 @@ class PlayerSpec extends BaseSpec {
 
   "Player.calculateValue" should "return a new valid value" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -269,7 +269,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "return a new valid value using the default skill" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -295,7 +295,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "returns None if the skill cannot be changed" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -321,7 +321,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "returns None if the value is not valid" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
@@ -347,7 +347,7 @@ class PlayerSpec extends BaseSpec {
 
   it should "returns None if the value has not changed" in {
     val givenUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("skillstest", "test_skill")
+    val skillName = ResourceLocation("skillstest", "test_skill").get
 
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName

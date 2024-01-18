@@ -3,9 +3,9 @@ package net.impleri.playerskills.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.facades.architectury.Registrar
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 
 class SkillRegistrySpec extends BaseSpec {
   private case class TestSkill(
@@ -13,9 +13,9 @@ class SkillRegistrySpec extends BaseSpec {
     override val value: Option[String] = None,
   ) extends Skill[String]
 
-  private val testName = new ResourceLocation("skills", "test")
+  private val testName = ResourceLocation("skills", "test").get
   private val testSkill = TestSkill(testName)
-  private val otherName = new ResourceLocation("skills", "other")
+  private val otherName = ResourceLocation("skills", "other").get
   private val otherSkill = TestSkill(otherName)
 
   private val emptyState = SkillRegistryState.empty
@@ -30,8 +30,8 @@ class SkillRegistrySpec extends BaseSpec {
   "SkillRegistryState.resync" should "return a new state with the synced skills" in {
     val registryKey = mock[ResourceKey[Registry[Skill[_]]]]
     val entries = Map[ResourceKey[Skill[_]], Skill[_]](
-      ResourceKey.create(registryKey, testName) -> testSkill,
-      ResourceKey.create(registryKey, otherName) -> otherSkill,
+      ResourceKey.create(registryKey, testName.name) -> testSkill,
+      ResourceKey.create(registryKey, otherName.name) -> otherSkill,
     )
     registrarMock.entries() returns entries
 
@@ -65,7 +65,7 @@ class SkillRegistrySpec extends BaseSpec {
 
     val target = SkillRegistry(state, registrarMock)
 
-    target.has(new ResourceLocation("skills", "bad")) should be(false)
+    target.has(ResourceLocation("skills", "bad").get) should be(false)
   }
 
   "SkillRegistry.find" should "return a skill with the given name" in {
@@ -81,7 +81,7 @@ class SkillRegistrySpec extends BaseSpec {
 
     val target = SkillRegistry(state, registrarMock)
 
-    target.find(new ResourceLocation("skills", "bad")) should be(None)
+    target.find(ResourceLocation("skills", "bad").get) should be(None)
   }
 
   "SkillRegistry.upsert" should "replace a skill in state" in {

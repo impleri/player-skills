@@ -2,9 +2,9 @@ package net.impleri.playerskills.api.restrictions
 
 import net.impleri.playerskills.facades.minecraft.HasName
 import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.facades.minecraft.world.Biome
 import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceLocation
 
 trait Restriction[T <: HasName] {
   def restrictionType: RestrictionType
@@ -25,7 +25,7 @@ trait Restriction[T <: HasName] {
 
   def isType(input: RestrictionType): Boolean = restrictionType == input
 
-  def targets(value: ResourceLocation): Boolean = target.getName.contains(value)
+  def targets(value: ResourceLocation): Boolean = target.getName.exists(value.equals)
 
   def hasReplacement: Boolean = replacement.nonEmpty
 
@@ -52,7 +52,7 @@ trait Restriction[T <: HasName] {
       RestrictionTarget(d, Registry.BIOME_REGISTRY) match {
         case Some(n: RestrictionTarget.Namespace) => biome.isNamespaced(n.target)
         case Some(n: RestrictionTarget.Tag[_]) => biome.isTagged(n.target.asInstanceOf)
-        case Some(n: RestrictionTarget.Single) => biome.isNamed(n.target)
+        case Some(n: RestrictionTarget.Single) => biome.isNamed(n.target.name)
         case _ => false
       },
     )

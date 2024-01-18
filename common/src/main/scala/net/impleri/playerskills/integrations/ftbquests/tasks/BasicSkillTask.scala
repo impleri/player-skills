@@ -8,11 +8,10 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.skills.basic.BasicSkillType
-import net.impleri.playerskills.utils.SkillResourceLocation
 import net.impleri.playerskills.PlayerSkills
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.integrations.ftbquests.helpers.BooleanValueHandling
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 
 case class BasicSkillTask(
   q: Quest,
@@ -26,7 +25,7 @@ case class BasicSkillTask(
 
 object BasicSkillTask {
   val TASK_TYPE: TaskType = TaskTypes.register(
-    SkillResourceLocation.of("basic_skill_task").get,
+    ResourceLocation("basic_skill_task").get.name,
     apply,
     () => Icon.getIcon("minecraft:item/wooden_shovel"),
   )

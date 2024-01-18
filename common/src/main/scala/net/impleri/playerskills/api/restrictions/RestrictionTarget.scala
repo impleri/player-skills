@@ -1,9 +1,8 @@
 package net.impleri.playerskills.api.restrictions
 
-import net.impleri.playerskills.utils.SkillResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 
 sealed abstract class RestrictionTarget
@@ -27,12 +26,13 @@ object RestrictionTarget {
       case s"$namespace:*" => Option(RestrictionTarget.Namespace(namespace))
 
       case s"#$tag" => {
-        SkillResourceLocation.ofMinecraft(tag)
+        ResourceLocation(tag, isSkill = false)
+          .map(_.name)
           .map(TagKey.create(registryKey, _))
           .map(RestrictionTarget.Tag(_))
       }
 
-      case s if singleAsString => SkillResourceLocation.ofMinecraft(s).map(Single)
+      case s if singleAsString => ResourceLocation(s, isSkill = false).map(Single)
       case s if !singleAsString => Option(RestrictionTarget.SingleString(s))
     }
   }
