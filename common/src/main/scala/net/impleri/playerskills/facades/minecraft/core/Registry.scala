@@ -17,7 +17,7 @@ case class Registry[T](private val registry: McRegistry[T]) {
   def get(key: ResourceLocation): Option[T] = Option(registry.get(key.name))
 
   def getKey(value: T): Option[ResourceLocation] = Option(registry.getKey(value)).map(ResourceLocation(_))
-
+  
   def entries: Map[McResourceLocation, T] = {
     CollectionConverters
       .asScala(registry.entrySet())

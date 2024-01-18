@@ -30,7 +30,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
   private def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    RestrictionTarget(resourceName, registry.name, singleAsString) match {
+    RestrictionTarget(resourceName, Option(registry.name), singleAsString) match {
       case Some(ns: RestrictionTarget.Namespace) => restrictNamespace(ns.target, builder)
       case Some(s: RestrictionTarget.Single) => restrictOne(s.target, builder)
       case Some(s: RestrictionTarget.SingleString) => restrictString(s.target, builder)
