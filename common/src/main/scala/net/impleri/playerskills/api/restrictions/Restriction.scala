@@ -39,7 +39,7 @@ trait Restriction[T <: HasName] {
 
   private def dimensionListIncludes(list: Seq[String], dimension: ResourceLocation): Boolean = {
     list.exists(d =>
-      RestrictionTarget(d, Registry.DIMENSION_REGISTRY) match {
+      RestrictionTarget(d, None) match {
         case Some(n: RestrictionTarget.Namespace) => dimension.getNamespace == n.target
         case Some(n: RestrictionTarget.Single) => dimension == n.target
         case _ => false
@@ -49,10 +49,10 @@ trait Restriction[T <: HasName] {
 
   private def biomeListIncludes(list: Seq[String], biome: Biome): Boolean = {
     list.exists(d =>
-      RestrictionTarget(d, Registry.BIOME_REGISTRY) match {
+      RestrictionTarget(d, Option(Registry.BIOME_REGISTRY)) match {
         case Some(n: RestrictionTarget.Namespace) => biome.isNamespaced(n.target)
         case Some(n: RestrictionTarget.Tag[_]) => biome.isTagged(n.target.asInstanceOf)
-        case Some(n: RestrictionTarget.Single) => biome.isNamed(n.target.name)
+        case Some(n: RestrictionTarget.Single) => biome.isNamed(n.target)
         case _ => false
       },
     )
@@ -60,7 +60,7 @@ trait Restriction[T <: HasName] {
 }
 
 object Restriction {
-  val DEFAULT_CONDITION: Player[_] => Boolean = _ => true
-
   val DEFAULT_RESPONSE: Boolean = true
+
+  val DEFAULT_CONDITION: Player[_] => Boolean = _ => DEFAULT_RESPONSE
 }

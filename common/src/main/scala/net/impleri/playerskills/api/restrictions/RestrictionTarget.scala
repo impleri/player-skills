@@ -8,32 +8,32 @@ import net.minecraft.tags.TagKey
 sealed abstract class RestrictionTarget
 
 object RestrictionTarget {
-  case class Namespace(target: String) extends RestrictionTarget
+  case class Namespace private (target: String) extends RestrictionTarget
 
-  case class Tag[T](target: TagKey[T]) extends RestrictionTarget
+  case class Tag[T] private (target: TagKey[T]) extends RestrictionTarget
 
-  case class Single(target: ResourceLocation) extends RestrictionTarget
+  case class Single private (target: ResourceLocation) extends RestrictionTarget
 
-  case class SingleString(target: String) extends RestrictionTarget
+  case class SingleString private (target: String) extends RestrictionTarget
 
   def apply[T](
     value: String,
-    registryKey: ResourceKey[Registry[T]],
+    registryKey: Option[ResourceKey[Registry[T]]] = None,
     singleAsString: Boolean = false,
   ): Option[RestrictionTarget] = {
     value.trim match {
       case s"@$namespace" => Option(RestrictionTarget.Namespace(namespace))
       case s"$namespace:*" => Option(RestrictionTarget.Namespace(namespace))
 
-      case s"#$tag" => {
+      case s"#$tag" if registryKey.nonEmpty => {
         ResourceLocation(tag, isSkill = false)
-          .map(_.name)
-          .map(TagKey.create(registryKey, _))
+          .flatMap(rl => registryKey.map(rl.getTagKey))
           .map(RestrictionTarget.Tag(_))
       }
 
-      case s if singleAsString => ResourceLocation(s, isSkill = false).map(Single)
-      case s if !singleAsString => Option(RestrictionTarget.SingleString(s))
+      case s if !singleAsString => ResourceLocation(s, isSkill = false).map(Single)
+      case s if singleAsString => Option(RestrictionTarget.SingleString(s))
+      case _ => None
     }
   }
 }

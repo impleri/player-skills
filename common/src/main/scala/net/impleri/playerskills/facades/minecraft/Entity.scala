@@ -34,7 +34,7 @@ class Entity[T <: MinecraftEntity](private val entity: T) {
   }
 
   def biomeNameAt(pos: Option[Position] = None): Option[ResourceLocation] = {
-    biomeAt(pos).flatMap(_.name).map(ResourceLocation(_))
+    biomeAt(pos).flatMap(_.name)
   }
 
   def isEmpty: Boolean = Option(entity).isEmpty

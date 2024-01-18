@@ -1,7 +1,10 @@
 package net.impleri.playerskills.facades.minecraft.core
 
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.minecraft.core
 import net.minecraft.resources.{ResourceLocation => McResourceLocation}
+import net.minecraft.resources.ResourceKey
+import net.minecraft.tags.TagKey
 
 import scala.util.Failure
 import scala.util.Try
@@ -15,6 +18,10 @@ case class ResourceLocation(name: McResourceLocation) {
   def getNamespace: String = name.getNamespace
 
   def getPath: String = name.getPath
+
+  def getRegistryKey[T]: ResourceKey[core.Registry[T]] = ResourceKey.createRegistryKey[T](name)
+
+  def getTagKey[T](registryKey: ResourceKey[core.Registry[T]]): TagKey[T] = TagKey.create[T](registryKey, name)
 
   override def equals(obj: Any): Boolean = {
     obj match {
