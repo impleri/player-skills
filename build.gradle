@@ -247,7 +247,10 @@ subprojects {
       xml.required = true
     }
 
-    sourceDirectories.from(project.layout.projectDirectory.file("src/main/scala"))
+    sourceDirectories.from(
+      project.layout.projectDirectory.file("src/main/scala"),
+      project.layout.projectDirectory.file("src/main/java")
+    )
   }
 }
 
