@@ -16,7 +16,6 @@ case class IntegrationLoader(serverState: ServerStateContainer) {
       FTB_QUESTS = Option(FtbQuestsIntegration())
     }
 
-    // Enable FTB Teams integration if the mod is there
     if (Platform.isModLoaded("ftbteams")) {
       FTB_TEAMS = Option(FtbTeamsIntegration(serverState))
     }
