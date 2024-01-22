@@ -15,13 +15,8 @@ case class ItemRestrictionBuilder(
 ) extends RestrictionBuilder[McItem, ItemConditions] {
   override val singleAsString: Boolean = true
 
-  private def restrictItem(item: Option[Item], builder: ItemConditions, targetName: String): Unit = {
-    if (item.fold(true)(_.isEmpty)) {
-      logger.warn(s"Could not find any item named $targetName")
-      return
-    }
-
-    val restriction = ItemRestriction(item.get, builder)
+  private def restrictItem(item: Item, builder: ItemConditions, targetName: String): Unit = {
+    val restriction = ItemRestriction(item, builder)
 
     restrictionRegistry.add(restriction)
     logRestriction(targetName, restriction)
@@ -31,17 +26,16 @@ case class ItemRestrictionBuilder(
     targetName: ResourceLocation,
     builder: ItemConditions,
   ): Unit = {
-    val item = registry.get(targetName).map(Item(_))
-
-    restrictItem(item, builder, targetName.toString)
+    registry.get(targetName)
+      .map(Item(_))
+      .foreach(restrictItem(_, builder, targetName.toString))
   }
 
   override def restrictString(
     targetName: String,
     builder: ItemConditions,
   ): Unit = {
-    val item = Item.parse(targetName)
-
-    restrictItem(item, builder, targetName)
+    Item.parse(targetName)
+      .foreach(restrictItem(_, builder, targetName))
   }
 }

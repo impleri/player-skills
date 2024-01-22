@@ -11,13 +11,16 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import scala.collection.View
 
 trait PlayerRestriction {
-  protected def matchesPlayer(player: Player[_])(restriction: Restriction[_]): Boolean = restriction.condition(player)
+  protected[restrictions] def matchesPlayer(player: Player[_])(restriction: Restriction[_]): Boolean = {
+    restriction
+      .condition(player)
+  }
 }
 
 trait TargetRestriction {
   protected def restrictionType: RestrictionType
 
-  protected def matchesTarget(name: ResourceLocation)(restriction: Restriction[_]): Boolean = {
+  protected[restrictions] def matchesTarget(name: ResourceLocation)(restriction: Restriction[_]): Boolean = {
     restriction.isType(restrictionType) && restriction.targets(name)
   }
 }
@@ -29,17 +32,17 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
 
   protected def logger: PlayerSkillsLogger
 
-  private def getRestrictionsFor(
+  private[restrictions] def getRestrictionsFor(
     player: Player[_],
     target: ResourceLocation,
     dimension: Option[ResourceLocation],
     biome: Option[Biome],
   ): View[R] = {
     registry.entries.view
+      .filter(matchesPlayer(player))
       .filter(matchesTarget(target))
       .filter(r => dimension.forall(r.isAllowedDimension))
       .filter(r => biome.forall(r.isAllowedBiome))
-      .filter(matchesPlayer(player))
       .asInstanceOf[View[R]]
   }
 
@@ -48,10 +51,10 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
     target: ResourceLocation,
     getFieldValue: R => Boolean,
     fieldName: String,
-    pos: Option[Position] = None,
-    dimension: Option[ResourceLocation] = None,
-    biome: Option[Biome] = None,
-    f: R => Boolean = _ => true,
+    pos: Option[Position],
+    dimension: Option[ResourceLocation],
+    biome: Option[Biome],
+    f: R => Boolean,
   ): Boolean = {
     val hasRestrictions = getRestrictionsFor(
       player,
@@ -71,7 +74,7 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
     !hasRestrictions
   }
 
-  protected def canPlayer(
+  protected[restrictions] def canPlayer(
     player: Player[_],
     target: T,
     getFieldValue: R => Boolean,
@@ -81,23 +84,11 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
     biome: Option[Biome] = None,
     f: R => Boolean = _ => true,
   ): Boolean = {
-    if (player.isEmpty) {
-      logger
-        .warn(s"Attempted to determine if null player can $fieldName on target $target in $dimension/${
-          biome
-            .flatMap(_.name)
-        }",
-        )
-      RestrictionsOps.DEFAULT_RESPONSE
-    } else {
-      val targetName = target.getName
-
-      if (targetName.isEmpty) {
-        RestrictionsOps.DEFAULT_RESPONSE
-      } else {
+    (player.asOption, target.getName) match {
+      case (Some(p), Some(t)) => {
         canHelper(
-          player,
-          targetName.get,
+          p.asPlayer,
+          t,
           getFieldValue,
           fieldName,
           pos,
@@ -105,6 +96,23 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
           biome,
           f,
         )
+      }
+      case (None, _) => {
+        logger.warn(
+          s"Attempted to determine if null player can $fieldName on target $target in $dimension/${
+            biome.flatMap(_.name)
+          }",
+        )
+        RestrictionsOps.DEFAULT_RESPONSE
+      }
+      case (_, None) => {
+        logger
+          .warn(
+            s"Attempted to determine if player ${player.name} can $fieldName on a non-target in $dimension/${
+              biome.flatMap(_.name)
+            }",
+          )
+        RestrictionsOps.DEFAULT_RESPONSE
       }
     }
   }
@@ -122,26 +130,26 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
       .filter(f)
   }
 
-  protected def getReplacementFor(
+  protected[restrictions] def getReplacementFor(
     player: Player[_],
     target: ResourceLocation,
     dimension: Option[ResourceLocation] = None,
     biome: Option[Biome] = None,
     f: R => Boolean = _ => true,
   ): Option[T] = {
-    val restriction = getReplacementsFor(player, target, dimension, biome, f)
+    val replacement = getReplacementsFor(player, target, dimension, biome, f)
       .headOption
+      .flatMap(_.replacement)
 
     logger
       .debug(
         s"$target should be replaced with ${
-          restriction
-            .flatMap(_.replacement)
+          replacement
             .flatMap(_.getName)
         } in $dimension/${biome.flatMap(_.name)} for ${player.name}",
       )
 
-    restriction.flatMap(_.replacement)
+    replacement
   }
 }
 

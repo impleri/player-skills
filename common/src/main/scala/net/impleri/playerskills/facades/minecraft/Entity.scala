@@ -39,13 +39,15 @@ class Entity[T <: MinecraftEntity](private val entity: T) {
 
   def isEmpty: Boolean = Option(entity).isEmpty
 
+  def asOption: Option[Entity[T]] = if (isEmpty) None else Option(this)
+
   def isPlayer: Boolean = entity.isInstanceOf[MinecraftPlayer]
 
-  def asPlayer: Player[_] = Player(entity.asInstanceOf[MinecraftPlayer])
+  def asPlayer[P <: MinecraftPlayer]: Player[P] = Player(entity.asInstanceOf[P])
 }
 
 object Entity {
   def apply[T <: MinecraftEntity](entity: T): Entity[T] = new Entity(entity)
 
-  def apply(source: DamageSource) = new Entity(source.getEntity)
+  def apply(source: DamageSource): Entity[_] = new Entity(source.getEntity)
 }
