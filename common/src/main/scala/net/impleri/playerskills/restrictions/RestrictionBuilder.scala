@@ -13,7 +13,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
 
   protected def logger: PlayerSkillsLogger
 
-  private var restrictions: Map[String, C] = Map.empty
+  private[restrictions] var restrictions: Map[String, C] = Map.empty
 
   protected def singleAsString: Boolean = false
 
@@ -34,7 +34,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
       case Some(ns: RestrictionTarget.Namespace) => restrictNamespace(ns.target, builder)
       case Some(s: RestrictionTarget.Single) => restrictOne(s.target, builder)
       case Some(s: RestrictionTarget.SingleString) => restrictString(s.target, builder)
-      case Some(t: RestrictionTarget.Tag[_]) => restrictTag(t.target.asInstanceOf, builder)
+      case Some(t: RestrictionTarget.Tag[_]) => restrictTag(t.target.asInstanceOf[TagKey[T]], builder)
       case _ =>
     }
   }
@@ -68,7 +68,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
       .foreach(restrictOne(_, builder))
   }
 
-  protected def logRestriction(
+  protected[restrictions] def logRestriction(
     name: String,
     restriction: Restriction[_],
     settings: Option[String] = None,
