@@ -18,6 +18,7 @@ object RestrictionRegistryState {
 
     def get[T <: HasName](kind: RestrictionType, name: ResourceLocation): View[Restriction[T]] = {
       restrictions
+        .view
         .filter(matchesTarget(kind, name))
         .asInstanceOf[View[Restriction[T]]]
     }
