@@ -13,11 +13,11 @@ case class ItemRestriction(
   excludeDimensions: Seq[String] = List.empty,
   includeBiomes: Seq[String] = List.empty,
   excludeBiomes: Seq[String] = List.empty,
-  holdable: Boolean = true,
-  wearable: Boolean = true,
-  harmful: Boolean = true,
-  usable: Boolean = true,
-  identifiable: Boolean = true,
+  holdable: Boolean = Restriction.DEFAULT_RESPONSE,
+  wearable: Boolean = Restriction.DEFAULT_RESPONSE,
+  harmful: Boolean = Restriction.DEFAULT_RESPONSE,
+  usable: Boolean = Restriction.DEFAULT_RESPONSE,
+  identifiable: Boolean = Restriction.DEFAULT_RESPONSE,
 ) extends Restriction[Item] {
   override val restrictionType: RestrictionType = RestrictionType.Item()
 }
@@ -35,11 +35,11 @@ object ItemRestriction {
       builder.excludeDimensions,
       builder.includeBiomes,
       builder.excludeBiomes,
-      builder.isHoldable.getOrElse(true),
-      builder.isWearable.getOrElse(true),
-      builder.isHarmful.getOrElse(true),
-      builder.isUsable.getOrElse(true),
-      builder.isIdentifiable.getOrElse(true),
+      builder.isHoldable.getOrElse(Restriction.DEFAULT_RESPONSE),
+      builder.isWearable.getOrElse(Restriction.DEFAULT_RESPONSE),
+      builder.isHarmful.getOrElse(Restriction.DEFAULT_RESPONSE),
+      builder.isUsable.getOrElse(Restriction.DEFAULT_RESPONSE),
+      builder.isIdentifiable.getOrElse(Restriction.DEFAULT_RESPONSE),
     )
   }
 }
