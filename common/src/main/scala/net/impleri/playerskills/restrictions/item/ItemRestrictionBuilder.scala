@@ -22,7 +22,7 @@ case class ItemRestrictionBuilder(
     logRestriction(targetName, restriction)
   }
 
-  override protected def restrictOne(
+  override protected[item] def restrictOne(
     targetName: ResourceLocation,
     builder: ItemConditions,
   ): Unit = {

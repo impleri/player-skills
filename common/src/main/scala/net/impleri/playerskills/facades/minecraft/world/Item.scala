@@ -5,12 +5,12 @@ import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.facades.minecraft.HasName
 import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.minecraft.commands.arguments.item.ItemParser
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.{Item => MCItem}
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.ItemStack
 
-import scala.jdk.javaapi.OptionConverters
 import scala.util.Try
 
 case class Item(
@@ -30,12 +30,19 @@ case class Item(
   def isEmptyStack: Boolean = stack.fold(quantity == 0)(_.isEmpty)
 
   def isEmpty: Boolean = !(isDefault || isEmptyStack)
+
+  def isEnchanted: Boolean = getStack.isEnchanted
 }
 
 object Item {
   def DEFAULT_ITEM: Item = Item(Items.AIR)
 
-  def apply(itemStack: ItemStack): Item = new Item(itemStack.getItem, Option(itemStack), itemStack.getCount)
+  def apply(itemStack: ItemStack): Item = {
+    new Item(itemStack.getItem,
+      Option(itemStack),
+      itemStack.getCount,
+    )
+  }
 
   def apply(entity: ItemEntity): Item = apply(entity.getItem)
 
@@ -43,6 +50,18 @@ object Item {
     Registry.Items.get(name).map(Item(_))
   }
 
+  def apply(item: MCItem, tag: CompoundTag): Item = {
+    val stack = new ItemStack(item)
+    stack.setTag(tag)
+
+    Item(stack)
+  }
+
+  /**
+   * Parse
+   *
+   * Creates an Item facade using a string representation of item plus nbt if parsing is successful
+   */
   def parse(identifier: String): Option[Item] = {
     Try(
       ItemParser.parseForItem(
@@ -51,10 +70,7 @@ object Item {
       ),
     )
       .toOption
-      .map(_.item())
-      .map(_.unwrap())
-      .map(_.right())
-      .flatMap(OptionConverters.toScala(_))
-      .map(Item(_))
+      .map(r => (r.item().value(), Option(r.nbt())))
+      .map(t => if (t._2.nonEmpty) Item(t._1, t._2.get) else Item(t._1))
   }
 }
