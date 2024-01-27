@@ -14,12 +14,12 @@ case class PlayerEvents(
   logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
   skipLogger: PlayerSkillsLogger = PlayerSkillsLogger.SKIPS,
 ) {
-  private[playerskills] def registerEvents(): Unit = {
+  def registerEvents(): Unit = {
     onBeforePickupItem.register { (p, _, i) => beforePlayerPickup(Player(p), Item(i))
     }
   }
 
-  private def beforePlayerPickup(player: Player[_], item: Item): EventResult = {
+  private[bindings] def beforePlayerPickup(player: Player[_], item: Item): EventResult = {
     if (!itemRestrictionOps.isHoldable(player, item)) {
       logger.debug(s"${player.name} cannot pickup ${item.name}")
       EventResult.interruptFalse()

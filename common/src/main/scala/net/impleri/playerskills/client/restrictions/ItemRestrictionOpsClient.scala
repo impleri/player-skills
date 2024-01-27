@@ -9,7 +9,7 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 
 case class ItemRestrictionOpsClient(
   r: RestrictionRegistry = RestrictionRegistry(),
-  override val client: Client = Client(),
+  protected val client: Client = Client(),
   l: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
 ) extends ItemRestrictionOps(r, l) with RestrictionOpsClient {
   def isIdentifiable(item: Item, pos: Option[Position]): Boolean = {
