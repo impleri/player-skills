@@ -15,7 +15,7 @@ case class EntityEvents(
   logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
   skipLogger: PlayerSkillsLogger = PlayerSkillsLogger.SKIPS,
 ) {
-  private[server] def registerEvents(): Unit = {
+  def registerEvents(): Unit = {
     //    EntityEvent.LIVING_CHECK_SPAWN.register(
     //      EntityEvent.LivingCheckSpawn { livingEntity: LivingEntity, levelAccessor: LevelAccessor, x: Double, y: Double, z: Double, mobSpawnType: MobSpawnType, _: BaseSpawner? ->
     //        onCheckSpawn(
@@ -28,9 +28,9 @@ case class EntityEvents(
     //        )
     //      },
     //    )
-    
+
     onLivingHurt.register { (entity: LivingEntity, source: DamageSource, _: Float) =>
-      beforePlayerAttack(Entity(entity), source)
+      beforePlayerAttack(Entity(entity), Entity(source))
     }
   }
 
@@ -55,9 +55,7 @@ case class EntityEvents(
   //    return EventResult.pass()
   //  }
 
-  private def beforePlayerAttack(entity: Entity[_], source: DamageSource): EventResult = {
-    val attacker = Entity(source)
-
+  private[bindings] def beforePlayerAttack(entity: Entity[_], attacker: Entity[_]): EventResult = {
     if (attacker.isPlayer) {
       val player = attacker.asPlayer
       if (!itemRestrictionOps.isHarmful(player, player.getItemInMainHand)) {

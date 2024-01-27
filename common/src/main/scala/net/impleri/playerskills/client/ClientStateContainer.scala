@@ -13,7 +13,7 @@ case class ClientStateContainer(
 ) {
   val SKILLS: ClientSkillsRegistry = ClientSkillsRegistry(eventHandler)
 
-  lazy val ITEM_RESTRICTIONS: ItemRestrictionOpsClient = ItemRestrictionOpsClient(globalState.RESTRICTIONS)
+  lazy val ITEM_RESTRICTIONS: ItemRestrictionOpsClient = ItemRestrictionOpsClient(globalState.RESTRICTIONS, client)
 
   lazy val RECIPE_RESTRICTIONS: RecipeRestrictionOpsClient = RecipeRestrictionOpsClient(globalState.RESTRICTIONS)
 

@@ -12,17 +12,17 @@ case class PlayerEvents(
   onPlayerJoin: Event[PlayerEvent.PlayerJoin] = PlayerEvent.PLAYER_JOIN,
   onPlayerQuit: Event[PlayerEvent.PlayerQuit] = PlayerEvent.PLAYER_QUIT,
 ) {
-  private[server] def registerEvents(): Unit = {
+  def registerEvents(): Unit = {
     onPlayerJoin.register(p => playerJoin(Player(p)))
     onPlayerQuit.register(p => playerQuit(Player(p)))
   }
 
-  private def playerJoin(player: Player[_]): Unit = {
+  private[bindings] def playerJoin(player: Player[_]): Unit = {
     playerRegistry.open(player.uuid)
     netHandler.syncPlayer(player)
   }
 
-  private def playerQuit(player: Player[_]): Unit = {
+  private[bindings] def playerQuit(player: Player[_]): Unit = {
     playerRegistry.close(player.uuid)
   }
 }

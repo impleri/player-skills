@@ -20,13 +20,13 @@ case class BlockEvents(
   logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
   skipLogger: PlayerSkillsLogger = PlayerSkillsLogger.SKIPS,
 ) {
-  private[server] def registerEventHandlers(): Unit = {
+  def registerEvents(): Unit = {
     onBreak.register { (_: Level, pos: BlockPos, state: BlockState, player: ServerPlayer, _: IntValue) =>
       beforeMine(Player(player), Block(state), Position(pos))
     }
   }
 
-  private def beforeMine(
+  private[bindings] def beforeMine(
     player: Player[_],
     block: Block,
     pos: Position,

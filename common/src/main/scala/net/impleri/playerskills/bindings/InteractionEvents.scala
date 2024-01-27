@@ -25,7 +25,7 @@ case class InteractionEvents(
   logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
   skipLogger: PlayerSkillsLogger = PlayerSkillsLogger.SKIPS,
 ) {
-  private[playerskills] def registerEvents(): Unit = {
+  def registerEvents(): Unit = {
     onLeftClickBlock
       .register { (player: McPlayer, hand: InteractionHand, pos: BlockPos, _: Direction) =>
         beforeUseItemBlock(
@@ -62,7 +62,7 @@ case class InteractionEvents(
       }
   }
 
-  private def beforeUseItem(player: Player[_], hand: InteractionHand): CompoundEventResult[ItemStack] = {
+  private[bindings] def beforeUseItem(player: Player[_], hand: InteractionHand): CompoundEventResult[ItemStack] = {
     val item = player.getItemInHand(hand)
 
     if (!itemRestrictionOps.isUsable(player, item, None)) {
@@ -74,7 +74,7 @@ case class InteractionEvents(
     }
   }
 
-  private def beforeUseItemBlock(player: Player[_], hand: InteractionHand, pos: Position): EventResult = {
+  private[bindings] def beforeUseItemBlock(player: Player[_], hand: InteractionHand, pos: Position): EventResult = {
     //    val blockState = BlockRestrictions.getBlockState(pos, player.getLevel())
     //    val replacement = BlockRestrictions.getReplacement(player, blockState, pos)
     //    val blockName = BlockRestrictions.getName(replacement)
@@ -95,7 +95,11 @@ case class InteractionEvents(
     }
   }
 
-  private def beforeInteractEntity(player: Player[_], entity: Entity[_], hand: InteractionHand): EventResult = {
+  private[bindings] def beforeInteractEntity(
+    player: Player[_],
+    entity: Entity[_],
+    hand: InteractionHand,
+  ): EventResult = {
     //    val mobType = MobRestrictions.getName(entity.type)
     //    if (!MobRestrictions.canInteractWith(entity.type, player)) {
     //      PlayerSkillsLogger.MOBS.debug("${player.name.string} cannot interact with entity $mobType")

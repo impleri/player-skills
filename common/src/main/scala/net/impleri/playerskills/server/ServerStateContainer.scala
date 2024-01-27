@@ -78,7 +78,7 @@ case class ServerStateContainer(
   PLAYER.registerEvents()
   TICK.registerEventHandlers()
   ENTITY.registerEvents()
-  BLOCK.registerEventHandlers()
+  BLOCK.registerEvents()
 
   logger.info("PlayerSkills Server Loaded")
 
