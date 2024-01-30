@@ -76,7 +76,7 @@ case class ServerStateContainer(
     ),
   )
   PLAYER.registerEvents()
-  TICK.registerEventHandlers()
+  TICK.registerEvents()
   ENTITY.registerEvents()
   BLOCK.registerEvents()
 
