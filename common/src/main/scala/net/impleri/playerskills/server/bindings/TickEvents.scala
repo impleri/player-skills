@@ -12,7 +12,7 @@ case class TickEvents(
   onPlayerPost: Event[TickEvent.Player] = TickEvent.PLAYER_POST,
   logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
 ) {
-  private[server] def registerEventHandlers(): Unit = {
+  def registerEvents(): Unit = {
     onPlayerPost.register { player => onPlayerTick(Player(player)) }
   }
 
@@ -35,11 +35,12 @@ case class TickEvents(
     f(index)
   }
 
-  private def onPlayerTick(player: Player[_]): Unit = {
+  private[bindings] def onPlayerTick(player: Player[_]): Unit = {
     if (!player.isClientSide) {
-      // Move unwearable items from armor and offhand into normal inventory
+      // Move unwearable items from armor into normal inventory
       filterWearable(player, player.armor).foreach(moveToInventory(player, player.emptyArmor))
-      filterWearable(player, player.offHand).foreach(moveToInventory(player, player.emptyOffHand))
+
+      filterHoldable(player, player.offHand).foreach(moveToInventory(player, player.emptyOffHand))
 
       val toRemove = filterHoldable(player, player.inventory).values
 
