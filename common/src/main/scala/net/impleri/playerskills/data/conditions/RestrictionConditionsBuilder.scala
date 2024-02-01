@@ -24,7 +24,7 @@ trait RestrictionConditionsBuilder extends ParentBuilder
     parseNothing(jsonElement)
   }
 
-  protected def parseTarget(raw: JsonObject, element: String = "target"): Unit = {
+  protected[conditions] def parseTarget(raw: JsonObject, element: String = "target"): Unit = {
     target = parseValue(raw, element, v => Option(v.getAsString))
   }
 
@@ -32,7 +32,7 @@ trait RestrictionConditionsBuilder extends ParentBuilder
     val conditions = parseIf(raw)
     val unless = parseUnless(raw)
 
-    condition = (player: Player[_]) => conditions.forall(_(player)) && !unless.exists(_(player))
+    condition = (player: Player[_]) => conditions.forall(_(player)) && unless.forall(_(player))
   }
 
   private def parseEverything(raw: JsonObject): Unit = {
