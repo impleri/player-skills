@@ -15,15 +15,17 @@ trait ConditionDataParser extends JsonDataParser {
 
   protected def playerOps: PlayerOps
 
-  private def marseSkill[T](raw: JsonObject) = {
+  private def parseSkill[T](raw: JsonObject) = {
     parseString(raw, "skill")
       .flatMap(ResourceLocation(_, isSkill = false))
       .flatMap(skillOps.get[T])
   }
 
+  private val ALLOWED_ACTIONS = Seq("can", "cannot")
+
   private def parseAction(raw: JsonObject) = {
     parseString(raw, "action")
-      .filterNot(a => a == "can" || a == "cannot")
+      .filter(ALLOWED_ACTIONS.contains)
       .getOrElse("can")
   }
 
@@ -31,7 +33,7 @@ trait ConditionDataParser extends JsonDataParser {
     raw: JsonObject,
     negate: Boolean = false,
   ): Player[_] => Boolean = {
-    val skill = marseSkill[T](raw)
+    val skill = parseSkill[T](raw)
     val skillType = skill.flatMap(skillTypeOps.get[T])
 
     val action = parseAction(raw)
