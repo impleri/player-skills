@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.InteractionHand
 
 import java.util.UUID
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 
 case class Player[T <: MinecraftPlayer](private val player: T) extends Entity(player) {
   val isClient: Boolean = player.isInstanceOf[LocalPlayer]
@@ -30,8 +30,7 @@ case class Player[T <: MinecraftPlayer](private val player: T) extends Entity(pl
   val server: Server = Server(player.getServer)
 
   private def toItemMap(values: NonNullList[ItemStack]): Map[Int, Item] = {
-    CollectionConverters
-      .asScala(values)
+    values.asScala
       .map(Item(_))
       .view
       .zipWithIndex

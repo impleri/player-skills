@@ -14,7 +14,7 @@ class ItemRestrictionBuilderSpec extends BaseSpec {
   private val mockRestrictions = mock[RestrictionRegistry]
   private val mockLogger = mock[PlayerSkillsLogger]
 
-  private val testUnit = ItemRestrictionBuilder(mockRegistry, mockRestrictions, mockLogger)
+  private val testUnit = ItemRestrictionBuilder(Option(mockRegistry), mockRestrictions, mockLogger)
 
   private case class TestConditions() extends ItemConditions {
     override def name: ResourceLocation = new ResourceLocation("skillstest", "condition")

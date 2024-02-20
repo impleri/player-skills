@@ -1,8 +1,9 @@
 package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
+import net.impleri.playerskills.restrictions.conditions.SingleTargetRestriction
 
-trait ItemConditions extends RestrictionConditionsBuilder {
+trait ItemConditions extends RestrictionConditionsBuilder with SingleTargetRestriction[String] {
   var isIdentifiable: Option[Boolean] = None
   var isHoldable: Option[Boolean] = None
   var isWearable: Option[Boolean] = None

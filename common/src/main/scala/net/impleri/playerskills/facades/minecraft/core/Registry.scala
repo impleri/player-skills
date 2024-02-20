@@ -6,10 +6,11 @@ import net.minecraft.resources.{ResourceLocation => McResourceLocation}
 import net.minecraft.resources.ResourceKey
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.block.Block
 
-import scala.jdk.javaapi.CollectionConverters
-import scala.jdk.javaapi.OptionConverters
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 
 case class Registry[T](private val registry: McRegistry[T]) {
   def name: ResourceKey[McRegistry[T]] = registry.key().asInstanceOf
@@ -18,9 +19,11 @@ case class Registry[T](private val registry: McRegistry[T]) {
 
   def getKey(value: T): Option[ResourceLocation] = Option(registry.getKey(value)).map(ResourceLocation(_))
 
+  def isValid(key: ResourceLocation): Boolean = get(key).nonEmpty
+
   def entries: Map[McResourceLocation, T] = {
-    CollectionConverters
-      .asScala(registry.entrySet())
+    registry.entrySet()
+      .asScala
       .map(e => e.getKey.location() -> e.getValue)
       .toMap
   }
@@ -30,10 +33,10 @@ case class Registry[T](private val registry: McRegistry[T]) {
   def matchingNamespace(ns: String): Seq[ResourceLocation] = keys.filter(_.getNamespace == ns)
 
   def matchingTag(key: TagKey[T]): Seq[ResourceLocation] = {
-    OptionConverters.toScala(registry.getTag(key))
+    registry.getTag(key).toScala
       .toList
-      .flatMap(h => CollectionConverters.asScala(h.iterator()).toList)
-      .flatMap(h => OptionConverters.toScala(h.unwrapKey()))
+      .flatMap(_.asScala.toList)
+      .flatMap(_.unwrapKey.toScala)
       .map(_.location())
       .map(ResourceLocation(_))
   }
@@ -45,4 +48,6 @@ object Registry {
   lazy val Items: Registry[Item] = Registry(McRegistry.ITEM)
 
   lazy val Blocks: Registry[Block] = Registry(McRegistry.BLOCK)
+
+  lazy val RecipeTypes: Registry[RecipeType[_]] = Registry(McRegistry.RECIPE_TYPE)
 }

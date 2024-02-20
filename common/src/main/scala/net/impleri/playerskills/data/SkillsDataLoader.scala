@@ -23,7 +23,7 @@ import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
 
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 case class LimitRequiredForTeamMode() extends Exception
@@ -40,7 +40,7 @@ case class SkillsDataLoader(
     resourceManager: ResourceManager,
     profilerFiller: ProfilerFiller,
   ): Unit = {
-    CollectionConverters.asScala(data)
+    data.asScala
       .flatMap(t => parseSkill(ResourceLocation(t._1), t._2))
       .foreach(skillOps.upsert(_))
   }

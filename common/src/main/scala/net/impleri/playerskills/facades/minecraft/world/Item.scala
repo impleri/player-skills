@@ -32,6 +32,10 @@ case class Item(
   def isEmpty: Boolean = !(isDefault || isEmptyStack)
 
   def isEnchanted: Boolean = getStack.isEnchanted
+
+  def matches(that: Item): Boolean = {
+    (name == that.name) && (ItemStack.isSameItemSameTags(getStack, that.getStack))
+  }
 }
 
 object Item {

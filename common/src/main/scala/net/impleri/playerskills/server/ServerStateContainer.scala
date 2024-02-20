@@ -7,6 +7,7 @@ import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.integrations.IntegrationLoader
 import net.impleri.playerskills.network.Manager
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
+import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.api.StubTeam
 import net.impleri.playerskills.server.api.Team
@@ -50,7 +51,9 @@ case class ServerStateContainer(
   lazy private val MANAGER = Manager(globalState, serverStateContainer = Option(this))
 
   private val LIFECYCLE = LifecycleEvents(PLAYERS, onSetup, onServerChange)
-  private val INTERNAL = InternalEvents(ItemRestrictionBuilder(itemRegistry, globalState.RESTRICTIONS),
+  private val INTERNAL = InternalEvents(
+    ItemRestrictionBuilder(Option(itemRegistry), globalState.RESTRICTIONS),
+    RecipeRestrictionBuilder(this, globalState.RESTRICTIONS),
     eventHandler,
     globalState,
     this,

@@ -9,7 +9,7 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.tags.TagKey
 
 trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
-  protected def registry: Registry[T]
+  protected def registry: Option[Registry[T]] = None
 
   protected def logger: PlayerSkillsLogger
 
@@ -30,7 +30,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
   private def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    RestrictionTarget(resourceName, Option(registry.name), singleAsString) match {
+    RestrictionTarget(resourceName, registry.map(_.name), singleAsString) match {
       case Some(ns: RestrictionTarget.Namespace) => restrictNamespace(ns.target, builder)
       case Some(s: RestrictionTarget.Single) => restrictOne(s.target, builder)
       case Some(s: RestrictionTarget.SingleString) => restrictString(s.target, builder)
@@ -54,8 +54,11 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
     builder: C,
   ): Unit = {
     logger.info(s"Creating restriction for $namespace namespace")
-    registry.matchingNamespace(namespace)
-      .foreach(restrictOne(_, builder))
+
+    registry.foreach(
+      _.matchingNamespace(namespace)
+        .foreach(restrictOne(_, builder)),
+    )
   }
 
   private def restrictTag(
@@ -64,8 +67,10 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
   ): Unit = {
     logger.info(s"Creating restriction for ${tag.location} tag")
 
-    registry.matchingTag(tag)
-      .foreach(restrictOne(_, builder))
+    registry.foreach(
+      _.matchingTag(tag)
+        .foreach(restrictOne(_, builder)),
+    )
   }
 
   protected[restrictions] def logRestriction(

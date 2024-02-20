@@ -24,7 +24,7 @@ class RestrictionBuilderSpec extends BaseSpec {
 
   private case class TestRestrictionBuilder(override val singleAsString: Boolean = false)
     extends RestrictionBuilder[Block, TestConditionBuilder] {
-    protected val registry: Registry[Block] = mockRegistry
+    override protected val registry: Option[Registry[Block]] = Option(mockRegistry)
     protected val logger: PlayerSkillsLogger = mockLogger
 
     override protected def restrictString(

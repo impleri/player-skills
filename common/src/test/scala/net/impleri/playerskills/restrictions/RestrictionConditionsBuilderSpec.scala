@@ -62,13 +62,4 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     testUnit.unless(testValue)
     testUnit.condition(mockPlayer) shouldBe false
   }
-
-  "RestrictionConditionsBuilder.isValid" should "return false if there is no target" in {
-    testUnit.isValid shouldBe false
-  }
-
-  it should "return true if there is a target string" in {
-    testUnit.target = Option("target")
-    testUnit.isValid shouldBe true
-  }
 }

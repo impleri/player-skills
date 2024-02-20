@@ -6,13 +6,13 @@ import net.impleri.playerskills.PlayerSkills
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 class Registrar[T](private val registrar: Option[ArchRegistrar[T]]) {
   def entries(): Map[ResourceKey[T], T] = {
     registrar.map(_.entrySet())
-      .map(CollectionConverters.asScala(_))
+      .map(_.asScala)
       .map(_.map(e => (e.getKey, e.getValue)))
       .map(_.toMap)
       .getOrElse(Map.empty)

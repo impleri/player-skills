@@ -85,7 +85,7 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     testUnitWithServer.SERVER should be(None)
 
-    globalStateMock.SKILL_TYPE_OPS wasCalled sixTimes
+    globalStateMock.SKILL_TYPE_OPS wasCalled sevenTimes
     globalStateMock.SKILLS wasCalled once
     playerRegistryMock.getState wasCalled once
   }
@@ -105,7 +105,7 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     testUnit.SERVER.value should be(serverMock)
 
-    globalStateMock.SKILL_TYPE_OPS wasCalled sixTimes
+    globalStateMock.SKILL_TYPE_OPS wasCalled sevenTimes
     globalStateMock.SKILLS wasCalled once
     playerRegistryMock.getState wasCalled once
   }
