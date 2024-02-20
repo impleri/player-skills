@@ -14,7 +14,7 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.profiling.ProfilerFiller
 
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 
 class SkillsDataLoaderSpec extends BaseSpec {
   private val resourceManagerMock = mock[ResourceManager]
@@ -173,7 +173,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
 
   private def testLoadData(json: String, expected: Skill[_]): Unit = {
     val jsonElement = SkillsDataLoader.GsonService.fromJson(json, classOf[JsonElement])
-    val input = CollectionConverters.asJava(Map(skillName.name -> jsonElement))
+    val input = Map(skillName.name -> jsonElement).asJava
 
     testUnit.apply(input, resourceManagerMock, profileFillerMock)
 
@@ -222,7 +222,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
 
   "SkillsDataLoader.apply" should "ignore unknown skill types" in {
     val jsonElement = SkillsDataLoader.GsonService.fromJson(unknownTeamSkillJson, classOf[JsonElement])
-    val input = CollectionConverters.asJava(Map(skillName.name -> jsonElement))
+    val input = Map(skillName.name -> jsonElement).asJava
 
     testUnit.apply(input, resourceManagerMock, profileFillerMock)
 

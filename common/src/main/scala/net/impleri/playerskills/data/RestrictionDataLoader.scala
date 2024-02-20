@@ -13,7 +13,7 @@ import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
 
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 
 abstract class RestrictionDataLoader(group: String)
   extends SimpleJsonResourceReloadListener(RestrictionDataLoader.GsonService, group)
@@ -31,7 +31,7 @@ abstract class RestrictionDataLoader(group: String)
     resourceManager: ResourceManager,
     profilerFiller: ProfilerFiller,
   ): Unit = {
-    CollectionConverters.asScala(data).foreach(t => parseRestriction(t._1, t._2.getAsJsonObject))
+    data.asScala.foreach(t => parseRestriction(t._1, t._2.getAsJsonObject))
   }
 }
 

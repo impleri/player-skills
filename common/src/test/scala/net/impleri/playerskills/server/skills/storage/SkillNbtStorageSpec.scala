@@ -8,7 +8,7 @@ import net.minecraft.nbt.StringTag
 
 import java.io.File
 import java.io.FileNotFoundException
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 class SkillNbtStorageSpec extends BaseSpec {
@@ -21,8 +21,7 @@ class SkillNbtStorageSpec extends BaseSpec {
 
   private val testSkills = List("1", "2", "everything")
 
-  private val readSkills = testSkills.map(StringTag.valueOf)
-    .pipe(CollectionConverters.asJava(_))
+  private val readSkills = testSkills.map(StringTag.valueOf).asJava
 
   private val skillsList = new ListTag()
     .tap(_.addAll(readSkills))
