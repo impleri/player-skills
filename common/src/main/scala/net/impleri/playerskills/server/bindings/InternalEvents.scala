@@ -7,7 +7,9 @@ import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.data.restrictions.ItemRestrictionDataLoader
+import net.impleri.playerskills.data.restrictions.RecipeRestrictionDataLoader
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
+import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
@@ -37,6 +39,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
 case class InternalEvents(
   itemRestrictionBuilder: ItemRestrictionBuilder,
+  recipeRestrictionBuilder: RecipeRestrictionBuilder,
   eventHandler: EventHandler = EventHandler(),
   globalState: StateContainer = StateContainer(),
   serverStateContainer: ServerStateContainer = ServerStateContainer(),
@@ -57,6 +60,14 @@ case class InternalEvents(
     reloadListeners.register(
       ItemRestrictionDataLoader(
         itemRestrictionBuilder,
+        globalState.SKILL_OPS,
+        globalState.SKILL_TYPE_OPS,
+        serverStateContainer.PLAYER_OPS,
+      ),
+    )
+    reloadListeners.register(
+      RecipeRestrictionDataLoader(
+        recipeRestrictionBuilder,
         globalState.SKILL_OPS,
         globalState.SKILL_TYPE_OPS,
         serverStateContainer.PLAYER_OPS,

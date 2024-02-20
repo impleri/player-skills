@@ -12,8 +12,8 @@ import net.minecraft.world.Container
 
 import java.util.{List => JavaList}
 import java.util.Optional
-import scala.jdk.javaapi.CollectionConverters
-import scala.jdk.javaapi.OptionConverters
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 case class RecipeManager(recipeManager: McManager) {
@@ -23,7 +23,14 @@ case class RecipeManager(recipeManager: McManager) {
     server: Server,
   ): Option[Recipe[C]] = {
     server.getLevel.map(recipeManager.getRecipeFor(recipeType, container, _))
-      .flatMap(OptionConverters.toScala[T])
+      .flatMap(_.toScala)
+      .map(Recipe[C])
+  }
+
+  def getAllFor[C <: Container, T <: McRecipe[C]](recipeType: RecipeType[T]): Seq[Recipe[C]] = {
+    recipeManager.getAllRecipesFor[C, T](recipeType)
+      .asScala
+      .toList
       .map(Recipe[C])
   }
 }
@@ -35,29 +42,17 @@ object RecipeManager {
   }
 
   def handleOnGetRecipe[C <: Container, T <: McRecipe[C]](value: Optional[T]): Boolean = {
-    val valueOpt = OptionConverters.toScala(value)
-
-    if (valueOpt.isEmpty) {
-      true
-    } else {
-      valueOpt.fold(RestrictionsOps.DEFAULT_RESPONSE)(handleRecipeCheck[C, T])
-    }
+    value.toScala.fold(RestrictionsOps.DEFAULT_RESPONSE)(handleRecipeCheck[C, T])
   }
 
   def handleOnGetRecipePair[C <: Container, T <: McRecipe[C]](value: Optional[Pair[ResourceLocation, T]]): Boolean = {
-    val valueOpt = OptionConverters.toScala(value)
-
-    if (valueOpt.isEmpty) {
-      true
-    } else {
-      valueOpt.map(_.getSecond).fold(RestrictionsOps.DEFAULT_RESPONSE)(handleRecipeCheck[C, T])
-    }
+    value.toScala.map(_.getSecond).fold(RestrictionsOps.DEFAULT_RESPONSE)(handleRecipeCheck[C, T])
   }
 
   def handleOnGetRecipes[C <: Container, T <: McRecipe[C]](value: JavaList[T]): JavaList[T] = {
-    CollectionConverters.asScala(value)
+    value.asScala
       .toList
       .filter(handleRecipeCheck[C, T])
-      .pipe(CollectionConverters.asJava(_))
+      .pipe(_.asJava)
   }
 }

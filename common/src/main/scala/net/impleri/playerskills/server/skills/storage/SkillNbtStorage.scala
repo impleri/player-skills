@@ -8,7 +8,7 @@ import net.minecraft.nbt.Tag
 
 import java.io.File
 import java.util.{List => JavaList}
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 sealed trait ReadNbtSkills {
@@ -33,8 +33,7 @@ sealed trait WriteNbtSkills {
   protected def mcNbt: NbtIO
 
   protected def convertSkills(skills: List[String]): JavaList[StringTag] = {
-    skills.map(StringTag.valueOf)
-      .pipe(CollectionConverters.asJava(_))
+    skills.map(StringTag.valueOf).asJava
   }
 
   protected def createSkillList(skillsList: JavaList[StringTag]): ListTag = {
@@ -63,7 +62,7 @@ class SkillNbtStorage private[skills] (override val mcNbt: NbtIO)
     for {
       rawFile <- readFile(file)
       skills <- getList(rawFile)
-    } yield CollectionConverters.asScala(skills.iterator)
+    } yield skills.asScala
       .toList
       .map(_.getAsString)
   }

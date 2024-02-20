@@ -13,7 +13,7 @@ import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.ChatFormatting
 
-import scala.jdk.javaapi.CollectionConverters
+import scala.jdk.CollectionConverters._
 
 trait SkillTagHandling {
   protected def skillOps: SkillOps
@@ -65,7 +65,7 @@ trait SkillTagHandling {
 
     NameMap.of(
       options.headOption.getOrElse(noneValue),
-      CollectionConverters.asJava(options),
+      options.asJava,
     ).create()
   }
 
@@ -83,7 +83,7 @@ trait SkillTagHandling {
       "skill",
       getSkillText,
       (s: String) => setSkill(if (s.isEmpty) None else ResourceLocation(s)),
-      NameMap.of(firstSkill.fold("")(_.toString), CollectionConverters.asJava(skills.map(_.toString))).create(),
+      NameMap.of(firstSkill.fold("")(_.toString), skills.map(_.toString).asJava).create(),
       firstSkill.fold("")(_.toString),
     ).setNameKey("playerskills.quests.ui.skill")
   }

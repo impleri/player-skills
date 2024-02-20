@@ -9,7 +9,7 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.world.item.{Item => McItem}
 
 case class ItemRestrictionBuilder(
-  override val registry: Registry[McItem],
+  override val registry: Option[Registry[McItem]],
   protected val restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
   override val logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
 ) extends RestrictionBuilder[McItem, ItemConditions] {
@@ -26,7 +26,7 @@ case class ItemRestrictionBuilder(
     targetName: ResourceLocation,
     builder: ItemConditions,
   ): Unit = {
-    registry.get(targetName)
+    registry.get.get(targetName)
       .map(Item(_))
       .foreach(restrictItem(_, builder, targetName.toString))
   }

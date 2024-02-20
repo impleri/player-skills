@@ -49,37 +49,6 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   private val mockJson = mock[JsonObject]
 
-  "RestrictionConditionsBuilder.parseTarget" should "set the target" in {
-    val expectedTarget = "targetName"
-
-    val targetJson = mock[JsonObject]
-    targetJson.getAsString returns expectedTarget
-
-    mockJson.get("target") returns targetJson
-
-    testUnit.target shouldBe None
-
-    testUnit.parseTarget(mockJson)
-
-    testUnit.target.value shouldBe expectedTarget
-  }
-
-  it should "allow a custom target name" in {
-    val elementName = "element"
-    val expectedTarget = "targetName"
-
-    val targetJson = mock[JsonObject]
-    targetJson.getAsString returns expectedTarget
-
-    mockJson.get(elementName) returns targetJson
-
-    testUnit.target shouldBe None
-
-    testUnit.parseTarget(mockJson, elementName)
-
-    testUnit.target.value shouldBe expectedTarget
-  }
-
   "RestrictionConditionsBuilder.parse" should "parses the condition" in {
     val expectedSkillName = "skillstest:condition"
     val expectedSkill = ResourceFacade(expectedSkillName, isSkill = false).get
@@ -124,8 +93,6 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     mockType.castFromString(expectedValue) returns Option(expectedValue)
 
     mockSkillTypeOps.get(mockSkill) returns Option(mockType)
-
-    testUnit.target shouldBe None
 
     testUnit.parse(mockJson)
 
@@ -183,8 +150,6 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
     mockSkillTypeOps.get(mockSkill) returns Option(mockType)
 
-    testUnit.target shouldBe None
-
     testUnit.parse(mockJson)
 
     val mockPlayer = mock[Player[_]]
@@ -238,8 +203,6 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
     mockSkillTypeOps.get(mockSkill) returns None
 
-    testUnit.target shouldBe None
-
     testUnit.parse(mockJson)
 
     val mockPlayer = mock[Player[_]]
@@ -288,8 +251,6 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     mockJson.get(*) answers ((el: String) => if (el == "unless") conditionsJson else new JsonNull())
 
     mockSkillOps.get[String](expectedSkill) returns None
-
-    testUnit.target shouldBe None
 
     testUnit.parse(mockJson)
 

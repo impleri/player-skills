@@ -1,5 +1,6 @@
 package net.impleri.playerskills.data.conditions
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.impleri.playerskills.data.utils.BiomeFacetParser
 import net.impleri.playerskills.data.utils.ConditionDataParser
@@ -7,6 +8,20 @@ import net.impleri.playerskills.data.utils.DimensionFacetParser
 import net.impleri.playerskills.data.utils.JsonDataParser
 import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.restrictions.conditions.{RestrictionConditionsBuilder => ParentBuilder}
+import net.impleri.playerskills.restrictions.conditions.MultiTargetRestriction
+import net.impleri.playerskills.restrictions.conditions.SingleTargetRestriction
+
+trait SingleTargetParser[T] extends JsonDataParser with SingleTargetRestriction[T] {
+  protected[conditions] def getTarget(raw: JsonObject, key: String = "target"): Option[String] = {
+    parseValue(raw, key, v => Option(v.getAsString))
+  }
+}
+
+trait MultiTargetParser[T] extends JsonDataParser with MultiTargetRestriction[T] {
+  protected[conditions] def getTarget(raw: JsonObject, key: String = "target"): Seq[JsonElement] = {
+    getObject(raw, key).filter(_.isJsonObject).toSeq
+  }
+}
 
 trait RestrictionConditionsBuilder extends ParentBuilder
   with JsonDataParser
@@ -22,10 +37,6 @@ trait RestrictionConditionsBuilder extends ParentBuilder
     parseRestriction(jsonElement)
     parseEverything(jsonElement)
     parseNothing(jsonElement)
-  }
-
-  protected[conditions] def parseTarget(raw: JsonObject, element: String = "target"): Unit = {
-    target = parseValue(raw, element, v => Option(v.getAsString))
   }
 
   private def parseCondition(raw: JsonObject): Unit = {

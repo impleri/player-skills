@@ -16,9 +16,9 @@ case class ItemRestrictionConditionBuilder(
   protected val skillTypeOps: SkillTypeOps = SkillType(),
   protected val playerOps: Player = Player(),
   protected val logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
-) extends RestrictionConditionsBuilder with ItemConditions {
+) extends RestrictionConditionsBuilder with SingleTargetParser[String] with ItemConditions {
   override def parseRestriction(jsonElement: JsonObject): Unit = {
-    parseTarget(jsonElement, "item")
+    target = getTarget(jsonElement, "item")
     isIdentifiable = parseBoolean(jsonElement, "identifiable", isIdentifiable)
     isHoldable = parseBoolean(jsonElement, "holdable", isHoldable)
     isWearable = parseBoolean(jsonElement, "wearable", isWearable)

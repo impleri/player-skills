@@ -13,8 +13,8 @@ import net.minecraft.world.level.Level
 
 import java.nio.file.Path
 import java.util.UUID
-import scala.jdk.javaapi.CollectionConverters
-import scala.jdk.javaapi.OptionConverters
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 class Server(private val server: MinecraftServer, private val level: Option[Level] = None) {
@@ -31,14 +31,14 @@ class Server(private val server: MinecraftServer, private val level: Option[Leve
   }
 
   def getPlayers: Seq[Player[ServerPlayer]] = {
-    CollectionConverters.asScala(server.getPlayerList.getPlayers).toList
+    server.getPlayerList.getPlayers.asScala.toList
       .map(Player.apply)
   }
 
   def getLevel: Option[Level] = level
 
   def getDimensions: Seq[ResourceLocation] = {
-    CollectionConverters.asScala(server.levelKeys())
+    server.levelKeys().asScala
       .map(_.location())
       .toList
   }
@@ -46,8 +46,9 @@ class Server(private val server: MinecraftServer, private val level: Option[Leve
   def getRecipeManager: RecipeManager = server.getRecipeManager.pipe(crafting.RecipeManager(_))
 
   def getRegistry[T](key: ResourceKey[McRegistry[T]]): Option[Registry[T]] = {
-    OptionConverters
-      .toScala(server.registryAccess().registry[T](key))
+    server.registryAccess()
+      .registry[T](key)
+      .toScala
       .map(r => Registry(r))
   }
 }

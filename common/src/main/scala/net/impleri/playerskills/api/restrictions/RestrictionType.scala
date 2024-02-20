@@ -1,6 +1,6 @@
 package net.impleri.playerskills.api.restrictions
 
-sealed trait RestrictionType {}
+sealed trait RestrictionType
 
 object RestrictionType {
   case class Item() extends RestrictionType

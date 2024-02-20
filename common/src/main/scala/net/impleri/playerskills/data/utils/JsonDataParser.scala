@@ -3,8 +3,7 @@ package net.impleri.playerskills.data.utils
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-import scala.jdk.javaapi.CollectionConverters
-import scala.util.chaining.scalaUtilChainingOps
+import scala.jdk.CollectionConverters._
 
 trait JsonDataParser extends JsonCollectionParser {
   protected[utils] def parseOptions[T](
@@ -55,7 +54,7 @@ trait JsonDataParser extends JsonCollectionParser {
       }
       case Some(list) if list.isJsonArray => {
         list.getAsJsonArray
-          .pipe(a => CollectionConverters.asScala(a))
+          .asScala
           .foreach(onInclude)
       }
       case _ =>

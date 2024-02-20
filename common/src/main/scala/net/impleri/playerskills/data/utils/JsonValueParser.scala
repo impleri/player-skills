@@ -33,6 +33,13 @@ trait JsonValueParser {
     }.toOption
   }
 
+  protected def getObject(
+    raw: JsonObject,
+    key: String,
+  ): Option[JsonElement] = {
+    getElement(raw, key)
+  }
+
   protected def parseValue[T](
     raw: JsonObject,
     key: String,

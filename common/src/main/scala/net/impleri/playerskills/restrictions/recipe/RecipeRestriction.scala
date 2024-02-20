@@ -17,3 +17,18 @@ case class RecipeRestriction(
 ) extends Restriction[Recipe[_]] {
   override val restrictionType: RestrictionType = RestrictionType.Recipe()
 }
+
+object RecipeRestriction {
+  def apply(target: Recipe[_], builder: RecipeConditions): RecipeRestriction = {
+    new RecipeRestriction(
+      target,
+      builder.condition,
+      None,
+      builder.includeDimensions,
+      builder.excludeDimensions,
+      builder.includeBiomes,
+      builder.excludeBiomes,
+      builder.isProducible.getOrElse(Restriction.DEFAULT_RESPONSE),
+    )
+  }
+}
