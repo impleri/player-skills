@@ -22,10 +22,18 @@ case class RecipeRestrictionConditionBuilder(
   protected val logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
 ) extends RestrictionConditionsBuilder with MultiTargetParser[RecipeTarget] with RecipeConditions {
   private def parseRecipe(element: JsonElement): Seq[RecipeTarget] = {
-    parseString(element.getAsJsonObject, "type")
+    val el = element.getAsJsonObject
+
+    parseString(el, "type")
       .flatMap(ResourceFacade.apply(_, isSkill = false))
       .filter(Registry.RecipeTypes.isValid)
-      .map(RecipeTarget(_))
+      .map(
+        RecipeTarget(
+          _,
+          parseString(el, "output"),
+          parseArray(el, "ingredients", castAsString),
+        ),
+      )
       .toSeq
   }
 

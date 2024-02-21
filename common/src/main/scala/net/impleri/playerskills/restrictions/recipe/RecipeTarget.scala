@@ -10,11 +10,13 @@ case class RecipeTarget(
   output: Option[String] = None,
   ingredients: Seq[String] = Seq.empty,
 ) {
-  private lazy val getOutputItem: Option[Item] = output.flatMap(Item.parse)
+  private[recipe] lazy val getOutputItem: Option[Item] = output.flatMap(Item.parse)
 
-  private lazy val getIngredientItems: Seq[Item] = ingredients.flatMap(Item.parse)
+  private[recipe] lazy val getIngredientItems: Seq[Item] = ingredients.flatMap(Item.parse)
 
   def matches[C <: Container](recipe: Recipe[C]): Boolean = {
-    getOutputItem.exists(recipe.getResultItem.matches) && getIngredientItems.forall(recipe.getIngredients.contains)
+    (getOutputItem.nonEmpty || getIngredientItems.nonEmpty) &&
+      getOutputItem.forall(recipe.getResultItem.matches) &&
+      getIngredientItems.forall(recipe.getIngredients.contains)
   }
 }
