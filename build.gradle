@@ -163,6 +163,12 @@ subprojects {
   version = buildVersion
   group = mavenGroup
 
+  sourceSets.main.scala.srcDir "src/main/java"
+  sourceSets.main.java.srcDirs = []
+  sourceSets.test.scala.srcDir "src/test/java"
+  sourceSets.test.java.srcDirs = []
+
+
   java {
     withSourcesJar()
   }
@@ -241,7 +247,10 @@ subprojects {
       xml.required = true
     }
 
-    sourceDirectories.from(project.layout.projectDirectory.file("src/main/scala"))
+    sourceDirectories.from(
+      project.layout.projectDirectory.file("src/main/scala"),
+      project.layout.projectDirectory.file("src/main/java")
+    )
   }
 }
 
@@ -427,6 +436,7 @@ jacotura {
   }
   sourceDirs = [
     project(":common").layout.projectDirectory.file("src/main/scala"),
+    project(":common").layout.projectDirectory.file("src/main/java"),
     project(":fabric").layout.projectDirectory.file("src/main/scala"),
     project(":forge").layout.projectDirectory.file("src/main/scala"),
   ]

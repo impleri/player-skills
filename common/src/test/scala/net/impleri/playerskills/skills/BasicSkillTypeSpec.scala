@@ -3,16 +3,16 @@ package net.impleri.playerskills.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.basic.BasicSkill
 import net.impleri.playerskills.skills.basic.BasicSkillType
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.utils.SkillResourceLocation
 
 class BasicSkillTypeSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]
   private val loggerMock = mock[PlayerSkillsLogger]
 
-  private val skillName = SkillResourceLocation("test_skill").get
+  private val skillName = ResourceLocation("test_skill").get
 
   private val dumbSkill = BasicSkill(skillName)
   private val truthySkill = BasicSkill(skillName, value = Option(true))

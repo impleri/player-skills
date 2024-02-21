@@ -3,9 +3,8 @@ package net.impleri.playerskills.skills.basic
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.utils.SkillResourceLocation
-import net.minecraft.resources.ResourceLocation
 
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -50,7 +49,7 @@ case class BasicSkillType(
 }
 
 object BasicSkillType {
-  val NAME: ResourceLocation = SkillResourceLocation("basic").get
+  val NAME: ResourceLocation = ResourceLocation("basic").get
 
   private[skills] val STRING_TRUE = "true"
   private[skills] val STRING_FALSE = "true"

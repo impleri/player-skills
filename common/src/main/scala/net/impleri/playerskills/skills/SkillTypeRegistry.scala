@@ -2,8 +2,7 @@ package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.facades.architectury.Registrar
-import net.impleri.playerskills.utils.SkillResourceLocation
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 
 case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillType[_]]) {
   private[skills] var state: List[SkillType[_]] = List.empty
@@ -22,9 +21,9 @@ case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillT
 }
 
 object SkillTypeRegistry {
-  val REGISTRY_KEY: ResourceLocation = SkillResourceLocation.of("skill_types_registry").get
+  val REGISTRY_KEY: ResourceLocation = ResourceLocation("skill_types_registry").get
 
-  lazy val REGISTRAR: Registrar[SkillType[_]] = Registrar(REGISTRY_KEY)
+  lazy val REGISTRAR: Registrar[SkillType[_]] = Registrar(REGISTRY_KEY.name)
 
   def apply(
     gameRegistrar: Registrar[SkillType[_]] = Registrar(None),

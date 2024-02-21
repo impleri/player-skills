@@ -10,13 +10,13 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.api.TeamOps
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.contents.TranslatableContents
-import net.minecraft.resources.ResourceLocation
 import org.mockito.captor.ArgCaptor
 
 import java.util.UUID
@@ -119,13 +119,13 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   "DegradeSkillCommand.degradePlayerSkill" should "proxy teamOps.degrade" in {
     val expected = false
     val playerMock = mock[Player[_]]
-    val skillName = new ResourceLocation("skillstest", "test")
+    val skillName = ResourceLocation("skillstest", "test")
     val skillMock = mock[Skill[String]]
 
-    skillOpsMock.get[String](skillName) returns Option(skillMock)
+    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
     teamOpsMock.degrade(playerMock, skillMock, None, None) returns Option(expected)
 
-    val received = testUnit.degradePlayerSkill[String](Option(playerMock), Option(skillName))
+    val received = testUnit.degradePlayerSkill[String](Option(playerMock), skillName)
 
     teamOpsMock.degrade(playerMock, skillMock, None, None) wasCalled once
 
@@ -133,12 +133,12 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   }
 
   it should "does nothing if no player" in {
-    val skillName = new ResourceLocation("skillstest", "test")
+    val skillName = ResourceLocation("skillstest", "test")
     val skillMock = mock[Skill[String]]
 
-    skillOpsMock.get[String](skillName) returns Option(skillMock)
+    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
 
-    val received = testUnit.degradePlayerSkill[String](None, Option(skillName))
+    val received = testUnit.degradePlayerSkill[String](None, skillName)
 
     teamOpsMock.degrade(*, *, *, *) wasNever called
 
@@ -147,11 +147,11 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
   it should "does nothing if skill not found" in {
     val playerMock = mock[Player[_]]
-    val skillName = new ResourceLocation("skillstest", "test")
+    val skillName = ResourceLocation("skillstest", "test")
 
-    skillOpsMock.get[String](skillName) returns None
+    skillOpsMock.get[String](skillName.get) returns None
 
-    val received = testUnit.degradePlayerSkill[String](Option(playerMock), Option(skillName))
+    val received = testUnit.degradePlayerSkill[String](Option(playerMock), skillName)
 
     teamOpsMock.degrade(*, *, *, *) wasNever called
 
@@ -172,13 +172,13 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   "ImproveSkillCommand.improvePlayerSkill" should "proxy teamOps.improve" in {
     val expected = false
     val playerMock = mock[Player[_]]
-    val skillName = new ResourceLocation("skillstest", "test")
+    val skillName = ResourceLocation("skillstest", "test")
     val skillMock = mock[Skill[String]]
 
-    skillOpsMock.get[String](skillName) returns Option(skillMock)
+    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
     teamOpsMock.improve(playerMock, skillMock, None, None) returns Option(expected)
 
-    val received = testUnit.improvePlayerSkill[String](Option(playerMock), Option(skillName))
+    val received = testUnit.improvePlayerSkill[String](Option(playerMock), skillName)
 
     teamOpsMock.improve(playerMock, skillMock, None, None) wasCalled once
 
@@ -186,12 +186,12 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   }
 
   it should "does nothing if no player" in {
-    val skillName = new ResourceLocation("skillstest", "test")
+    val skillName = ResourceLocation("skillstest", "test")
     val skillMock = mock[Skill[String]]
 
-    skillOpsMock.get[String](skillName) returns Option(skillMock)
+    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
 
-    val received = testUnit.improvePlayerSkill[String](None, Option(skillName))
+    val received = testUnit.improvePlayerSkill[String](None, skillName)
 
     teamOpsMock.improve(*, *, *, *) wasNever called
 
@@ -200,11 +200,11 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
   it should "does nothing if skill not found" in {
     val playerMock = mock[Player[_]]
-    val skillName = new ResourceLocation("skillstest", "test")
+    val skillName = ResourceLocation("skillstest", "test")
 
-    skillOpsMock.get[String](skillName) returns None
+    skillOpsMock.get[String](skillName.get) returns None
 
-    val received = testUnit.improvePlayerSkill[String](Option(playerMock), Option(skillName))
+    val received = testUnit.improvePlayerSkill[String](Option(playerMock), skillName)
 
     teamOpsMock.improve(*, *, *, *) wasNever called
 
@@ -227,18 +227,18 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     val playerMock = mock[Player[_]]
     playerMock.uuid returns givenUuid
 
-    val skill1Name = new ResourceLocation("skillstest:first")
+    val skill1Name = ResourceLocation("skillstest:first").get
     val skillOne = mock[Skill[_]]
     skillOne.name returns skill1Name
     playerOpsMock.can(givenUuid, skill1Name) returns false
 
-    val skill2Name = new ResourceLocation("skillstest:name")
+    val skill2Name = ResourceLocation("skillstest:name").get
     val skillTwo = mock[Skill[Int]]
     skillTwo.name returns skill2Name
     skillTwo.value returns Option(42)
     playerOpsMock.can(givenUuid, skill2Name) returns true
 
-    val skill3Name = new ResourceLocation("skillstest:other")
+    val skill3Name = ResourceLocation("skillstest:other").get
     val skillThree = mock[Skill[_]]
     skillThree.name returns skill3Name
     skillThree.value returns None
@@ -279,11 +279,11 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   "ListSkillsCommand.listSkills" should "return all skills as strings" in {
     val skill2Name = "skillstest:name"
     val skillTwo = mock[Skill[Int]]
-    skillTwo.name returns new ResourceLocation(skill2Name)
+    skillTwo.name returns ResourceLocation(skill2Name).get
 
     val skill3Name = "skillstest:other"
     val skillThree = mock[Skill[_]]
-    skillThree.name returns new ResourceLocation(skill3Name)
+    skillThree.name returns ResourceLocation(skill3Name).get
 
     val skills = List(skillTwo, skillThree)
 
@@ -312,11 +312,11 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   "ListTypesCommand.listTypes" should "return all skill types as strings" in {
     val skill2Name = "skillstest:name"
     val skillTwo = mock[SkillType[Int]]
-    skillTwo.name returns new ResourceLocation(skill2Name)
+    skillTwo.name returns ResourceLocation(skill2Name).get
 
     val skill3Name = "skillstest:other"
     val skillThree = mock[SkillType[_]]
-    skillThree.name returns new ResourceLocation(skill3Name)
+    skillThree.name returns ResourceLocation(skill3Name).get
 
     val skills = List(skillTwo, skillThree)
 
@@ -358,7 +358,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     val received = testUnit.notifyPlayer(
       sourceMock,
       Option(playerMock),
-      Option(new ResourceLocation(skillName)),
+      ResourceLocation(skillName),
       success,
       failure,
     )(Option(givenResult))
@@ -389,7 +389,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     val received = testUnit.notifyPlayer(
       sourceMock,
       None,
-      Option(new ResourceLocation(skillName)),
+      ResourceLocation(skillName),
       success,
       failure,
     )(Option(givenResult))
@@ -419,7 +419,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     val received = testUnit.notifyPlayer(
       sourceMock,
       None,
-      Option(new ResourceLocation(skillName)),
+      ResourceLocation(skillName),
       success,
       failure,
     )(None)
@@ -438,7 +438,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     val sourceMock = mock[CommandSourceStack]
     val playerMock = mock[Player[_]]
     val skillName = "testskills:name"
-    val skillLocation = new ResourceLocation(skillName)
+    val skillLocation = ResourceLocation(skillName)
     val givenValue = "nextValue"
     val parsedValue = 42
     val newSkill = mock[Skill[Int]]
@@ -446,7 +446,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     val skill = mock[Skill[Int] with ChangeableSkillOps[Int, Skill[Int]]]
     skill.mutate(Option(parsedValue)) returns newSkill
 
-    skillOpsMock.get[Int](skillLocation) returns Option(skill)
+    skillOpsMock.get[Int](skillLocation.get) returns Option(skill)
 
     val skillType = mock[SkillType[Int]]
     skillType.castFromString(givenValue) returns Option(parsedValue)
@@ -455,7 +455,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
     playerOpsMock.upsert(playerMock, newSkill) returns List(newSkill)
 
-    testUnit.grantPlayerSkill(sourceMock, Option(playerMock), Option(skillLocation), givenValue)
+    testUnit.grantPlayerSkill(sourceMock, Option(playerMock), skillLocation, givenValue)
 
     playerOpsMock.upsert(playerMock, newSkill) wasCalled once
     sourceMock.sendSuccess(*, false) wasCalled once
@@ -464,15 +464,15 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   "SkillValueCommand.getSkillValue" should "proxy playerOps.get" in {
     val playerMock = mock[Player[_]]
     val skillName = "testskills:name"
-    val skillLocation = new ResourceLocation(skillName)
+    val skillLocation = ResourceLocation(skillName)
 
     val skill = mock[Skill[Boolean]]
-    skill.name returns skillLocation
+    skill.name returns skillLocation.get
     skill.value returns Option(true)
 
-    playerOpsMock.get[Boolean](playerMock, skillLocation) returns Option(skill)
+    playerOpsMock.get[Boolean](playerMock, skillLocation.get) returns Option(skill)
 
-    val (message, values) = testUnit.getSkillValue(Option(playerMock), Option(skillLocation))
+    val (message, values) = testUnit.getSkillValue(Option(playerMock), skillLocation)
 
     message.getString.contains("acquired_skills") should be(true)
 
@@ -484,11 +484,11 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   it should "provide a different message if no skill found" in {
     val playerMock = mock[Player[_]]
     val skillName = "testskills:name"
-    val skillLocation = new ResourceLocation(skillName)
+    val skillLocation = ResourceLocation(skillName)
 
-    playerOpsMock.get[Boolean](playerMock, skillLocation) returns None
+    playerOpsMock.get[Boolean](playerMock, skillLocation.get) returns None
 
-    val (message, values) = testUnit.getSkillValue(Option(playerMock), Option(skillLocation))
+    val (message, values) = testUnit.getSkillValue(Option(playerMock), skillLocation)
 
     message.getString.contains("no_acquired_skills") should be(true)
 

@@ -21,8 +21,8 @@ class ResyncSkillsMessageSpec extends BaseSpec {
 
   private val testUuid = UUID.randomUUID()
 
-  private val testMessage = ResyncSkillsMessage(testUuid, serverStateMock, messageTypeMock)
-  private val testFactory = ResyncSkillsMessageFactory(serverStateMock, loggerMock)
+  private val testMessage = ResyncSkillsMessage(testUuid, Option(serverStateMock), messageTypeMock)
+  private val testFactory = ResyncSkillsMessageFactory(Option(serverStateMock), loggerMock)
 
   private val packetContextMock = mock[NetworkManager.PacketContext]
   private val playerMock = mock[Player[ServerPlayer]]
@@ -41,9 +41,13 @@ class ResyncSkillsMessageSpec extends BaseSpec {
   "ResyncSkillsMessage.handle" should "does nothing if there is no server" in {
     serverStateMock.SERVER returns None
 
+    val netHandlerMock = mock[NetHandler]
+
+    serverStateMock.getNetHandler returns netHandlerMock
+
     testMessage.handle(packetContextMock)
 
-    serverStateMock.getNetHandler wasNever called
+    netHandlerMock.syncPlayer(*) wasNever called
   }
 
   it should "triggers player resync if there is a server" in {

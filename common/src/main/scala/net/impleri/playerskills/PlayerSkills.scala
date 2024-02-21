@@ -16,7 +16,7 @@ object PlayerSkills {
 
   val STATE: StateContainer = StateContainer(SkillRegistry.REGISTRAR, SkillTypeRegistry.REGISTRAR)
 
-  private val SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY)
+  private val SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY.name)
   private val SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY)
 
   // We create the server-side handling here in case we are running in an integrated server/single-player instance
@@ -27,12 +27,10 @@ object PlayerSkills {
   }
 
   private def registerTypes(): Unit = {
-    val skillOps = STATE.getSkillOps
-
-    SKILL_TYPES.register(BasicSkillType.NAME, () => BasicSkillType(skillOps))
-    SKILL_TYPES.register(NumericSkillType.NAME, () => NumericSkillType(skillOps))
-    SKILL_TYPES.register(TieredSkillType.NAME, () => TieredSkillType(skillOps))
-    SKILL_TYPES.register(SpecializedSkillType.NAME, () => SpecializedSkillType(skillOps))
+    SKILL_TYPES.register(BasicSkillType.NAME.name, () => BasicSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(NumericSkillType.NAME.name, () => NumericSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(TieredSkillType.NAME.name, () => TieredSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(SpecializedSkillType.NAME.name, () => SpecializedSkillType(STATE.SKILL_OPS))
 
     SKILL_TYPES.register()
   }

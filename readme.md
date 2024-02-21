@@ -67,8 +67,13 @@ reduce or remove its visibility from JEI and REI.
 Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
 biome facets share the same identifier parsing. This means that string identifiers can be used (e.g. `minecraft:zombie`)
 as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
-appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those. These work in Data
-Packs, KubeJS, and CraftTweaker.
+appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those.
+
+##### NBT Parsing
+
+Certain resources (e.g. items, blocks) may also have NBT data. These can be represented using data tags in combination
+with the resource location. When parsing these types of resources, if it is not determined to be a namespace or tag,
+we will attempt to parse the resource location with the data tags.
 
 ## Caveats
 
@@ -183,10 +188,7 @@ and/or `exclude` properties that are array of string values.
 Mob Restrictions are created using the `item_restrictions` grouping. In addition to the shared facet and condition
 properties above, the schema exposes:
 
-- `item`: ***required*** either item tag (e.g. `#minecraft:planks`), identifier (`minecraft:oak_planks`), or
-  namespace (`@create`)
-- `producible`: Can this item be produced by any recipe? (default value is `true`)
-- `consumable`: Can this item be consumed in any recipe? (default value is `true`)
+- `item`: ***required*** String representation of the item. See above ID Parsing section for what values are allowed.
 - `identifiable`: Can this item be identified by a tooltip? (default value is `true`)
 - `holdable`: Can this item be held in the player's inventory? (default value is `true`)
 - `wearable`: Can this item be equipped by the player as armor, trinket, or curio? (default value is `true`)
@@ -199,6 +201,48 @@ properties above, the schema exposes:
   "item": "minecraft:shears",
   "usable": false,
   "identifiable": false,
+  "unless": {
+    "skill": "kill_count",
+    "value": 8
+  }
+}
+
+```
+
+### Recipe Restrictions Data
+
+Mob Restrictions are created using the `recipe_restrictions` grouping. In addition to the shared facet and condition
+properties above, the schema exposes:
+
+- `recipe`: ***required*** array of objects describing the recipe using `type`, `output`, and `ingredients`
+    * `type`: Type of recipe to target (e.g. `smelting`, `crafting`). Default is `crafting`
+    * `output`: String representation of the produced item. See above ID Parsing section for what values are allowed.
+    * `ingredients`: Array of string representation of one or more items consumed in the recipe. See above ID Parsing
+      section for what values are allowed.
+- `producible`: Can this item be produced by any recipe? (default value is `true`)
+
+The recipe data `output` and `ingredients` will be used when searching through registered recipes and all matching
+entries will be restricted.
+
+```json
+{
+  "recipe": [
+    {
+      "type": "smelting",
+      "output": "minecraft:stone",
+      "ingredients": [
+        "minecraft:cobblestone"
+      ]
+    },
+    {
+      "type": "crafting",
+      "output": "potion{Potion:\"minecraft:night_vision\"}",
+      "ingredients": [
+        "#minecraft:stone_bricks"
+      ]
+    }
+  ],
+  "producible": false,
   "unless": {
     "skill": "kill_count",
     "value": 8
@@ -234,845 +278,6 @@ properties above, the schema exposes:
   }
 }
 ```
-
-## KubeJS API
-
-### Skills Registry Actions
-
-For all registry actions, we use two separate events:
-
-- `SkillEvents.registration` ***startup*** event to _add_ skills.
-- `SkillEvents.modification` ***server*** event to _modify_ and _delete_ skills registered in the startup script or by
-  mods.
-
-Both events use the skill name as the first parameter. This is a string that will be cast into a `ResourceLocation`, so
-it must conform to ResourceLocation rules (namely, `snake_case` instead of `camelCase`). If no namespace is given, it
-will automatically be placed into the `skills:` namespace.
-
-When adding a skill, you must provide a skill type string as the second parameter. Like the name, this will be cast into
-a `ResourceLocation` and given the default `skills:` namespace if none provided. If you are modifying a skill, you may
-add a skill type parameter after the name to _change_ the skill typing. Be sure to change the initial value of the skill
-if you're changing the type or else you will see errors.
-
-For both adding and modifying skills, the final argument is a callback function which will interact with the skill
-builder for the type. Modifying skills will start with their existing configurations while new skills will start with
-whatever the default options are for the type.
-
-#### Skill Builder Methods
-
-- `initialValue(newValue: T)` - Sets a starting value for all players
-- `clearValue()` - Empties the initial value
-- `description(desc: string)` - Sets the skill description
-- `limitChanges(limit: number)` - How many times the skill can change before it is locked
-- `unlimitedChanges()` - Allows the skill to always change
-- `notifyOnChange(translationKey?: string)` - Send a notification when the skill changes (using either the provided
-  translation key or the base skill name)
-- `clearNotification()` - Turns off notification on skill change
-- `options(choices: T[])` - Sets what values will be allowed
-- `sharedWithTeam()` - Sync progress to all players on a team for the shared skill (requires FTM Teams)
-- `teamLimitedTo(amount: number)` - Limits the progress to only `amount` players on the team (requires FTB Teams)
-- `percentageOfTeam(percentage: number)` = Limits the progress to a `percentage` of the players on the team (requires
-  FTB Teams)
-- `splitEvenlyAcrossTeam()` - Limits the progress of a _specialization_ skill so that there must be an even distribution
-  of specializations across the team.
-- `pyramid()` - Limits the progress of a _tiered_ skill so that fewer and fewer players on a team can progress until
-  only one player has the highest tier.
-
-#### Add a skill
-
-By default, we provide a simple boolean skill type (yes/no) which resembles what comes from Game Stages and Game Phases.
-
-```js
-// Let's assume we have these tiers for `undead_killer` skill
-const KILLER_TIERS = {
-  wood: 0,
-  stone: 1,
-  iron: 2,
-  gold: 3,
-  diamond: 4,
-  netherite: 5,
-};
-
-SkillEvents.registration(event => {
-  event.add('started_quest', 'basic', skill => {
-    skill.initialValue(false)
-      .description('Indicates a Player has joined the Great Quest');
-  });
-
-  // Shares the skill with the rest of the team
-  event.add('team_started_quest', 'basic', skill => {
-    skill.initialValue(false)
-      .description('Indicates a Team has joined the Great Quest')
-      .sharedWithTeam();
-  });
-
-  // Only 16 percent of the team (rounded up) can complete the quest 
-  event.add('team_completed_quest', 'basic', skill => {
-    skill.initialValue(false)
-      .description('Indicates a Player has completed the Great Quest for the team')
-      .percentageOfTeam(16.0);
-  });
-
-  // Only the first 4 Players on the team to gain this skill will receive it 
-  event.add('team_completed_quest', 'basic', skill => {
-    skill.initialValue(false)
-      .description('Indicates a Player has completed the Great Quest for the team')
-      .teamLimitedTo(4);
-  });
-
-  // Create a pyramid of tier limits (1 Nehtherite, 2 Diamond, 4 Gold, 8 Iron, 16 Stone) 
-  event.add('undead_killer', 'basic', skill => {
-    skill.initialValue(false)
-      .description('Tier of undead killer level')
-      .pyramis();
-  });
-});
-```
-
-#### Modify Skill
-
-```js
-SkillEvents.modification(event => {
-  event.modify('skills:test', skill => {
-    skill.initialValue(true)
-      .description('Less of a test value');
-  });
-});
-```
-
-#### Remove Skill
-
-```js
-SkillEvents.modification(event => {
-  event.remove('test');
-});
-```
-
-### Player Actions
-
-Whenever an event is triggered in KubeJS that has a Player associated with it, we attach some Player-specific functions.
-
-#### Get Player's Current Skill Set
-
-KubeJS will have read-only access to a player's skill set. Note that we store _every_ skill on a player, so do not use
-the existence of a skill for determining if a player can perform an action.
-
-```js
-BlockEvents.rightClicked('minecraft:dirt', event => {
-  event.entity.data.skills.all.forEach(skill => console.info(`Player has ${skill.name} at ${skill.value}`))
-})
-```
-
-#### Can?
-
-Instead, we provide a function to determine if a player has a sufficient Skill:
-
-```js
-BlockEvents.rightClicked('minecraft:dirt', event => {
-  if (event.entity.data.skills.can('skills:harvest', 2)) {
-    // If the player does have a harvest skill of 2 or greater, spawn a Green Guardian to plague them
-    event.block.createEntity('custom:green_guardian').spawn()
-  }
-})
-```
-
-This example is expecting `skills:harvest` to be a `Numeric` skill and checks if the player has a skill level of 2 ***or
-greater***. If no skill value is used (i.e. `event.entity.data.skills.can('skills:harvest')`), then the check only looks
-to see if the skill is truthy (`true`, greater than 0, not `null`). If you want to invert the condition, you can use
-`cannot` instead of `can`.
-
-#### Change Skills
-
-Oftentimes, you will want to set a player's skill level based on some arbitrary rules. We don't build in those rules!
-However, you will have a few options:
-
-- `improve(skill: string, builder?: Builder)` - Increase the value
-- `degrade(skill: string, builder?: Builder)` - Decrease the value
-- `set(skill: name, newValue: T, builder?: Builder)` - Set the skill to an arbitrary value
-- `reset(skill: name, builder?: Builder)` - Reset the skill back to the initial value
-
-##### Condition Builder
-
-Each of the methods take an optional condition builder callback. Here, you can provide more boundaries.
-
-- `min(value: T)` - If the player's skill is below the minimum, it will jump to the minimum value. If it's at or above,
-  it will
-  increment appropriately
-- `max(value: T)` - If the player's skill is at or above the maximum value, nothing will change. Otherwise, increment
-  the skill
-  appropriately
-- `if(condition: boolean)` - Add an expression which evaluates to a boolean value. Will only increment the value if this
-  is true
-- `unless(condition: boolean)` - Add an expression which evaluates to a boolean value. Will only increment the value if
-  this is false
-- `chance(percentage: number)` - Make the skill gain based on random chance using the provided. Values are between 0
-  and 100. Anything over 100 is guaranteed success. Default is 100
-
-##### Examples
-
-```js
-BlockEvents.rightClicked('minecraft:dirt', event => {
-  // this is a basic skill, so we ensure it's true
-  event.entity.data.skills.improve('skills:dirt_watcher');
-
-  // this is a numeric skill, but we want to stop improvements this way once it hits 5 and only grant it 1/3rd of the time
-  event.entity.data.skills.improve('skills:harvest', condition => condition.max(5).chance(33.3));
-
-  // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
-  event.entity.data.skills.improve('skills:undead_killer', condition => condition
-    .if(event.entity.data.skills.can('skills:undead_killer', KILLER_TIERS.iron))
-    .max(KILLER_TIERS.gold)
-    .unless(event.entity.data.skills.can('skills:crop_farmer'))
-  );
-})
-```
-
-### Global Utilities
-
-Lastly, KubeJS scripts have access to a `PlayerSkills` object that provides the following information:
-
-- `PlayerSkills.skillTypes`: Returns an array of all registered Skill Types
-- `PlayerSkills.skills`: Returns an array of all registered Skills
-
-### Shared Restrictions API
-
-Restrictions are built using a callback in KubeJS (
-e.g. `SomeRestrictions.register("target", builder => builder.if(player => true));`). Below are methods available to
-every restriction.
-
-#### Condition Methods
-
-- `if`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a signature
-  of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
-- `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
-
-#### Facet Methods
-
-- `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
-  of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
-- `notInDimension`: Adds a facet to the restriction applying to the target only if it is not in one of the listed
-  dimensions. Example: `.notInDimension('@ad_astra')`
-- `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
-  the listed biomes. Example: `.inBiome('#desert')`
-- `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
-
-### Item Restrictions Registry Actions
-
-We use the `ItemSkillEvents.register` ***server*** event to register item restrictions. Registration should have a
-condition (`if` or `unless`). If the player ***matches*** the criteria, the following restrictions are applied. This can
-cascade with other restrictions, so any restrictions which disallow an action will trump any which do allow it. We also
-expose these methods to indicate what restrictions are in place for when a player meets that condition. By default, no
-restrictions are set, so be sure to set actual
-restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
-
-#### Allow Restriction Methods
-
-- `nothing()` - shorthand to apply all "allow" restrictions
-- `producible()` - the item is craftable and recipes for crafting it are visible in REI/JEI. This will automatically
-  set `holdable` since it's required
-- `consumable()` - recipes using the item are visible in REI/JEI. This will automatically set `holdable` since it's
-  required
-- `holdable()` - the item can be picked up and held, i.e. the player can hold the item in their inventory
-- `identifiable()` - the item can be identified, i.e. the player can see details in a tooltip about the item
-- `harmful()` - the item can be used as a weapon (if applicable). This will automatically set `holdable` since it's
-  required
-- `wearable()` - the item can be equipped (if applicable). This will automatically set `holdable` since it's required
-- `usable()` - the item can be used (if applicable), e.g. if a water bucket can place water or if a diamond pickaxe can
-  mine obsidian. This will automatically set `holdable` since it's required
-
-#### Deny Restriction Methods
-
-- `everything()` - shorthand to apply the below "deny" abilities
-- `unproducible()` - the item is not craftable
-- `unconsumable()` - recipes using the item are hidden in REI/JEI
-- `unholdable()` - the item cannot be picked up
-- `unidentifiable()` - the item cannot be identified
-- `harmless()` - the item cannot be used as a weapon (if applicable)
-- `unwearable()` - the item cannot be equipped (if applicable)
-- `unusable()` - the item cannot be used (if applicable)
-
-#### Examples
-
-```js
-ItemSkillEvents.register(event => {
-  // Vanilla items cannot be used at all unless player is at stage 2 (or later)
-  event.restrict('minecraft:*', restrict => {
-    restrict.everything()
-      .if(player => player.cannot('skills:stage', 2));
-  });
-
-  // Vanilla items cannot be crafted at all unless player is at stage 2 (or later)
-  event.restrict('@minecraft', restrict => {
-    restrict.unproducible()
-      .if(player => player.cannot('skills:stage', 2));
-  });
-
-  // Any item tagged as wool cannot be used
-  event.restrict('#minecraft:wool', restrict => {
-    restrict.everything()
-      .if(player => player.cannot('skills:stage', 2));
-  });
-
-  // Bed item cannot be used/placed at all unless player is at stage 2 (or later)
-  event.restrict('minecraft:bed', restrict => {
-    restrict.usable()
-      .if(player => player.cannot('skills:stage', 2));
-  });
-
-  // Bread can be picked up and used in other recipes if player is at stage 1 or below but it cannot be eaten or identified
-  event.restrict('minecraft:bread', restrict => {
-    restrict.everything()
-      .holdable()
-      .consumable()
-      .unless(player => player.can('skills:stage', 2));
-  });
-
-  // The following two restrictions does not result in the same effects as above: everything will still be denied to the player
-  event.restrict('minecraft:bread', restrict => {
-    restrict.everything().holdable().unless(player => player.can('skills:stage', 2));
-  });
-
-  event.restrict('minecraft:bread', restrict => {
-    restrict.everything().visible().unless(player => player.cannot('skills:stage', 2));
-  });
-});
-```
-
-### Mob Restrictions Registry Actions
-
-We use the `MobSkillEvents.register` ***server*** event to register mob restrictions.
-
-Spawn restrictions are then calculated at spawn time based on the players in the entity's despawn range (i.e. 128 blocks
-for most mobs). If the players ***match*** the conditions, the restrictions are applied.
-
-Other restrictions are calculated when the player attempts to interact with the mob. If the player matches the
-conditions, the restriction is applied.
-
-Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
-allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
-condition. By default, no restrictions are set, so be sure to set actual
-restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
-
-#### Allow Restriction Methods
-
-- `nothing()` - shorthand to apply all "allow" restrictions
-- `spawnable(matchAllInsteadOfAny?: boolean)` - The mob can spawn if any (or all) players in range match the criteria
-- `usable()` - Players that meet the condition can interact with the entity (e.g. trade with a villager)
-
-#### Deny Restriction Methods
-
-- `everything()` - shorthand to apply the below "deny" abilities
-- `unspawnable(matchAllInsteadOfAny?: boolean)` - The mob cannot spawn if any (or all) players in range match the
-  criteria
-- `unusable()` - Players that meet the condition cannot interact with the entity (e.g. trade with a villager)
-
-#### Additional Methods
-
-- `always()` - Change `spanwable`/`unspawnable` into an absolute value instead of a condition
-- `fromSpawner(spawner: string)` - Add a spawn type
-
-##### Spawn Types
-
-We have a shortened list of spawn types which we are allowing granular spawn restrictions. We want to keep breeding,
-spawn eggs, direct summons, and more interaction-based spawns as-is.
-
-- `natural` - A normal, random spawn
-- `spawner` - A nearby mob spawner block
-- `structure` - A spawn related to a structure (e.g. guardians, wither skeletons)
-- `patrol` - Really a subset of "natural" but related to illager patrols
-- `chunk` - A natural spawn from when the chunk generates (e.g. villager)
-
-#### Examples
-
-```js
-MobSkillEvents.register(event => {
-  // Always prevent blazes from spawning
-  event.restrict('minecraft:blaze', is => is.unspawnable().always());
-
-  // Prevent all vanilla mobs from spawning
-  event.restrict('@minecraft', is => is.unspawnable().always());
-
-  // Prevent all illagers from spawning
-  event.restrict('#raiders', is => is.unspawnable().always());
-
-  // Prevent all vanilla illager patrols from spawning
-  event.restrict('minecraft:*', is => is.unspawnable().fromSpawner("patrol").always());
-
-  // ALLOW creepers to spawn IF ALL players in range have the `started_quest` skill
-  event.restrict("minecraft:creeper", is => is.spawnable(true).if(player => player.can("skills:started_quest")));
-
-  // ALLOW cows to spawn UNLESS ANY players in range have the `started_quest` skill
-  event.restrict("minecraft:cow", is => is.spawnable().unless(player => player.can("skills:started_quest")));
-
-  // DENY zombies from spawning IF ANY player in range has the `started_quest` skill
-  event.restrict('minecraft:zombie', is => is.unspawnable().if(player => player.can('skills:started_quest')));
-
-  // DENY sheep from spawning UNLESS ALL player in range has the `started_quest` skill
-  event.restrict('minecraft:sheep', is => is.unspawnable(true).unless(player => player.can('skills:started_quest')));
-
-  // Players cannot interact with villagers unless they have `started_quest` skill
-  event.restrict("minecraft:villager", is => is.unusable().unless(player => player.can("skills:started_quest")));
-});
-```
-
-## CraftTweaker API
-
-In v2.0, CraftTweaker support was added as an alternative to KubeJS. It tries to remain very similar to the Kube API,
-but some changes have been made due to how ZenScript works compared to JavaScript.
-
-### Skills Registry Actions
-
-For all registry actions, we use four methods to add or modify skills and one to remove them:
-
-- `mods.playerskills.Skills.createBasic(name: String)` to create a new or modify an existing basic skill.
-- `mods.playerskills.Skills.createNumeric(name: String)` to create a new or modify an existing numeric skill.
-- `mods.playerskills.Skills.createTiered(name: String)` to create a new or modify an existing tiered skill.
-- `mods.playerskills.Skills.createSpecialized(name: String)` to create a new or modify an existing specialized skill.
-- `mods.playerskills.Skills.remove(name: String)` to remove a possibly existing skill.
-
-Each method uses the skill name as the first parameter. This is a string that will be cast into a `ResourceLocation`, so
-it must conform to ResourceLocation rules (namely, `snake_case` instead of `camelCase`). If no namespace is given, it
-will automatically be placed into the `skills:` namespace. The return for each of these methods is the same: a Skill
-Builder.
-
-#### Skill Builder Methods
-
-- `save(): Boolean` - Commits the skill to the registry. If this is not called, the skill will not be added or modified.
-- `initialValue(newValue: T)` - Sets a starting value for all players
-- `clearValue()` - Empties the initial value
-- `description(desc: string)` - Sets the skill description
-- `limitChanges(limit: number)` - How many times the skill can change before it is locked
-- `unlimitedChanges()` - Allows the skill to always change
-- `notifyOnChange(translationKey?: string)` - Send a notification when the skill changes (using either the provided
-  translation key or the base skill name)
-- `clearNotification()` - Turns off notification on skill change
-- `options(choices: T[])` - Sets what values will be allowed
-- `sharedWithTeam()` - Sync progress to all players on a team for the shared skill (requires FTM Teams)
-- `teamLimitedTo(amount: number)` - Limits the progress to only `amount` players on the team (requires FTB Teams)
-- `percentageOfTeam(percentage: number)` = Limits the progress to a `percentage` of the players on the team (requires
-  FTB Teams)
-- `splitEvenlyAcrossTeam()` - Limits the progress of a _specialization_ skill so that there must be an even distribution
-  of specializations across the team.
-- `pyramid()` - Limits the progress of a _tiered_ skill so that fewer and fewer players on a team can progress until
-  only one player has the highest tier.
-
-#### Add a skill
-
-By default, we provide a simple boolean skill type (yes/no) which resembles what comes from Game Stages and Game Phases.
-
-```zs
-#priority 10
-
-import mods.playerskills.Skills;
-
-// Let's assume we have these tiers for `undead_killer` skill
-// Because this is a class, it'll be accessible to all scripts with a lower priority 
-public class KILLER_LEVELS {
-  public static val stone as string = "stone";
-  public static val iron as string = "iron";
-  public static val gold as string = "gold";
-  public static val diamond as string = "diamond";
-  public static val netherite as string = "netherite";
-}
-
-Skills.basic("started_quest")
-    .description("Indicates a Player has joined the Great Quest")
-    .initialValue(false)
-    .save();
-
-// Shares the skill with the rest of the team
-Skills.basic("team_started_quest")
-    .description("Indicates a Player has joined the Great Quest for the team")
-    .initialValue(false)
-    .sharedWithTeam()
-    .save();
-
-// Only 16 percent of the team (rounded up) can complete the quest
-Skills.basic("team_completed_quest")
-    .description("Indicates a Player has completed the Great Quest for the team")
-    .initialValue(false)
-    .percentageOfTeam(16.0)
-    .save();
-
-// Only the first 4 Players on the team to gain this skill will receive it 
-Skills.basic("team_completed_quest")
-    .description("Indicates a Player has completed the Great Quest for the team")
-    .initialValue(false)
-    .teamLimitedTo(4)
-    .save();
-
-// Create a pyramid of tier limits (1 Nehtherite, 2 Diamond, 4 Gold, 8 Iron, 16 Stone)
-Skills.tiered("undead_killer")
-  .initialValue(KILLER_LEVELS.iron)
-  .options([KILLER_LEVELS.stone, KILLER_LEVELS.iron, KILLER_LEVELS.gold, KILLER_LEVELS.diamond, KILLER_LEVELS.netherite] as string[])
-  .description('Tier of undead killer level')
-  .pyramid()
-  .save();
-```
-
-#### Modify Skill
-
-```zs
-// Now we want to modify undead_killer to change the initial value
-Skills.tiered("undead_killer")
-  .initialValue(KILLER_LEVELS.stone)
-  .save();
-```
-
-#### Remove Skill
-
-```zs
-Skills.remove('test');
-```
-
-### Expand Player Methods
-
-Any script that access the `Player` class will also have access to several PlayerSkills methods.
-
-- `player.skills` (or if you want `player.getSkills()`) - a List of a player's skill set. Note that we store _every_
-  skill on a player, so do not use the existence of a skill for determining if a player can perform an action.
-- `player.can(skillName: String, expectedValue?: T)` - Checks a specific skill if it is at or above an optional expected
-  value (default is "truthy" for the skill type). `!player.can()` is the same as `player.cannot()`
-- `player.cannot(skillName: String, expectedValue?: T)` - Checks a specific skill if it is below an optional expected
-  value (default is "truthy" for the skill type). `!player.cannot()` is the same as `player.can()`
-
-```zs
-// This event is only in Forge
-crafttweaker.api.events.CTEventManager.register<crafttweaker.api.event.entity.player.interact.RightClickBlockEvent>((event) => {
-  val player = event.player;
-  // Note that you'll need to be aware of how often an event can be fired (e.g. 4x here) and limit things accordingly
-  if (player.level.isClientSide || event.hand != <constant:minecraft:interactionhand:main_hand>) {
-    return;
-  }
-
-  val blockState = player.level.getBlockState(event.blockPos);
-  if (<block:minecraft:dirt>.matches(blockState.block) && player.cannot("denied_quest")) {
-    player.improveSkill("started_quest");
-  }
-  
-  if (<block:minecraft:grass>.matches(blockState.block) && !player.can("harvest", 2)) {
-    // do something here if the player does not have a high enough harvest skill when right clicking a grass block 
-  }
-});
-```
-
-#### Change Skills
-
-Oftentimes, you will want to set a player's skill level based on some arbitrary rules. We don't build in those rules!
-However, you will have a few options:
-
-- `improveSkill(skill: string, min?: T, max?: T)` - Increase the value
-- `degradeSkill(skill: string, min?: T, max?: T)` - Decrease the value
-- `setSkill(skill: name, newValue: T)` - Set the skill to an arbitrary value
-- `resetSkill(skill: name)` - Reset the skill back to the initial value
-
-##### Examples
-
-```zs
-// This event is only in Forge
-crafttweaker.api.events.CTEventManager.register<crafttweaker.api.event.entity.player.interact.RightClickBlockEvent>((event) => {
-  val player = event.player;
-  // Note that you'll need to be aware of how often an event can be fired (e.g. 4x here) and limit things accordingly
-  if (player.level.isClientSide || event.hand != <constant:minecraft:interactionhand:main_hand>) {
-    return;
-  }
-
-  val blockState = player.level.getBlockState(event.blockPos);
-  if (<block:minecraft:dirt>.matches(blockState.block) && player.cannot("denied_quest")) {
-    // this is a basic skill, so we ensure it's true
-    player.improveSkill("skills:dirt_watcher");
-    
-    // this is a numeric skill, but we want to stop improvements this way once it hits 5 and only grant it 1/3rd of the time
-    player.improveSkill("skills:harvest", null, 5);
-    
-    // this is a tiered skill, we're allowing an upgrade from iron -> gold but only if the player hasn't gained the `crop_farmer` skill
-    if (player.can("skills:undead_killer", KILLER_TIERS.iron) && player.cannot("skills:crop_farmer")) {
-      player.improveSkill("skills:undead_killer", null, KILLER_TIERS.gold);
-    }
-  }
-});
-```
-
-### Shared Restrictions API
-
-Restrictions are build as chained calls in CraftTweaker (
-e.g. `SomeRestrictions.create("target").condition(player => true).save()`). These methods are available for every
-restriction.
-
-- `save`: Completes the building of this restriction and adds the restriction to the registry.
-
-#### Condition Methods
-
-- `condition`: Sets the condition which must evaluate to true in order to apply. This is a callback function with a
-  signature
-  of `Player -> Boolean`. Example: `.if(player => player.cannot('harvest', 5))`
-- `unless`: Sets the condition which must evaluate to false. The callback function is the same as `if`
-
-#### Facet Methods
-
-- `inDimension`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one
-  of the listed dimensions. Example: `.inDimension('overworld').inDimension('the_nether')`
-- `notInDimension`: Adds a facet to the restriction applying to the target only if it is not in one of the listed
-  dimensions. Example: `.notInDimension('@ad_astra')`
-- `inBiome`: Adds a facet to the restriction applying to the restriction target (entity, block) only if it is in one of
-  the listed biomes. Example: `.inBiome('#desert')`
-- `notInBiome`: Adds a facet to the restriction applying to the target only if it is not in one of the listed biomes
-
-### Item Restrictions
-
-We use the `mods.playerskills.ItemRestrictions.create` static method to register item restrictions.
-
-Some restrictions are calculated on per-tick basis (e.g. holdable, wearable). Others are calculated when the player
-attempts to interact with the item in hand, in world, or in an inventory. If the player matches the conditions, the
-restriction is applied.
-
-Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
-allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
-condition. By default, no restrictions are set, so be sure to set actual restrictions.
-
-#### Allow Builder Methods
-
-- `nothing()` - shorthand to apply all "allow" restrictions
-- `producible()` - the item is craftable and recipes for crafting it are visible in REI/JEI. This will automatically
-  set `holdable` since it's required
-- `consumable()` - recipes using the item are visible in REI/JEI. This will automatically set `holdable` since it's
-  required
-- `holdable()` - the item can be picked up and held, i.e. the player can hold the item in their inventory
-- `identifiable()` - the item can be identified, i.e. the player can see details in a tooltip about the item
-- `harmful()` - the item can be used as a weapon (if applicable). This will automatically set `holdable` since it's
-  required
-- `wearable()` - the item can be equipped (if applicable). This will automatically set `holdable` since it's required
-- `usable()` - the item can be used (if applicable), e.g. if a water bucket can place water or if a diamond pickaxe can
-  mine obsidian. This will automatically set `holdable` since it's required
-
-#### Deny Builder Methods
-
-- `everything()` - shorthand to apply the below "deny" abilities
-- `unproducible()` - the item is not craftable
-- `unconsumable()` - recipes using the item are hidden in REI/JEI
-- `unholdable()` - the item cannot be picked up
-- `unidentifiable()` - the item cannot be identified
-- `harmless()` - the item cannot be used as a weapon (if applicable)
-- `unwearable()` - the item cannot be equipped (if applicable)
-- `unusable()` - the item cannot be used (if applicable)
-
-#### Examples
-
-```js
-// Vanilla items cannot be used at all unless player is at stage 2 (or later)
-ItemRestrictions.create("minecraft:*")
-  .everything()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Vanilla items cannot be crafted at all unless player is at stage 2 (or later)
-ItemRestrictions.create("@minecraft")
-  .unproducible()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Any item tagged as wool cannot be used
-ItemRestrictions.create("#minecraft:wool")
-  .everything()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Bed item cannot be used/placed at all unless player is at stage 2 (or later)
-ItemRestrictions.create("#minecraft:white_bed")
-  .usable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// Bread can be picked up and used in other recipes if player is at stage 1 or below but it can be eaten and held
-ItemRestrictions.create("#minecraft:bread")
-  .everything()
-  .holdable()
-  .consumable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-// The following two restrictions does not result in the same effects as above: everything will still be denied to the player
-ItemRestrictions.create("#minecraft:bread")
-  .everything()
-  .holdable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-ItemRestrictions.create("#minecraft:bread")
-  .everything()
-  .consumable()
-  .condition((player) => player.cannot("skills:stage", 2))
-  .save();
-
-```
-
-### Mob Restrictions
-
-We use the `mods.playerskills.MobRestrictions.create` static method to register mob restrictions.
-
-Spawn restrictions are then calculated at spawn time based on the players in the entity's despawn range (i.e. 128 blocks
-for most mobs). If the players ***match*** the conditions, the restrictions are applied.
-
-Other restrictions are calculated when the player attempts to interact with the mob. If the player matches the
-conditions, the restriction is applied.
-
-Restrictions can cascade with other restrictions, so any restrictions which disallow an action will trump any which do
-allow it. We also expose these methods to indicate what restrictions are in place for when a player meets that
-condition. By default, no restrictions are set, so be sure to set actual restrictions.
-
-#### Allow Builder Methods
-
-- `nothing()` - shorthand to apply all "allow" restrictions
-- `spawnable(matchAllInsteadOfAny?: boolean)` - The mob can spawn if any (or all) players in range match the criteria
-- `usable()` - Players that meet the condition can interact with the entity (e.g. trade with a villager)
-
-#### Deny Builder Methods
-
-- `everything()` - shorthand to apply the below "deny" abilities
-- `unspawnable(matchAllInsteadOfAny?: boolean)` - The mob cannot spawn if any (or all) players in range match the
-  criteria
-- `unusable()` - Players that meet the condition cannot interact with the entity (e.g. trade with a villager)
-
-#### Additional Methods
-
-- `always()` - Change `spanwable`/`unspawnable` into an absolute value instead of a condition
-- `fromSpawner(spawner: string)` - Add a spawn type
-
-##### Spawn Types
-
-We have a shortened list of spawn types which we are allowing granular spawn restrictions. We want to keep breeding,
-spawn eggs, direct summons, and more interaction-based spawns as-is.
-
-- `natural` - A normal, random spawn
-- `spawner` - A nearby mob spawner block
-- `structure` - A spawn related to a structure (e.g. guardians, wither skeletons)
-- `patrol` - Really a subset of "natural" but related to illager patrols
-- `chunk` - A natural spawn from when the chunk generates (e.g. villager)
-
-#### Examples
-
-```zs
-import mods.mobskills.MobSkillEvents;
-
-// Always prevent blazes from spawning
-MobSkillEvents.create('minecraft:blaze')
-  .unspawnable()
-  .always()
-  .save();
-
-  // Prevent all vanilla mobs from spawning
-  MobSkillEvents.create('@minecraft')
-    .unspawnable()
-    .always()
-    .save();
-
-  // Prevent all illagers from spawning
-  MobSkillEvents.create('#raiders')
-  .unspawnable()
-  .always()
-  .save();
-
-  // Prevent all vanilla illager patrols from spawning
-  MobSkillEvents.create('minecraft:*')
-  .unspawnable()
-  .fromSpawner("patrol")
-  .always()
-  .save();
-
-  // ALLOW creepers to spawn IF ALL players in range have the `started_quest` skill
-  MobSkillEvents.create("minecraft:creeper")
-    .spawnable(true)
-    .if(player => player.can("skills:started_quest"))
-    .save();
-
-  // ALLOW cows to spawn UNLESS ANY players in range have the `started_quest` skill
-  MobSkillEvents.create("minecraft:cow")
-    .spawnable()
-    .unless(player => player.can("skills:started_quest"))
-    .save();
-
-  // DENY zombies from spawning IF ANY player in range has the `started_quest` skill
-  MobSkillEvents.create('minecraft:zombie')
-    .unspawnable().if(player => player.can('skills:started_quest'))
-    .save();
-
-  // DENY sheep from spawning UNLESS ALL player in range has the `started_quest` skill
-  MobSkillEvents.create('minecraft:sheep')
-    .unspawnable(true)
-    .unless(player => player.can('skills:started_quest'))
-    .save();
-
-  // Players cannot interact with villagers unless they have `started_quest` skill
-  MobSkillEvents.create("minecraft:villager")
-    .unusable()
-    .unless(player => player.can("skills:started_quest"))
-    .save();
-```
-
-## Java API
-
-Registering Skills and SkillTypes should happen during initialization (see `PlayerSkills.registerTypes`) using
-a `DeferredRegister` to ensure it is happens at the right time.
-
-```java
-package my.custom.mod;
-
-import dev.architectury.registry.registries.DeferredRegister;
-import net.impleri.playerskills.api.skills.Skill;
-import net.impleri.playerskills.api.SkillType;
-import net.impleri.playerskills.utils.SkillResourceLocation;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import my.custom.mod.custom.CustomSkill;
-import my.custom.mod.custom.CustomSkillType;
-
-public class ExampleMod {
-    public static final String MOD_ID = 'mycustommod';
-    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skill.REGISTRY_KEY);
-    private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(MOD_ID, SKILL_REGISTRY);
-
-    private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillType.REGISTRY_KEY);
-    private static final DeferredRegister<SkillType<?>> SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY);
-
-    public ExampleMod() {
-        // All that is needed to register a skill type
-        SKILL_TYPES.register(CustomSkillType.name, CustomSkillType::new);
-        SKILL_TYPES.register();
-
-        // And to register a skill
-        ResourceLocation skillName = SkillResourceLocation.of("test");
-        SKILLS.register(skillName, () -> new CustomSkill(skillName));
-        SKILLS.register();
-    }
-}
-
-```
-
-`SkillType`s are available in both the logical server and the logical client sides
-via `net.impleri.playerskills.api.SkillType` static methods. Post-modification `Skill`s are only available on the server
-side via `net.impleri.playerskills.server.api.Skill` static methods. Validating a player's skills (`can`) can be done on
-both client (`net.impleri.playerskills.client.PlayerClient`) and server (`net.impleri.playerskills.api.Player`).
-
-Any manipulation to those skills (`set`) can only happen on the server side. It should be noted that the API layer does
-have the convenience methods (e.g. `improve`, `degrade`).
-
-### Networking
-
-We expose a pair of network messages for communicating between the client and server: `SyncSkills` and `ResyncSkills`.
-The server side sends `SyncSkills` whenever the local player on the client has updated skills. It sends the player's
-most recent set of skills and gets cached in the client-side registry which supplies data necessary for the `ClientApi`.
-The client side can also request an update via the `ResyncSkills` message.
-
-### Events
-
-Events are now triggered on both the server side and the client side as a player's skills are changed. On the server
-side, `SkillChangedEvent` is broadcast with information about the specific skill change. This is consumed in `KubeJS`
-scripts as it is rebroadcast to the `SkillEvents.onChanged` handler. It is also consumed on the server side network
-handler which updates that specific player's client side.
-
-When a client receives an updated list of skills, `ClientSkillsUpdatedEvent` is broadcast for any client-side libraries
-to handle updates.
 
 ## In-Game Commands
 
@@ -1121,6 +326,70 @@ repositories {
 
 ```
 
+## Java API
+
+Registering Skills and SkillTypes should happen during initialization (see `PlayerSkills.registerTypes`) using
+a `DeferredRegister` to ensure it is happens at the right time.
+
+```java
+package my.custom.mod;
+
+import dev.architectury.registry.registries.DeferredRegister;
+import net.impleri.playerskills.api.skills.Skill;
+import net.impleri.playerskills.api.skills.SkillType;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import my.custom.mod.custom.CustomSkill;
+import my.custom.mod.custom.CustomSkillType;
+
+public class ExampleMod {
+    public static final String MOD_ID = 'mycustommod';
+    private static final ResourceKey<Registry<Skill<?>>> SKILL_REGISTRY = ResourceKey.createRegistryKey(Skill.REGISTRY_KEY);
+    private static final DeferredRegister<Skill<?>> SKILLS = DeferredRegister.create(MOD_ID, SKILL_REGISTRY);
+
+    private static final ResourceKey<Registry<SkillType<?>>> SKILL_TYPE_REGISTRY = ResourceKey.createRegistryKey(SkillType.REGISTRY_KEY);
+    private static final DeferredRegister<SkillType<?>> SKILL_TYPES = DeferredRegister.create(MOD_ID, SKILL_TYPE_REGISTRY);
+
+    public ExampleMod() {
+        // All that is needed to register a skill type
+        SKILL_TYPES.register(CustomSkillType.name, CustomSkillType::new);
+        SKILL_TYPES.register();
+
+        // And to register a skill
+        ResourceLocation skillName = new ResourceLocation("examplemod:test");
+        SKILLS.register(skillName, () -> new CustomSkill(skillName));
+        SKILLS.register();
+    }
+}
+
+```
+
+`SkillType`s are available in both the logical server and the logical client sides
+via `net.impleri.playerskills.api.SkillType` static methods. Post-modification `Skill`s are only available on the server
+side via `net.impleri.playerskills.server.api.Skill` static methods. Validating a player's skills (`can`) can be done on
+both client (`net.impleri.playerskills.client.PlayerClient`) and server (`net.impleri.playerskills.api.Player`).
+
+Any manipulation to those skills (`set`) can only happen on the server side. It should be noted that the API layer does
+have the convenience methods (e.g. `improve`, `degrade`).
+
+### Networking
+
+We expose a pair of network messages for communicating between the client and server: `SyncSkills` and `ResyncSkills`.
+The server side sends `SyncSkills` whenever the local player on the client has updated skills. It sends the player's
+most recent set of skills and gets cached in the client-side registry which supplies data necessary for the `ClientApi`.
+The client side can also request an update via the `ResyncSkills` message.
+
+### Events
+
+Events are now triggered on both the server side and the client side as a player's skills are changed. On the server
+side, `SkillChangedEvent` is broadcast with information about the specific skill change. This is consumed in `KubeJS`
+scripts as it is rebroadcast to the `SkillEvents.onChanged` handler. It is also consumed on the server side network
+handler which updates that specific player's client side.
+
+When a client receives an updated list of skills, `ClientSkillsUpdatedEvent` is broadcast for any client-side libraries
+to handle updates.
+
 ## Modpacks
 
-Want to use this in a modpack? Great! This waBecause os designed with modpack developers in mind. No need to ask.
+Want to use this in a modpack? Great! This was designed with modpack developers in mind. No need to ask.

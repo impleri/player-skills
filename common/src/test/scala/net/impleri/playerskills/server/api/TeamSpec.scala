@@ -6,9 +6,9 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
 import net.impleri.playerskills.facades.minecraft.Server
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
 import java.util.UUID
@@ -51,13 +51,13 @@ class TeamSpec extends BaseSpec {
   "TeamSkillCalculator.getMaxTeamSkills" should "return the highest shared skills for the team" in {
     val secondUuid = UUID.randomUUID()
 
-    val skill1Name = new ResourceLocation("testskills", "alpha")
+    val skill1Name = ResourceLocation("testskills", "alpha").get
     val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
-    val skill2Name = new ResourceLocation("testskills", "beta")
+    val skill2Name = ResourceLocation("testskills", "beta").get
     val skill2 = TestSkill(skill2Name, teamMode = TeamMode.Pyramid())
-    val skill3Name = new ResourceLocation("testskills", "gamma")
+    val skill3Name = ResourceLocation("testskills", "gamma").get
     val skill3 = TestSkill(skill3Name)
-    val skill4Name = new ResourceLocation("testskills", "delta")
+    val skill4Name = ResourceLocation("testskills", "delta").get
     val skill4 = TestSkill(skill4Name, teamMode = TeamMode.Shared())
 
     val allSkills = List(skill1, skill2, skill3, skill4)
@@ -105,13 +105,15 @@ class TeamSpec extends BaseSpec {
   }
 
   "TeamUpdater.updateMemberSkill" should "update the player if the player has the wrong value" in {
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = Option(14.2)
     val updatedSkill = mock[Skill[Double]]
     updatedSkill.name returns skillName
     updatedSkill.value returns skillValue
 
     val existingSkill = mock[Skill[Double]]
+
+    existingSkill.name returns skillName
 
     playerOpsMock.get[Double](givenUuid, skillName) returns Option(existingSkill)
 
@@ -124,9 +126,9 @@ class TeamSpec extends BaseSpec {
 
   "TeamUpdater.syncSkills" should "ensure every team member has the new value" in {
     val secondUuid = UUID.randomUUID()
-    val skill1Name = new ResourceLocation("testskills", "alpha")
+    val skill1Name = ResourceLocation("testskills", "alpha").get
     val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
-    val skill2Name = new ResourceLocation("testskills", "delta")
+    val skill2Name = ResourceLocation("testskills", "delta").get
     val skill2 = TestSkill(skill2Name, teamMode = TeamMode.Shared())
 
     val allSkills = List(skill1.copy(value = Option("alpha")), skill2.copy(value = Option("delta")))
@@ -174,7 +176,7 @@ class TeamSpec extends BaseSpec {
     val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val oldSkill = TestSkill(skillName, teamMode = TeamMode.Shared())
     val newSkill = oldSkill.copy(value = Option("newvalue"))
 
@@ -191,7 +193,7 @@ class TeamSpec extends BaseSpec {
   it should "should not trigger notifications if emit is false" in {
     val serverMock = mock[Server]
 
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val oldSkill = TestSkill(skillName, teamMode = TeamMode.Shared())
     val newSkill = oldSkill.copy(value = Option("newvalue"))
 
@@ -206,7 +208,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamLimit.countWith" should "count all users with the value or better" in {
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = Option("alpha")
     val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Shared())
 
@@ -223,7 +225,7 @@ class TeamSpec extends BaseSpec {
   }
 
   "TeamLimit.getTeamLimit" should "returns None if the team is only one player" in {
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skill = TestSkill(skillName, teamMode = TeamMode.Limited(5))
 
     testUnit.getTeamLimit(List(givenUuid), skill) should be(None)
@@ -231,7 +233,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamLimit.getTeamLimit" should "returns None if the skill team mode is off" in {
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skill = TestSkill(skillName, teamMode = TeamMode.Off())
 
     testUnit.getTeamLimit(List(givenUuid, secondUuid), skill) should be(None)
@@ -239,7 +241,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamLimit.getTeamLimit" should "returns None if the skill team mode is shared" in {
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skill = TestSkill(skillName, teamMode = TeamMode.Shared())
 
     testUnit.getTeamLimit(List(givenUuid, secondUuid), skill) should be(None)
@@ -247,7 +249,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamLimit.getTeamLimit" should "returns the team mode limit otherwise" in {
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val expectedLimit = 5
     val skill = TestSkill(skillName, teamMode = TeamMode.Limited(expectedLimit))
 
@@ -256,7 +258,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamLimit.allows" should "return true if there are fewer players than the limit allows" in {
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val expectedLimit = 5
     val skillValue = Option("alpha")
     val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Limited(expectedLimit))
@@ -271,7 +273,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamLimit.allows" should "return true if there is no limit" in {
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = Option("alpha")
     val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Shared())
 
@@ -285,7 +287,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamLimit.allows" should "return false if there are more players than the limit allows" in {
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val expectedLimit = 1
     val skillValue = Option("alpha")
     val skill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Limited(expectedLimit))
@@ -303,7 +305,7 @@ class TeamSpec extends BaseSpec {
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = Option("oldvalue")
     val newValue = None
     val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Shared())
@@ -340,7 +342,7 @@ class TeamSpec extends BaseSpec {
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = None
     val newValue = Option("newvalue")
     val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Off())
@@ -376,7 +378,7 @@ class TeamSpec extends BaseSpec {
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
     val secondUuid = UUID.randomUUID()
-    val skillName = new ResourceLocation("testskills", "alpha")
+    val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = None
     val newValue = Option("newvalue")
     val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Off())
@@ -408,13 +410,13 @@ class TeamSpec extends BaseSpec {
     val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
-    val skill1Name = new ResourceLocation("testskills", "alpha")
+    val skill1Name = ResourceLocation("testskills", "alpha").get
     val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
-    val skill2Name = new ResourceLocation("testskills", "beta")
+    val skill2Name = ResourceLocation("testskills", "beta").get
     val skill2 = TestSkill(skill2Name, teamMode = TeamMode.Pyramid())
-    val skill3Name = new ResourceLocation("testskills", "gamma")
+    val skill3Name = ResourceLocation("testskills", "gamma").get
     val skill3 = TestSkill(skill3Name)
-    val skill4Name = new ResourceLocation("testskills", "delta")
+    val skill4Name = ResourceLocation("testskills", "delta").get
     val skill4 = TestSkill(skill4Name, teamMode = TeamMode.Shared())
 
     val allSkills = List(skill1, skill2, skill3, skill4)
@@ -467,13 +469,13 @@ class TeamSpec extends BaseSpec {
     val serverMock = mock[Server]
     val playerMock = mock[MinecraftPlayer[ServerPlayer]]
 
-    val skill1Name = new ResourceLocation("testskills", "alpha")
+    val skill1Name = ResourceLocation("testskills", "alpha").get
     val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
-    val skill2Name = new ResourceLocation("testskills", "beta")
+    val skill2Name = ResourceLocation("testskills", "beta").get
     val skill2 = TestSkill(skill2Name, teamMode = TeamMode.Pyramid())
-    val skill3Name = new ResourceLocation("testskills", "gamma")
+    val skill3Name = ResourceLocation("testskills", "gamma").get
     val skill3 = TestSkill(skill3Name)
-    val skill4Name = new ResourceLocation("testskills", "delta")
+    val skill4Name = ResourceLocation("testskills", "delta").get
     val skill4 = TestSkill(skill4Name, teamMode = TeamMode.Shared())
 
     val allSkills = List(skill1, skill2, skill3, skill4)

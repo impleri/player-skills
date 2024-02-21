@@ -20,13 +20,12 @@ class LifecycleEventsSpec extends BaseSpec {
     setupEventMock,
     eventMock,
     eventMock,
-    eventMock,
   )
 
   "LifecycleEvents.registerEvents" should "bind events" in {
     testUnit.registerEvents()
 
-    eventMock.register(*) wasCalled thrice
+    eventMock.register(*) wasCalled twice
     setupEventMock.register(*) wasCalled once
   }
 
@@ -42,10 +41,6 @@ class LifecycleEventsSpec extends BaseSpec {
     testUnit.beforeServerStart(serverMock)
 
     onChangeMock(Option(serverMock)) wasCalled once
-  }
-
-  "LifecycleEvents.onServerStart" should "do nothing" in {
-    testUnit.onServerStart()
   }
 
   "LifecycleEvents.beforeServerStops" should "handle stop" in {

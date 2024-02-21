@@ -32,7 +32,7 @@ class NetHandler(
 object NetHandler {
   def apply(
     playerOps: Player = Player(),
-    messageFactory: SyncSkillsMessageFactory,
+    messageFactory: SyncSkillsMessageFactory = SyncSkillsMessageFactory(),
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): NetHandler = {
     new NetHandler(

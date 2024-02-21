@@ -4,8 +4,12 @@ import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.events.SkillChangedEvent
 import net.impleri.playerskills.facades.architectury.ReloadListeners
 import net.impleri.playerskills.server.EventHandler
-import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.data.restrictions.ItemRestrictionDataLoader
+import net.impleri.playerskills.data.restrictions.RecipeRestrictionDataLoader
+import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
+import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 
@@ -34,9 +38,12 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 //}
 
 case class InternalEvents(
-  eventHandler: EventHandler,
-  serverStateContainer: ServerStateContainer = PlayerSkillsServer.STATE,
-  onReload: ResourceManager => Unit,
+  itemRestrictionBuilder: ItemRestrictionBuilder,
+  recipeRestrictionBuilder: RecipeRestrictionBuilder,
+  eventHandler: EventHandler = EventHandler(),
+  globalState: StateContainer = StateContainer(),
+  serverStateContainer: ServerStateContainer = ServerStateContainer(),
+  onReload: ResourceManager => Unit = _ => {},
   reloadListeners: ReloadListeners = ReloadListeners(),
 )
   extends ResourceManagerReloadListener {
@@ -49,7 +56,23 @@ case class InternalEvents(
 
     // Vanilla Events
     reloadListeners.register(this)
-    reloadListeners.register(SkillsDataLoader())
+    reloadListeners.register(SkillsDataLoader(globalState.SKILL_OPS))
+    reloadListeners.register(
+      ItemRestrictionDataLoader(
+        itemRestrictionBuilder,
+        globalState.SKILL_OPS,
+        globalState.SKILL_TYPE_OPS,
+        serverStateContainer.PLAYER_OPS,
+      ),
+    )
+    reloadListeners.register(
+      RecipeRestrictionDataLoader(
+        recipeRestrictionBuilder,
+        globalState.SKILL_OPS,
+        globalState.SKILL_TYPE_OPS,
+        serverStateContainer.PLAYER_OPS,
+      ),
+    )
   }
 
   override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)

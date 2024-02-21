@@ -12,7 +12,7 @@ import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
 
 trait Team {
-  protected[server] def getTeamMembersFor(player: UUID): List[UUID]
+  protected[playerskills] def getTeamMembersFor(player: UUID): List[UUID]
 
 }
 
@@ -86,13 +86,11 @@ trait TeamUpdater {
       updates
         .filter(t => playerOps.isOnline(t._1))
         .foreach(tuple =>
-          server
-            .getPlayer(tuple._1)
+          server.getPlayer(tuple._1)
             .foreach(
               player => {
                 eventHandler.emitSkillChanged(player, originalSkill, tuple._2.asInstanceOf[Option[Skill[T]]])
-                originalSkill
-                  .getNotification(tuple._2.asInstanceOf[Option[Skill[T]]].flatMap(_.value))
+                originalSkill.getNotification(tuple._2.asInstanceOf[Option[Skill[T]]].flatMap(_.value))
                   .foreach(player.sendMessage(_))
               },
             ),

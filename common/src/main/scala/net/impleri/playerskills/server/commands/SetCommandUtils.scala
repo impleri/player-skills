@@ -3,11 +3,11 @@ package net.impleri.playerskills.server.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.api.TeamOps
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 
 import scala.util.chaining.scalaUtilChainingOps
 

@@ -2,7 +2,7 @@ package net.impleri.playerskills.server.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.minecraft.resources.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 
 import java.util.UUID
 
@@ -22,7 +22,7 @@ class PlayerRegistryStateSpec extends BaseSpec {
     val givenPlayer = UUID.randomUUID()
 
     val initialState = PlayerRegistryState.empty
-    val testName = new ResourceLocation("skills", "test")
+    val testName = ResourceLocation("skills", "test").get
     val testSkill = TestSkill(testName)
 
     val (nextState, _) = PlayerRegistryState.upsert(givenPlayer, List(testSkill)).run(initialState).value
@@ -36,8 +36,8 @@ class PlayerRegistryStateSpec extends BaseSpec {
     val givenPlayer = UUID.randomUUID()
 
     val initialState = PlayerRegistryState.empty
-    val expectedName = new ResourceLocation("skills", "test")
-    val unneededName = new ResourceLocation("skills", "bad")
+    val expectedName = ResourceLocation("skills", "test").get
+    val unneededName = ResourceLocation("skills", "bad").get
     val firstSkill = TestSkill(expectedName)
     val replacedSkill = TestSkill(expectedName, Option("test"))
 
@@ -60,8 +60,8 @@ class PlayerRegistryStateSpec extends BaseSpec {
     val otherPlayer = UUID.randomUUID()
 
     val initialState = PlayerRegistryState.empty
-    val testName = new ResourceLocation("skills", "test")
-    val otherName = new ResourceLocation("skills", "other")
+    val testName = ResourceLocation("skills", "test").get
+    val otherName = ResourceLocation("skills", "other").get
     val testSkill = TestSkill(testName)
 
     val givenMap = Map(
@@ -81,8 +81,8 @@ class PlayerRegistryStateSpec extends BaseSpec {
     val givenPlayer = UUID.randomUUID()
 
     val initialState = PlayerRegistryState.empty
-    val expectedName = new ResourceLocation("skills", "test")
-    val unneededName = new ResourceLocation("skills", "other")
+    val expectedName = ResourceLocation("skills", "test").get
+    val unneededName = ResourceLocation("skills", "other").get
     val testSkill = TestSkill(expectedName)
 
     val (nextState, _) = PlayerRegistryState
@@ -100,8 +100,8 @@ class PlayerRegistryStateSpec extends BaseSpec {
     val otherPlayer = UUID.randomUUID()
 
     val initialState = PlayerRegistryState.empty
-    val testName = new ResourceLocation("skills", "test")
-    val otherName = new ResourceLocation("skills", "other")
+    val testName = ResourceLocation("skills", "test").get
+    val otherName = ResourceLocation("skills", "other").get
     val testSkill = TestSkill(testName)
 
     val givenMap = Map(
