@@ -5,17 +5,16 @@ import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.facades.minecraft.crafting.Recipe
 import net.impleri.playerskills.facades.minecraft.world.Item
 import net.minecraft.world.Container
-import net.minecraft.world.item.crafting.Ingredient
 
 class RecipeTargetSpec extends BaseSpec {
   private val mockRecipeType = mock[ResourceLocation]
   private val outputItem = "minecraft:andesite"
   private val ingredient = "minecraft:stone"
-  private val ingredient2 = "minecraft:cobblestone"
+  private val ingredient2 = "#stone_bricks"
 
-  private val testUnit = RecipeTarget(mockRecipeType, Option(outputItem), Seq(ingredient))
+  private val testUnit = RecipeTarget(mockRecipeType, Option(outputItem), Seq(ingredient, ingredient2))
 
-  private val testUnitJustOutput = RecipeTarget(mockRecipeType, Option(outputItem))
+  private val testUnitJustOutput = RecipeTarget(mockRecipeType, Option(outputItem), Seq.empty)
 
   private val testUnitJustIngredients = RecipeTarget(mockRecipeType, ingredients = Seq(ingredient, ingredient2))
 
@@ -24,11 +23,13 @@ class RecipeTargetSpec extends BaseSpec {
   private val mockRecipe = mock[Recipe[Container]]
 
   "RecipeTarget.getOutputItem" should "returns the item parsed from the string" in {
-    testUnit.getOutputItem.value.name shouldBe outputItem
+    testUnit.getOutputItem.value.isInstanceOf[Item] shouldBe true
+    testUnit.getOutputItem.value.asInstanceOf[Item].name shouldBe outputItem
   }
 
   "RecipeTarget.getIngredientItems" should "returns the items parsed from the strings" in {
-    testUnit.getIngredientItems.head.name shouldBe ingredient
+    testUnit.getIngredients.head.isInstanceOf[Item] shouldBe true
+    testUnit.getIngredients.head.asInstanceOf[Item].name shouldBe ingredient
   }
 
   "RecipeTarget.matches" should "return false if target has no output and no ingredients" in {
@@ -48,21 +49,21 @@ class RecipeTargetSpec extends BaseSpec {
     recipeOutput.matches(*) returns true
     mockRecipe.getResultItem returns recipeOutput
 
-    testUnitJustOutput.matches(mockRecipe) shouldBe true
+    val result = testUnitJustOutput.matches(mockRecipe) shouldBe true
   }
 
   it should "return false for a recipe that does not have all of the same ingredients" in {
-    val ingredients = mock[List[Ingredient]]
-    ingredients.contains(*) returns true andThen false
-    mockRecipe.getIngredients returns ingredients
+    val ingredients = mock[List[Item]]
+    ingredients.exists(*) returns false
+    mockRecipe.getIngredientItems returns ingredients
 
     testUnitJustIngredients.matches(mockRecipe) shouldBe false
   }
 
   it should "return true for a recipe that has all of the same ingredients and no output is targeted" in {
-    val ingredients = mock[List[Ingredient]]
-    ingredients.contains(*) returns true
-    mockRecipe.getIngredients returns ingredients
+    val ingredients = mock[List[Item]]
+    ingredients.exists(*) returns true
+    mockRecipe.getIngredientItems returns ingredients
 
     testUnitJustIngredients.matches(mockRecipe) shouldBe true
   }
@@ -72,10 +73,10 @@ class RecipeTargetSpec extends BaseSpec {
     recipeOutput.matches(*) returns true
     mockRecipe.getResultItem returns recipeOutput
 
-    val ingredients = mock[List[Ingredient]]
-    ingredients.contains(*) returns true
-    mockRecipe.getIngredients returns ingredients
+    val ingredients = mock[List[Item]]
+    ingredients.exists(*) returns true
+    mockRecipe.getIngredientItems returns ingredients
 
-    testUnitJustIngredients.matches(mockRecipe) shouldBe true
+    testUnit.matches(mockRecipe) shouldBe true
   }
 }

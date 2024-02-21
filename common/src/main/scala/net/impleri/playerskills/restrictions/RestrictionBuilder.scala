@@ -27,7 +27,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
     restrictions = Map.empty
   }
 
-  private def restrict(data: (String, C)): Unit = {
+  protected def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
     RestrictionTarget(resourceName, registry.map(_.name), singleAsString) match {

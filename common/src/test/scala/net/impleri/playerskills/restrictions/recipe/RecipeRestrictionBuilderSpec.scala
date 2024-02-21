@@ -46,30 +46,7 @@ class RecipeRestrictionBuilderSpec extends BaseSpec {
     testUnit.restrictions.values.toList.contains(testBuilder) shouldBe true
   }
 
-  "RecipeRestrictionBuilder.restrictOne" should "restrict a simple item" in {
-    val targetName = ResourceFacade("skillstest", "restriction").get
-
-    val mockRecipeType = mock[RecipeType[SmeltingRecipe]]
-    val targetRecipeType = ResourceFacade("skillstest", "recipe_type").get
-    mockRecipeTarget.recipeType returns targetRecipeType
-    mockRegistry.get(targetRecipeType) returns Option(mockRecipeType)
-
-    mockServerState.SERVER returns Option(mockServer)
-    mockServer.getRecipeManager returns mockManager
-    mockManager.getAllFor[Container, SmeltingRecipe](mockRecipeType) returns Seq(mockSmeltingRecipe)
-    mockRecipeTarget.matches(mockSmeltingRecipe) returns true
-
-    val mockItem = mock[Item]
-    mockSmeltingRecipe.getName returns None
-    mockSmeltingRecipe.getResultItem returns mockItem
-    mockItem.name returns "test-recipe"
-
-    testUnit.restrictOne(targetName, testBuilder)
-
-    mockRestrictions.add(any[RecipeRestriction]) wasCalled once
-  }
-
-  "RecipeRestrictionBuilder.restrictString" should "restrict a simple item" in {
+  "RecipeRestrictionBuilder.restrict" should "restrict a simple item" in {
     val targetName = "skillstest"
 
     val mockRecipeType = mock[RecipeType[SmeltingRecipe]]
@@ -87,7 +64,7 @@ class RecipeRestrictionBuilderSpec extends BaseSpec {
     mockSmeltingRecipe.getResultItem returns mockItem
     mockItem.name returns "test-recipe"
 
-    testUnit.restrictString(targetName, testBuilder)
+    testUnit.restrict((targetName, testBuilder))
 
     mockRestrictions.add(any[RecipeRestriction]) wasCalled once
   }

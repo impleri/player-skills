@@ -52,17 +52,21 @@ case class RecipeRestrictionBuilder(
       .foreach(restrictRecipes[C, T](_, target, builder))
   }
 
-  override protected[recipe] def restrictOne(
-    targetName: ResourceLocation,
-    builder: RecipeConditions,
-  ): Unit = {
-    builder.targets.foreach(restrictTarget(_, builder))
+  override def restrict(data: (String, RecipeConditions)): Unit = {
+    data._2.targets.foreach(restrictTarget(_, data._2))
   }
 
-  override protected[recipe] def restrictString(
+  override protected def restrictString(
     targetName: String,
     builder: RecipeConditions,
   ): Unit = {
-    builder.targets.foreach(restrictTarget(_, builder))
+    logger.error(s"Unused path")
+  }
+
+  override protected def restrictOne(
+    targetName: ResourceLocation,
+    builder: RecipeConditions,
+  ): Unit = {
+    logger.error(s"Unused path")
   }
 }
