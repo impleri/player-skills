@@ -12,6 +12,7 @@ case class IntegrationLoader(serverState: ServerStateContainer) {
 
   def onSetup(): Unit = {
     serverState.setTeam(StubTeam())
+
     if (Platform.isModLoaded("ftbquests")) {
       FTB_QUESTS = Option(FtbQuestsIntegration())
     }

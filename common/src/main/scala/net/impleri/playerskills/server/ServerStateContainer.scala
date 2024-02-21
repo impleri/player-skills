@@ -90,7 +90,7 @@ case class ServerStateContainer(
     TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
   }
 
-  private def onSetup(): Unit = {
+  private[server] def onSetup(): Unit = {
     INTEGRATIONS.onSetup()
   }
 
@@ -100,7 +100,6 @@ case class ServerStateContainer(
     PLAYERS = PlayerRegistry(STORAGE, PLAYERS.getState, globalState.SKILLS)
     PLAYER_OPS = Player(PLAYERS, globalState.SKILL_TYPE_OPS, globalState.SKILL_OPS)
     TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
-    //    NET_HANDLER = NetHandler(PLAYER_OPS, MANAGER.SYNC_SKILLS)
   }
 
   private[server] def onReload(@unused resourceManager: ResourceManager): Unit = {

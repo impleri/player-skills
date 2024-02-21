@@ -1,6 +1,7 @@
 package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.BaseSpec
+import net.impleri.playerskills.api.restrictions.RestrictionType
 import net.impleri.playerskills.facades.minecraft.{Player => PlayerFacade}
 import net.impleri.playerskills.facades.minecraft.Entity
 import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
@@ -29,6 +30,10 @@ class RecipeRestrictionOpsSpec extends BaseSpec {
   mockPlayer.biomeAt(None) returns None
 
   mockTarget.getName returns Option(mockTargetName)
+
+  "RecipeRestrictionOps.apply" should "return a working class" in {
+    RecipeRestrictionOps().restrictionType shouldBe RestrictionType.Recipe()
+  }
 
   "RecipeRestrictionOps.isProducible" should "return false if a restriction has identifiable = false" in {
     val testValue = false

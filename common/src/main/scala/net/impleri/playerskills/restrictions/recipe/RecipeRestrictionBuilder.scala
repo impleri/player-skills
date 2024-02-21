@@ -59,7 +59,7 @@ case class RecipeRestrictionBuilder(
     builder.targets.foreach(restrictTarget(_, builder))
   }
 
-  override protected def restrictString(
+  override protected[recipe] def restrictString(
     targetName: String,
     builder: RecipeConditions,
   ): Unit = {

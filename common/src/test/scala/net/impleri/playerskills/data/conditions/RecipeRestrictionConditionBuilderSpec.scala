@@ -1,6 +1,6 @@
 package net.impleri.playerskills.data.conditions
 
-import com.google.gson.JsonElement
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import net.impleri.playerskills.BaseSpec
@@ -25,8 +25,6 @@ class RecipeRestrictionConditionBuilderSpec extends BaseSpec {
     mockLogger,
   )
 
-  private val mockJson = mock[JsonObject]
-
   "RecipeRestrictionConditionBuilder.toggleEverything" should "allow everything" in {
     testUnit.isProducible shouldBe None
 
@@ -46,19 +44,29 @@ class RecipeRestrictionConditionBuilderSpec extends BaseSpec {
   "RecipeRestrictionConditionBuilder.parseRestriction" should "parse values from JSON elements" in {
     val producible = true
 
-    val mockRecipeData = mock[JsonObject]
-    val mockRecipeElement = mock[JsonElement]
-    mockRecipeElement.isJsonObject returns true
-    mockRecipeElement.getAsJsonObject returns mockRecipeData
-    mockJson.get("recipe") returns mockRecipeData
+    val ingredient1 = "minecraft:stone"
+    val ingredient2 = "minecraft:cobblestone"
+    val ingredients = new JsonArray()
+    ingredients.add(new JsonPrimitive(ingredient1))
+    ingredients.add(new JsonPrimitive(ingredient2))
 
-    val givenType = "smelting"
-    mockRecipeData.get("type") returns new JsonPrimitive(givenType)
+    val givenType = "minecraft:smelting"
+    val givenOutput = "minecraft:andesite"
 
-    mockJson.get("producible") returns new JsonPrimitive(producible)
+    val recipeData = new JsonObject()
+    recipeData.addProperty("type", givenType)
+    recipeData.addProperty("output", givenOutput)
+    recipeData.add("ingredients", ingredients)
 
-    testUnit.parseRestriction(mockJson)
+    val recipeRestriction = new JsonObject()
+    recipeRestriction.add("recipe", recipeData)
+    recipeRestriction.addProperty("producible", producible)
 
+    testUnit.parseRestriction(recipeRestriction)
+
+    testUnit.targets.head.recipeType.toString shouldBe givenType
+    testUnit.targets.head.output.value shouldBe givenOutput
+    testUnit.targets.head.ingredients shouldBe Seq(ingredient1, ingredient2)
     testUnit.isProducible.value shouldBe true
   }
 }
