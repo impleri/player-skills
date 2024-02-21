@@ -24,7 +24,7 @@ case class RecipeRestrictionConditionBuilder(
   private def parseRecipe(element: JsonElement): Seq[RecipeTarget] = {
     val el = element.getAsJsonObject
 
-    parseString(el, "type")
+    parseString(el, "type", Option("crafting"))
       .flatMap(ResourceFacade.apply(_, isSkill = false))
       .filter(Registry.RecipeTypes.isValid)
       .map(

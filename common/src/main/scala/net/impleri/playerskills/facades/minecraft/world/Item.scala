@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader
 import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.facades.minecraft.HasName
 import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.playerskills.facades.minecraft.IsIngredient
 import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.item.ItemEntity
@@ -18,7 +19,7 @@ case class Item(
   private val stack: Option[ItemStack] = None,
   private val quantity: Int = 1,
   private val registry: Registry[MCItem] = Registry.Items,
-) extends HasName {
+) extends HasName with IsIngredient {
   def name: String = getName.fold("nothing")(_.toString)
 
   def getName: Option[ResourceLocation] = registry.getKey(item)
@@ -33,8 +34,20 @@ case class Item(
 
   def isEnchanted: Boolean = getStack.isEnchanted
 
-  def matches(that: Item): Boolean = {
+  def isNamespaced(namespace: String): Boolean = {
+    getName.forall(_.getNamespace == namespace)
+  }
+
+  def is(that: Item): Boolean = {
     (name == that.name) && (ItemStack.isSameItemSameTags(getStack, that.getStack))
+  }
+
+  def matches(that: IsIngredient): Boolean = {
+    that.inList(Seq(this))
+  }
+
+  override def inList(ingredients: Seq[Item]): Boolean = {
+    ingredients.exists(is)
   }
 }
 

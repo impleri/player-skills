@@ -67,8 +67,13 @@ reduce or remove its visibility from JEI and REI.
 Creating restrictions can be tedious. In order to help reduce that, all restriction identifiers as well as dimension and
 biome facets share the same identifier parsing. This means that string identifiers can be used (e.g. `minecraft:zombie`)
 as well as mod IDs (e.g. `minecraft:*` or `@minecraft`) and tags (`#minecraft:desert` or `#desert`) can be used where
-appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those. These work in Data
-Packs, KubeJS, and CraftTweaker.
+appropriate. Note that not everything uses tags (e.g. dimensions), so it won't work with those.
+
+##### NBT Parsing
+
+Certain resources (e.g. items, blocks) may also have NBT data. These can be represented using data tags in combination
+with the resource location. When parsing these types of resources, if it is not determined to be a namespace or tag,
+we will attempt to parse the resource location with the data tags.
 
 ## Caveats
 
@@ -183,10 +188,7 @@ and/or `exclude` properties that are array of string values.
 Mob Restrictions are created using the `item_restrictions` grouping. In addition to the shared facet and condition
 properties above, the schema exposes:
 
-- `item`: ***required*** either item tag (e.g. `#minecraft:planks`), identifier (`minecraft:oak_planks`), or
-  namespace (`@create`)
-- `producible`: Can this item be produced by any recipe? (default value is `true`)
-- `consumable`: Can this item be consumed in any recipe? (default value is `true`)
+- `item`: ***required*** String representation of the item. See above ID Parsing section for what values are allowed.
 - `identifiable`: Can this item be identified by a tooltip? (default value is `true`)
 - `holdable`: Can this item be held in the player's inventory? (default value is `true`)
 - `wearable`: Can this item be equipped by the player as armor, trinket, or curio? (default value is `true`)
@@ -199,6 +201,48 @@ properties above, the schema exposes:
   "item": "minecraft:shears",
   "usable": false,
   "identifiable": false,
+  "unless": {
+    "skill": "kill_count",
+    "value": 8
+  }
+}
+
+```
+
+### Recipe Restrictions Data
+
+Mob Restrictions are created using the `recipe_restrictions` grouping. In addition to the shared facet and condition
+properties above, the schema exposes:
+
+- `recipe`: ***required*** array of objects describing the recipe using `type`, `output`, and `ingredients`
+    * `type`: Type of recipe to target (e.g. `smelting`, `crafting`). Default is `crafting`
+    * `output`: String representation of the produced item. See above ID Parsing section for what values are allowed.
+    * `ingredients`: Array of string representation of one or more items consumed in the recipe. See above ID Parsing
+      section for what values are allowed.
+- `producible`: Can this item be produced by any recipe? (default value is `true`)
+
+The recipe data `output` and `ingredients` will be used when searching through registered recipes and all matching
+entries will be restricted.
+
+```json
+{
+  "recipe": [
+    {
+      "type": "smelting",
+      "output": "minecraft:stone",
+      "ingredients": [
+        "minecraft:cobblestone"
+      ]
+    },
+    {
+      "type": "crafting",
+      "output": "potion{Potion:\"minecraft:night_vision\"}",
+      "ingredients": [
+        "#minecraft:stone_bricks"
+      ]
+    }
+  ],
+  "producible": false,
   "unless": {
     "skill": "kill_count",
     "value": 8
