@@ -1,6 +1,6 @@
 package net.impleri.playerskills.restrictions.recipe
 
-import net.impleri.playerskills.api.restrictions.RestrictionTarget
+import net.impleri.playerskills.api.restrictions.TargetResource
 import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.facades.minecraft.crafting.Recipe
 import net.impleri.playerskills.facades.minecraft.world.Item
@@ -17,12 +17,12 @@ case class RecipeTarget(
 ) {
   private[recipe] def castRecipeContents(input: Seq[String]): Seq[IsIngredient] = {
     input
-      .flatMap(RestrictionTarget(_, singleAsString = true))
+      .flatMap(TargetResource(_, singleAsString = true))
       .flatMap {
-        case ns: RestrictionTarget.Namespace => Option(ResourceNamespace(ns.target))
-        case s: RestrictionTarget.Single => Item.parse(s.target.toString)
-        case s: RestrictionTarget.SingleString => Item.parse(s.target)
-        case t: RestrictionTarget.Tag[McItem] => Option(ItemTag(t.target))
+        case ns: TargetResource.Namespace => Option(ResourceNamespace(ns.target))
+        case s: TargetResource.Single => Item.parse(s.target.toString)
+        case s: TargetResource.SingleString => Item.parse(s.target)
+        case t: TargetResource.Tag[McItem] => Option(ItemTag(t.target))
         case _ => None
       }
   }
