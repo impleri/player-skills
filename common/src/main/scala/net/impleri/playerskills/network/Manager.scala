@@ -2,18 +2,17 @@ package net.impleri.playerskills.network
 
 import dev.architectury.networking.simple.MessageType
 import net.impleri.playerskills.StateContainer
-import net.impleri.playerskills.client.ClientSkillsRegistry
+import net.impleri.playerskills.client.ClientStateContainer
 import net.impleri.playerskills.server.ServerStateContainer
 
 case class Manager(
   globalState: StateContainer = StateContainer(),
-  clientSkills: Option[ClientSkillsRegistry] = None,
+  clientStateContainer: Option[ClientStateContainer] = None,
   serverStateContainer: Option[ServerStateContainer] = None,
 ) {
   val SYNC_SKILLS: SyncSkillsMessageFactory = SyncSkillsMessageFactory(
     globalState.SKILL_TYPE_OPS,
-    clientSkills,
-    globalState.NETWORK,
+    clientStateContainer,
   )
 
   private val SYNC_TYPE: MessageType = globalState.NETWORK

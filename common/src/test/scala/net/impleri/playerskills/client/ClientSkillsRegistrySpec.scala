@@ -11,7 +11,7 @@ class ClientSkillsRegistrySpec extends BaseSpec {
 
   private val testUnit = ClientSkillsRegistry(eventHandlerMock, loggerMock)
 
-  "ClientSkillsRegistry.syncFromServer" should "update stored skills" in {
+  "ClientSkillsRegistry.update" should "update stored skills" in {
     val forced = false
 
     val skill1 = mock[Skill[Boolean]]
@@ -23,10 +23,8 @@ class ClientSkillsRegistrySpec extends BaseSpec {
     )
     testUnit.get.isEmpty should be(true)
 
-    testUnit.syncFromServer(givenSkills, forced)
-
-    loggerMock.info(*) wasCalled once
-
+    testUnit.update(givenSkills, forced)
+    
     eventHandlerMock.emitSkillsUpdated(givenSkills, List.empty, forced) wasCalled once
   }
 }

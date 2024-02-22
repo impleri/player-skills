@@ -11,19 +11,9 @@ case class ClientSkillsRegistry(
 
   def get: List[Skill[_]] = playerSkills
 
-  def syncFromServer(skills: List[Skill[_]], force: Boolean): Unit = {
+  private[client] def update(skills: List[Skill[_]], force: Boolean): Unit = {
     val old = get
-
-    logger
-      .info(s"Syncing Client-side skills: ${
-        skills
-          .map(s => s"(${s.name}=${s.value.getOrElse("None")})")
-          .mkString(", ")
-      }",
-      )
-
     playerSkills = skills
-
     eventHandler.emitSkillsUpdated(skills, old, force)
   }
 }

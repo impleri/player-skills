@@ -6,8 +6,7 @@ import dev.architectury.networking.simple.MessageType
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.client.ClientSkillsRegistry
-import net.impleri.playerskills.facades.architectury.Network
+import net.impleri.playerskills.client.ClientStateContainer
 import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.network.FriendlyByteBuf
@@ -20,7 +19,7 @@ case class SyncSkillsMessage(
   private val skills: List[Skill[_]],
   private val force: Boolean,
   private val skillTypeOps: SkillTypeOps,
-  private val clientSkillsRegistry: Option[ClientSkillsRegistry],
+  private val clientStateContainer: Option[ClientStateContainer],
   private val messageType: MessageType,
   private val logger: PlayerSkillsLogger,
 ) extends BaseS2CMessage {
@@ -40,14 +39,13 @@ case class SyncSkillsMessage(
   }
 
   override def handle(context: NetworkManager.PacketContext): Unit = {
-    clientSkillsRegistry.foreach(_.syncFromServer(skills, force))
+    clientStateContainer.map(_.getNetHandler).foreach(_.onSyncPlayer(skills, force))
   }
 }
 
 case class SyncSkillsMessageFactory(
   skillTypeOps: SkillTypeOps = SkillType(),
-  clientSkillsRegistry: Option[ClientSkillsRegistry] = None,
-  network: Network = Network(),
+  clientStateContainer: Option[ClientStateContainer] = None,
   logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
 ) {
   private var messageType: Option[MessageType] = None
@@ -74,7 +72,7 @@ case class SyncSkillsMessageFactory(
       logger.error(s"Could not handle SYNC_SKILLS without a defined message type")
     }
 
-    SyncSkillsMessage(playerId, skills, force, skillTypeOps, clientSkillsRegistry, messageType.get, logger)
+    SyncSkillsMessage(playerId, skills, force, skillTypeOps, clientStateContainer, messageType.get, logger)
   }
 
   def send(
@@ -86,7 +84,7 @@ case class SyncSkillsMessageFactory(
       logger.error(s"Could not send SYNC_SKILLS without a defined message type")
     }
 
-    SyncSkillsMessage(player.uuid, skills, force, skillTypeOps, clientSkillsRegistry, messageType.get, logger)
+    SyncSkillsMessage(player.uuid, skills, force, skillTypeOps, clientStateContainer, messageType.get, logger)
   }
 }
 
@@ -95,10 +93,9 @@ object SyncSkillsMessageFactory {
 
   def apply(
     skillTypeOps: SkillTypeOps = SkillType(),
-    clientSkillsRegistry: Option[ClientSkillsRegistry] = None,
-    network: Network = Network(),
+    clientStateContainer: Option[ClientStateContainer] = None,
     logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
   ): SyncSkillsMessageFactory = {
-    new SyncSkillsMessageFactory(skillTypeOps, clientSkillsRegistry, network, logger)
+    new SyncSkillsMessageFactory(skillTypeOps, clientStateContainer, logger)
   }
 }
