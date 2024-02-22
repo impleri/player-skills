@@ -5,10 +5,9 @@ import dev.architectury.networking.NetworkManager
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.client.ClientSkillsRegistry
-import net.impleri.playerskills.facades.architectury.Network
+import net.impleri.playerskills.client.ClientStateContainer
+import net.impleri.playerskills.client.NetHandler
 import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
@@ -19,9 +18,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
   private val messageTypeMock = mock[MessageType]
 
   private val skillTypeOpsMock = mock[SkillTypeOps]
-  private val clientRegistryMock = mock[ClientSkillsRegistry]
-  private val networkMock = mock[Network]
-  private val serverStateMock = mock[ServerStateContainer]
+  private val clientStateMock = mock[ClientStateContainer]
   private val loggerMock = mock[PlayerSkillsLogger]
 
   private val testUuid = UUID.randomUUID()
@@ -33,13 +30,13 @@ class SyncSkillsMessageSpec extends BaseSpec {
     skills,
     false,
     skillTypeOpsMock,
-    Option(clientRegistryMock),
+    Option(clientStateMock),
     messageTypeMock,
     loggerMock,
   )
-  private val testFactory = SyncSkillsMessageFactory(skillTypeOpsMock,
-    Option(clientRegistryMock),
-    networkMock,
+  private val testFactory = SyncSkillsMessageFactory(
+    skillTypeOpsMock,
+    Option(clientStateMock),
     loggerMock,
   )
 
@@ -72,9 +69,11 @@ class SyncSkillsMessageSpec extends BaseSpec {
   }
 
   "SyncSkillsMessage.handle" should "resyncs clientside data" in {
+    val netHandlerMock = mock[NetHandler]
+    clientStateMock.getNetHandler returns netHandlerMock
     testMessage.handle(packetContextMock)
 
-    clientRegistryMock.syncFromServer(skills, false) wasCalled once
+    netHandlerMock.onSyncPlayer(skills, false) wasCalled once
   }
 
   "SyncSkillsMessageFactory.receive" should "throw an error if sending without a message type" in {
