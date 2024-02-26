@@ -7,6 +7,8 @@ import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 
+import scala.util.chaining.scalaUtilChainingOps
+
 case class TickEvents(
   itemRestrictionOps: ItemRestrictionOps,
   onPlayerPost: Event[TickEvent.Player] = TickEvent.PLAYER_POST,
@@ -42,13 +44,10 @@ case class TickEvents(
 
       filterHoldable(player, player.offHand).foreach(moveToInventory(player, player.emptyOffHand))
 
-      val toRemove = filterHoldable(player, player.inventory).values
-
       // Drop the unholdable items from the normal inventory
-      if (toRemove.nonEmpty) {
-        logger.debug(s"${player.name} is holding ${toRemove.size} item(s) that should be dropped")
-        toRemove.foreach(player.toss)
-      }
+      filterHoldable(player, player.inventory).values
+        .tap(r => if (r.nonEmpty) logger.debug(s"${player.name} is holding ${r.size} item(s) that should be dropped"))
+        .foreach(player.toss)
     }
   }
 }
