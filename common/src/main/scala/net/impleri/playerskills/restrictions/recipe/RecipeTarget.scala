@@ -7,6 +7,7 @@ import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.facades.minecraft.IsIngredient
 import net.impleri.playerskills.facades.minecraft.ItemTag
 import net.impleri.playerskills.facades.minecraft.ResourceNamespace
+import net.minecraft.tags.TagKey
 import net.minecraft.world.item.{Item => McItem}
 import net.minecraft.world.Container
 
@@ -22,7 +23,7 @@ case class RecipeTarget(
         case ns: TargetResource.Namespace => Option(ResourceNamespace(ns.target))
         case s: TargetResource.Single => Item.parse(s.target.toString)
         case s: TargetResource.SingleString => Item.parse(s.target)
-        case t: TargetResource.Tag[McItem] => Option(ItemTag(t.target))
+        case t: TargetResource.Tag[_] => Option(ItemTag(t.target.asInstanceOf[TagKey[McItem]]))
         case _ => None
       }
   }
