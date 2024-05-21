@@ -13,7 +13,7 @@ import scala.util.chaining.scalaUtilChainingOps
  * Orchestrated handling of player skills
  */
 case class PlayerRegistry(
-  override var state: PlayerRegistryState.CachedPlayers,
+  var state: PlayerRegistryState.CachedPlayers,
   private[skills] val storage: Option[PlayerStorageIO],
   private val skillsRegistry: SkillRegistry,
   private val logger: PlayerSkillsLogger,

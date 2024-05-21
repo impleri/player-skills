@@ -83,7 +83,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     conditionsJson.isJsonArray returns true
     conditionsJson.getAsJsonArray returns arrayJson
 
-    mockJson.get(*) answers ((el: String) => if (el == "if") conditionsJson else new JsonNull())
+    mockJson.get(*) answers ((el: String) => if (el == "if") conditionsJson else JsonNull.INSTANCE)
 
     val mockSkill = mock[Skill[String]]
     mockSkill.name returns expectedSkill
@@ -139,7 +139,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     conditionsJson.isJsonArray returns true
     conditionsJson.getAsJsonArray returns arrayJson
 
-    mockJson.get(*) answers ((el: String) => if (el == "unless") conditionsJson else new JsonNull())
+    mockJson.get(*) answers ((el: String) => if (el == "unless") conditionsJson else JsonNull.INSTANCE)
 
     val mockSkill = mock[Skill[String]]
     mockSkill.name returns expectedSkill
@@ -195,7 +195,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     conditionsJson.isJsonArray returns true
     conditionsJson.getAsJsonArray returns arrayJson
 
-    mockJson.get(*) answers ((el: String) => if (el == "if") conditionsJson else new JsonNull())
+    mockJson.get(*) answers ((el: String) => if (el == "if") conditionsJson else JsonNull.INSTANCE)
 
     val mockSkill = mock[Skill[String]]
     mockSkill.name returns expectedSkill
@@ -248,7 +248,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     conditionsJson.isJsonArray returns true
     conditionsJson.getAsJsonArray returns arrayJson
 
-    mockJson.get(*) answers ((el: String) => if (el == "unless") conditionsJson else new JsonNull())
+    mockJson.get(*) answers ((el: String) => if (el == "unless") conditionsJson else JsonNull.INSTANCE)
 
     mockSkillOps.get[String](expectedSkill) returns None
 
@@ -271,7 +271,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     toggleJson.isBoolean returns true
     toggleJson.getAsBoolean returns true
 
-    mockJson.get(*) answers ((el: String) => if (el == "everything") toggleJson else new JsonNull())
+    mockJson.get(*) answers ((el: String) => if (el == "everything") toggleJson else JsonNull.INSTANCE)
 
     testUnit.parse(mockJson)
 
@@ -284,7 +284,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     toggleJson.isBoolean returns true
     toggleJson.getAsBoolean returns true
 
-    mockJson.get(*) answers ((el: String) => if (el == "nothing") toggleJson else new JsonNull())
+    mockJson.get(*) answers ((el: String) => if (el == "nothing") toggleJson else JsonNull.INSTANCE)
 
     testUnit.parse(mockJson)
 

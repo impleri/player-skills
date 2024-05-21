@@ -44,7 +44,7 @@ class InteractionEventsSpec extends BaseSpec {
     val mockHand = mock[InteractionHand]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockOps.isUsable(mockPlayer, mockItem, None) returns false
 
     val result = testUnit.beforeUseItem(mockPlayer, mockHand)
@@ -58,7 +58,7 @@ class InteractionEventsSpec extends BaseSpec {
     val mockHand = mock[InteractionHand]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockOps.isUsable(mockPlayer, mockItem, None) returns true
 
     testUnit.beforeUseItem(mockPlayer, mockHand) shouldBe CompoundEventResult.pass()
@@ -70,7 +70,7 @@ class InteractionEventsSpec extends BaseSpec {
     val mockPos = mock[Position]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockItem.isDefault returns false
     mockOps.isUsable(mockPlayer, mockItem, Option(mockPos)) returns false
 
@@ -86,7 +86,7 @@ class InteractionEventsSpec extends BaseSpec {
     val mockPos = mock[Position]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockItem.isDefault returns false
     mockOps.isUsable(mockPlayer, mockItem, Option(mockPos)) returns true
 
@@ -99,7 +99,7 @@ class InteractionEventsSpec extends BaseSpec {
     val mockPos = mock[Position]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockItem.isDefault returns true
 
     testUnit.beforeUseItemBlock(mockPlayer, mockHand, mockPos) shouldBe EventResult.pass()
@@ -113,11 +113,11 @@ class InteractionEventsSpec extends BaseSpec {
     val mockHand = mock[InteractionHand]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockItem.isDefault returns false
     mockOps.isUsable(mockPlayer, mockItem, None) returns false
 
-    val result = testUnit.beforeInteractEntity(mockPlayer, mockMob, mockHand)
+    val result = testUnit.beforeInteractEntity(Option(mockPlayer), Option(mockMob), mockHand)
 
     result.isFalse shouldBe true
     result.interruptsFurtherEvaluation() shouldBe true
@@ -129,11 +129,11 @@ class InteractionEventsSpec extends BaseSpec {
     val mockHand = mock[InteractionHand]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockOps.isUsable(mockPlayer, mockItem, None) returns true
     mockItem.isDefault returns false
 
-    testUnit.beforeInteractEntity(mockPlayer, mockMob, mockHand) shouldBe EventResult.pass()
+    testUnit.beforeInteractEntity(Option(mockPlayer), Option(mockMob), mockHand) shouldBe EventResult.pass()
   }
 
   it should "does nothing to the event if the item is nothing" in {
@@ -142,10 +142,10 @@ class InteractionEventsSpec extends BaseSpec {
     val mockHand = mock[InteractionHand]
     val mockItem = mock[Item]
 
-    mockPlayer.getItemInHand(mockHand) returns mockItem
+    mockPlayer.getItemInHand(mockHand) returns Option(mockItem)
     mockItem.isDefault returns true
 
-    testUnit.beforeInteractEntity(mockPlayer, mockMob, mockHand) shouldBe EventResult.pass()
+    testUnit.beforeInteractEntity(Option(mockPlayer), Option(mockMob), mockHand) shouldBe EventResult.pass()
 
     mockOps.isUsable(mockPlayer, mockItem, None) wasNever called
   }

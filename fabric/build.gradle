@@ -1,11 +1,10 @@
 def minecraftVersion = property("minecraft_version")
-def scalaVersion = property("scala_version")
-def slpVersion = property("slp_fabric_version")
 def architecturyVersion = property("architectury_version")
 def fabricLoaderVersion = property("fabric_loader_version")
 def fabricApiVersion = property("fabric_api_version")
-def kubejsVersion = property("kubejs_version")
-def craftTweakerVersion = property("crafttweaker_version")
+def slpVersion = property "slp_version"
+//def kubejsVersion = property("kubejs_version")
+//def craftTweakerVersion = property("crafttweaker_version")
 def ftbQuestsVersion = property("ftb_quests_version")
 def ftbTeamsVersion = property("ftb_teams_version")
 def reiVersion = property("rei_version")
@@ -37,15 +36,14 @@ unifiedPublishing {
 }
 
 dependencies {
-  modImplementation "net.fabricmc:fabric-language-scala:$slpVersion+scala.$scalaVersion"
-
+  runtimeOnly "com.kotori316:scalable-cats-force-fabric:${slpVersion}"
   modImplementation "net.fabricmc:fabric-loader:$fabricLoaderVersion"
   modApi "net.fabricmc.fabric-api:fabric-api:$fabricApiVersion+$minecraftVersion"
 
   modApi "dev.architectury:architectury-fabric:$architecturyVersion"
 
-  modImplementation "dev.latvian.mods:kubejs-fabric:$kubejsVersion"
-  modApi "com.blamejared.crafttweaker:CraftTweaker-fabric-$minecraftVersion:$craftTweakerVersion"
+//  modImplementation "dev.latvian.mods:kubejs-fabric:$kubejsVersion"
+//  modApi "com.blamejared.crafttweaker:CraftTweaker-fabric-$minecraftVersion:$craftTweakerVersion"
 
   modImplementation "dev.ftb.mods:ftb-quests-fabric:$ftbQuestsVersion"
   modImplementation "dev.ftb.mods:ftb-teams-fabric:$ftbTeamsVersion"

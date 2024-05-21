@@ -166,10 +166,10 @@ case class SkillsDataLoader(
       case "pyramid" => Right(TeamMode.Pyramid())
       case "limited" => {
         rate.map(_.floor.toInt)
-          .map(TeamMode.Limited)
+          .map(TeamMode.Limited.apply)
           .toRight(LimitRequiredForTeamMode())
       }
-      case "proportional" => rate.map(TeamMode.Proportional).toRight(ProportionRequiredForTeamMode())
+      case "proportional" => rate.map(TeamMode.Proportional.apply).toRight(ProportionRequiredForTeamMode())
       case _ => Right(TeamMode.Off())
     }
   }

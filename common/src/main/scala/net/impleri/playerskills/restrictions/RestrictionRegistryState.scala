@@ -9,7 +9,7 @@ import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import scala.collection.View
 
 object RestrictionRegistryState {
-  final case class Restrictions private (restrictions: List[Restriction[_]]) {
+  final case class Restrictions private[restrictions] (restrictions: List[Restriction[_]]) {
     protected def matchesTarget(kind: RestrictionType, name: ResourceLocation)(restriction: Restriction[_]): Boolean = {
       restriction.isType(kind) && restriction.targets(name)
     }

@@ -1,0 +1,23 @@
+{
+  "display": "minecraft:clay_ball",
+  "settings": {
+    "biome": "minecraft:plains",
+    "lakes": false,
+    "features": false,
+    "layers": [
+      {
+        "block": "minecraft:stone",
+        "height": 5
+      },
+      {
+        "block": "minecraft:dirt",
+        "height": 5
+      },
+      {
+        "block": "minecraft:grass_block",
+        "height": 1
+      }
+    ],
+    "structure_overrides": []
+  }
+}

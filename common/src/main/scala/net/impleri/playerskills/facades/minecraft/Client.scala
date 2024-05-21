@@ -6,5 +6,10 @@ import net.minecraft.client.player.LocalPlayer
 case class Client() {
   def getInstance: Minecraft = Minecraft.getInstance()
 
-  def getPlayer: Player[LocalPlayer] = Player(getInstance.player)
+  def getPlayer: Option[Player[LocalPlayer]] = {
+    Option(getInstance)
+      .map(_.player)
+      .flatMap(Option(_))
+      .map(Player(_))
+  }
 }

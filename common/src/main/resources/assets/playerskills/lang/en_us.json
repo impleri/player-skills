@@ -28,5 +28,6 @@
   "playerskills.quests.specialized_skill": "Specialization Skill",
   "message.playerskills.unknown_item": "Unknown Item",
   "rules.playerskills.items.filtering.rule": "Item Skills",
-  "rules.playerskills.items.filtering.rule.subtitle": "Stage items based on Player Skills restrictions"
+  "rules.playerskills.items.filtering.rule.subtitle": "Stage items based on Player Skills restrictions",
+  "flat_world_preset.playerskills.skills_test": "Skills Test"
 }

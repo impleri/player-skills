@@ -22,7 +22,7 @@ class BlockEventsSpec extends BaseSpec {
   private val mockBlock = mock[Block]
   private val mockPos = mock[Position]
   private val mockItem = mock[Item]
-  mockPlayer.getItemInMainHand returns mockItem
+  mockPlayer.getItemInMainHand returns Option(mockItem)
 
   "BlockEvents.registerEvents" should "register event handlers" in {
     testUnit.registerEvents()

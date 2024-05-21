@@ -41,69 +41,69 @@ class SkillSpec extends BaseSpec {
   private val skillTypeMock = mock[SkillType[String]]
 
   "ChangeableSkill.areChangesAllowed" should "allow changes by default" in {
-    unlimited.areChangesAllowed() should be(true)
+    unlimited.areChangesAllowed() shouldBe true
   }
 
   it should "allow changes if more than 0 changes remain" in {
-    oneChange.areChangesAllowed() should be(true)
+    oneChange.areChangesAllowed() shouldBe true
   }
 
   it should "disallow changes if 0 changes remain" in {
-    noChanges.areChangesAllowed() should be(false)
+    noChanges.areChangesAllowed() shouldBe false
   }
 
   "ChangeableSkill.isAllowedValue" should "allow values if no options exist" in {
-    unlimited.isAllowedValue(Option(testValue)) should be(true)
+    unlimited.isAllowedValue(Option(testValue)) shouldBe true
   }
 
   it should "allow values on the list of allowed options" in {
-    restricted.isAllowedValue(Option(testValue)) should be(true)
+    restricted.isAllowedValue(Option(testValue)) shouldBe true
   }
 
   it should "allow unsetting values despite the list of allowed options" in {
-    restricted.isAllowedValue(None) should be(true)
+    restricted.isAllowedValue(None) shouldBe true
   }
 
   it should "disallow values not on the list of allowed options" in {
-    restricted.isAllowedValue(Option(disallowedValue)) should be(false)
+    restricted.isAllowedValue(Option(disallowedValue)) shouldBe false
   }
 
   "ChangeableSkillOps.mutate" should "return a new skill with the specified changes" in {
     val newChanges = 4
     val received = oneChange.mutate(None, newChanges)
 
-    received.changesAllowed should be(newChanges)
+    received.changesAllowed shouldBe newChanges
     received.value shouldNot be(Option(secondValue))
-    received.value should be(None)
+    received.value shouldBe None
   }
 
   it should "return a new skill with the change reduced automatically" in {
     val received = oneChange.mutate(Option(disallowedValue))
 
-    received.changesAllowed should be(0)
-    received.value should be(Option(disallowedValue))
+    received.changesAllowed shouldBe 0
+    received.value shouldBe Option(disallowedValue)
   }
 
   "TranslatableSkill.getNotification" should "return nothing if not announcing the change" in {
     val skill = TestSkill()
     val received = skill.getNotification()
 
-    skill.announceChange should be(false)
-    received should be(None)
+    skill.announceChange shouldBe false
+    received shouldBe None
   }
 
   it should "returns a component for rendering" in {
     val received = valued.getNotification()
 
-    valued.announceChange should be(true)
-    received.value.getString should be("playerskills.notify.skill_change")
+    valued.announceChange shouldBe true
+    received.value.getString shouldBe "playerskills.notify.skill_change"
     received.value.getContents.isInstanceOf[TranslatableContents] should be(true)
     received
       .value
       .getContents
       .asInstanceOf[TranslatableContents]
       .getArgs
-      .map(_.asInstanceOf[Component].getString) should be(Seq("testname", testValue, "").toArray)
+      .map(_.asInstanceOf[Component].getString) shouldBe Seq("testname", testValue, "").toArray
   }
 
   "SkillRegistryFacade.all" should "proxy SkillRegistry.entries" in {
@@ -112,7 +112,7 @@ class SkillSpec extends BaseSpec {
 
     skillRegistryMock.entries returns expected
 
-    facade.all() should be(expected)
+    facade.all() shouldBe expected
   }
 
   "SkillRegistryFacade.get" should "proxy SkillRegistry.find" in {
@@ -122,7 +122,7 @@ class SkillSpec extends BaseSpec {
 
     skillRegistryMock.find(givenName) returns expected
 
-    facade.get(givenName) should be(expected)
+    facade.get(givenName) shouldBe expected
   }
 
   "SkillRegistryFacade.upsert" should "proxy SkillRegistry.upsert" in {
@@ -172,7 +172,7 @@ class SkillSpec extends BaseSpec {
     skillTypeOpsMock.get(unlimited) returns Option(skillTypeMock)
     skillTypeMock.getNextValue(unlimited, Option("param1"), Option("param2")) returns expected
 
-    facade.calculateNext(unlimited, Option("param1"), Option("param2")) should be(expected)
+    facade.calculateNext(unlimited, Option("param1"), Option("param2")) shouldBe expected
   }
 
   it should "proxy SkillType.getNextValue with defaults" in {
@@ -183,7 +183,7 @@ class SkillSpec extends BaseSpec {
     skillTypeOpsMock.get(unlimited) returns Option(skillTypeMock)
     skillTypeMock.getNextValue(unlimited, None, None) returns expected
 
-    facade.calculateNext(unlimited) should be(expected)
+    facade.calculateNext(unlimited) shouldBe expected
   }
 
   "SkillOps.sortHelper" should "sort A before B if can A && cannot B" in {
@@ -194,7 +194,7 @@ class SkillSpec extends BaseSpec {
     skillTypeMock.can(unlimited, valued.value) returns true
     skillTypeMock.can(valued, unlimited.value) returns false
 
-    facade.sortHelper(unlimited, valued) should be(-1)
+    facade.sortHelper(unlimited, valued) shouldBe -1
   }
 
   it should "sort B before A if can B && cannot A" in {
@@ -205,7 +205,7 @@ class SkillSpec extends BaseSpec {
     skillTypeMock.can(unlimited, valued.value) returns false
     skillTypeMock.can(valued, unlimited.value) returns true
 
-    facade.sortHelper(unlimited, valued) should be(1)
+    facade.sortHelper(unlimited, valued) shouldBe 1
   }
 
   it should "sort A and B equally if can A & B" in {
@@ -216,7 +216,7 @@ class SkillSpec extends BaseSpec {
     skillTypeMock.can(unlimited, valued.value) returns true
     skillTypeMock.can(valued, unlimited.value) returns true
 
-    facade.sortHelper(unlimited, valued) should be(0)
+    facade.sortHelper(unlimited, valued) shouldBe 0
   }
 
   it should "sort A and B equally if no skill type found" in {
@@ -224,18 +224,18 @@ class SkillSpec extends BaseSpec {
 
     skillTypeOpsMock.get(unlimited) returns None
 
-    facade.sortHelper(unlimited, valued) should be(0)
+    facade.sortHelper(unlimited, valued) shouldBe 0
   }
 
   "Skill.apply" should "return a SkillOps instance" in {
     val facade = Skill(skillTypeOpsMock, skillRegistryMock, loggerMock)
 
-    facade.isInstanceOf[SkillOps] should be(true)
+    facade.isInstanceOf[SkillOps] shouldBe true
   }
 
   it should "return a SkillOps instance without arguments" in {
     val facade = Skill()
 
-    facade.isInstanceOf[SkillOps] should be(true)
+    facade.isInstanceOf[SkillOps] shouldBe true
   }
 }

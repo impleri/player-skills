@@ -69,7 +69,7 @@ class ItemRestrictionConditionBuilderSpec extends BaseSpec {
     mockJson.get("identifiable") returns new JsonPrimitive(identifiable)
     mockJson.get("holdable") returns new JsonPrimitive(holdable)
     mockJson.get("wearable") returns new JsonPrimitive(wearable)
-    mockJson.get("usable") returns new JsonNull()
+    mockJson.get("usable") returns JsonNull.INSTANCE
     mockJson.get("harmful") returns null
 
     testUnit.parseRestriction(mockJson)

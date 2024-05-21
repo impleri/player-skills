@@ -10,6 +10,6 @@ case class FtbTeamsApi() {
     Try(FTBTeamsAPI.getPlayerTeam(player))
       .toOption
       .flatMap(t => Option(t))
-      .map(Team)
+      .map(Team.apply)
   }
 }

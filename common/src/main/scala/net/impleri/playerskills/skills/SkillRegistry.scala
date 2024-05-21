@@ -11,7 +11,7 @@ import scala.util.chaining.scalaUtilChainingOps
  * In-game registry interfacing for Skills
  */
 class SkillRegistry(
-  override var state: SkillRegistryState.Skills,
+  var state: SkillRegistryState.Skills,
   private val gameRegistrar: Registrar[Skill[_]],
 ) extends StatefulRegistry[SkillRegistryState.Skills] {
   /**

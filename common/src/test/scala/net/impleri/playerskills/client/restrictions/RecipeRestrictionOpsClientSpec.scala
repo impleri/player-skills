@@ -25,7 +25,7 @@ class RecipeRestrictionOpsClientSpec extends BaseSpec {
 
   private val testRestriction = RecipeRestriction(mockTarget)
 
-  mockClient.getPlayer returns mockPlayer
+  mockClient.getPlayer returns Option(mockPlayer)
 
   mockEntity.asPlayer[LocalPlayer] returns mockPlayer
 
