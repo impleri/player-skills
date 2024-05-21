@@ -9,7 +9,7 @@ import net.impleri.playerskills.utils.StatefulRegistry
 import scala.collection.View
 import scala.util.chaining.scalaUtilChainingOps
 
-class RestrictionRegistry(override var state: RestrictionRegistryState.Restrictions)
+class RestrictionRegistry(var state: RestrictionRegistryState.Restrictions)
   extends StatefulRegistry[RestrictionRegistryState.Restrictions] {
   def entries: List[Restriction[_]] = {
     RestrictionRegistryState.entries().pipe(maintainState)

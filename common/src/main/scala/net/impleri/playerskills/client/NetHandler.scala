@@ -20,7 +20,7 @@ case class NetHandler(
     clientSkillsRegistry.update(skills, force)
   }
 
-  def resyncPlayer(player: Player[_] = client.getPlayer): Unit = {
+  def resyncPlayer(player: Player[_]): Unit = {
     logger.debug(s"Requesting skills resync for ${player.name}")
     player.sendMessage(messageFactory.send(player))
   }

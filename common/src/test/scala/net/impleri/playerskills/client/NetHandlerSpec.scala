@@ -21,12 +21,12 @@ class NetHandlerSpec extends BaseSpec {
   private val givenUuid = UUID.randomUUID()
   private val playerMock = mock[Player[LocalPlayer]]
   playerMock.uuid returns givenUuid
-  clientMock.getPlayer returns playerMock
+  clientMock.getPlayer returns Option(playerMock)
 
   private val testUnit = NetHandler(clientMock, clientSkillsMock, messageFactoryMock, loggerMock)
 
   "NetHandler.resyncPlayer" should "send a request to the server" in {
-    testUnit.resyncPlayer()
+    testUnit.resyncPlayer(playerMock)
 
     loggerMock.debug(*) wasCalled once
     playerMock.sendMessage(any[BaseC2SMessage]) wasCalled once

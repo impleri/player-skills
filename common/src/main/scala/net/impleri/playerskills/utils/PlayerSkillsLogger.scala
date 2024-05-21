@@ -1,8 +1,8 @@
 package net.impleri.playerskills.utils
 
 import net.impleri.playerskills.PlayerSkills
-import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.apache.logging.log4j.LogManager
 
 sealed trait LoggerType
 
@@ -23,7 +23,7 @@ object LoggerType {
 class PlayerSkillsLogger(modId: String, private val prefix: String) {
   private def instance: Logger = LogManager.getLogger(modId)
 
-  private var debugEnabled = false
+  private var debugEnabled = true
 
   def enableDebug(): Unit = {
     debugEnabled = true

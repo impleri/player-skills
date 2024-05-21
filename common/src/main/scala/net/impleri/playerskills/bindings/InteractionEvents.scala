@@ -8,6 +8,7 @@ import net.impleri.playerskills.facades.minecraft.Entity
 import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.facades.minecraft.core.Position
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
+import net.impleri.playerskills.utils.EventUtils
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -24,7 +25,7 @@ case class InteractionEvents(
   onInteractEntity: Event[InteractionEvent.InteractEntity] = InteractionEvent.INTERACT_ENTITY,
   logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
   skipLogger: PlayerSkillsLogger = PlayerSkillsLogger.SKIPS,
-) {
+) extends EventUtils {
   def registerEvents(): Unit = {
     onLeftClickBlock
       .register { (player: McPlayer, hand: InteractionHand, pos: BlockPos, _: Direction) =>
@@ -55,23 +56,26 @@ case class InteractionEvents(
     onInteractEntity
       .register { (player: McPlayer, entity: McEntity, hand: InteractionHand) =>
         beforeInteractEntity(
-          Player(player),
-          Entity(entity),
+          Option(player).map(Player(_)),
+          Option(entity).map(Entity(_)),
           hand,
         )
       }
   }
 
   private[bindings] def beforeUseItem(player: Player[_], hand: InteractionHand): CompoundEventResult[ItemStack] = {
-    val item = player.getItemInHand(hand)
-
-    if (!itemRestrictionOps.isUsable(player, item, None)) {
-      logger.debug(s"${player.name} cannot use ${item.name}")
-      CompoundEventResult.interruptFalse(null)
-    } else {
-      skipLogger.debug(s"${player.name} is going to use ${item.name}")
-      CompoundEventResult.pass()
+    val result = for {
+      item <- player.getItemInHand(hand).filterNot(_.isDefault)
+      usable = itemRestrictionOps.isUsable(player, item, None)
+    } yield {
+      if (!usable) {
+        logger.debug(s"${player.name} cannot use ${item.name}")
+      } else {
+        skipLogger.debug(s"${player.name} is going to use ${item.name}")
+      }
+      usable
     }
+    failCompoundOn[ItemStack](result)
   }
 
   private[bindings] def beforeUseItemBlock(player: Player[_], hand: InteractionHand, pos: Position): EventResult = {
@@ -84,36 +88,47 @@ case class InteractionEvents(
     //      return EventResult.interruptFalse()
     //    }
 
-    val item = player.getItemInHand(hand)
+    val result = for {
+      item <- player.getItemInHand(hand).filterNot(_.isDefault)
+      usable = itemRestrictionOps.isUsable(player, item, Option(pos))
+    } yield {
+      if (!usable) {
+        logger.debug(s"${player.name} cannot interact with block using ${item.name}")
+      } else {
+        skipLogger.debug(s"${player.name} is going to interact with block using ${item.name}")
+      }
 
-    if (!item.isDefault && !itemRestrictionOps.isUsable(player, item, Option(pos))) {
-      logger.debug(s"${player.name} cannot interact with block using ${item.name}")
-      EventResult.interruptFalse()
-    } else {
-      skipLogger.debug(s"${player.name} is going to interact with block using ${item.name}")
-      EventResult.pass()
+      usable
     }
+
+    failOn(result)
   }
 
   private[bindings] def beforeInteractEntity(
-    player: Player[_],
-    entity: Entity[_],
+    playerOpt: Option[Player[_]],
+    entityOpt: Option[Entity[_]],
     hand: InteractionHand,
   ): EventResult = {
-    //    val mobType = MobRestrictions.getName(entity.type)
-    //    if (!MobRestrictions.canInteractWith(entity.type, player)) {
-    //      PlayerSkillsLogger.MOBS.debug("${player.name.string} cannot interact with entity $mobType")
-    //      return EventResult.interruptFalse()
-    //    }
+    val result = for {
+      player <- playerOpt
+      entity <- entityOpt
+      item <- player.getItemInHand(hand).filterNot(_.isDefault)
+      usable = itemRestrictionOps.isUsable(player, item, None)
+    } yield {
+      //    val mobType = MobRestrictions.getName(entity.type)
+      //    if (!MobRestrictions.canInteractWith(entity.type, player)) {
+      //      PlayerSkillsLogger.MOBS.debug("${player.name.string} cannot interact with entity $mobType")
+      //      return EventResult.interruptFalse()
+      //    }
+      if (!usable) {
+        logger.debug(s"${player.name} cannot interact with entity ${entity.mobTypeName} using ${item.name}")
+      } else {
+        skipLogger.debug(s"${player.name} is going to interact with entity ${entity.mobTypeName} using ${item.name}")
+      }
 
-    val item = player.getItemInHand(hand)
-
-    if (!item.isDefault && !itemRestrictionOps.isUsable(player, item, None)) {
-      logger.debug(s"${player.name} cannot interact with entity ${entity.mobTypeName} using ${item.name}")
-      EventResult.interruptFalse()
-    } else {
-      skipLogger.debug(s"${player.name} is going to interact with entity ${entity.mobTypeName} using ${item.name}")
-      EventResult.pass()
+      usable
     }
+
+    failOn(result)
   }
 }

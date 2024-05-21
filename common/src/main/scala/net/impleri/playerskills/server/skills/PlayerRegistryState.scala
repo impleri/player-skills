@@ -9,7 +9,7 @@ import java.util.UUID
  * Handles the cache side of interacting with player skills
  */
 object PlayerRegistryState {
-  final case class CachedPlayers private (protected val state: Map[UUID, List[Skill[_]]]) {
+  final case class CachedPlayers private[skills] (protected val state: Map[UUID, List[Skill[_]]]) {
     def entries(): List[(UUID, List[Skill[_]])] = state.toList
 
     def has(playerId: UUID): Boolean = state.contains(playerId)

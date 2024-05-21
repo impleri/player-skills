@@ -23,7 +23,7 @@ class EntityEventsSpec extends BaseSpec {
   private val mockPlayer = mock[Player[MinecraftPlayer]]
   mockAttacker.asPlayer[MinecraftPlayer] returns mockPlayer
   private val mockItem = mock[Item]
-  mockPlayer.getItemInMainHand returns mockItem
+  mockPlayer.getItemInMainHand returns Option(mockItem)
 
   "EntityEvents.registerEvents" should "register event handlers" in {
     testUnit.registerEvents()
@@ -36,7 +36,7 @@ class EntityEventsSpec extends BaseSpec {
 
     mockOps.isHarmful(mockPlayer, mockItem) returns false
 
-    val result = testUnit.beforePlayerAttack(mockEntity, mockAttacker)
+    val result = testUnit.beforePlayerAttack(Option(mockEntity), Option(mockAttacker))
 
     result.isFalse shouldBe true
     result.interruptsFurtherEvaluation() shouldBe true
@@ -47,13 +47,13 @@ class EntityEventsSpec extends BaseSpec {
 
     mockOps.isHarmful(mockPlayer, mockItem) returns true
 
-    testUnit.beforePlayerAttack(mockEntity, mockAttacker) shouldBe EventResult.pass()
+    testUnit.beforePlayerAttack(Option(mockEntity), Option(mockAttacker)) shouldBe EventResult.pass()
   }
 
   it should "do nothing to the event if attacker is not a player" in {
     mockAttacker.isPlayer returns false
 
-    testUnit.beforePlayerAttack(mockEntity, mockAttacker) shouldBe EventResult.pass()
+    testUnit.beforePlayerAttack(Option(mockEntity), Option(mockAttacker)) shouldBe EventResult.pass()
 
     mockOps.isHarmful(mockPlayer, mockItem) wasNever called
 

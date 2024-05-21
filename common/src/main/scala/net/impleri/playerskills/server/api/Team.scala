@@ -31,7 +31,7 @@ trait TeamSkillCalculator {
     playerOps.get(player)
       .filter(_.teamMode == TeamMode.Shared())
   }
-
+  
   private def getMaxSkill[T](players: Seq[UUID], skill: Skill[T]): Option[Skill[T]] = {
     players
       .flatMap(playerOps.get[T](_, skill.name))

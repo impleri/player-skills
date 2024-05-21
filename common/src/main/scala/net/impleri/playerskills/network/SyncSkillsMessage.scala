@@ -54,6 +54,12 @@ case class SyncSkillsMessageFactory(
     messageType = Option(newType)
   }
 
+  private def readSkills(buffer: FriendlyByteBuf, size: Int): Seq[Skill[_]] = {
+    List.fill(size)(buffer.readInt())
+      .map(buffer.readUtf)
+      .flatMap(skillTypeOps.deserialize)
+  }
+
   def receive(
     buffer: FriendlyByteBuf,
   ): SyncSkillsMessage = {
@@ -63,16 +69,13 @@ case class SyncSkillsMessageFactory(
 
     logger.debug(s"Received skill sync of $size skills for $playerId")
 
-    val skills = (0 to size)
-      .map(_ => buffer.readInt().pipe(buffer.readUtf))
-      .flatMap(skillTypeOps.deserialize)
-      .toList
+    val skills = if (size > 0) readSkills(buffer, size) else Seq.empty
 
     if (messageType.isEmpty) {
       logger.error(s"Could not handle SYNC_SKILLS without a defined message type")
     }
 
-    SyncSkillsMessage(playerId, skills, force, skillTypeOps, clientStateContainer, messageType.get, logger)
+    SyncSkillsMessage(playerId, skills.toList, force, skillTypeOps, clientStateContainer, messageType.get, logger)
   }
 
   def send(

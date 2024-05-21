@@ -8,6 +8,7 @@ import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.facades.minecraft.core.Position
 import net.impleri.playerskills.facades.minecraft.world.Block
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
+import net.impleri.playerskills.utils.EventUtils
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerPlayer
@@ -19,7 +20,7 @@ case class BlockEvents(
   onBreak: Event[BlockEvent.Break] = BlockEvent.BREAK,
   logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
   skipLogger: PlayerSkillsLogger = PlayerSkillsLogger.SKIPS,
-) {
+) extends EventUtils {
   def registerEvents(): Unit = {
     onBreak.register { (_: Level, pos: BlockPos, state: BlockState, player: ServerPlayer, _: IntValue) =>
       beforeMine(Player(player), Block(state), Position(pos))
@@ -41,13 +42,19 @@ case class BlockEvents(
     //      PlayerSkillsLogger.BLOCKS.debug("${player.name.string} cannot mine block $blockName")
     //      return EventResult.interruptFalse()
     //    }
+    val result = for {
+      tool <- player.getItemInMainHand
+      usable = itemRestrictionOps.isUsable(player, tool, Option(pos))
+    } yield {
+      if (!usable) {
+        logger.debug(s"${player.name} cannot mine block ${block.name} using ${tool.name}")
+      } else {
+        skipLogger.debug(s"${player.name} is going to mine block ${block.name} using ${tool.name}")
+      }
 
-    if (!itemRestrictionOps.isUsable(player, player.getItemInMainHand, Option(pos))) {
-      logger.debug(s"${player.name} cannot mine block ${block.name} using ${player.getItemInMainHand.name}")
-      EventResult.interruptFalse()
-    } else {
-      skipLogger.debug(s"${player.name} is going to mine block ${block.name} using ${player.getItemInMainHand.name}")
-      EventResult.pass()
+      usable
     }
+
+    failOn(result)
   }
 }

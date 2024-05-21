@@ -34,6 +34,7 @@ case class Player[T <: MinecraftPlayer](private val player: T) extends Entity(pl
       .map(Item(_))
       .view
       .zipWithIndex
+      .filterNot(_._1.isDefault)
       .map(_.swap)
       .toMap
   }
@@ -61,12 +62,12 @@ case class Player[T <: MinecraftPlayer](private val player: T) extends Entity(pl
     }
   }
 
-  def getItemInHand(hand: InteractionHand): Item = {
-    Item(player.getItemInHand(hand))
+  def getItemInHand(hand: InteractionHand): Option[Item] = {
+    Option(player.getItemInHand(hand)).map(Item(_)).filterNot(_.isDefault)
   }
 
-  def getItemInMainHand: Item = {
-    Item(player.getMainHandItem)
+  def getItemInMainHand: Option[Item] = {
+    Option(player.getMainHandItem).map(Item(_)).filterNot(_.isDefault)
   }
 
   def putInInventory(item: Item): Unit = player.getInventory.placeItemBackInInventory(item.getStack)

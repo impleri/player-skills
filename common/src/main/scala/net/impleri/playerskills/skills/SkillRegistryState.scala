@@ -12,7 +12,7 @@ object SkillRegistryState {
   /**
    * Internal state representation and low-level operations
    */
-  final case class Skills private (skills: List[Skill[_]]) {
+  final case class Skills private[skills] (skills: List[Skill[_]]) {
     def entries: List[Skill[_]] = skills
 
     def get(key: ResourceLocation): Option[Skill[_]] = skills.find(_.name == key)

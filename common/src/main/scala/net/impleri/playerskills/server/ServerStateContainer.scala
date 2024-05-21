@@ -66,7 +66,7 @@ case class ServerStateContainer(
   private val ENTITY = EntityEvents(globalState.ITEM_RESTRICTIONS)
   private val BLOCK = BlockEvents(globalState.ITEM_RESTRICTIONS)
 
-  private val INTEGRATIONS = IntegrationLoader(this)
+  private val INTEGRATIONS = IntegrationLoader(globalState, this)
 
   LIFECYCLE.registerEvents()
   INTERNAL.registerEvents()
