@@ -3,14 +3,14 @@ package net.impleri.playerskills.data.utils
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
 
 import scala.util.Failure
 import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
 
 trait JsonValueParser {
-  protected def logger: PlayerSkillsLogger
+  protected def logger: Logger
 
   private[utils] def getElement(
     raw: JsonObject,

@@ -1,9 +1,10 @@
 package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.architectury.Registrar
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.utils.StatefulRegistry
+import net.impleri.playerskills.PlayerSkills
+import net.impleri.slab.registry.Registrar
+import net.impleri.slab.resources.ResourceLocation
 
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -85,7 +86,7 @@ class SkillRegistry(
 object SkillRegistry {
   val REGISTRY_KEY: ResourceLocation = ResourceLocation("skills_registry").get
 
-  lazy val REGISTRAR: Registrar[Skill[_]] = Registrar(REGISTRY_KEY.name)
+  lazy val REGISTRAR: Registrar[Skill[_]] = Registrar(REGISTRY_KEY, PlayerSkills.MOD_ID)
 
   def apply(
     state: SkillRegistryState.Skills = SkillRegistryState.empty,

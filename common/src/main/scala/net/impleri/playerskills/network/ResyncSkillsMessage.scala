@@ -1,81 +1,56 @@
 package net.impleri.playerskills.network
 
-import dev.architectury.networking.NetworkManager
-import dev.architectury.networking.simple.BaseC2SMessage
-import dev.architectury.networking.simple.MessageType
-import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.network.FriendlyByteBuf
+import net.impleri.slab.entity.Player
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.network.FriendlyBuffer
+import net.impleri.slab.network.MessageFactory
+import net.impleri.slab.network.MessageFactory.ReceiveFn
+import net.impleri.slab.network.MessageType
+import net.impleri.slab.network.ServerboundMessage
 
 import java.util.UUID
 
 case class ResyncSkillsMessage(
   private val playerId: UUID,
   private val serverStateContainer: Option[ServerStateContainer],
-  private val messageType: MessageType,
+  override val messageType: MessageType,
 )
-  extends BaseC2SMessage {
-  override def getType: MessageType = messageType
+  extends ServerboundMessage {
+  def write(buffer: FriendlyBuffer): Unit = buffer.writeUUID(playerId)
 
-  override def write(buffer: FriendlyByteBuf): Unit = buffer.writeUUID(playerId)
+  override def onReceive: () => Unit = {
+    () => {
+      val player = serverStateContainer.flatMap(_.SERVER).flatMap(_.getPlayer(playerId))
+      val netHandler = serverStateContainer.map(_.getNetHandler)
 
-  // Server-side
-  override def handle(context: NetworkManager.PacketContext): Unit = {
-    val player = serverStateContainer.flatMap(_.SERVER).flatMap(_.getPlayer(playerId))
-    val netHandler = serverStateContainer.map(_.getNetHandler)
-
-    (player, netHandler) match {
-      case (Some(player: Player[_]), Some(netHandler: NetHandler)) => netHandler.syncPlayer(player)
-      case _ =>
+      (player, netHandler) match {
+        case (Some(player: Player[_]), Some(netHandler: NetHandler)) => netHandler.syncPlayer(player)
+        case _ =>
+      }
     }
   }
 }
 
 case class ResyncSkillsMessageFactory(
-  serverStateContainer: Option[ServerStateContainer],
-  logger: PlayerSkillsLogger,
-) {
-  private var messageType: Option[MessageType] = None
+  serverStateContainer: Option[ServerStateContainer] = None,
+  logger: Logger = PlayerSkillsLogger.SKILLS,
+) extends MessageFactory[ResyncSkillsMessage] {
+  final val name: String = "resync_skills"
 
-  def setMessageType(newType: MessageType): Unit = {
-    messageType = Option(newType)
-  }
-
-  // Server-side
-  def receive(
-    buffer: FriendlyByteBuf,
-
-  ): ResyncSkillsMessage = {
-    val playerId = buffer.readUUID()
-
-    if (messageType.isEmpty) {
-      logger.error(s"Could not handle RESYNC_SKILLS without a defined message type")
-    }
-
-    ResyncSkillsMessage(playerId, serverStateContainer, messageType.get)
-  }
-
-  // Client-side
   def send(
     player: Player[_],
-  ): ResyncSkillsMessage = {
-    if (messageType.isEmpty) {
-      logger.error(s"Could not send RESYNC_SKILLS without a defined message type")
-    }
-
-    ResyncSkillsMessage(player.uuid, serverStateContainer, messageType.get)
+  ): Option[ResyncSkillsMessage] = {
+    createForSend(ResyncSkillsMessage(player.uuid, serverStateContainer, _))
   }
-}
 
-object ResyncSkillsMessageFactory {
-  val NAME: String = "resync_skills"
+  override protected def onReceive: ReceiveFn[ResyncSkillsMessage] = {
+    (buffer, messageType) => {
+      val playerId = buffer.readUUID()
 
-  def apply(
-    serverStateContainer: Option[ServerStateContainer] = None,
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
-  ): ResyncSkillsMessageFactory = {
-    new ResyncSkillsMessageFactory(serverStateContainer, logger)
+      ResyncSkillsMessage(playerId.get, serverStateContainer, messageType)
+    }
   }
 }

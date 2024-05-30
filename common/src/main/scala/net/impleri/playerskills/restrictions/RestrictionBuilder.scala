@@ -2,16 +2,17 @@ package net.impleri.playerskills.restrictions
 
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.TargetResource
-import net.impleri.playerskills.facades.minecraft.core.Registry
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
-import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.tags.TagKey
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.IsRegistered
+import net.impleri.slab.registry.Registry
+import net.impleri.slab.registry.Tag
+import net.impleri.slab.resources.ResourceLocation
 
-trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
-  protected def registry: Option[Registry[T]] = None
+trait RestrictionBuilder[T <: IsRegistered[_], C <: RestrictionConditionsBuilder] {
+  protected def registry: Option[Registry[T, _]] = None
 
-  protected def logger: PlayerSkillsLogger
+  protected def logger: Logger
 
   private[restrictions] var restrictions: Map[String, C] = Map.empty
 
@@ -30,11 +31,11 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
   protected def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    TargetResource(resourceName, registry.map(_.name), singleAsString) match {
+    TargetResource(resourceName, registry.map(_.nameKey), singleAsString) match {
       case Some(ns: TargetResource.Namespace) => restrictNamespace(ns.target, builder)
       case Some(s: TargetResource.Single) => restrictOne(s.target, builder)
       case Some(s: TargetResource.SingleString) => restrictString(s.target, builder)
-      case Some(t: TargetResource.Tag[_]) => restrictTag(t.target.asInstanceOf[TagKey[T]], builder)
+      case Some(t: TargetResource.Tag[_]) => restrictTag(t.target.asInstanceOf[Tag[T]], builder)
       case _ =>
     }
   }
@@ -62,7 +63,7 @@ trait RestrictionBuilder[T, C <: RestrictionConditionsBuilder] {
   }
 
   private def restrictTag(
-    tag: TagKey[T],
+    tag: Tag[T],
     builder: C,
   ): Unit = {
     logger.info(s"Creating restriction for ${tag.location} tag")

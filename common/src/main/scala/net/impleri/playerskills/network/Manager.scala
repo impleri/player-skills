@@ -1,29 +1,26 @@
 package net.impleri.playerskills.network
 
-import dev.architectury.networking.simple.MessageType
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.client.ClientStateContainer
 import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.slab.network.MessageManager
+import net.impleri.slab.network.Network
 
 case class Manager(
   globalState: StateContainer = StateContainer(),
   clientStateContainer: Option[ClientStateContainer] = None,
   serverStateContainer: Option[ServerStateContainer] = None,
-) {
+) extends MessageManager {
+  override val network: Network = globalState.NETWORK
+
   val SYNC_SKILLS: SyncSkillsMessageFactory = SyncSkillsMessageFactory(
     globalState.SKILL_TYPE_OPS,
     clientStateContainer,
   )
 
-  private val SYNC_TYPE: MessageType = globalState.NETWORK
-    .registerClientboundMessage(SyncSkillsMessageFactory.NAME, SYNC_SKILLS.receive)
-
-  SYNC_SKILLS.setMessageType(SYNC_TYPE)
+  registerFactoryToClient(SYNC_SKILLS)
 
   val RESYNC_SKILLS: ResyncSkillsMessageFactory = ResyncSkillsMessageFactory(serverStateContainer)
 
-  private val RESYNC_TYPE: MessageType = globalState.NETWORK
-    .registerServerboundMessage(ResyncSkillsMessageFactory.NAME, RESYNC_SKILLS.receive)
-
-  RESYNC_SKILLS.setMessageType(RESYNC_TYPE)
+  registerFactoryToServer(RESYNC_SKILLS)
 }

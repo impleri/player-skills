@@ -5,9 +5,9 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.skills.PlayerRegistry
+import net.impleri.slab.entity.{Player => MinecraftPlayer}
+import net.impleri.slab.resources.ResourceLocation
 
 import java.util.UUID
 

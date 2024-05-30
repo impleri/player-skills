@@ -2,10 +2,11 @@ package net.impleri.playerskills.client
 
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
 
 case class ClientSkillsRegistry(
   eventHandler: EventHandler = EventHandler(),
-  logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  logger: Logger = PlayerSkillsLogger.SKILLS,
 ) {
   private var playerSkills: List[Skill[_]] = List.empty
 

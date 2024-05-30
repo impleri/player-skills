@@ -2,8 +2,8 @@ package net.impleri.playerskills.server
 
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.events.SkillChangedEvent
-import net.impleri.playerskills.facades.architectury.EventEmitter
-import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.slab.entity.Player
+import net.impleri.slab.pubsub.EventEmitter
 
 import java.util.function.Consumer
 

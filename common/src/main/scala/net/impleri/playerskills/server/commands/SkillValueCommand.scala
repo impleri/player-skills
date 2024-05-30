@@ -1,50 +1,44 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.api.Player
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
+import net.impleri.slab.chat.ListMessage
+import net.impleri.slab.chat.StaticText
+import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandCallback
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
+import net.impleri.slab.commands.PlayerArgument
 
-import scala.jdk.FunctionConverters.enrichAsJavaPredicate
-
-trait SkillValueCommand extends ValuesCommandUtils with WithPlayer with WithSkill with CommandHelpers {
+trait SkillValueCommand {
   protected def playerOps: Player
 
-  protected def registerValueCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("value")
-        .`then`(
-          getPlayerArg.requires(hasPermission().asJavaPredicate)
-            .`then`(
-              getSkillArg.executes(
-                withListValuesContext(c => getSkillValue(getPlayer(c), getSkillName(c))),
-              ),
-            ),
+  protected def registerValueCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(
+      CommandString("value")
+        .option(
+          PlayerArgument().requireMod().option(
+            SkillHandler.getArgument.executes(CommandAction(handler())),
+          ),
         )
-        .`then`(
-          getSkillArg
-            .executes(
-              withListValuesContext(c => getSkillValue(Option(getCurrentPlayer(c.getSource)), getSkillName(c))),
-            ),
+        .option(
+          SkillHandler.getArgument.executes(CommandAction(handler(true))),
         ),
     )
   }
 
-  private[commands] def getSkillValue[T](
-    player: Option[MinecraftPlayer[_]],
-    skillName: Option[ResourceLocation],
-  ): (Component, List[String]) = {
-    val foundSkill = player.flatMap(p => skillName.flatMap(playerOps.get[T](p, _)))
+  protected def handler(useCurrentUser: Boolean = false): CommandCallback = {
+    context => {
+      val player = CommandAction.getPlayer(context, useCurrentUser)
+      val skillName = SkillHandler.getValue(context)
 
-    val message = if (foundSkill.nonEmpty) {
-      Component.translatable("commands.playerskills.acquired_skills", 1)
-    } else {
-      Component.translatable("commands.playerskills.no_acquired_skills")
+      player.flatMap(p => skillName.map(playerOps.get(p, _)))
+        .toRight(TranslatableText("commands.playerskills.skill_not_found", skillName.fold("")(_.asString)))
+        .filterOrElse(_.nonEmpty, TranslatableText("commands.playerskills.no_acquired_skills"))
+        .map(_.toSeq)
+        .map(_.map(s => s"${s.name} = ${s.value.getOrElse("None")}"))
+        .map(_.map(StaticText(_)))
+        .map(ListMessage(TranslatableText("commands.playerskills.acquired_skills", 1), _))
     }
-
-    (message, foundSkill.map(s => s"${s.name} = ${s.value.getOrElse("None")}").toList)
   }
 }

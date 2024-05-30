@@ -3,7 +3,7 @@ package net.impleri.playerskills.skills.basic
 import net.impleri.playerskills.api.skills.ChangeableSkillOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.TeamMode
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.resources.ResourceLocation
 
 case class BasicSkill(
   override val name: ResourceLocation,

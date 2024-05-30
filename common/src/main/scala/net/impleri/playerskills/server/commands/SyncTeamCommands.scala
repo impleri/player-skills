@@ -1,37 +1,47 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.Command
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.server.api.TeamOps
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
+import net.impleri.slab.chat.StaticText
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandCallback
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
+import net.impleri.slab.commands.PlayerArgument
 
-import scala.jdk.FunctionConverters.enrichAsJavaPredicate
-
-trait SyncTeamCommands extends CommandHelpers with WithPlayer {
+trait SyncTeamCommands {
   protected def teamOps: TeamOps
 
-  protected def registerTeamCommands(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("team")
-        .`then`(
-          Commands.literal("share")
-            .executes(withCurrentPlayerCommand(syncToTeam)),
+  protected def registerTeamCommands(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(
+      CommandString("team")
+        .option(
+          CommandString("share").executes(CommandAction(syncToTeam)),
         )
-        .`then`(
-          Commands.literal("sync")
-            .requires(hasPermission(GAMEMASTER).asJavaPredicate)
-            .`then`(getPlayerArg.executes(c => syncTeamFor(getPlayer(c)))),
+        .option(
+          CommandString("sync")
+            .requireGm()
+            .option(PlayerArgument().executes(CommandAction(syncTeamForPlayer))),
         ),
     )
   }
 
-  private[commands] def syncTeamFor(player: Option[Player[_]]): Int = {
-    player.map(teamOps.syncEntireTeam).fold(2)(s => if (s) Command.SINGLE_SUCCESS else 3)
+  private[commands] val syncTeamForPlayer: CommandCallback = {
+    context => {
+      CommandAction.getPlayerArgument(context)
+        .map(teamOps.syncEntireTeam)
+        .toRight(StaticText("Player Not Found"))
+        .filterOrElse(_ == true, StaticText("Sync Failed"))
+        .map(_ => StaticText("Success"))
+    }
   }
 
-  private[commands] def syncToTeam(player: Player[_]): Int = {
-    if (teamOps.syncFromPlayer(player)) Command.SINGLE_SUCCESS else 3
+  private[commands] val syncToTeam: CommandCallback = {
+    context => {
+      CommandAction.getCurrentPlayer(context)
+        .map(teamOps.syncFromPlayer)
+        .toRight(StaticText("Player Not Found"))
+        .filterOrElse(_ == true, StaticText("Sync Failed"))
+        .map(_ => StaticText("Success"))
+    }
   }
 }

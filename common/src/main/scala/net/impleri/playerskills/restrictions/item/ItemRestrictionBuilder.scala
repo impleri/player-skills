@@ -1,18 +1,18 @@
 package net.impleri.playerskills.restrictions.item
 
-import net.impleri.playerskills.facades.minecraft.core.Registry
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.restrictions.RestrictionBuilder
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.world.item.{Item => McItem}
+import net.impleri.slab.item.Item
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ResourceLocation
 
 case class ItemRestrictionBuilder(
-  override val registry: Option[Registry[McItem]],
+  override val registry: Option[Registry.ITEM],
   protected val restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
-  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
-) extends RestrictionBuilder[McItem, ItemConditions] {
+  override val logger: Logger = PlayerSkillsLogger.ITEMS,
+) extends RestrictionBuilder[Item, ItemConditions] {
   override val singleAsString: Boolean = true
 
   private def restrictItem(item: Item, builder: ItemConditions, targetName: String): Unit = {
@@ -27,7 +27,6 @@ case class ItemRestrictionBuilder(
     builder: ItemConditions,
   ): Unit = {
     registry.get.get(targetName)
-      .map(Item(_))
       .foreach(restrictItem(_, builder, targetName.toString))
   }
 

@@ -4,12 +4,12 @@ import cats.implicits.toFoldableOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.minecraft.Server
-import net.impleri.playerskills.server.skills.storage.PersistentStorage
-import net.impleri.playerskills.server.skills.storage.SkillFileMissing
 import net.impleri.playerskills.server.skills.storage.SkillNbtStorage
 import net.impleri.playerskills.server.skills.storage.SkillResourceFile
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.nbt.NbtFileMissing
+import net.impleri.slab.server.Server
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
@@ -18,10 +18,10 @@ import scala.util.chaining.scalaUtilChainingOps
  * Public wrapper to rest of storage package
  */
 case class PlayerStorageIO private[skills] (
-  private val storage: PersistentStorage,
+  private val storage: SkillNbtStorage,
   private[skills] val skillFile: SkillResourceFile,
   private val skillTypeOps: SkillTypeOps,
-  private val logger: PlayerSkillsLogger,
+  private val logger: Logger,
 ) {
   def read(playerId: UUID): List[Skill[_]] = {
     skillFile.getPlayerFile(playerId)
@@ -29,7 +29,7 @@ case class PlayerStorageIO private[skills] (
       .pipe(storage.read)
       .tap {
         case Right(_) => logger.debug(s"Restoring saved skills for $playerId")
-        case Left(SkillFileMissing(_)) => ()
+        case Left(NbtFileMissing(_)) => ()
         case Left(e) => logger.warn(e.toString)
       }
       .map(skillTypeOps.deserializeAll)
@@ -54,18 +54,18 @@ case class PlayerStorageIO private[skills] (
 object PlayerStorageIO {
   private[skills] def apply(
     resourceFile: SkillResourceFile,
-    storage: PersistentStorage,
+    storage: SkillNbtStorage,
     skillTypeOps: SkillTypeOps,
-    logger: PlayerSkillsLogger,
+    logger: Logger,
   ): PlayerStorageIO = {
     new PlayerStorageIO(storage, resourceFile, skillTypeOps, logger)
   }
 
   protected[server] def apply(
     server: Server,
-    storage: PersistentStorage = SkillNbtStorage(),
+    storage: SkillNbtStorage = SkillNbtStorage(),
     skillTypeOps: SkillTypeOps = SkillType(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
   ): PlayerStorageIO = {
     SkillResourceFile(server).pipe(apply(_, storage, skillTypeOps, logger))
   }

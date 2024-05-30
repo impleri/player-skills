@@ -2,8 +2,8 @@ package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.RestrictionType
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
+import net.impleri.slab.entity.Player
+import net.impleri.slab.item.crafting.Recipe
 
 case class RecipeRestriction(
   target: Recipe[_],

@@ -8,14 +8,15 @@ import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.restrictions.item.ItemConditions
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 case class ItemRestrictionConditionBuilder(
   name: ResourceLocation,
   protected val skillOps: SkillOps = Skill(),
   protected val skillTypeOps: SkillTypeOps = SkillType(),
   protected val playerOps: Player = Player(),
-  protected val logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
+  protected val logger: Logger = PlayerSkillsLogger.ITEMS,
 ) extends RestrictionConditionsBuilder with SingleTargetParser[String] with ItemConditions {
   override def parseRestriction(jsonElement: JsonObject): Unit = {
     target = getTarget(jsonElement, "item")

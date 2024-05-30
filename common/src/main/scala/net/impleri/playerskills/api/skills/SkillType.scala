@@ -1,8 +1,9 @@
 package net.impleri.playerskills.api.skills
 
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
@@ -61,7 +62,7 @@ sealed trait SkillTypeRegistryFacade {
 
 class SkillTypeOps(
   override val state: SkillTypeRegistry,
-  protected val logger: PlayerSkillsLogger,
+  protected val logger: Logger,
 ) extends SkillTypeRegistryFacade {
   def serialize[T](skill: Skill[T]): Option[String] = {
     get(skill)
@@ -92,17 +93,17 @@ class SkillTypeOps(
 
   private def createSkill[T](parts: List[String]): Option[Skill[T]] = {
     parts match {
-      case name :: skillType :: value :: changesAllowed :: _ => {
-        logger.debug(s"Hydrating $skillType skill named $name: $value")
-        ResourceLocation(skillType)
-          .flatMap(get[T])
-          .flatMap(_.deserialize(name, parseValue(value), parseChanges(changesAllowed)))
-      }
-      case _ => {
-        logger.error(s"Tried to parse skill with incorrectly stored data: ${parts.mkString("|||")}")
-        None
-      }
+      case name :: skillType :: value :: changesAllowed :: _ =>
+      logger.debug(s"Hydrating $skillType skill named $name: $value")
+      ResourceLocation(skillType)
+        .flatMap(get[T])
+        .flatMap(_.deserialize(name, parseValue(value), parseChanges(changesAllowed)))
+
+      case _ =>
+      logger.error(s"Tried to parse skill with incorrectly stored data: ${parts.mkString("|||")}")
+      None
     }
+
   }
 
   def deserialize(value: String): Option[Skill[_]] = {
@@ -130,7 +131,7 @@ object SkillType {
 
   def apply(
     state: SkillTypeRegistry = SkillTypeRegistry(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
   ): SkillTypeOps = {
     new SkillTypeOps(state, logger)
   }

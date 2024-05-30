@@ -1,18 +1,16 @@
 package net.impleri.playerskills.integrations.ftbquests.rewards
 
-import dev.ftb.mods.ftblibrary.icon.Icon
 import dev.ftb.mods.ftbquests.quest.Quest
 import dev.ftb.mods.ftbquests.quest.reward.RewardType
-import dev.ftb.mods.ftbquests.quest.reward.RewardTypes
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.integrations.ftbquests.helpers.StringValueHandling
+import net.impleri.playerskills.integrations.ftbquests.helpers.QuestState
+import net.impleri.playerskills.integrations.ftbquests.helpers.QuestStateOps
+import net.impleri.playerskills.integrations.ftbquests.helpers.StringQuest
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
-import net.minecraft.network.chat.Component
 
 case class SpecializedSkillReward(
   q: Quest,
@@ -20,24 +18,17 @@ case class SpecializedSkillReward(
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
 )
-  extends MinMaxSkillReward[String](q, playerOps, skillOps, skillTypeOps) with StringValueHandling {
-  override val skillType: ResourceLocation = SpecializedSkillType.NAME
+  extends RestrictableReward[String](q, playerOps, skillOps, skillTypeOps) with StringQuest {
+  data = QuestState(SpecializedSkillType.NAME)
 
   override def getType: RewardType = SpecializedSkillReward.REWARD_TYPE
 }
 
 object SpecializedSkillReward {
-  val REWARD_TYPE: RewardType = RewardTypes.register(
-    ResourceLocation("specialized_skill_reward").get.name,
-    apply,
-    () => Icon.getIcon("minecraft:item/diamond_hoe"),
-  )
-
-  REWARD_TYPE.setDisplayName(Component.translatable("playerskills.quests.diamond_skill"))
+  val REWARD_TYPE: RewardType = QuestStateOps
+    .createRewardType(QuestStateOps.SPECIALIZED_SKILL, "minecraft:item/diamond_hoe", apply)
 
   def apply(quest: Quest): SpecializedSkillReward = {
-
-
     new SpecializedSkillReward(
       quest,
       PlayerSkillsServer.STATE.PLAYER_OPS,

@@ -1,22 +1,24 @@
 package net.impleri.playerskills.client
 
 import net.impleri.playerskills.PlayerSkills
-import net.impleri.playerskills.client.bindings.InternalEvents
-import net.impleri.playerskills.facades.minecraft.Client
-import net.minecraft.server.packs.resources.ResourceManager
+import net.impleri.playerskills.client.bindings.ClientEventBindings
+import net.impleri.slab.client.Client
+import net.impleri.slab.resources.ResourceManager
+
+import scala.annotation.unused
 
 object PlayerSkillsClient {
   val EVENTS: EventHandler = EventHandler()
 
   val STATE: ClientStateContainer = ClientStateContainer(PlayerSkills.STATE, EVENTS)
 
-  private val INTERNAL: InternalEvents = InternalEvents(onReload)
+  private val EVENT_BINDINGS: ClientEventBindings = ClientEventBindings(onReload)
 
   def init(): Unit = {
-    INTERNAL.registerEvents()
+    EVENT_BINDINGS.registerEvents()
   }
 
-  private def onReload(resourceManager: ResourceManager): Unit = {
+  private def onReload(@unused resourceManager: Option[ResourceManager]): Unit = {
     Client().getPlayer.foreach(STATE.getNetHandler.resyncPlayer)
   }
 }

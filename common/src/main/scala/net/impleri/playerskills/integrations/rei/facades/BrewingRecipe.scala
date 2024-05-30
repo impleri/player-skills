@@ -1,15 +1,13 @@
 package net.impleri.playerskills.integrations.rei.facades
 
 import me.shedaniel.rei.plugin.common.displays.brewing.{BrewingRecipe => RawBrew}
-import net.impleri.playerskills.facades.minecraft.crafting.IsRecipe
-import net.impleri.playerskills.facades.minecraft.world.Item
-import net.minecraft.world.item.crafting.Ingredient
-import net.minecraft.world.item.ItemStack
+import net.impleri.slab.item.crafting.IsRecipe
+import net.impleri.slab.item.Item
 
 case class BrewingRecipe(private val data: RawBrew) extends IsRecipe {
-  override def getResult: ItemStack = data.output
+  override def getResult = data.output
 
-  override def getResultItem: Item = Item(getResult)
+  override def getResultItem = Item(getResult)
 
-  override def getIngredients: List[Ingredient] = List(data.input, data.ingredient)
+  override def getIngredients = List(data.input, data.ingredient)
 }

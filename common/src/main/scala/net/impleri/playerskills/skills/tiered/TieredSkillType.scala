@@ -3,16 +3,17 @@ package net.impleri.playerskills.skills.tiered
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.utils.MinMaxCalculator
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 import scala.util.chaining.scalaUtilChainingOps
 import scala.util.Try
 
 case class TieredSkillType(
   override val skillOps: SkillOps = Skill(),
-  private val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  private val logger: Logger = PlayerSkillsLogger.SKILLS,
 ) extends SkillType[String] {
   override val name: ResourceLocation = TieredSkillType.NAME
 

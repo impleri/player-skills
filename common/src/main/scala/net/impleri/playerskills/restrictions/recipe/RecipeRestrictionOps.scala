@@ -2,15 +2,16 @@ package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.api.restrictions.RestrictionsOps
 import net.impleri.playerskills.api.restrictions.RestrictionType
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.core.Position
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.Player
+import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.world.Position
 
 class RecipeRestrictionOps(
   protected val registry: RestrictionRegistry,
-  protected val logger: PlayerSkillsLogger,
+  protected val logger: Logger,
 )
   extends RestrictionsOps[Recipe[_], RecipeRestriction] {
   override val restrictionType: RestrictionType = RestrictionType.Recipe()
@@ -23,7 +24,7 @@ class RecipeRestrictionOps(
 object RecipeRestrictionOps {
   def apply(
     registry: RestrictionRegistry = RestrictionRegistry(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
+    logger: Logger = PlayerSkillsLogger.ITEMS,
   ): RecipeRestrictionOps = {
     new RecipeRestrictionOps(registry, logger)
   }

@@ -48,15 +48,15 @@ trait JsonDataParser extends JsonCollectionParser {
     onExclude: JsonElement => Unit,
   ): Unit = {
     getElement(raw, key) match {
-      case Some(obj) if obj.isJsonObject => {
-        parseIncludeAction(obj, onInclude)
-        parseExcludeAction(obj, onExclude)
-      }
-      case Some(list) if list.isJsonArray => {
-        list.getAsJsonArray
-          .asScala
-          .foreach(onInclude)
-      }
+      case Some(obj) if obj.isJsonObject =>
+      parseIncludeAction(obj, onInclude)
+      parseExcludeAction(obj, onExclude)
+
+      case Some(list) if list.isJsonArray =>
+      list.getAsJsonArray
+        .asScala
+        .foreach(onInclude)
+
       case _ =>
     }
   }

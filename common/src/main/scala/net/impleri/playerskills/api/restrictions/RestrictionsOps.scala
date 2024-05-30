@@ -1,12 +1,12 @@
 package net.impleri.playerskills.api.restrictions
 
-import net.impleri.playerskills.facades.minecraft.HasName
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.core.Position
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.world.Biome
 import net.impleri.playerskills.restrictions.RestrictionRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.Player
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.HasName
+import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.world.Biome
+import net.impleri.slab.world.Position
 
 import scala.collection.View
 
@@ -30,7 +30,7 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
     with PlayerRestriction {
   protected def registry: RestrictionRegistry
 
-  protected def logger: PlayerSkillsLogger
+  protected def logger: Logger
 
   private[restrictions] def getRestrictionsFor(
     player: Player[_],
@@ -85,35 +85,35 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
     f: R => Boolean = _ => true,
   ): Boolean = {
     (player.asOption, target.getName) match {
-      case (Some(p), Some(t)) => {
-        canHelper(
-          p.asPlayer,
-          t,
-          getFieldValue,
-          fieldName,
-          pos,
-          dimension,
-          biome,
-          f,
-        )
-      }
-      case (None, _) => {
-        logger.warn(
-          s"Attempted to determine if null player can $fieldName on target $target in $dimension/${
+      case (Some(p), Some(t)) =>
+      canHelper(
+        p.asPlayer,
+        t,
+        getFieldValue,
+        fieldName,
+        pos,
+        dimension,
+        biome,
+        f,
+      )
+
+      case (None, _) =>
+      logger.warn(
+        s"Attempted to determine if null player can $fieldName on target $target in $dimension/${
+          biome.flatMap(_.name)
+        }",
+      )
+      RestrictionsOps.DEFAULT_RESPONSE
+
+      case (_, None) =>
+      logger
+        .warn(
+          s"Attempted to determine if player ${player.name} can $fieldName on a non-target in $dimension/${
             biome.flatMap(_.name)
           }",
         )
-        RestrictionsOps.DEFAULT_RESPONSE
-      }
-      case (_, None) => {
-        logger
-          .warn(
-            s"Attempted to determine if player ${player.name} can $fieldName on a non-target in $dimension/${
-              biome.flatMap(_.name)
-            }",
-          )
-        RestrictionsOps.DEFAULT_RESPONSE
-      }
+      RestrictionsOps.DEFAULT_RESPONSE
+
     }
   }
 

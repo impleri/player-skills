@@ -1,10 +1,10 @@
 package net.impleri.playerskills.api.restrictions
 
-import net.impleri.playerskills.facades.minecraft.HasName
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.world.Biome
-import net.minecraft.core.Registry
+import net.impleri.slab.entity.Player
+import net.impleri.slab.registry.HasName
+import net.impleri.slab.registry.RegistryKey
+import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.world.Biome
 
 trait Restriction[T <: HasName] {
   def restrictionType: RestrictionType
@@ -40,7 +40,7 @@ trait Restriction[T <: HasName] {
   private def dimensionListIncludes(list: Seq[String], dimension: ResourceLocation): Boolean = {
     list.exists(d =>
       TargetResource(d, None) match {
-        case Some(n: TargetResource.Namespace) => dimension.getNamespace == n.target
+        case Some(n: TargetResource.Namespace) => dimension.namespace == n.target
         case Some(n: TargetResource.Single) => dimension == n.target
         case _ => false
       },
@@ -49,7 +49,7 @@ trait Restriction[T <: HasName] {
 
   private def biomeListIncludes(list: Seq[String], biome: Biome): Boolean = {
     list.exists(d =>
-      TargetResource(d, Option(Registry.BIOME_REGISTRY)) match {
+      TargetResource(d, Option(RegistryKey.Biome)) match {
         case Some(n: TargetResource.Namespace) => biome.isNamespaced(n.target)
         case Some(n: TargetResource.Tag[_]) => biome.isTagged(n.target.asInstanceOf)
         case Some(n: TargetResource.Single) => biome.isNamed(n.target)

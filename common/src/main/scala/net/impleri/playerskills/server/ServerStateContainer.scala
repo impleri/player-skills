@@ -1,9 +1,6 @@
 package net.impleri.playerskills.server
 
 import net.impleri.playerskills.StateContainer
-import net.impleri.playerskills.facades.architectury.ReloadListeners
-import net.impleri.playerskills.facades.minecraft.Server
-import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.integrations.IntegrationLoader
 import net.impleri.playerskills.network.Manager
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
@@ -12,19 +9,17 @@ import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.api.StubTeam
 import net.impleri.playerskills.server.api.Team
 import net.impleri.playerskills.server.api.TeamOps
-import net.impleri.playerskills.server.bindings.BlockEvents
-import net.impleri.playerskills.server.bindings.CommandEvents
-import net.impleri.playerskills.server.bindings.EntityEvents
 import net.impleri.playerskills.server.bindings.InternalEvents
-import net.impleri.playerskills.server.bindings.LifecycleEvents
-import net.impleri.playerskills.server.bindings.PlayerEvents
-import net.impleri.playerskills.server.bindings.TickEvents
+import net.impleri.playerskills.server.bindings.ServerEventBindings
 import net.impleri.playerskills.server.commands.PlayerSkillsCommands
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.playerskills.server.skills.PlayerStorageIO
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.server.packs.resources.ResourceManager
-import net.minecraft.world.item.Item
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ReloadListeners
+import net.impleri.slab.resources.ResourceManager
+import net.impleri.slab.server.Server
 
 import scala.annotation.unused
 
@@ -38,8 +33,8 @@ case class ServerStateContainer(
   private val reloadListeners: ReloadListeners = ReloadListeners(true),
   var TEAM: Team = StubTeam(),
   var SERVER: Option[Server] = None,
-  private val itemRegistry: Registry[Item] = Registry.Items,
-  private val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  private val itemRegistry: Registry.ITEM = Registry.Items,
+  private val logger: Logger = PlayerSkillsLogger.SKILLS,
 ) {
   private var STORAGE: Option[PlayerStorageIO] = SERVER.map(
     PlayerStorageIO(_, skillTypeOps = globalState.SKILL_TYPE_OPS),
@@ -50,7 +45,19 @@ case class ServerStateContainer(
 
   lazy private val MANAGER = Manager(globalState, serverStateContainer = Option(this))
 
-  private val LIFECYCLE = LifecycleEvents(PLAYERS, onSetup, onServerChange)
+  private val EVENT_BINDINGS = ServerEventBindings(
+    PLAYERS,
+    globalState.ITEM_RESTRICTIONS,
+    getNetHandler,
+    onSetup,
+    onServerChange,
+    () => PlayerSkillsCommands(
+      globalState.SKILL_OPS,
+      globalState.SKILL_TYPE_OPS,
+      PLAYER_OPS,
+      TEAM_OPS,
+    ),
+  )
   private val INTERNAL = InternalEvents(
     ItemRestrictionBuilder(Option(itemRegistry), globalState.RESTRICTIONS),
     RecipeRestrictionBuilder(this, globalState.RESTRICTIONS),
@@ -60,28 +67,11 @@ case class ServerStateContainer(
     onReload,
     reloadListeners,
   )
-  private val COMMAND = CommandEvents()
-  private val PLAYER = PlayerEvents(PLAYERS, getNetHandler)
-  private val TICK = TickEvents(globalState.ITEM_RESTRICTIONS)
-  private val ENTITY = EntityEvents(globalState.ITEM_RESTRICTIONS)
-  private val BLOCK = BlockEvents(globalState.ITEM_RESTRICTIONS)
 
   private val INTEGRATIONS = IntegrationLoader(globalState, this)
 
-  LIFECYCLE.registerEvents()
+  EVENT_BINDINGS.registerEvents()
   INTERNAL.registerEvents()
-  COMMAND.registerEvents(
-    PlayerSkillsCommands(
-      globalState.SKILL_OPS,
-      globalState.SKILL_TYPE_OPS,
-      PLAYER_OPS,
-      TEAM_OPS,
-    ),
-  )
-  PLAYER.registerEvents()
-  TICK.registerEvents()
-  ENTITY.registerEvents()
-  BLOCK.registerEvents()
 
   logger.info("PlayerSkills Server Loaded")
 
@@ -102,7 +92,7 @@ case class ServerStateContainer(
     TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
   }
 
-  private[server] def onReload(@unused resourceManager: ResourceManager): Unit = {
+  private[server] def onReload(@unused resourceManager: Option[ResourceManager]): Unit = {
     val playerList = PLAYERS.close()
     PLAYERS.open(playerList)
 

@@ -1,15 +1,12 @@
 package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.api.restrictions.TargetResource
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
-import net.impleri.playerskills.facades.minecraft.world.Item
-import net.impleri.playerskills.facades.minecraft.IsIngredient
-import net.impleri.playerskills.facades.minecraft.ItemTag
-import net.impleri.playerskills.facades.minecraft.ResourceNamespace
-import net.minecraft.tags.TagKey
-import net.minecraft.world.item.{Item => McItem}
-import net.minecraft.world.Container
+import net.impleri.slab.item.Item
+import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.registry.IsIngredient
+import net.impleri.slab.registry.ItemTag
+import net.impleri.slab.registry.ResourceNamespace
+import net.impleri.slab.resources.ResourceLocation
 
 case class RecipeTarget(
   recipeType: ResourceLocation,
@@ -23,7 +20,7 @@ case class RecipeTarget(
         case ns: TargetResource.Namespace => Option(ResourceNamespace(ns.target))
         case s: TargetResource.Single => Item.parse(s.target.toString)
         case s: TargetResource.SingleString => Item.parse(s.target)
-        case t: TargetResource.Tag[_] => Option(ItemTag(t.target.asInstanceOf[TagKey[McItem]]))
+        case t: TargetResource.Tag[_] => Option(ItemTag(t.target))
         case _ => None
       }
   }
@@ -32,7 +29,7 @@ case class RecipeTarget(
 
   private[recipe] lazy val getIngredients: Seq[IsIngredient] = castRecipeContents(ingredients)
 
-  def matches[C <: Container](recipe: Recipe[C]): Boolean = {
+  def matches(recipe: Recipe.Any): Boolean = {
     (getOutputItem.nonEmpty || getIngredients.nonEmpty) &&
       getOutputItem.forall(recipe.getResultItem.matches) &&
       getIngredients.forall(_.inList(recipe.getIngredientItems))

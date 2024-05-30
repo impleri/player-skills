@@ -1,8 +1,5 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.tree.LiteralCommandNode
-import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
@@ -11,20 +8,23 @@ import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.api.Team
 import net.impleri.playerskills.server.api.TeamOps
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
+import net.impleri.slab.commands.BaseCommand
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
+import net.impleri.slab.logging.Logger
 
 case class PlayerSkillsCommands(
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
   override val playerOps: Player,
   override val teamOps: TeamOps,
-  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
-  override val blockLogger: PlayerSkillsLogger = PlayerSkillsLogger.BLOCKS,
-  override val fluidLogger: PlayerSkillsLogger = PlayerSkillsLogger.FLUIDS,
-  override val itemLogger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
-  override val mobLogger: PlayerSkillsLogger = PlayerSkillsLogger.MOBS,
-) extends ListTypesCommand
+  override val logger: Logger = PlayerSkillsLogger.SKILLS,
+  override val blockLogger: Logger = PlayerSkillsLogger.BLOCKS,
+  override val fluidLogger: Logger = PlayerSkillsLogger.FLUIDS,
+  override val itemLogger: Logger = PlayerSkillsLogger.ITEMS,
+  override val mobLogger: Logger = PlayerSkillsLogger.MOBS,
+) extends BaseCommand
+  with ListTypesCommand
   with ListSkillsCommand
   with ListAcquiredCommand
   with SkillValueCommand
@@ -33,14 +33,9 @@ case class PlayerSkillsCommands(
   with SetSkillCommand
   with ImproveSkillCommand
   with DegradeSkillCommand {
+  val command: CommandString = buildCommands(CommandString("skills"))
 
-  def register(
-    dispatcher: CommandDispatcher[CommandSourceStack],
-  ): LiteralCommandNode[CommandSourceStack] = {
-    dispatcher.register(buildCommands(Commands.literal("skills")))
-  }
-
-  private val builders: List[Function[LiteralArgumentBuilder[CommandSourceStack], LiteralArgumentBuilder[CommandSourceStack]]] =
+  protected val builders: List[Function[CommandSegment.Any, CommandSegment.Any]] =
     List(
       registerTypesCommand,
       registerAllCommand,
@@ -52,8 +47,6 @@ case class PlayerSkillsCommands(
       registerDegradeCommand,
       registerDebugCommands,
     )
-
-  private def buildCommands = Function.chain(builders)
 }
 
 object PlayerSkillsCommands {
@@ -62,11 +55,11 @@ object PlayerSkillsCommands {
     skillTypeOps: SkillTypeOps = SkillType(),
     playerOps: Player = Player(),
     teamOps: TeamOps = Team(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
-    blockLogger: PlayerSkillsLogger = PlayerSkillsLogger.BLOCKS,
-    fluidLogger: PlayerSkillsLogger = PlayerSkillsLogger.FLUIDS,
-    itemLogger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
-    mobLogger: PlayerSkillsLogger = PlayerSkillsLogger.MOBS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
+    blockLogger: Logger = PlayerSkillsLogger.BLOCKS,
+    fluidLogger: Logger = PlayerSkillsLogger.FLUIDS,
+    itemLogger: Logger = PlayerSkillsLogger.ITEMS,
+    mobLogger: Logger = PlayerSkillsLogger.MOBS,
   ): PlayerSkillsCommands = {
     new PlayerSkillsCommands(
       skillOps,

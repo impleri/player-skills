@@ -1,17 +1,18 @@
 package net.impleri.playerskills.client
 
-import net.impleri.playerskills.facades.minecraft.Client
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.client.restrictions.ItemRestrictionOpsClient
 import net.impleri.playerskills.client.restrictions.RecipeRestrictionOpsClient
 import net.impleri.playerskills.network.Manager
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.client.Client
+import net.impleri.slab.logging.Logger
 
 case class ClientStateContainer(
   globalState: StateContainer = StateContainer(),
   eventHandler: EventHandler = EventHandler(),
   client: Client = Client(),
-  logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  logger: Logger = PlayerSkillsLogger.SKILLS,
 ) {
   val SKILLS: ClientSkillsRegistry = ClientSkillsRegistry(eventHandler)
 
