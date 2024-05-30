@@ -1,22 +1,21 @@
 package net.impleri.playerskills.restrictions.recipe
 
-import net.impleri.playerskills.facades.minecraft.core.Registry
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
 import net.impleri.playerskills.restrictions.RestrictionBuilder
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.world.item.crafting.{Recipe => McRecipe}
-import net.minecraft.world.item.crafting.RecipeType
-import net.minecraft.world.Container
+import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.item.crafting.RecipeType
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ResourceLocation
 
 case class RecipeRestrictionBuilder(
   protected val serverState: ServerStateContainer = ServerStateContainer(),
   protected val restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
-  protected val recipeTypeRegistry: Registry[RecipeType[_]] = Registry.RecipeTypes,
-  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
-) extends RestrictionBuilder[McRecipe[_], RecipeConditions] {
+  protected val recipeTypeRegistry: Registry.RECIPE_TYPE = Registry.RecipeTypes,
+  override val logger: Logger = PlayerSkillsLogger.ITEMS,
+) extends RestrictionBuilder[Recipe.Any, RecipeConditions] {
   override val singleAsString = true
 
   private def restrictRecipe(recipe: Recipe[_], builder: RecipeConditions): Unit = {
@@ -30,26 +29,25 @@ case class RecipeRestrictionBuilder(
     restrictions += s"recipe-${restrictions.size}" -> builder
   }
 
-  private def restrictRecipes[C <: Container, T <: McRecipe[C]](
-    recipeType: RecipeType[T],
+  private def restrictRecipes(
+    recipeType: RecipeType.Any,
     target: RecipeTarget,
     builder: RecipeConditions,
   ): Unit = {
     serverState.SERVER
       .map(_.getRecipeManager)
       .toList
-      .flatMap(_.getAllFor[C, T](recipeType))
+      .flatMap(_.getAllFor(recipeType))
       .filter(target.matches)
       .foreach(restrictRecipe(_, builder))
   }
 
-  private def restrictTarget[C <: Container, T <: McRecipe[C]](
+  private def restrictTarget(
     target: RecipeTarget,
     builder: RecipeConditions,
   ): Unit = {
     recipeTypeRegistry.get(target.recipeType)
-      .asInstanceOf[Option[RecipeType[T]]]
-      .foreach(restrictRecipes[C, T](_, target, builder))
+      .foreach(restrictRecipes(_, target, builder))
   }
 
   override def restrict(data: (String, RecipeConditions)): Unit = {

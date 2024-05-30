@@ -1,16 +1,17 @@
 package net.impleri.playerskills.client.restrictions
 
-import net.impleri.playerskills.facades.minecraft.core.Position
-import net.impleri.playerskills.facades.minecraft.world.Item
-import net.impleri.playerskills.facades.minecraft.Client
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.client.Client
+import net.impleri.slab.item.Item
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.world.Position
 
 case class ItemRestrictionOpsClient(
   r: RestrictionRegistry = RestrictionRegistry(),
   protected val client: Client = Client(),
-  l: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
+  l: Logger = PlayerSkillsLogger.ITEMS,
 ) extends ItemRestrictionOps(r, l) with RestrictionOpsClient {
   def isIdentifiable(item: Item, pos: Option[Position]): Boolean = {
     maybeCan(isIdentifiable(_, item, pos))

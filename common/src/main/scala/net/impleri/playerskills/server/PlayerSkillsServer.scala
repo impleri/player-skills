@@ -1,8 +1,8 @@
 package net.impleri.playerskills.server
 
 import net.impleri.playerskills.PlayerSkills
-import net.impleri.playerskills.facades.architectury.ReloadListeners
 import net.impleri.playerskills.server.skills.PlayerRegistry
+import net.impleri.slab.resources.ReloadListeners
 
 object PlayerSkillsServer {
   val EVENTS: EventHandler = EventHandler()

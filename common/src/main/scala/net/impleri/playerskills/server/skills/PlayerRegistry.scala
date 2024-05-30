@@ -1,10 +1,11 @@
 package net.impleri.playerskills.server.skills
 
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.utils.StatefulRegistry
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
@@ -16,7 +17,7 @@ case class PlayerRegistry(
   var state: PlayerRegistryState.CachedPlayers,
   private[skills] val storage: Option[PlayerStorageIO],
   private val skillsRegistry: SkillRegistry,
-  private val logger: PlayerSkillsLogger,
+  private val logger: Logger,
 ) extends StatefulRegistry[PlayerRegistryState.CachedPlayers] {
   if (storage.isEmpty) logger.warn("Player registry opened without server") else logger.debug("Opened player registry")
 
@@ -141,7 +142,7 @@ object PlayerRegistry {
     storage: Option[PlayerStorageIO] = None,
     state: PlayerRegistryState.CachedPlayers = PlayerRegistryState.empty,
     skillsRegistry: SkillRegistry = SkillRegistry(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
   ): PlayerRegistry = {
     new PlayerRegistry(state, storage, skillsRegistry, logger)
   }

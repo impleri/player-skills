@@ -1,84 +1,68 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.api.skills.ChangeableSkillOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.server.api.Player
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
-
-import scala.jdk.FunctionConverters.enrichAsJavaPredicate
-import scala.util.chaining.scalaUtilChainingOps
+import net.impleri.playerskills.server.api.{Player => PlayerOps}
+import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandCallback
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
+import net.impleri.slab.commands.PlayerArgument
+import net.impleri.slab.commands.StringArgument
+import net.impleri.slab.entity.Player
 
 trait SetSkillCommand extends SetCommandUtils {
-  protected def playerOps: Player
+  protected def playerOps: PlayerOps
 
   protected def skillOps: SkillOps
 
   protected def skillTypeOps: SkillTypeOps
 
-  protected def registerSetCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("set")
-        .requires(hasPermission().asJavaPredicate)
-        .`then`(
-          getPlayerArg.`then`(
-            getSkillArg.`then`(
-              Commands.argument("value", StringArgumentType.string()).executes(
-                c => grantPlayerSkill(
-                  c.getSource,
-                  getPlayer(c),
-                  getSkillName(c),
-                  StringArgumentType.getString(c, "value"),
-                ),
-              ),
+  protected def registerSetCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(
+      CommandString("set")
+        .requireMod()
+        .option(
+          PlayerArgument().option(
+            SkillHandler.getArgument.option(
+              StringArgument("value").executes(CommandAction(handler(false)).message()),
             ),
           ),
-        ).`then`(
-          getSkillArg.`then`(
-            Commands.argument("value", StringArgumentType.string()).executes(
-              c => grantPlayerSkill(
-                c.getSource,
-                Option(getCurrentPlayer(c.getSource)),
-                getSkillName(c),
-                StringArgumentType.getString(c, "value"),
-              ),
-            ),
+        )
+        .option(
+          SkillHandler.getArgument.option(
+            StringArgument("value").executes(CommandAction(handler(true)).message()),
           ),
         ),
     )
   }
 
-  private def grantFoundSkillTo[T](player: Option[MinecraftPlayer[_]], skill: Skill[T], value: String) = {
+  protected def successMessage: String = "commands.playerskills.skill_changed"
+
+  protected def failureMessage: String = "commands.playerskills.skill_change_failed"
+
+  private def grantFoundSkillTo[T](player: Player.Any, skill: Skill[T], value: String) = {
     skillTypeOps.get(skill)
       .map(_.castFromString(value))
       .map(v => skill.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(v))
-      .map(s => player.map(playerOps.upsert(_, s)))
+      .map(s => playerOps.upsert(player, s))
       .forall(_.nonEmpty)
   }
 
-  private[commands] def grantPlayerSkill[T](
-    source: CommandSourceStack,
-    player: Option[MinecraftPlayer[_]],
-    skillName: Option[ResourceLocation],
-    value: String,
-  ): Int = {
-    skillName.flatMap(skillOps.get[T])
-      .map(grantFoundSkillTo[T](player, _, value))
-      .pipe(
-        notifyPlayer(
-          source,
-          player,
-          skillName,
-          successMessage = "commands.playerskills.skill_changed",
-          failureMessage = "commands.playerskills.skill_change_failed",
-        ),
-      )
-  }
+  override protected def handler(useCurrentUser: Boolean): CommandCallback = {
+    context => {
+      val player = CommandAction.getPlayer(context, useCurrentUser)
+      val skillName = SkillHandler.getValue(context)
+      val value = CommandAction.getString("value", context)
 
+      skillName.flatMap(skillOps.get)
+        .flatMap(s => player.map(grantFoundSkillTo(_, s, value.getOrElse(""))))
+        .toRight(TranslatableText("commands.playerskills.skill_not_found", getSkillName(skillName)))
+        .filterOrElse(_ == true, formatMessage(failureMessage, skillName, player))
+        .map(_ => formatMessage(successMessage, skillName, player))
+    }
+  }
 }

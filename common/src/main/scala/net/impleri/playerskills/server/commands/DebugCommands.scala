@@ -1,46 +1,46 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.ChatFormatting
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
+import net.impleri.slab.chat.Message
+import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandCallback
+import net.impleri.slab.commands.CommandPermission
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
+import net.impleri.slab.logging.Logger
 
-import scala.jdk.FunctionConverters.enrichAsJavaPredicate
+trait DebugCommands {
+  protected def logger: Logger
 
-trait DebugCommands extends CommandHelpers {
-  protected def logger: PlayerSkillsLogger
+  protected def itemLogger: Logger
 
-  protected def itemLogger: PlayerSkillsLogger
+  protected def blockLogger: Logger
 
-  protected def blockLogger: PlayerSkillsLogger
+  protected def fluidLogger: Logger
 
-  protected def fluidLogger: PlayerSkillsLogger
+  protected def mobLogger: Logger
 
-  protected def mobLogger: PlayerSkillsLogger
-
-  protected def registerDebugCommands(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("debug")
-        .requires(hasPermission().asJavaPredicate)
-        .`then`(Commands.literal("skills").executes(withSuccessMessage(toggleDebug("Skills", logger))))
-        .`then`(Commands.literal("blocks").executes(withSuccessMessage(toggleDebug("Block Restrictions", blockLogger))))
-        .`then`(Commands.literal("fluids").executes(withSuccessMessage(toggleDebug("Fluid Restrictions", fluidLogger))))
-        .`then`(Commands.literal("items").executes(withSuccessMessage(toggleDebug("Item Restrictions", itemLogger))))
-        .`then`(Commands.literal("mobs").executes(withSuccessMessage(toggleDebug("Mob Restrictions", mobLogger)))),
+  protected def registerDebugCommands(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(
+      CommandString("debug")
+        .requires(CommandPermission.MOD)
+        .option(CommandString("skills").executes(CommandAction(handler("Skills", logger)).message()))
+        .option(CommandString("blocks").executes(CommandAction(handler("Block Restrictions", blockLogger)).message()))
+        .option(CommandString("fluids").executes(CommandAction(handler("Fluid Restrictions", fluidLogger)).message()))
+        .option(CommandString("items").executes(CommandAction(handler("Item Restrictions", itemLogger)).message()))
+        .option(CommandString("mobs").executes(CommandAction(handler("Mob Restrictions", mobLogger)).message())),
     )
   }
 
-  private[commands] def toggleDebug(modLabel: String, logInstance: PlayerSkillsLogger): () => Component = {
-    () => {
-      if (logInstance.toggleDebug()) {
-        Component.translatable("commands.playerskills.debug_enabled", modLabel)
-          .withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
-      } else {
-        Component.translatable("commands.playerskills.debug_disabled", modLabel)
-          .withStyle(ChatFormatting.GREEN, ChatFormatting.ITALIC)
-      }
+  private[commands] def handler(modLabel: String, logInstance: Logger): CommandCallback = {
+    _ => toggleDebug(modLabel, logInstance)
+  }
+
+  private[commands] def toggleDebug(modLabel: String, logInstance: Logger): Either[Message[_], Message[_]] = {
+    if (logInstance.toggleDebug()) {
+      Right(TranslatableText("commands.playerskills.debug_enabled", modLabel).red().bold())
+    } else {
+      Right(TranslatableText("commands.playerskills.debug_disabled", modLabel).green().italic())
     }
   }
 }

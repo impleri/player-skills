@@ -2,8 +2,8 @@ package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.RestrictionType
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.world.Item
+import net.impleri.slab.entity.Player
+import net.impleri.slab.item.Item
 
 case class ItemRestriction(
   target: Item,

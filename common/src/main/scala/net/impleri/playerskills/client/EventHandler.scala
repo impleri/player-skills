@@ -2,7 +2,7 @@ package net.impleri.playerskills.client
 
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.events.ClientSkillsUpdatedEvent
-import net.impleri.playerskills.facades.architectury.EventEmitter
+import net.impleri.slab.pubsub.EventEmitter
 
 import java.util.function.Consumer
 

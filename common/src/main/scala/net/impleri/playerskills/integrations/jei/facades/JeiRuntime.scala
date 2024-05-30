@@ -3,8 +3,8 @@ package net.impleri.playerskills.integrations.jei.facades
 import mezz.jei.api.recipe.IRecipeManager
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.runtime.IJeiRuntime
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
+import net.impleri.playerskills.PlayerSkills
+import net.impleri.slab.item.crafting.Recipe
 import net.minecraft.world.Container
 
 import java.util
@@ -17,8 +17,8 @@ case class JeiRuntime(private var runtime: IJeiRuntime) {
   }
 
   def getType(value: String): Option[RecipeType[_]] = {
-    ResourceLocation(value, isSkill = false)
-      .flatMap(t => recipeManager.getRecipeType(t.name).toScala)
+    PlayerSkills.RESOURCE_FACTORY.create(value, useDefaultNS = false)
+      .flatMap(t => recipeManager.getRecipeType(t.value).toScala)
   }
 
   def hideRecipes[C <: Container, T <: Recipe[C]](recipesByType: Map[String, Seq[Recipe[_]]]): Unit = {
@@ -28,7 +28,7 @@ case class JeiRuntime(private var runtime: IJeiRuntime) {
           .foreach(
             t => recipeManager.hideRecipes[T](
               t.asInstanceOf[RecipeType[T]],
-              v._2.map(_.getRaw).asJavaCollection.asInstanceOf[util.Collection[T]],
+              v._2.map(_.value).asJavaCollection.asInstanceOf[util.Collection[T]],
             ),
           ),
       )
@@ -41,7 +41,7 @@ case class JeiRuntime(private var runtime: IJeiRuntime) {
           .foreach(
             t => recipeManager.unhideRecipes[T](
               t.asInstanceOf[RecipeType[T]],
-              v._2.map(_.getRaw).asJavaCollection.asInstanceOf[util.Collection[T]],
+              v._2.map(_.value).asJavaCollection.asInstanceOf[util.Collection[T]],
             ),
           ),
       )

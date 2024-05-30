@@ -1,16 +1,17 @@
 package net.impleri.playerskills.client
 
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.minecraft.Client
-import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.network.ResyncSkillsMessageFactory
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.client.Client
+import net.impleri.slab.entity.Player
+import net.impleri.slab.logging.Logger
 
 case class NetHandler(
   client: Client = Client(),
   clientSkillsRegistry: ClientSkillsRegistry = ClientSkillsRegistry(),
   messageFactory: ResyncSkillsMessageFactory,
-  logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  logger: Logger = PlayerSkillsLogger.SKILLS,
 ) {
   def onSyncPlayer(skills: List[Skill[_]], force: Boolean): Unit = {
     logger.info(
@@ -22,6 +23,6 @@ case class NetHandler(
 
   def resyncPlayer(player: Player[_]): Unit = {
     logger.debug(s"Requesting skills resync for ${player.name}")
-    player.sendMessage(messageFactory.send(player))
+    messageFactory.send(player).foreach(player.sendMessage)
   }
 }

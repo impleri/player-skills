@@ -1,6 +1,7 @@
 package net.impleri.playerskills.restrictions.conditions
 
-import net.minecraft.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceLocation
+
 
 trait SingleTargetRestriction[T] {
   var target: Option[T] = None

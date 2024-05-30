@@ -1,9 +1,9 @@
 package net.impleri.playerskills.api.restrictions
 
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceKey
-import net.minecraft.tags.TagKey
+import net.impleri.playerskills.PlayerSkills
+import net.impleri.slab.registry.{Tag => TagKey}
+import net.impleri.slab.registry.RegistryKey
+import net.impleri.slab.resources.ResourceLocation
 
 sealed abstract class TargetResource
 
@@ -18,20 +18,19 @@ object TargetResource {
 
   def apply[T](
     value: String,
-    registryKey: Option[ResourceKey[Registry[T]]] = None,
+    registryKey: Option[RegistryKey[T]] = None,
     singleAsString: Boolean = false,
   ): Option[TargetResource] = {
     value.trim match {
       case s"@$namespace" => Option(Namespace(namespace))
       case s"$namespace:*" => Option(Namespace(namespace))
 
-      case s"#$tag" if registryKey.nonEmpty => {
-        ResourceLocation(tag, isSkill = false)
-          .flatMap(rl => registryKey.map(rl.getTagKey))
-          .map(Tag(_))
-      }
+      case s"#$tag" if registryKey.nonEmpty =>
+      PlayerSkills.RESOURCE_FACTORY.create(tag)
+        .flatMap(rl => registryKey.map(rl.getTagKey))
+        .map(Tag(_))
 
-      case s if !singleAsString => ResourceLocation(s, isSkill = false).map(Single.apply)
+      case s if !singleAsString => PlayerSkills.RESOURCE_FACTORY.create(s, useDefaultNS = false).map(Single.apply)
       case s if singleAsString => Option(SingleString(s))
       case _ => None
     }

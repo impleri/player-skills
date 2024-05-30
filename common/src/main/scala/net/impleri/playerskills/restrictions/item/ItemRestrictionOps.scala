@@ -2,15 +2,16 @@ package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.api.restrictions.RestrictionsOps
 import net.impleri.playerskills.api.restrictions.RestrictionType
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.core.Position
-import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.Player
+import net.impleri.slab.item.Item
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.world.Position
 
 class ItemRestrictionOps(
   protected val registry: RestrictionRegistry,
-  protected val logger: PlayerSkillsLogger,
+  protected val logger: Logger,
 ) extends RestrictionsOps[Item, ItemRestriction] {
   override val restrictionType: RestrictionType = RestrictionType.Item()
 
@@ -38,7 +39,7 @@ class ItemRestrictionOps(
 object ItemRestrictionOps {
   def apply(
     registry: RestrictionRegistry = RestrictionRegistry(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
+    logger: Logger = PlayerSkillsLogger.ITEMS,
   ): ItemRestrictionOps = {
     new ItemRestrictionOps(registry, logger)
   }

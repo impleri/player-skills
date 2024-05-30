@@ -1,29 +1,41 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
 import net.impleri.playerskills.server.api.Player
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
+import net.impleri.slab.chat.ListMessage
+import net.impleri.slab.chat.StaticText
+import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandCallback
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
+import net.impleri.slab.entity.{Player => MinecraftPlayer}
 
-trait ListAcquiredCommand extends ValuesCommandUtils with CommandHelpers {
+trait ListAcquiredCommand {
   protected def playerOps: Player
 
-  protected def registerMineCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("mine").executes(withListValuesSource(withCurrentPlayer(listOwnSkills))),
-    )
+  protected def registerMineCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(CommandString("mine").executes(CommandAction(handler).message()))
   }
 
-  private[commands] def listOwnSkills(player: MinecraftPlayer[_]): (Component, List[String]) = {
+  protected val handler: CommandCallback = {
+    context => {
+      CommandAction
+        .getCurrentPlayer(context)
+        .map(getPlayerSkills)
+        .toRight(StaticText(""))
+    }
+  }
+
+  private[commands] def getPlayerSkills(player: MinecraftPlayer.Any): ListMessage = {
     val acquiredSkills = playerOps.get(player).filter(s => playerOps.can(player.uuid, s.name))
     val message = if (acquiredSkills.nonEmpty) {
-      Component.translatable("commands.playerskills.acquired_skills", acquiredSkills.size)
+      TranslatableText("commands.playerskills.acquired_skills", acquiredSkills.size)
     } else {
-      Component.translatable("commands.playerskills.no_acquired_skills")
+      TranslatableText("commands.playerskills.no_acquired_skills")
     }
 
-    (message, acquiredSkills.map(s => s"${s.name} = ${s.value.getOrElse("None")}"))
+    val children = acquiredSkills.map(s => s"${s.name} = ${s.value.getOrElse("None")}").map(StaticText(_))
+
+    ListMessage(message, children)
   }
 }

@@ -1,28 +1,36 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.api.skills.SkillOps
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
+import net.impleri.slab.chat.ListMessage
+import net.impleri.slab.chat.StaticText
+import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandCallback
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
 
-trait ListSkillsCommand extends ValuesCommandUtils {
+trait ListSkillsCommand {
   protected def skillOps: SkillOps
 
-  protected def registerAllCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("all").executes(withListValues(listSkills)),
-    )
+  protected def registerAllCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(CommandString("all").executes(CommandAction(handler).message()))
   }
 
-  private[commands] def listSkills(): (Component, List[String]) = {
-    val skills = skillOps.all()
-    val message = if (skills.nonEmpty) {
-      Component.translatable("commands.playerskills.registered_skills", skills.size)
-    } else {
-      Component.translatable("commands.playerskills.no_registered_skills")
-    }
+  protected val handler: CommandCallback = {
+    _ => {
+      val skills = skillOps.all()
+      val message = if (skills.nonEmpty) {
+        TranslatableText("commands.playerskills.registered_skills", skills.size)
+      } else {
+        TranslatableText("commands.playerskills.no_registered_skills")
+      }
 
-    (message, skills.map(_.name.toString))
+      val children = skills
+        .map(_.name)
+        .map(_.asString)
+        .map(StaticText(_))
+
+      Right(ListMessage(message, children))
+    }
   }
 }

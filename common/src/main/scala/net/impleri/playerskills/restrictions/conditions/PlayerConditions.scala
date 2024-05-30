@@ -1,6 +1,6 @@
 package net.impleri.playerskills.restrictions.conditions
 
-import net.impleri.playerskills.facades.minecraft.Player
+import net.impleri.slab.entity.Player
 
 trait PlayerConditions {
   var condition: Player[_] => Boolean = _ => true

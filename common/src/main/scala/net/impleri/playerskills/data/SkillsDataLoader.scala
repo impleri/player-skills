@@ -8,7 +8,6 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
 import net.impleri.playerskills.data.utils.JsonDataParser
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.basic.BasicSkill
 import net.impleri.playerskills.skills.basic.BasicSkillType
 import net.impleri.playerskills.skills.numeric.NumericSkill
@@ -18,12 +17,10 @@ import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 import net.impleri.playerskills.skills.tiered.TieredSkill
 import net.impleri.playerskills.skills.tiered.TieredSkillType
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.{ResourceLocation => McResourceLocation}
-import net.minecraft.server.packs.resources.ResourceManager
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
-import net.minecraft.util.profiling.ProfilerFiller
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.JsonResourceReloadListener
+import net.impleri.slab.resources.ResourceLocation
 
-import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 case class LimitRequiredForTeamMode() extends Exception
@@ -32,16 +29,14 @@ case class ProportionRequiredForTeamMode() extends Exception
 
 case class SkillsDataLoader(
   protected val skillOps: SkillOps = Skill(),
-  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+  override val logger: Logger = PlayerSkillsLogger.SKILLS,
 )
-  extends SimpleJsonResourceReloadListener(SkillsDataLoader.GsonService, "skills") with JsonDataParser {
-  override def apply(
-    data: java.util.Map[McResourceLocation, JsonElement],
-    resourceManager: ResourceManager,
-    profilerFiller: ProfilerFiller,
+  extends JsonResourceReloadListener("skills") with JsonDataParser {
+  override def parse(
+    data: Map[ResourceLocation, JsonElement],
   ): Unit = {
-    data.asScala
-      .flatMap(t => parseSkill(ResourceLocation(t._1), t._2))
+    data
+      .flatMap(t => parseSkill(t._1, t._2))
       .foreach(skillOps.upsert(_))
   }
 
@@ -164,11 +159,11 @@ case class SkillsDataLoader(
       case "shared" => Right(TeamMode.Shared())
       case "splitEvenly" => Right(TeamMode.SplitEvenly())
       case "pyramid" => Right(TeamMode.Pyramid())
-      case "limited" => {
-        rate.map(_.floor.toInt)
-          .map(TeamMode.Limited.apply)
-          .toRight(LimitRequiredForTeamMode())
-      }
+      case "limited" =>
+      rate.map(_.floor.toInt)
+        .map(TeamMode.Limited.apply)
+        .toRight(LimitRequiredForTeamMode())
+
       case "proportional" => rate.map(TeamMode.Proportional.apply).toRight(ProportionRequiredForTeamMode())
       case _ => Right(TeamMode.Off())
     }

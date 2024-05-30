@@ -1,17 +1,17 @@
 package net.impleri.playerskills.server.bindings
 
-import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.events.SkillChangedEvent
-import net.impleri.playerskills.facades.architectury.ReloadListeners
 import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.data.restrictions.ItemRestrictionDataLoader
 import net.impleri.playerskills.data.restrictions.RecipeRestrictionDataLoader
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
 import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
-import net.minecraft.server.packs.resources.ResourceManager
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener
+import net.impleri.slab.resources.ReloadListeners
+import net.impleri.slab.resources.ResourceManager
+import net.impleri.slab.resources.SimpleReloadListener
 
 //trait BlockSync {
 //    private var playerMap: mutable.HashMap[ServerPlayer, Long] = mutable.HashMap()
@@ -43,21 +43,18 @@ case class InternalEvents(
   eventHandler: EventHandler = EventHandler(),
   globalState: StateContainer = StateContainer(),
   serverStateContainer: ServerStateContainer = ServerStateContainer(),
-  onReload: ResourceManager => Unit = _ => {},
+  onReloadFn: Option[ResourceManager] => Unit = _ => {},
   reloadListeners: ReloadListeners = ReloadListeners(),
 )
-  extends ResourceManagerReloadListener {
+  extends SimpleReloadListener {
   private[server] def registerEvents(): Unit = {
     // Player Skills Events
     eventHandler.onSkillChanged(onSkillChanged)
-
-    //    PlayerEvent.PLAYER_JOIN.register(onJoin _)
-    //    PlayerEvent.PLAYER_QUIT.register(onQuit _ )
-
+    
     // Vanilla Events
-    reloadListeners.register(this)
-    reloadListeners.register(SkillsDataLoader(globalState.SKILL_OPS))
-    reloadListeners.register(
+    reloadListeners.registerServer(this)
+    reloadListeners.registerServer(SkillsDataLoader(globalState.SKILL_OPS))
+    reloadListeners.registerServer(
       ItemRestrictionDataLoader(
         itemRestrictionBuilder,
         globalState.SKILL_OPS,
@@ -65,7 +62,7 @@ case class InternalEvents(
         serverStateContainer.PLAYER_OPS,
       ),
     )
-    reloadListeners.register(
+    reloadListeners.registerServer(
       RecipeRestrictionDataLoader(
         recipeRestrictionBuilder,
         globalState.SKILL_OPS,
@@ -75,10 +72,12 @@ case class InternalEvents(
     )
   }
 
-  override def onResourceManagerReload(resourceManager: ResourceManager): Unit = onReload(resourceManager)
-
   private[bindings] def onSkillChanged(event: SkillChangedEvent[_]): Unit = {
     serverStateContainer.getNetHandler.syncPlayer(event)
     //    maybeUpdateBlocks(event.player.getUUID)
+  }
+
+  override protected def onReload(manager: Option[ResourceManager]): Unit = {
+    onReloadFn(manager)
   }
 }

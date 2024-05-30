@@ -1,10 +1,11 @@
 package net.impleri.playerskills.api.skills
 
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.network.chat.Component
-import net.minecraft.ChatFormatting
+import net.impleri.slab.chat.StaticText
+import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 sealed trait SkillData[T] {
   val name: ResourceLocation = ResourceLocation("empty").get
@@ -42,26 +43,23 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
 
   protected[playerskills] def getMessageKey: String = "playerskills.notify.skill_change"
 
-  private def formatSkillName(): Component = {
-    Component.literal(name.getPath.replace("_", " "))
-      .withStyle(ChatFormatting.DARK_AQUA)
-      .withStyle(ChatFormatting.BOLD)
+  private def formatSkillName(): StaticText = {
+    StaticText(name.path.replace("_", " ")).darkAqua().bold()
   }
 
-  private def formatSkillValue(value: Option[T] = this.value): Component = {
-    Component.literal(value.fold("")(v => s"$v"))
-      .withStyle(ChatFormatting.GOLD)
+  private def formatSkillValue(value: Option[T] = this.value): StaticText = {
+    StaticText(value.fold("")(v => s"$v")).gold()
   }
 
-  private def formatNotificationMessage(messageKey: String, oldValue: Option[T] = None): Component = {
-    Component.translatable(messageKey, formatSkillName(), formatSkillValue(), formatSkillValue(oldValue))
+  private def formatNotificationMessage(messageKey: String, oldValue: Option[T] = None): TranslatableText = {
+    TranslatableText(messageKey, formatSkillName(), formatSkillValue(), formatSkillValue(oldValue))
   }
 
-  private def formatNotification(oldValue: Option[T] = None): Component = {
+  private def formatNotification(oldValue: Option[T] = None): TranslatableText = {
     formatNotificationMessage(notifyKey.getOrElse(getMessageKey), oldValue)
   }
 
-  def getNotification(oldValue: Option[T] = None): Option[Component] = {
+  def getNotification(oldValue: Option[T] = None): Option[TranslatableText] = {
     if (!announceChange) None else value.map(_ => formatNotification(oldValue))
   }
 }
@@ -74,7 +72,7 @@ trait Skill[T] extends SkillData[T] with ChangeableSkill[T] with TranslatableSki
 trait SkillRegistryFacade {
   protected def state: SkillRegistry
 
-  protected def logger: PlayerSkillsLogger
+  protected def logger: Logger
 
   def all(): List[Skill[_]] = state.entries
 
@@ -91,7 +89,7 @@ trait SkillRegistryFacade {
 class SkillOps(
   private val skillType: SkillTypeOps,
   protected val state: SkillRegistry,
-  protected val logger: PlayerSkillsLogger,
+  protected val logger: Logger,
 ) extends SkillRegistryFacade {
   def calculatePrev[T](skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T] = {
     skillType.get(skill)
@@ -125,7 +123,7 @@ object Skill {
   def apply(
     skillType: SkillTypeOps = SkillType(),
     state: SkillRegistry = SkillRegistry(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
   ): SkillOps = {
     new SkillOps(skillType, state, logger)
   }

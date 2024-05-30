@@ -1,47 +1,30 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
+import net.impleri.playerskills.api.skills.Skill
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
+import net.impleri.slab.commands.PlayerArgument
+import net.impleri.slab.entity.Player
 
-import scala.jdk.FunctionConverters.enrichAsJavaPredicate
-
-trait DegradeSkillCommand extends SetCommandUtils with CommandHelpers {
-  protected def registerDegradeCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("degrade")
-        .requires(hasPermission().asJavaPredicate)
-        .`then`(
-          getPlayerArg.`then`(
-            getSkillArg.executes(
-              withNotification(
-                "commands.playerskills.skill_degraded",
-                "commands.playerskills.skill_degrade_failed",
-                false,
-                degradePlayerSkill,
-              ),
-            ),
-          ),
-        ).`then`(
-          getSkillArg.executes(
-            withNotification(
-              "commands.playerskills.skill_degraded",
-              "commands.playerskills.skill_degrade_failed",
-              true,
-              degradePlayerSkill,
-            ),
-          ),
+trait DegradeSkillCommand extends SetCommandUtils {
+  protected def registerDegradeCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(
+      CommandString("degrade")
+        .requireMod()
+        .option(
+          PlayerArgument().option(SkillHandler.getArgument.executes(CommandAction(handler(false)).message())),
+        ).option(
+          SkillHandler.getArgument.executes(CommandAction(handler(true)).message()),
         ),
     )
   }
 
-  private[commands] def degradePlayerSkill[T](
-    player: Option[Player[_]],
-    skillName: Option[ResourceLocation],
-  ): Option[Boolean] = {
-    skillName.flatMap(skillOps.get[T])
-      .flatMap(s => player.flatMap(teamOps.degrade(_, s, None, None)))
+  protected def successMessage: String = "commands.playerskills.skill_degraded"
+
+  protected def failureMessage: String = "commands.playerskills.skill_degrade_failed"
+
+  protected def action[T](player: Player.Any, skill: Skill[T]): Option[Boolean] = {
+    teamOps.degrade(player, skill, None, None)
   }
 }

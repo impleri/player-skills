@@ -6,10 +6,10 @@ import net.impleri.playerskills.data.utils.BiomeFacetParser
 import net.impleri.playerskills.data.utils.ConditionDataParser
 import net.impleri.playerskills.data.utils.DimensionFacetParser
 import net.impleri.playerskills.data.utils.JsonDataParser
-import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.restrictions.conditions.{RestrictionConditionsBuilder => ParentBuilder}
 import net.impleri.playerskills.restrictions.conditions.MultiTargetRestriction
 import net.impleri.playerskills.restrictions.conditions.SingleTargetRestriction
+import net.impleri.slab.entity.Player
 
 trait SingleTargetParser[T] extends JsonDataParser with SingleTargetRestriction[T] {
   protected[conditions] def getTarget(raw: JsonObject, key: String = "target"): Option[String] = {

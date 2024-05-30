@@ -3,10 +3,11 @@ package net.impleri.playerskills.server.api
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
-import net.impleri.playerskills.facades.minecraft.Server
 import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.{Player => MinecraftPlayer}
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.server.Server
 
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
@@ -31,7 +32,7 @@ trait TeamSkillCalculator {
     playerOps.get(player)
       .filter(_.teamMode == TeamMode.Shared())
   }
-  
+
   private def getMaxSkill[T](players: Seq[UUID], skill: Skill[T]): Option[Skill[T]] = {
     players
       .flatMap(playerOps.get[T](_, skill.name))
@@ -46,7 +47,7 @@ trait TeamSkillCalculator {
 }
 
 trait TeamUpdater {
-  protected def logger: PlayerSkillsLogger
+  protected def logger: Logger
 
   protected def playerOps: Player
 
@@ -102,7 +103,7 @@ trait TeamUpdater {
 trait TeamLimit {
   protected def playerOps: Player
 
-  protected def logger: PlayerSkillsLogger
+  protected def logger: Logger
 
   private[api] def countWith[T](playerIds: Seq[UUID], skill: Skill[T]): Int = {
     playerIds.map(p => (p, playerOps.get[T](p, skill.name)))
@@ -134,7 +135,7 @@ class TeamOps(
   override val skillOps: SkillOps,
   override val team: Team,
   override val eventHandler: EventHandler,
-  override val logger: PlayerSkillsLogger,
+  override val logger: Logger,
 ) extends TeamUpdater with TeamSkillCalculator with TeamLimit {
   private def calculateNextValue[T](
     player: UUID,
@@ -227,7 +228,7 @@ object Team {
     playerOps: Player = Player(),
     skillOps: SkillOps = Skill(),
     eventHandler: EventHandler = EventHandler(),
-    logger: PlayerSkillsLogger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
   ): TeamOps = {
     new TeamOps(playerOps, skillOps, instance, eventHandler, logger)
   }

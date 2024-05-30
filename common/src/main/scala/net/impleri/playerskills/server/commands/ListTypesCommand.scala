@@ -1,28 +1,36 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.minecraft.commands.Commands
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
+import net.impleri.slab.chat.ListMessage
+import net.impleri.slab.chat.StaticText
+import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.commands.CommandAction
+import net.impleri.slab.commands.CommandCallback
+import net.impleri.slab.commands.CommandSegment
+import net.impleri.slab.commands.CommandString
 
-trait ListTypesCommand extends ValuesCommandUtils {
+trait ListTypesCommand {
   protected def skillTypeOps: SkillTypeOps
 
-  protected def registerTypesCommand(builder: LiteralArgumentBuilder[CommandSourceStack]): LiteralArgumentBuilder[CommandSourceStack] = {
-    builder.`then`(
-      Commands.literal("types").executes(withListValues(listTypes)),
-    )
+  protected def registerTypesCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+    builder.option(CommandString("types").executes(CommandAction(handler).message()))
   }
 
-  private[commands] def listTypes(): (Component, List[String]) = {
-    val types = skillTypeOps.all()
-    val message = if (types.nonEmpty) {
-      Component.translatable("commands.playerskills.registered_types", types.size)
-    } else {
-      Component.translatable("commands.playerskills.no_registered_types")
-    }
+  protected val handler: CommandCallback = {
+    _ => {
+      val types = skillTypeOps.all()
+      val message = if (types.nonEmpty) {
+        TranslatableText("commands.playerskills.registered_types", types.size)
+      } else {
+        TranslatableText("commands.playerskills.no_registered_types")
+      }
 
-    (message, types.map(_.name.toString))
+      val children = types
+        .map(_.name)
+        .map(_.asString)
+        .map(StaticText(_))
+
+      Right(ListMessage(message, children))
+    }
   }
 }

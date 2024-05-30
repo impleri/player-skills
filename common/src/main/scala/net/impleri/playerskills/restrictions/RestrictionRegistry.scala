@@ -2,9 +2,9 @@ package net.impleri.playerskills.restrictions
 
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.RestrictionType
-import net.impleri.playerskills.facades.minecraft.HasName
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.utils.StatefulRegistry
+import net.impleri.slab.registry.HasName
+import net.impleri.slab.resources.ResourceLocation
 
 import scala.collection.View
 import scala.util.chaining.scalaUtilChainingOps

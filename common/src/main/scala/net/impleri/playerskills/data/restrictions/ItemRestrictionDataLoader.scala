@@ -10,14 +10,15 @@ import net.impleri.playerskills.data.conditions.ItemRestrictionConditionBuilder
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 case class ItemRestrictionDataLoader(
   protected val itemRestrictionBuilder: ItemRestrictionBuilder,
   override val skillOps: SkillOps = Skill(),
   override val skillTypeOps: SkillTypeOps = SkillType(),
   override val playerOps: Player = Player(),
-  override val logger: PlayerSkillsLogger = PlayerSkillsLogger.ITEMS,
+  override val logger: Logger = PlayerSkillsLogger.ITEMS,
 ) extends RestrictionDataLoader("item_restrictions") {
   override protected def parseRestriction(
     name: ResourceLocation,

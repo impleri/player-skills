@@ -1,6 +1,6 @@
 package net.impleri.playerskills.server.skills.storage
 
-import net.impleri.playerskills.facades.minecraft.Server
+import net.impleri.slab.server.Server
 import org.jetbrains.annotations.VisibleForTesting
 
 import java.io.File

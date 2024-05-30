@@ -3,7 +3,7 @@ package net.impleri.playerskills.skills.specialized
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.resources.ResourceLocation
 
 case class SpecializedSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[String] {
   override val name: ResourceLocation = SpecializedSkillType.NAME
