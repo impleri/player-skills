@@ -5,12 +5,12 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.TeamMode
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.basic.BasicSkill
 import net.impleri.playerskills.skills.numeric.NumericSkill
 import net.impleri.playerskills.skills.specialized.SpecializedSkill
 import net.impleri.playerskills.skills.tiered.TieredSkill
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.profiling.ProfilerFiller
 
@@ -20,7 +20,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
   private val resourceManagerMock = mock[ResourceManager]
   private val profileFillerMock = mock[ProfilerFiller]
   private val skillOpsMock = mock[SkillOps]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val testUnit = SkillsDataLoader(skillOpsMock, loggerMock)
 
@@ -173,7 +173,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
 
   private def testLoadData(json: String, expected: Skill[_]): Unit = {
     val jsonElement = SkillsDataLoader.GsonService.fromJson(json, classOf[JsonElement])
-    val input = Map(skillName.name -> jsonElement).asJava
+    val input = Map(skillName.value -> jsonElement).asJava
 
     testUnit.apply(input, resourceManagerMock, profileFillerMock)
 
@@ -222,7 +222,7 @@ class SkillsDataLoaderSpec extends BaseSpec {
 
   "SkillsDataLoader.apply" should "ignore unknown skill types" in {
     val jsonElement = SkillsDataLoader.GsonService.fromJson(unknownTeamSkillJson, classOf[JsonElement])
-    val input = Map(skillName.name -> jsonElement).asJava
+    val input = Map(skillName.value -> jsonElement).asJava
 
     testUnit.apply(input, resourceManagerMock, profileFillerMock)
 

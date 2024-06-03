@@ -18,9 +18,9 @@ case class Manager(
     clientStateContainer,
   )
 
-  registerFactoryToClient(SYNC_SKILLS)
+  registerFactoryToClient[SyncSkillsMessage, SyncSkillsMessageFactory](SYNC_SKILLS)
 
   val RESYNC_SKILLS: ResyncSkillsMessageFactory = ResyncSkillsMessageFactory(serverStateContainer)
 
-  registerFactoryToServer(RESYNC_SKILLS)
+  registerFactoryToServer[ResyncSkillsMessage, ResyncSkillsMessageFactory](RESYNC_SKILLS)
 }

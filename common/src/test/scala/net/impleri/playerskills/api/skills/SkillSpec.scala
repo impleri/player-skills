@@ -1,9 +1,9 @@
 package net.impleri.playerskills.api.skills
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.network.chat.Component
 
@@ -36,7 +36,7 @@ class SkillSpec extends BaseSpec {
   private val noChanges = TestSkill(changesAllowed = 0)
 
   private val skillRegistryMock = mock[SkillRegistry]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
   private val skillTypeOpsMock = mock[SkillTypeOps]
   private val skillTypeMock = mock[SkillType[String]]
 
@@ -96,10 +96,11 @@ class SkillSpec extends BaseSpec {
     val received = valued.getNotification()
 
     valued.announceChange shouldBe true
-    received.value.getString shouldBe "playerskills.notify.skill_change"
-    received.value.getContents.isInstanceOf[TranslatableContents] should be(true)
+    received.value.output.getString shouldBe "playerskills.notify.skill_change"
+    received.value.output.getContents.isInstanceOf[TranslatableContents] should be(true)
     received
       .value
+      .output
       .getContents
       .asInstanceOf[TranslatableContents]
       .getArgs

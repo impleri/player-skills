@@ -7,15 +7,15 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
-import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.minecraft.resources.ResourceLocation
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 class ItemRestrictionConditionBuilderSpec extends BaseSpec {
-  private val targetName = new ResourceLocation("skillstest", "condition")
+  private val targetName = ResourceLocation("skillstest", "condition").get
   private val mockSkillOps = mock[SkillOps]
   private val mockSkillTypeOps = mock[SkillTypeOps]
   private val mockPlayerOps = mock[PlayerOps]
-  private val mockLogger = mock[PlayerSkillsLogger]
+  private val mockLogger = mock[Logger]
 
   private val testUnit = ItemRestrictionConditionBuilder(
     targetName,

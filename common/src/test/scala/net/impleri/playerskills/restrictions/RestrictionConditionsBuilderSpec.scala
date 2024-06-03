@@ -1,12 +1,12 @@
 package net.impleri.playerskills.restrictions
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.Player
 import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
-import net.minecraft.resources.ResourceLocation
+import net.impleri.slab.entity.Player
+import net.impleri.slab.resources.ResourceLocation
 
 class RestrictionConditionsBuilderSpec extends BaseSpec {
-  private val testName: ResourceLocation = new ResourceLocation("skillstest", "test")
+  private val testName: ResourceLocation = ResourceLocation("skillstest", "test").get
 
   private case class TestConditionBuilder(
     override val name: ResourceLocation = testName,

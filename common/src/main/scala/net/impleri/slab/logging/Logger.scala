@@ -50,7 +50,7 @@ object Logger {
     )
   }
 
-  def apply(modId: String)(prefix: String): Logger = {
+  def forMod(modId: String)(prefix: String): Logger = {
     new Logger(
       modId,
       prefix,

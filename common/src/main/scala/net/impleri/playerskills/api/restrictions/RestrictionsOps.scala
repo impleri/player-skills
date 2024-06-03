@@ -3,15 +3,15 @@ package net.impleri.playerskills.api.restrictions
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.registry.HasName
 import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceWrapper
 import net.impleri.slab.world.Biome
 import net.impleri.slab.world.Position
 
 import scala.collection.View
 
 trait PlayerRestriction {
-  protected[restrictions] def matchesPlayer(player: Player[_])(restriction: Restriction[_]): Boolean = {
+  protected[restrictions] def matchesPlayer(player: Player[_])(restriction: Restriction[_, _]): Boolean = {
     restriction
       .condition(player)
   }
@@ -20,12 +20,12 @@ trait PlayerRestriction {
 trait TargetRestriction {
   protected def restrictionType: RestrictionType
 
-  protected[restrictions] def matchesTarget(name: ResourceLocation)(restriction: Restriction[_]): Boolean = {
+  protected[restrictions] def matchesTarget(name: ResourceLocation)(restriction: Restriction[_, _]): Boolean = {
     restriction.isType(restrictionType) && restriction.targets(name)
   }
 }
 
-trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
+trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
   extends TargetRestriction
     with PlayerRestriction {
   protected def registry: RestrictionRegistry
@@ -84,7 +84,7 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
     biome: Option[Biome] = None,
     f: R => Boolean = _ => true,
   ): Boolean = {
-    (player.asOption, target.getName) match {
+    (player.asOption, target.name) match {
       case (Some(p), Some(t)) =>
       canHelper(
         p.asPlayer,
@@ -145,7 +145,7 @@ trait RestrictionsOps[T <: HasName, R <: Restriction[T]]
       .debug(
         s"$target should be replaced with ${
           replacement
-            .flatMap(_.getName)
+            .flatMap(_.name)
         } in $dimension/${biome.flatMap(_.name)} for ${player.name}",
       )
 

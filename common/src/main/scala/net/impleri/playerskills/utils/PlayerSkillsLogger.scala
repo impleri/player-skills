@@ -20,7 +20,7 @@ object LoggerType {
 }
 
 object PlayerSkillsLogger {
-  private val factory: String => Logger = Logger(PlayerSkills.MOD_ID)
+  private val factory: String => Logger = Logger.forMod(PlayerSkills.MOD_ID)
 
   val SKILLS: Logger = factory("CORE")
   val SKIPS: Logger = factory("REST")

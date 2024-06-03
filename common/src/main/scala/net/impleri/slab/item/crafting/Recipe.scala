@@ -2,15 +2,10 @@ package net.impleri.slab.item.crafting
 
 import com.mojang.datafixers.util.Pair
 import net.impleri.slab.item.Item
-import net.impleri.slab.registry.HasName
-import net.impleri.slab.registry.IsRegistered
 import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.resources.{ResourceLocation => McResourceLocation}
+import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.world.item.crafting.{Recipe => McRecipe}
 import net.minecraft.world.Container
-import net.minecraft.world.item.crafting.Ingredient
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.RecipeType
 
 import java.util.{List => JavaList}
 import java.util.Optional
@@ -18,46 +13,40 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
-case class Recipe[C <: Container](private val underlying: McRecipe[C])
-  extends IsRegistered[McRecipe[C]] with IsRecipe with HasName {
-  def asGeneric: Recipe.Any = this
+case class Recipe[T <: Recipe.AnyVanilla](override val underlying: T)
+  extends ResourceWrapper[T] with IsRecipe {
+  override val name: Option[ResourceLocation] = Option(underlying.getId).flatMap(ResourceLocation(_))
 
-  val value: McRecipe[C] = underlying
+  def getType: RecipeType.Any = RecipeType(underlying.getType)
 
-  def getRaw: McRecipe[C] = value
-
-  def getType: RecipeType[McRecipe[C]] = underlying.getType.asInstanceOf[RecipeType[McRecipe[C]]]
-
-  def getResult: ItemStack = underlying.getResultItem
+  def getResult: Item.VanillaStack = underlying.getResultItem
 
   def getResultItem: Item = getResult.pipe(Item(_))
 
-  def getIngredients: List[Ingredient] = underlying.getIngredients.asScala.toList
-
-  override def getName: Option[ResourceLocation] = Option(underlying.getId).flatMap(ResourceLocation(_))
+  def getIngredients: List[Item.VanillaIngredient] = underlying.getIngredients.asScala.toList
 }
 
 object Recipe {
-  type Any = Recipe[_]
-  type AnyVanilla = McRecipe[_]
-  type Base = Recipe[Container]
-  type BaseVanilla = McRecipe[Container]
   type BaseContainer = Container
-  type Vanilla[T <: Container] = McRecipe[T]
+  type Vanilla[T <: BaseContainer] = McRecipe[T]
+  type AnyVanilla = Vanilla[_]
+  type BaseVanilla = Vanilla[BaseContainer]
 
-  def fromVanillaOpt[C <: Container, T <: McRecipe[C]](underlying: Optional[T]): Option[Recipe[C]] = {
+  type Any = Recipe[AnyVanilla]
+
+  def fromVanillaOpt[C <: BaseContainer, T <: Vanilla[C]](underlying: Optional[T]): Option[Recipe[T]] = {
     underlying.toScala.map(Recipe(_))
   }
 
-  def fromVanilla[C <: Container](underlying: McRecipe[C]): Option[Recipe[C]] = {
+  def fromVanilla[C <: BaseContainer, T <: Vanilla[C]](underlying: T): Option[Recipe[T]] = {
     Option(underlying).map(Recipe(_))
   }
 
-  def fromVanillaPair[C <: Container, T <: McRecipe[C]](value: Optional[Pair[McResourceLocation, T]]): Option[Recipe[C]] = {
+  def fromVanillaPair[C <: BaseContainer, T <: Vanilla[C]](value: Optional[Pair[ResourceLocation.Vanilla, T]]): Option[Recipe[T]] = {
     value.toScala.map(_.getSecond).map(Recipe(_))
   }
 
-  def fromVanillaList[C <: Container, T <: McRecipe[C]](values: JavaList[T]): Seq[Recipe[C]] = {
-    values.asScala.flatMap(fromVanilla).toSeq
+  def fromVanillaList[C <: BaseContainer, T <: Vanilla[C]](values: JavaList[T]): Seq[Recipe[T]] = {
+    values.asScala.flatMap(fromVanilla[C, T]).toSeq
   }
 }

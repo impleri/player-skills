@@ -1,9 +1,9 @@
 package net.impleri.playerskills.api.skills
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillTypeRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 class SkillTypeSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]
@@ -59,7 +59,7 @@ class SkillTypeSpec extends BaseSpec {
 
   private val registryMock = mock[SkillTypeRegistry]
 
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   "SerializableSkillType.serialize" should "makes a string with the value" in {
     skillMock.name returns ResourceLocation("skilltest", "skill").get

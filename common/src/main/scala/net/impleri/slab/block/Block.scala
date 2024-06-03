@@ -1,21 +1,25 @@
 package net.impleri.slab.block
 
-import net.impleri.slab.registry.HasName
-import net.impleri.slab.registry.IsRegistered
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.world.level.block.{Block => McBlock}
 import net.minecraft.world.level.block.state.BlockState
 
-case class Block(private val underlying: BlockState, registry: Registry[Block, McBlock] = Registry.Blocks)
-  extends IsRegistered[McBlock] with HasName {
-  def name: String = getName.fold("unknown block")(_.toString)
+case class Block(protected val state: Block.VanillaState, registry: Registry[Block, Block.Vanilla] = Registry.Blocks)
+  extends ResourceWrapper[Block.Vanilla] {
+  override val underlying: Block.Vanilla = state.getBlock
 
-  def value: McBlock = underlying.getBlock
+  override val name: Option[ResourceLocation] = registry.getKey(this)
 
-  override def getName: Option[ResourceLocation] = registry.getKey(this)
+  def asString: String = name.fold("unknown block")(_.asString)
+
 }
 
 object Block {
-  def apply(block: McBlock): Block = new Block(block.defaultBlockState())
+  type Vanilla = McBlock
+
+  type VanillaState = BlockState
+
+  def apply(block: Vanilla): Block = new Block(block.defaultBlockState())
 }

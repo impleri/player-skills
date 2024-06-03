@@ -15,21 +15,21 @@ case class RecipeRestrictionBuilder(
   protected val restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
   protected val recipeTypeRegistry: Registry.RECIPE_TYPE = Registry.RecipeTypes,
   override val logger: Logger = PlayerSkillsLogger.ITEMS,
-) extends RestrictionBuilder[Recipe.Any, RecipeConditions] {
+) extends RestrictionBuilder[Recipe.Any, Recipe.AnyVanilla, RecipeConditions] {
   override val singleAsString = true
 
-  private def restrictRecipe(recipe: Recipe[_], builder: RecipeConditions): Unit = {
+  private def restrictRecipe(recipe: Recipe.Any, builder: RecipeConditions): Unit = {
     val restriction = RecipeRestriction(recipe, builder)
 
     restrictionRegistry.add(restriction)
-    logRestriction(recipe.getName.fold(s"${recipe.getResultItem.name}")(_.toString), restriction)
+    logRestriction(recipe.name.fold(s"${recipe.getResultItem.name}")(_.asString), restriction)
   }
 
   def add(builder: RecipeConditions): Unit = {
     restrictions += s"recipe-${restrictions.size}" -> builder
   }
 
-  private def restrictRecipes(
+  private def restrictRecipes[R <: Recipe.BaseVanilla](
     recipeType: RecipeType.Any,
     target: RecipeTarget,
     builder: RecipeConditions,
@@ -37,7 +37,7 @@ case class RecipeRestrictionBuilder(
     serverState.SERVER
       .map(_.getRecipeManager)
       .toList
-      .flatMap(_.getAllFor(recipeType))
+      .flatMap(_.getAllFor[R](recipeType))
       .filter(target.matches)
       .foreach(restrictRecipe(_, builder))
   }
@@ -47,7 +47,7 @@ case class RecipeRestrictionBuilder(
     builder: RecipeConditions,
   ): Unit = {
     recipeTypeRegistry.get(target.recipeType)
-      .foreach(restrictRecipes(_, target, builder))
+      .foreach(t => restrictRecipes(t, target, builder))
   }
 
   override def restrict(data: (String, RecipeConditions)): Unit = {

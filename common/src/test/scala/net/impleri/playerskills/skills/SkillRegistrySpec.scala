@@ -2,8 +2,8 @@ package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.architectury.Registrar
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.registry.Registrar
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 
@@ -30,8 +30,8 @@ class SkillRegistrySpec extends BaseSpec {
   "SkillRegistryState.resync" should "return a new state with the synced skills" in {
     val registryKey = mock[ResourceKey[Registry[Skill[_]]]]
     val entries = Map[ResourceKey[Skill[_]], Skill[_]](
-      ResourceKey.create(registryKey, testName.name) -> testSkill,
-      ResourceKey.create(registryKey, otherName.name) -> otherSkill,
+      ResourceKey.create(registryKey, testName.value) -> testSkill,
+      ResourceKey.create(registryKey, otherName.value) -> otherSkill,
     )
     registrarMock.entries() returns entries
 

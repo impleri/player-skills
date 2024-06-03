@@ -1,9 +1,8 @@
 package net.impleri.playerskills.api.restrictions
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.minecraft.resources.ResourceKey
-import net.minecraft.world.item.crafting.{Recipe => McRecipe}
+import net.impleri.slab.registry.RegistryKey
+import net.impleri.slab.resources.ResourceLocation
 
 class TargetResourceSpec extends BaseSpec {
   "TargetResource.apply" should "return a Namespace target if starts with @" in {
@@ -19,9 +18,9 @@ class TargetResourceSpec extends BaseSpec {
   }
 
   it should "return Tag target if starts with # and there is a provided registry key" in {
-    val registryKeyName = ResourceLocation("skillstest:registry", isSkill = false).get
-    val mockRegistryKey = ResourceKey.createRegistryKey[McRecipe[_]](registryKeyName.name)
-    val tagName = ResourceLocation("skillstest:tag", isSkill = false).get
+    val registryKeyName = ResourceLocation("skillstest:registry").get
+    val mockRegistryKey = RegistryKey(registryKeyName)
+    val tagName = ResourceLocation("skillstest:tag").get
 
     TargetResource("#skillstest:tag", Option(mockRegistryKey)).value shouldBe TargetResource
       .Tag(tagName.getTagKey(mockRegistryKey))

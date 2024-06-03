@@ -7,8 +7,8 @@ import net.impleri.slab.server.Server
 import scala.annotation.unused
 
 case class BeforeServerStops(
-  playerRegistry: PlayerRegistry,
-  upstream: ServerLifecycleEvents,
+  playerRegistry: PlayerRegistry = PlayerRegistry(),
+  upstream: ServerLifecycleEvents = ServerLifecycleEvents(),
 ) {
   private[bindings] def handler(@unused server: Option[Server]): Unit = {
     playerRegistry.close()

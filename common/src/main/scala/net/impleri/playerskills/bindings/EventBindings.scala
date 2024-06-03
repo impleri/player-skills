@@ -22,9 +22,11 @@ case class EventBindings(
 ) {
   def registerEvents(): Unit = {
     commonLifecycle.onSetup(onSetup)
+
     BeforeUseItem(itemRestrictionOps, interaction, logger, skipLogger)
     BeforeUseItemBlock(itemRestrictionOps, interaction, logger, skipLogger)
     BeforeInteractEntity(itemRestrictionOps, interaction, logger, skipLogger)
+    
     BeforePlayerPickup(itemRestrictionOps, player, logger, skipLogger)
   }
 }

@@ -1,9 +1,8 @@
 package net.impleri.playerskills.server.skills.storage
 
+import net.impleri.slab.nbt.NbtContents
 import net.impleri.slab.nbt.NbtFileReadError
 import net.impleri.slab.nbt.NbtFileWriteError
-import net.impleri.slab.nbt.NbtReaderIO
-import net.impleri.slab.nbt.NbtWriterIO
 
 import java.io.File
 
@@ -12,11 +11,16 @@ import java.io.File
  */
 case class SkillNbtStorage private[skills] () {
   def read(file: File): Either[NbtFileReadError, List[String]] = {
-    NbtReaderIO(file).readListAsString(SkillNbtStorage.SKILLS_TAG)
+    NbtContents.fromFile(file)
+      .map(_.getStrings(SkillNbtStorage.SKILLS_TAG))
   }
 
   def write(file: File, skills: List[String]): Either[NbtFileWriteError, Boolean] = {
-    NbtWriterIO(file).updateStrings(SkillNbtStorage.SKILLS_TAG, skills).map(_ => true)
+    NbtContents.fromFile(file)
+      .getOrElse(NbtContents())
+      .putStrings(SkillNbtStorage.SKILLS_TAG, skills)
+      .writeToFile(file)
+      .map(_ => true)
   }
 }
 

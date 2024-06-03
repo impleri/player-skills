@@ -1,12 +1,12 @@
 package net.impleri.playerskills.api.restrictions
 
 import net.impleri.slab.entity.Player
-import net.impleri.slab.registry.HasName
-import net.impleri.slab.registry.RegistryKey
+import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceWrapper
 import net.impleri.slab.world.Biome
 
-trait Restriction[T <: HasName] {
+trait Restriction[T <: ResourceWrapper[U], U] {
   def restrictionType: RestrictionType
 
   def target: T
@@ -25,7 +25,7 @@ trait Restriction[T <: HasName] {
 
   def isType(input: RestrictionType): Boolean = restrictionType == input
 
-  def targets(value: ResourceLocation): Boolean = target.getName.exists(value.equals)
+  def targets(value: ResourceLocation): Boolean = target.name.exists(value.equals)
 
   def hasReplacement: Boolean = replacement.nonEmpty
 
@@ -49,9 +49,9 @@ trait Restriction[T <: HasName] {
 
   private def biomeListIncludes(list: Seq[String], biome: Biome): Boolean = {
     list.exists(d =>
-      TargetResource(d, Option(RegistryKey.Biome)) match {
+      TargetResource(d, Option(ResourceKey.BIOME_REGISTRY)) match {
         case Some(n: TargetResource.Namespace) => biome.isNamespaced(n.target)
-        case Some(n: TargetResource.Tag[_]) => biome.isTagged(n.target.asInstanceOf)
+        case Some(n: TargetResource.Tag[_, _]) => biome.isTagged(n.target.asInstanceOf)
         case Some(n: TargetResource.Single) => biome.isNamed(n.target)
         case _ => false
       },

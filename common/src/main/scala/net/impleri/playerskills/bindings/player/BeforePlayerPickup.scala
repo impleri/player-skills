@@ -8,7 +8,7 @@ import net.impleri.slab.logging.Logger
 
 case class BeforePlayerPickup(
   itemRestrictionOps: ItemRestrictionOps = ItemRestrictionOps(),
-  upstream: PlayerEvents,
+  upstream: PlayerEvents = PlayerEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {

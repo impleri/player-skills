@@ -1,8 +1,5 @@
 package net.impleri.slab.network
 
-import dev.architectury.networking.simple.{MessageType => ArchMessageType}
-import net.minecraft.network.FriendlyByteBuf
-
 trait MessageFactory[T <: NetworkMessage] {
   def name: String
 
@@ -10,17 +7,15 @@ trait MessageFactory[T <: NetworkMessage] {
 
   private var messageType: Option[MessageType] = None
 
-  def setMessageType(newType: ArchMessageType): Unit = {
-    messageType = Option(newType).map(MessageType)
+  def setMessageType(newType: MessageType.Vanilla): Unit = {
+    messageType = Option(newType).map(MessageType(_))
   }
 
-  def receive(buffer: FriendlyByteBuf): T = {
+  def receive(buffer: FriendlyBuffer.Vanilla): T = {
     Option(buffer)
-      .map(FriendlyBuffer)
+      .map(FriendlyBuffer(_))
       .flatMap(b => messageType.map((b, _)))
-      .map(t => onReceive(t._1, t._2))
-      .orNull
-      .asInstanceOf[T]
+      .fold(null.asInstanceOf[T])(t => onReceive(t._1, t._2))
   }
 
   def createForSend(f: MessageFactory.FactoryFn[T]): Option[T] = messageType.map(f)

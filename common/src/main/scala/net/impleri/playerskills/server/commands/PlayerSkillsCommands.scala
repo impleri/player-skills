@@ -33,9 +33,9 @@ case class PlayerSkillsCommands(
   with SetSkillCommand
   with ImproveSkillCommand
   with DegradeSkillCommand {
-  val command: CommandString = buildCommands(CommandString("skills"))
+  val command: CommandString = buildCommands(CommandString("skills")).asInstanceOf[CommandString]
 
-  protected val builders: List[Function[CommandSegment.Any, CommandSegment.Any]] =
+  protected val builders: List[CommandSegment.Any => CommandSegment.Any] =
     List(
       registerTypesCommand,
       registerAllCommand,

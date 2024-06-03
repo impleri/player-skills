@@ -12,10 +12,8 @@ import dev.architectury.event.events.common.InteractionEvent.RightClickItem
 import net.impleri.slab.block.Block
 import net.impleri.slab.entity.Entity
 import net.impleri.slab.entity.Hand
-import net.impleri.slab.entity.Hand.Hand
 import net.impleri.slab.entity.Player
 import net.impleri.slab.world.Direction
-import net.impleri.slab.world.Direction.Direction
 import net.impleri.slab.world.Position
 import net.minecraft.core.{Direction => McDirection}
 import net.minecraft.core.BlockPos
@@ -106,8 +104,8 @@ case class InteractionEvents(
 }
 
 object InteractionEvents {
-  type OnClickBlock = (Player[_], Option[Position], Hand, Direction) => EventResult
-  type OnClickEntity = (Player[_], Option[Entity[_]], Hand) => EventResult
+  type OnClickBlock = (Player[_], Option[Position], Hand.Hand, Direction.Direction) => EventResult
+  type OnClickEntity = (Player[_], Option[Entity[_]], Hand.Hand) => EventResult
   type OnTrampleBlock = (Entity[_], Option[Position], Option[Block], Float) => EventResult
-  type OnUseItem = (Player[_], Hand) => CompoundEventResult[ItemStack]
+  type OnUseItem = (Player[_], Hand.Hand) => CompoundEventResult[ItemStack]
 }

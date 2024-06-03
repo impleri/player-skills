@@ -1,18 +1,18 @@
 package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.core.{ResourceLocation => ResourceFacade}
-import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.restrictions.RestrictionRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.item.Item
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.item.Item
 import org.mockito.captor.ArgCaptor
 
 class ItemRestrictionBuilderSpec extends BaseSpec {
-  private val mockRegistry = mock[Registry[Item]]
+  private val mockRegistry = mock[Registry.ITEM]
   private val mockRestrictions = mock[RestrictionRegistry]
-  private val mockLogger = mock[PlayerSkillsLogger]
+  private val mockLogger = mock[Logger]
 
   private val testUnit = ItemRestrictionBuilder(Option(mockRegistry), mockRestrictions, mockLogger)
 
@@ -25,7 +25,7 @@ class ItemRestrictionBuilderSpec extends BaseSpec {
   private val mockItem = mock[Item]
 
   "ItemRestrictionBuilder.restrictOne" should "restrict a simple item" in {
-    val targetName = ResourceFacade("skillstest", "restriction").get
+    val targetName = ResourceLocation("skillstest", "restriction").get
 
     mockRegistry.get(targetName) returns Option(mockItem)
     testUnit.restrictOne(targetName, testBuilder)

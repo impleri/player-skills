@@ -12,7 +12,7 @@ case class BeforeSpawn(
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {
-  private val handler: EntityEvents.CanSpawn = (entity, levelOpt, positionOpt, spawnTypeOpt, spawnerOpt) => {
+  private[bindings] val handler: EntityEvents.CanSpawn = (entity, levelOpt, positionOpt, spawnTypeOpt, spawnerOpt) => {
     skip
     //      if (!MobRestrictions.canSpawn(livingEntity, levelAccessor, pos, mobSpawnType)) {
     //        PlayerSkillsLogger.MOBS.debug("$mobType cannot spawn at $posString")

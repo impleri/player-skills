@@ -14,23 +14,24 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.player.{Player => McPlayer}
-import net.minecraft.world.item.ItemStack
 
 import java.util.UUID
 import scala.jdk.CollectionConverters._
 
-case class Player[T <: McPlayer](private val underlying: T) extends Entity(underlying) {
-  val isClient: Boolean = underlying.isInstanceOf[LocalPlayer]
+case class Player[T <: Player.Vanilla](override val underlying: T) extends Entity[T](underlying) {
+  val handle: String = underlying.getName.getString
+
+  val isClient: Boolean = underlying.isInstanceOf[Player.VanillaLocal]
 
   val isClientSide: Boolean = underlying.getLevel.isClientSide
 
-  val isServer: Boolean = underlying.isInstanceOf[ServerPlayer]
+  val isServer: Boolean = underlying.isInstanceOf[Player.VanillaServer]
 
   lazy val uuid: UUID = underlying.getUUID
 
   val server: Server = Server(underlying.getServer)
 
-  private def toItemMap(values: NonNullList[ItemStack]): Map[Int, Item] = {
+  private def toItemMap(values: NonNullList[Item.VanillaStack]): Map[Int, Item] = {
     values.asScala
       .map(Item(_))
       .view
@@ -95,15 +96,20 @@ case class Player[T <: McPlayer](private val underlying: T) extends Entity(under
 
   def sendEmptyContainerSlot(menu: ContainerMenu.Any): Unit = {
     sendPacket(
-      new ClientboundContainerSetSlotPacket(menu.getId, menu.getNextStateId, 0, ItemStack.EMPTY),
+      new ClientboundContainerSetSlotPacket(menu.getId, menu.getNextStateId, 0, Item.EMPTY_STACK),
     )
   }
 }
 
 object Player {
+  type Vanilla = McPlayer
+  type VanillaLocal = LocalPlayer
+  type VanillaServer = ServerPlayer
+
   type Any = Player[_]
-  type Local = Player[LocalPlayer]
-  type Server = Player[ServerPlayer]
+  type Local = Player[VanillaLocal]
+  type Server = Player[VanillaServer]
+
 
   def fromVanilla(underlying: McPlayer): Option[Player.Any] = Option(underlying).map(Player(_))
 }

@@ -1,7 +1,7 @@
 package net.impleri.playerskills.server.skills.storage
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.NbtIO
+import net.impleri.slab.nbt.NbtWriterIO
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
@@ -12,8 +12,8 @@ import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 class SkillNbtStorageSpec extends BaseSpec {
-  private val nbtMock = mock[NbtIO]
-  private val nbtStorage = SkillNbtStorage(nbtMock)
+  private val nbtMock = mock[NbtWriterIO]
+  private val nbtStorage = SkillNbtStorage()
   private val testFile = new File("/temp/testFile")
 
   private val badCompoundTag = new CompoundTag()

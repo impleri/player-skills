@@ -12,7 +12,7 @@ import net.impleri.slab.world.Position
 class ItemRestrictionOps(
   protected val registry: RestrictionRegistry,
   protected val logger: Logger,
-) extends RestrictionsOps[Item, ItemRestriction] {
+) extends RestrictionsOps[Item, Item.Vanilla, ItemRestriction] {
   override val restrictionType: RestrictionType = RestrictionType.Item()
 
   def isIdentifiable(player: Player[_], item: Item, pos: Option[Position] = None): Boolean = {

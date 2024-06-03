@@ -3,12 +3,12 @@ package net.impleri.playerskills.server.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.minecraft.Server
-import net.impleri.playerskills.server.skills.storage.FailedToWrite
-import net.impleri.playerskills.server.skills.storage.PersistentStorage
-import net.impleri.playerskills.server.skills.storage.SkillFileMissing
+import net.impleri.playerskills.server.skills.storage.SkillNbtStorage
 import net.impleri.playerskills.server.skills.storage.SkillResourceFile
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.nbt.FailedToWrite
+import net.impleri.slab.nbt.NbtFileMissing
+import net.impleri.slab.server.Server
 
 import java.io.File
 import java.nio.file.Path
@@ -18,10 +18,10 @@ class PlayerStorageIOSpec extends BaseSpec {
   private case class TestSkill() extends Skill[String]
 
   "PlayerStorageIO.read" should "return file contents" in {
-    val storageMock = mock[PersistentStorage]
+    val storageMock = mock[SkillNbtStorage]
     val resourceMock = mock[SkillResourceFile]
     val typeOpsMock = mock[SkillTypeOps]
-    val loggerMock = mock[PlayerSkillsLogger]
+    val loggerMock = mock[Logger]
 
     val givenUuid = UUID.randomUUID()
 
@@ -42,17 +42,17 @@ class PlayerStorageIOSpec extends BaseSpec {
   }
 
   "PlayerStorageIO.read" should "return an empty list if the file isn't found" in {
-    val storageMock = mock[PersistentStorage]
+    val storageMock = mock[SkillNbtStorage]
     val resourceMock = mock[SkillResourceFile]
     val typeOpsMock = mock[SkillTypeOps]
-    val loggerMock = mock[PlayerSkillsLogger]
+    val loggerMock = mock[Logger]
 
     val givenUuid = UUID.randomUUID()
 
     val file = new File("/tmp")
     resourceMock.getPlayerFile(givenUuid) returns file
 
-    storageMock.read(file) returns Left(SkillFileMissing(file))
+    storageMock.read(file) returns Left(NbtFileMissing(file))
 
     val target = new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
 
@@ -62,10 +62,10 @@ class PlayerStorageIOSpec extends BaseSpec {
   }
 
   "PlayerStorageIO.write" should "return success" in {
-    val storageMock = mock[PersistentStorage]
+    val storageMock = mock[SkillNbtStorage]
     val resourceMock = mock[SkillResourceFile]
     val typeOpsMock = mock[SkillTypeOps]
-    val loggerMock = mock[PlayerSkillsLogger]
+    val loggerMock = mock[Logger]
 
     val givenUuid = UUID.randomUUID()
     val givenSkills = List(TestSkill())
@@ -86,10 +86,10 @@ class PlayerStorageIOSpec extends BaseSpec {
   }
 
   "PlayerStorageIO.write" should "return failure if the write fails" in {
-    val storageMock = mock[PersistentStorage]
+    val storageMock = mock[SkillNbtStorage]
     val resourceMock = mock[SkillResourceFile]
     val typeOpsMock = mock[SkillTypeOps]
-    val loggerMock = mock[PlayerSkillsLogger]
+    val loggerMock = mock[Logger]
 
     val givenUuid = UUID.randomUUID()
     val givenSkills = List(TestSkill())
@@ -111,7 +111,7 @@ class PlayerStorageIOSpec extends BaseSpec {
 
   "PlayerStorageIO.apply" should "return the correct class" in {
     val serverMock = mock[Server]
-    val storageMock = mock[PersistentStorage]
+    val storageMock = mock[SkillNbtStorage]
 
     val pathMock = mock[Path]
     serverMock.getWorldPath(*) returns pathMock

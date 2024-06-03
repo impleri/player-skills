@@ -4,8 +4,8 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
-import net.impleri.playerskills.facades.architectury.Registrar
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.registry.Registrar
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.resources.ResourceKey
 
 class SkillTypeRegistrySpec extends BaseSpec {

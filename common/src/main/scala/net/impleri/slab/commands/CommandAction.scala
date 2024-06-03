@@ -1,24 +1,19 @@
 package net.impleri.slab.commands
 
-import com.mojang.brigadier.Command
-import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.{Command => McCommand}
 import net.impleri.slab.chat.Message
 import net.impleri.slab.entity.Player
-import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.commands.arguments.{ResourceLocationArgument => McResourceLocationArgument}
 
-import scala.util.Try
-
-case class CommandAction[T](
-  f: CommandCallback,
-  fallbackMessage: Option[Message[_]] = None,
-  responseCode: Int = Command.SINGLE_SUCCESS,
+case class CommandAction(
+  f: CommandAction.Callback,
+  fallbackMessage: Option[Message.Any] = None,
+  responseCode: Int = McCommand.SINGLE_SUCCESS,
   responseType: ResponseType.Value = ResponseType.NONE,
 )
-  extends CommandExecution {
+  extends CommandAction.Executor {
   private final val COMMAND_FAILURE = 0
 
-  private def sendMessage(context: CommandContext)(message: Message[_]): Int = {
+  private def sendMessage(context: Command.Context)(message: Message.Any): Int = {
     responseType match {
       case ResponseType.MESSAGE => message.sendSuccess(context)
       case ResponseType.MESSAGE_ADMIN => message.sendSuccessWithAdmins(context)
@@ -28,7 +23,7 @@ case class CommandAction[T](
     responseCode
   }
 
-  private def sendFailure(context: CommandContext)(message: Message[_]): Int = {
+  private def sendFailure(context: Command.Context)(message: Message.Any): Int = {
     responseType match {
       case ResponseType.MESSAGE | ResponseType.MESSAGE_ADMIN => message.sendFailure(context)
       case _ =>
@@ -37,46 +32,30 @@ case class CommandAction[T](
     COMMAND_FAILURE
   }
 
-  def run(context: CommandContext): Int = f(context).fold(sendFailure(context), sendMessage(context))
+  def run(context: Command.Context): Int = f(context).fold(sendFailure(context), sendMessage(context))
 
-  def silent(): CommandAction[T] = copy(responseType = ResponseType.NONE)
+  def silent(): CommandAction = copy(responseType = ResponseType.NONE)
 
-  def message(includeAdmins: Boolean = false): CommandAction[T] = {
+  def message(includeAdmins: Boolean = false): CommandAction = {
     copy(responseType = if (includeAdmins) ResponseType.MESSAGE_ADMIN else ResponseType.MESSAGE)
   }
 }
 
 object CommandAction {
-  def getCurrentPlayer(context: CommandContext): Option[Player.Server] = {
+  private type Executor = McCommand[Command.Source]
+  type Callback = Command.Context => Either[Message.Any, Message.Any]
+
+  def getCurrentPlayer(context: Command.Context): Option[Player.Server] = {
     Option(context)
       .map(_.getSource)
       .map(_.getPlayer)
       .map(Player(_))
   }
 
-  def getPlayerArgument(context: CommandContext): Option[Player.Server] = {
-    Option(context)
-      .map(_.getSource)
-      .map(s => Try(s.getPlayerOrException))
-      .flatMap(_.toOption)
-      .map(Player(_))
-  }
-
-  def getPlayer(context: CommandContext, skipArgument: Boolean = false): Option[Player.Server] = {
-    val p = if (skipArgument) None else getPlayerArgument(context)
+  def getPlayer(context: Command.Context, skipArgument: Boolean = false): Option[Player.Server] = {
+    val p = if (skipArgument) None else PlayerArgument.getValue(context)
 
     p.orElse(getCurrentPlayer(context))
-  }
-
-  def getResourceLocation(name: String, context: CommandContext): Option[ResourceLocation] = {
-    Try(McResourceLocationArgument.getId(context, name))
-      .toOption
-      .flatMap(ResourceLocation(_))
-  }
-
-  def getString(name: String, context: CommandContext): Option[String] = {
-    Try(StringArgumentType.getString(context, name))
-      .toOption
   }
 }
 

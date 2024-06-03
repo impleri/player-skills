@@ -1,14 +1,15 @@
 package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
+import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.resources.ResourceLocation
 
 class RecipeRestrictionSpec extends BaseSpec {
-  private val mockTarget = mock[Recipe[_]]
+  private val mockTarget = mock[Recipe.Any]
 
   private case class TestConditions() extends RecipeConditions {
-    override def name: ResourceLocation = new ResourceLocation("skillstest", "condition")
+    override def name: ResourceLocation = ResourceLocation("skillstest", "condition").get
   }
 
   "RecipeRestriction.apply" should "create an RecipeRestriction" in {

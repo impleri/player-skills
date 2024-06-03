@@ -1,11 +1,12 @@
 package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.BaseSpec
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.resources.ResourceLocation
 
 class RecipeConditionsSpec extends BaseSpec {
   private case class TestConditions() extends RecipeConditions {
-    override def name: ResourceLocation = new ResourceLocation("skillstest", "condition")
+    override def name: ResourceLocation = ResourceLocation("skillstest", "condition").get
   }
 
   private val testUnit = TestConditions()

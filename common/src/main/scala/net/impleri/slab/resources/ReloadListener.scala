@@ -1,5 +1,5 @@
 package net.impleri.slab.resources
 
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener
+import net.minecraft.server.packs.resources.PreparableReloadListener
 
-trait ReloadListener extends ResourceManagerReloadListener
+trait ReloadListener extends PreparableReloadListener

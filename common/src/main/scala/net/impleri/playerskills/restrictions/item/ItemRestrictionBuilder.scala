@@ -12,7 +12,7 @@ case class ItemRestrictionBuilder(
   override val registry: Option[Registry.ITEM],
   protected val restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
   override val logger: Logger = PlayerSkillsLogger.ITEMS,
-) extends RestrictionBuilder[Item, ItemConditions] {
+) extends RestrictionBuilder[Item, Item.Vanilla, ItemConditions] {
   override val singleAsString: Boolean = true
 
   private def restrictItem(item: Item, builder: ItemConditions, targetName: String): Unit = {

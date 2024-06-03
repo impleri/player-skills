@@ -1,31 +1,30 @@
 package net.impleri.playerskills.server
 
-import dev.architectury.networking.simple.BaseS2CMessage
 import dev.architectury.networking.simple.MessageType
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.server.api.Team
 import net.impleri.playerskills.server.skills.PlayerRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.architectury.Network
-import net.impleri.playerskills.facades.architectury.ReloadListeners
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
-import net.impleri.playerskills.facades.minecraft.Server
-import net.impleri.playerskills.facades.minecraft.core.Registry
 import net.impleri.playerskills.network.SyncSkillsMessage
 import net.impleri.playerskills.server.api.StubTeam
 import net.impleri.playerskills.server.skills.PlayerRegistryState
 import net.impleri.playerskills.skills.SkillRegistry
+import net.impleri.slab.entity.{Player => MinecraftPlayer}
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.network.ClientboundMessage
+import net.impleri.slab.network.Network
+import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ReloadListeners
+import net.impleri.slab.resources.ResourceManager
+import net.impleri.slab.server.Server
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.packs.resources.ResourceManager
-import net.minecraft.world.item.Item
 
 import java.util.UUID
 
 private class ServerStateContainerSpec extends BaseSpec {
   private val globalStateMock = mock[StateContainer]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
   private val serverMock = mock[Server]
   private val playerRegistryMock = mock[PlayerRegistry]
   private val eventHandlerMock = mock[EventHandler]
@@ -34,7 +33,7 @@ private class ServerStateContainerSpec extends BaseSpec {
   private val skillRegistryMock = mock[SkillRegistry]
   private val skillTypeOpsMock = mock[SkillTypeOps]
   private val networkMock = mock[Network]
-  private val registryMock = mock[Registry[Item]]
+  private val registryMock = mock[Registry.ITEM]
 
   lazy private val testUnit = ServerStateContainer(globalStateMock,
     playerRegistryMock,
@@ -118,7 +117,7 @@ private class ServerStateContainerSpec extends BaseSpec {
     val currentUsers = List(givenUuid)
 
     val messageTypeMock = mock[MessageType]
-    networkMock.registerClientboundMessage[SyncSkillsMessage](*, *) returns messageTypeMock
+    networkMock.registerMessageToClient[SyncSkillsMessage](*, *) returns messageTypeMock
     globalStateMock.NETWORK returns networkMock
 
     playerRegistryMock.close() returns currentUsers
@@ -128,10 +127,10 @@ private class ServerStateContainerSpec extends BaseSpec {
     val skills = List.empty
     playerRegistryMock.get(givenUuid) returns skills
 
-    testUnitWithServer.onReload(mock[ResourceManager])
+    testUnitWithServer.onReload(mock[Option[ResourceManager]])
 
     playerRegistryMock.open(currentUsers) wasCalled once
 
-    playerMock.sendMessage(any[BaseS2CMessage]) wasCalled once
+    playerMock.sendMessage(any[ClientboundMessage]) wasCalled once
   }
 }

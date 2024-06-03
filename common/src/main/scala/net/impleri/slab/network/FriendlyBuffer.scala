@@ -6,11 +6,11 @@ import net.minecraft.network.FriendlyByteBuf
 
 import java.util.UUID
 
-case class FriendlyBuffer(private var underlying: FriendlyByteBuf) {
-  def output: FriendlyByteBuf = underlying
+case class FriendlyBuffer(private var underlying: FriendlyBuffer.Vanilla) {
+  def output: FriendlyBuffer.Vanilla = underlying
 
-  private def chain(f: => ByteBuf): FriendlyBuffer = {
-    val next = new FriendlyByteBuf(f)
+  private def chain(f: => FriendlyBuffer.VanillaBase): FriendlyBuffer = {
+    val next = new FriendlyBuffer.Vanilla(f)
     copy(underlying = next)
   }
 
@@ -36,6 +36,10 @@ case class FriendlyBuffer(private var underlying: FriendlyByteBuf) {
       .flatMap(Option(_))
   }
 
+  def writeResourceLocation(value: ResourceLocation): FriendlyBuffer = {
+    writeString(value.asString)
+  }
+
   def readResourceLocation(): Option[ResourceLocation] = {
     readString()
       .flatMap(ResourceLocation(_))
@@ -52,4 +56,9 @@ case class FriendlyBuffer(private var underlying: FriendlyByteBuf) {
     List.fill(size)(underlying.readInt())
       .map(underlying.readUtf(_))
   }
+}
+
+object FriendlyBuffer {
+  type Vanilla = FriendlyByteBuf
+  type VanillaBase = ByteBuf
 }

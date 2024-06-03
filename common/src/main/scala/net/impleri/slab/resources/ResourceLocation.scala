@@ -1,11 +1,8 @@
 package net.impleri.slab.resources
 
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.registry.RegistryKey
 import net.impleri.slab.registry.Tag
-import net.minecraft.core.{Registry => McRegistry}
 import net.minecraft.resources.{ResourceLocation => McResourceLocation}
-import net.minecraft.resources.ResourceKey
 import net.minecraft.tags.TagKey
 
 import scala.util.Failure
@@ -21,9 +18,11 @@ case class ResourceLocation(private val underlying: McResourceLocation) {
 
   def path: String = underlying.getPath
 
-  def asRegistryKey[T]: ResourceKey[McRegistry[T]] = ResourceKey.createRegistryKey[T](underlying)
+  def asRegistryKey[T <: Registerable]: ResourceKey.Registry[T] = ResourceKey.forRegistry[T](this)
 
-  def getTagKey[T](registryKey: RegistryKey[T]): Tag[T] = new Tag(TagKey.create[T](registryKey.value, underlying))
+  def getTagKey[T <: ResourceWrapper[U], U](registryKey: ResourceKey.Registry[U]): Tag[T, U] = new Tag(
+    TagKey.create[U](registryKey.value, underlying),
+  )
 
   override def equals(obj: Any): Boolean = {
     obj match {
@@ -37,9 +36,11 @@ case class ResourceLocation(private val underlying: McResourceLocation) {
 }
 
 object ResourceLocation {
+  type Vanilla = McResourceLocation
+
   def apply(resource: Option[McResourceLocation]): Option[ResourceLocation] = resource.map(r => new ResourceLocation(r))
 
-  def apply(resource: McResourceLocation): Option[ResourceLocation] = Option(resource).map(apply)
+  def apply(resource: McResourceLocation): Option[ResourceLocation] = Option(resource).flatMap(apply)
 
   def apply(namespace: String, path: String): Option[ResourceLocation] = {
     Try(
@@ -50,7 +51,7 @@ object ResourceLocation {
         case _ => ()
       }
       .toOption
-      .map(apply)
+      .flatMap(apply)
   }
 
   def apply(resource: String): Option[ResourceLocation] = {
@@ -61,6 +62,6 @@ object ResourceLocation {
         case _ => ()
       }
       .toOption
-      .map(apply)
+      .flatMap(apply)
   }
 }

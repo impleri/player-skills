@@ -3,7 +3,6 @@ package net.impleri.playerskills.server.commands
 import net.impleri.slab.chat.Message
 import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.commands.CommandAction
-import net.impleri.slab.commands.CommandCallback
 import net.impleri.slab.commands.CommandPermission
 import net.impleri.slab.commands.CommandSegment
 import net.impleri.slab.commands.CommandString
@@ -32,7 +31,7 @@ trait DebugCommands {
     )
   }
 
-  private[commands] def handler(modLabel: String, logInstance: Logger): CommandCallback = {
+  private[commands] def handler(modLabel: String, logInstance: Logger): CommandAction.Callback = {
     _ => toggleDebug(modLabel, logInstance)
   }
 

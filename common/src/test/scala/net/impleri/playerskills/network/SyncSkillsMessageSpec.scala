@@ -1,14 +1,14 @@
 package net.impleri.playerskills.network
 
-import dev.architectury.networking.simple.MessageType
 import dev.architectury.networking.NetworkManager
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.client.ClientStateContainer
 import net.impleri.playerskills.client.NetHandler
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.Player
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.network.MessageType
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 
@@ -19,7 +19,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
 
   private val skillTypeOpsMock = mock[SkillTypeOps]
   private val clientStateMock = mock[ClientStateContainer]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val testUuid = UUID.randomUUID()
   private val skill1 = mock[Skill[Boolean]]
@@ -28,7 +28,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
 
   private val testMessage = SyncSkillsMessage(testUuid,
     skills,
-    false,
+    force = false,
     skillTypeOpsMock,
     Option(clientStateMock),
     messageTypeMock,
@@ -73,7 +73,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
     clientStateMock.getNetHandler returns netHandlerMock
     testMessage.handle(packetContextMock)
 
-    netHandlerMock.onSyncPlayer(skills, false) wasCalled once
+    netHandlerMock.onSyncPlayer(skills, force = false) wasCalled once
   }
 
   "SyncSkillsMessageFactory.receive" should "throw an error if sending without a message type" in {
@@ -111,7 +111,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
     skillTypeOpsMock.deserialize(serializedSkill1) returns Option(skill1)
     skillTypeOpsMock.deserialize(serializedSkill2) returns Option(skill2)
 
-    testFactory.setMessageType(messageTypeMock)
+    testFactory.setMessageType(messageTypeMock.value)
 
     val response = testFactory.receive(bufferMock)
 
@@ -124,7 +124,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
     playerMock.uuid returns testUuid
 
     assertThrows[Throwable] {
-      testFactory.send(playerMock, skills, true)
+      testFactory.send(playerMock, skills, force = true)
     }
 
     loggerMock.error(*) wasCalled once
@@ -135,13 +135,13 @@ class SyncSkillsMessageSpec extends BaseSpec {
 
     playerMock.uuid returns givenUuid
 
-    testFactory.setMessageType(messageTypeMock)
+    testFactory.setMessageType(messageTypeMock.value)
 
-    val response = testFactory.send(playerMock, skills, true)
+    val response = testFactory.send(playerMock, skills, force = true)
 
     loggerMock.error(*) wasNever called
 
-    response.isInstanceOf[SyncSkillsMessage] should be(true)
+    response.value.isInstanceOf[SyncSkillsMessage] should be(true)
   }
 
   "SyncSkillsMessageFactory.apply" should "creates a valid class" in {

@@ -2,24 +2,24 @@ package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.restrictions.RestrictionType
-import net.impleri.playerskills.facades.minecraft.{Player => PlayerFacade}
-import net.impleri.playerskills.facades.minecraft.Entity
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
 import net.impleri.playerskills.restrictions.RestrictionRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.{Player => PlayerFacade}
+import net.impleri.slab.entity.Entity
+import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
 
 class RecipeRestrictionOpsSpec extends BaseSpec {
   private val mockRegistry = mock[RestrictionRegistry]
-  private val mockLogger = mock[PlayerSkillsLogger]
+  private val mockLogger = mock[Logger]
 
   private val testUnit = RecipeRestrictionOps(mockRegistry, mockLogger)
 
   private val mockPlayer = mock[PlayerFacade[Player]]
   private val mockEntity = mock[Entity[Player]]
   private val mockTargetName = mock[ResourceLocation]
-  private val mockTarget = mock[Recipe[_]]
+  private val mockTarget = mock[Recipe.Any]
 
   private val testRestriction = RecipeRestriction(mockTarget)
 

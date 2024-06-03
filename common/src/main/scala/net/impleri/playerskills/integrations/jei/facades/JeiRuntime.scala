@@ -21,7 +21,7 @@ case class JeiRuntime(private var runtime: IJeiRuntime) {
       .flatMap(t => recipeManager.getRecipeType(t.value).toScala)
   }
 
-  def hideRecipes[C <: Container, T <: Recipe[C]](recipesByType: Map[String, Seq[Recipe[_]]]): Unit = {
+  def hideRecipes[C <: Container, T <: Recipe.Vanilla[C]](recipesByType: Map[String, Seq[Recipe.Any]]): Unit = {
     recipesByType
       .foreach(
         v => getType(v._1)
@@ -34,7 +34,7 @@ case class JeiRuntime(private var runtime: IJeiRuntime) {
       )
   }
 
-  def showRecipes[C <: Container, T <: Recipe[C]](recipesByType: Map[String, Seq[Recipe[_]]]): Unit = {
+  def showRecipes[C <: Container, T <: Recipe.Vanilla[C]](recipesByType: Map[String, Seq[Recipe.Any]]): Unit = {
     recipesByType
       .foreach(
         v => getType(v._1)

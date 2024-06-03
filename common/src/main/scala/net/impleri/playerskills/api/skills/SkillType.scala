@@ -3,6 +3,7 @@ package net.impleri.playerskills.api.skills
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.Registerable
 import net.impleri.slab.resources.ResourceLocation
 
 import scala.util.Try
@@ -37,7 +38,7 @@ sealed trait SerializableSkillType[T] {
   }
 }
 
-trait SkillType[T] extends ChangeableSkillType[T] with SerializableSkillType[T] {
+trait SkillType[T] extends Registerable with ChangeableSkillType[T] with SerializableSkillType[T] {
   val name: ResourceLocation = ResourceLocation("skill").get
 
   def can(skill: Skill[T], threshold: Option[T] = None): Boolean = {

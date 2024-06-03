@@ -1,19 +1,18 @@
-package net.impleri.playerskills.server.bindings
+package net.impleri.playerskills.server.bindings.player
 
-import dev.architectury.event.events.common.TickEvent
-import dev.architectury.event.Event
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.Player
+import net.impleri.slab.events.TickEvents
+import net.impleri.slab.item.Item
+import net.impleri.slab.logging.Logger
 
-class TickEventsSpec extends BaseSpec {
+class OnPlayerTickSpec extends BaseSpec {
   private val mockOps = mock[ItemRestrictionOps]
-  private val mockEvent = mock[Event[TickEvent.Player]]
-  private val mockLogger = mock[PlayerSkillsLogger]
+  private val mockUpstream = mock[TickEvents]
+  private val mockLogger = mock[Logger]
 
-  private val testUnit = TickEvents(mockOps, mockEvent, mockLogger)
+  private val testUnit = OnPlayerTick(mockOps, mockUpstream, mockLogger)
 
   private val mockPlayer = mock[Player[_]]
 
@@ -26,17 +25,11 @@ class TickEventsSpec extends BaseSpec {
 
   mockPlayer.isClientSide returns false
 
-  "TickEvents.registerEvents" should "register event handlers" in {
-    testUnit.registerEvents()
-
-    mockEvent.register(*) wasCalled once
-  }
-
-  "TickEvents.onPlayerTick" should "do nothing clientside" in {
+  "OnPlayerTick.handler" should "do nothing clientside" in {
     mockPlayer.isClientSide returns true
     mockPlayer.armor returns Map.empty
 
-    testUnit.onPlayerTick(mockPlayer)
+    testUnit.handler(mockPlayer)
 
     mockOps.isWearable(mockPlayer, *) wasNever called
     mockOps.isHoldable(mockPlayer, *) wasNever called
@@ -54,7 +47,7 @@ class TickEventsSpec extends BaseSpec {
       indexUnrestricted -> unrestrictedItem,
       indexOther -> otherItem,
     )
-    testUnit.onPlayerTick(mockPlayer)
+    testUnit.handler(mockPlayer)
 
     mockPlayer.putInInventory(restrictedItem) wasCalled once
     mockPlayer.emptyArmor(indexRestricted) wasCalled once
@@ -76,7 +69,7 @@ class TickEventsSpec extends BaseSpec {
       indexOther -> otherItem,
     )
 
-    testUnit.onPlayerTick(mockPlayer)
+    testUnit.handler(mockPlayer)
 
     mockPlayer.putInInventory(restrictedItem) wasCalled once
     mockPlayer.emptyOffHand(indexRestricted) wasCalled once

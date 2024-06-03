@@ -1,35 +1,33 @@
 package net.impleri.slab.item
 
 import com.mojang.brigadier.StringReader
-import net.impleri.slab.registry.HasName
 import net.impleri.slab.registry.IsIngredient
-import net.impleri.slab.registry.IsRegistered
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.{Item => MCItem}
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.Ingredient
 
 import scala.util.Try
 
 case class Item(
-  private val underlying: MCItem,
+  override val underlying: MCItem,
   private val stack: Option[ItemStack] = None,
   private val quantity: Int = 1,
   private val registry: Registry[Item, MCItem] = Registry.Items,
-) extends IsRegistered[MCItem] with HasName with IsIngredient {
-  def name: String = getName.fold("nothing")(_.toString)
+) extends ResourceWrapper[MCItem] with IsIngredient {
+  def asString: String = name.fold("nothing")(_.toString)
 
-  def value: MCItem = underlying
-
-  def getName: Option[ResourceLocation] = registry.getKey(this)
+  override val name: Option[ResourceLocation] = registry.getKey(this)
 
   def getStack: ItemStack = stack.getOrElse(new ItemStack(underlying, quantity))
 
-  def isDefault: Boolean = getName == Item.DEFAULT_ITEM.getName
+  def isDefault: Boolean = name == Item.DEFAULT_ITEM.name
 
   def isEmptyStack: Boolean = stack.fold(quantity == 0)(_.isEmpty)
 
@@ -38,7 +36,7 @@ case class Item(
   def isEnchanted: Boolean = getStack.isEnchanted
 
   def isNamespaced(namespace: String): Boolean = {
-    getName.forall(_.namespace == namespace)
+    name.forall(_.namespace == namespace)
   }
 
   def is(that: Item): Boolean = {
@@ -55,6 +53,14 @@ case class Item(
 }
 
 object Item {
+  type Vanilla = MCItem
+
+  type VanillaIngredient = Ingredient
+
+  type VanillaStack = ItemStack
+
+  def EMPTY_STACK: VanillaStack = ItemStack.EMPTY
+
   def DEFAULT_ITEM: Item = new Item(Items.AIR)
 
   def apply(itemStack: ItemStack): Item = {

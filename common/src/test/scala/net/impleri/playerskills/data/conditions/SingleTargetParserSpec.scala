@@ -2,13 +2,13 @@ package net.impleri.playerskills.data.conditions
 
 import com.google.gson.JsonObject
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
 
 class SingleTargetParserSpec extends BaseSpec {
-  private val mockLogger = mock[PlayerSkillsLogger]
+  private val mockLogger = mock[Logger]
 
   private case class TestConditionsBuilder() extends SingleTargetParser[String] {
-    override protected def logger: PlayerSkillsLogger = mockLogger
+    override protected def logger: Logger = mockLogger
   }
 
   private val testUnit = TestConditionsBuilder()

@@ -3,9 +3,9 @@ package net.impleri.playerskills.restrictions
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.RestrictionType
-import net.impleri.playerskills.facades.minecraft.world.Item
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.entity.Player
+import net.impleri.slab.item.Item
+import net.impleri.slab.resources.ResourceLocation
 
 class RestrictionRegistryStateSpec extends BaseSpec {
   private val mockItem = mock[Item]

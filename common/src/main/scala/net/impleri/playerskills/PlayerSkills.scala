@@ -10,7 +10,7 @@ import net.impleri.playerskills.skills.tiered.TieredSkillType
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.slab.registry.DeferredRegistry
 import net.impleri.slab.registry.RegistrarFactory
-import net.impleri.slab.registry.RegistryKey
+import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocationFactory
 
 object PlayerSkills {
@@ -22,8 +22,8 @@ object PlayerSkills {
 
   val STATE: StateContainer = StateContainer(SkillRegistry.REGISTRAR, SkillTypeRegistry.REGISTRAR)
 
-  private val SKILL_TYPE_REGISTRY = RegistryKey[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY)
-  private val SKILL_TYPES = DeferredRegistry(MOD_ID, SKILL_TYPE_REGISTRY)
+  private val SKILL_TYPE_REGISTRY = ResourceKey.forRegistry[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY)
+  private val SKILL_TYPES = DeferredRegistry[SkillType[_]](MOD_ID, SKILL_TYPE_REGISTRY)
 
   // We create the server-side handling here in case we are running in an integrated server/single-player instance
   PlayerSkillsServer.create()

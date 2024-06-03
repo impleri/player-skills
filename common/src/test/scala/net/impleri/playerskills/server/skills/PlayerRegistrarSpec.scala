@@ -2,9 +2,9 @@ package net.impleri.playerskills.server.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.SkillRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 import java.util.UUID
 
@@ -23,7 +23,7 @@ class PlayerRegistrarSpec extends BaseSpec {
   private val otherSkill = TestSkill(otherName)
 
   private val skillRegistryMock = mock[SkillRegistry]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
   private val storageMock = mock[PlayerStorageIO]
 
   "PlayerRegistry.apply" should "return the correct class" in {

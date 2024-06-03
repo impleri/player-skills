@@ -12,7 +12,7 @@ import net.impleri.slab.world.Position
 
 case class BeforeUseItemBlock(
   itemRestrictionOps: ItemRestrictionOps,
-  upstream: InteractionEvents,
+  upstream: InteractionEvents = InteractionEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {

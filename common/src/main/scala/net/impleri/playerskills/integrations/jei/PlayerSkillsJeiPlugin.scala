@@ -17,7 +17,7 @@ import net.impleri.slab.resources.ResourceLocation
 
 import scala.util.chaining.scalaUtilChainingOps
 
-case class JeiPluginState(runtime: Option[JeiRuntime] = None, hiddenRecipes: Seq[Recipe[_]] = Seq.empty) {
+case class JeiPluginState(runtime: Option[JeiRuntime] = None, hiddenRecipes: Seq[Recipe.Any] = Seq.empty) {
   def execute(f: JeiRuntime => Unit): Unit = runtime.foreach(f)
 }
 
@@ -45,7 +45,7 @@ case class PlayerSkillsJeiPlugin(
       .tap(_ => refresh(true))
   }
 
-  private def refreshHiddenRecipes(recipes: Seq[Recipe[_]], forced: Boolean, jeiRuntime: JeiRuntime): Unit = {
+  private def refreshHiddenRecipes(recipes: Seq[Recipe.Any], forced: Boolean, jeiRuntime: JeiRuntime): Unit = {
     val current = state.hiddenRecipes
 
     val toShow = if (forced) current else recipes.diff(current)
