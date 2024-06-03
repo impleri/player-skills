@@ -5,7 +5,6 @@ import net.impleri.slab.chat.ListMessage
 import net.impleri.slab.chat.StaticText
 import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.commands.CommandAction
-import net.impleri.slab.commands.CommandCallback
 import net.impleri.slab.commands.CommandSegment
 import net.impleri.slab.commands.CommandString
 
@@ -16,7 +15,7 @@ trait ListSkillsCommand {
     builder.option(CommandString("all").executes(CommandAction(handler).message()))
   }
 
-  protected val handler: CommandCallback = {
+  private val handler: CommandAction.Callback = {
     _ => {
       val skills = skillOps.all()
       val message = if (skills.nonEmpty) {

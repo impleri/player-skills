@@ -4,11 +4,11 @@ import net.impleri.playerskills.api.skills.TeamMode
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
-import net.impleri.playerskills.facades.minecraft.Server
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.EventHandler
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.{Player => MinecraftPlayer}
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.server.Server
 import net.minecraft.server.level.ServerPlayer
 
 import java.util.UUID
@@ -24,7 +24,7 @@ class TeamSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]
   private val teamMock = mock[Team]
   private val eventHandlerMock = mock[EventHandler]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val givenUuid = UUID.randomUUID()
   private val testUnit = new TeamOps(playerOpsMock, skillOpsMock, teamMock, eventHandlerMock, loggerMock)

@@ -5,7 +5,6 @@ import net.impleri.slab.chat.ListMessage
 import net.impleri.slab.chat.StaticText
 import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.commands.CommandAction
-import net.impleri.slab.commands.CommandCallback
 import net.impleri.slab.commands.CommandSegment
 import net.impleri.slab.commands.CommandString
 import net.impleri.slab.entity.{Player => MinecraftPlayer}
@@ -17,7 +16,7 @@ trait ListAcquiredCommand {
     builder.option(CommandString("mine").executes(CommandAction(handler).message()))
   }
 
-  protected val handler: CommandCallback = {
+  private val handler: CommandAction.Callback = {
     context => {
       CommandAction
         .getCurrentPlayer(context)

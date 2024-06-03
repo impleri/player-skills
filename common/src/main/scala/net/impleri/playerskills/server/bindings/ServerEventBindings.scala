@@ -24,10 +24,10 @@ import net.impleri.slab.server.Server
 case class ServerEventBindings(
   playerRegistry: PlayerRegistry,
   itemRestrictionOps: ItemRestrictionOps,
-  netHandler: NetHandler = NetHandler(),
   onSetup: () => Unit = () => {},
   onServerChange: Option[Server] => Unit = _ => {},
   getCommand: () => PlayerSkillsCommands,
+  netHandler: NetHandler = NetHandler(),
   commonLifecycle: CommonLifecycleEvents = CommonLifecycleEvents(),
   serverLifecycle: ServerLifecycleEvents = ServerLifecycleEvents(),
   commands: CommandEvents = CommandEvents(),

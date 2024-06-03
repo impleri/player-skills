@@ -2,21 +2,21 @@ package net.impleri.playerskills.server.bindings
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.events.SkillChangedEvent
-import net.impleri.playerskills.facades.architectury.ReloadListeners
 import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
 import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
-import net.minecraft.server.packs.resources.ResourceManager
+import net.impleri.slab.resources.ReloadListeners
+import net.impleri.slab.resources.ResourceManager
 
 class InternalEventsSpec extends BaseSpec {
   private val eventHandlerMock = mock[EventHandler]
   private val stateMock = mock[StateContainer]
   private val serverStateMock = mock[ServerStateContainer]
   private val reloadMock = mock[ReloadListeners]
-  private val reload = mock[ResourceManager => Unit]
+  private val reload = mock[Option[ResourceManager] => Unit]
   private val itemBuilderMock = mock[ItemRestrictionBuilder]
   private val recipeBuilderMock = mock[RecipeRestrictionBuilder]
 
@@ -39,7 +39,7 @@ class InternalEventsSpec extends BaseSpec {
 
   "InternalEvents.onResourceManagerReload" should "proxy calls to the reload listener" in {
     val managerMock = mock[ResourceManager]
-    testUnit.onResourceManagerReload(managerMock)
+    testUnit.onReload(Option(managerMock))
 
     reload(*) wasCalled once
   }

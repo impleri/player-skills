@@ -3,9 +3,9 @@ package net.impleri.playerskills.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.specialized.SpecializedSkill
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
+import net.impleri.slab.resources.ResourceLocation
 
 class SpecializedSkillTypeSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]

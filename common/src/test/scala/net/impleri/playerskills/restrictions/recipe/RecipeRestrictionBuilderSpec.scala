@@ -1,25 +1,25 @@
 package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.core.{ResourceLocation => ResourceFacade}
-import net.impleri.playerskills.facades.minecraft.core.Registry
-import net.impleri.playerskills.facades.minecraft.Server
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
-import net.impleri.playerskills.facades.minecraft.crafting.RecipeManager
-import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.server.ServerStateContainer
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.item.crafting.RecipeManager
+import net.impleri.slab.item.crafting.RecipeType
+import net.impleri.slab.item.Item
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.server.Server
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.item.crafting.SmeltingRecipe
 import net.minecraft.world.Container
 
 class RecipeRestrictionBuilderSpec extends BaseSpec {
   private val mockServerState = mock[ServerStateContainer]
-  private val mockRegistry = mock[Registry[RecipeType[_]]]
+  private val mockRegistry = mock[Registry.RECIPE_TYPE]
   private val mockRestrictions = mock[RestrictionRegistry]
-  private val mockLogger = mock[PlayerSkillsLogger]
+  private val mockLogger = mock[Logger]
 
   private val testUnit = RecipeRestrictionBuilder(mockServerState, mockRestrictions, mockRegistry, mockLogger)
 
@@ -49,14 +49,14 @@ class RecipeRestrictionBuilderSpec extends BaseSpec {
   "RecipeRestrictionBuilder.restrict" should "restrict a simple item" in {
     val targetName = "skillstest"
 
-    val mockRecipeType = mock[RecipeType[SmeltingRecipe]]
-    val targetRecipeType = ResourceFacade("skillstest", "recipe_type").get
+    val mockRecipeType = mock[RecipeType[_, SmeltingRecipe]]
+    val targetRecipeType = ResourceLocation("skillstest", "recipe_type").get
     mockRecipeTarget.recipeType returns targetRecipeType
     mockRegistry.get(targetRecipeType) returns Option(mockRecipeType)
 
     mockServerState.SERVER returns Option(mockServer)
     mockServer.getRecipeManager returns mockManager
-    mockManager.getAllFor[Container, SmeltingRecipe](mockRecipeType) returns Seq(mockSmeltingRecipe)
+    mockManager.getAllFor[_, SmeltingRecipe](mockRecipeType) returns Seq(mockSmeltingRecipe)
     mockRecipeTarget.matches(mockSmeltingRecipe) returns true
 
     val mockItem = mock[Item]

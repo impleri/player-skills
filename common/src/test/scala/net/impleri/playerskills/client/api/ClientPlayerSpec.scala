@@ -4,7 +4,7 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.resources.ResourceLocation
 
 class ClientPlayerSpec extends BaseSpec {
   private val skillTypeOpsMock = mock[SkillTypeOps]

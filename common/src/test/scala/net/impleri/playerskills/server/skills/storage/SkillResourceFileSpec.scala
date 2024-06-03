@@ -1,7 +1,7 @@
 package net.impleri.playerskills.server.skills.storage
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.Server
+import net.impleri.slab.server.Server
 
 import java.io.File
 import java.nio.file.Path

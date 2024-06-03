@@ -1,5 +1,7 @@
 package net.impleri.slab.commands
 
+import com.mojang.brigadier.builder.ArgumentBuilder
+
 import scala.jdk.FunctionConverters.enrichAsJavaPredicate
 
 object CommandPermission extends Enumeration {
@@ -11,40 +13,46 @@ object CommandPermission extends Enumeration {
   final val OWNER = CommandPermission(4)
 }
 
-class CommandSegment[B <: CommandBuilder[_], T <: CommandSegment[B, _]](protected val underlying: B) {
-  protected def copyAs[N <: CommandBuilder[_]](nextUnderlying: N): CommandSegment[N, _] = {
-    new CommandSegment[N, _](
+class CommandSegment[B <: CommandSegment.Vanilla[_], T <: CommandSegment[B, _]](protected val underlying: B) {
+  protected def copyAs(nextUnderlying: B): CommandSegment[B, T] = {
+    new CommandSegment[B, T](
       nextUnderlying,
     )
   }
 
-  def executes(action: CommandAction[_]): CommandSegment[B, _] = copyAs(underlying.executes(action))
+  def executes(action: CommandAction): CommandSegment[B, T] = copyAs(underlying.executes(action).asInstanceOf[B])
 
-  def option[S <: CommandBuilder[_]](subtree: CommandSegment[S, _]): CommandSegment[B, _] = {
+  def option[N <: CommandSegment.Vanilla[_], S <: CommandSegment[N, _]](subtree: CommandSegment[N, S]): CommandSegment[B, T] = {
     copyAs(underlying
-      .`then`(subtree.underlying),
+      .`then`(subtree.underlying).asInstanceOf[B],
     )
   }
 
-  def requires(permission: CommandPermission.CommandPermission = CommandPermission.MOD): CommandSegment[B, _] = {
+  def requires(permission: CommandPermission.CommandPermission = CommandPermission.MOD): CommandSegment[B, T] = {
     copyAs(
-      underlying.requires(checkPermission(permission).asJavaPredicate),
+      underlying.requires(checkPermission(permission).asJavaPredicate).asInstanceOf[B],
     )
   }
 
-  def requireMod(): CommandSegment[B, _] = requires(CommandPermission.MOD)
+  def requireMod(): CommandSegment[B, T] = requires(CommandPermission.MOD)
 
-  def requireGm(): CommandSegment[B, _] = requires(CommandPermission.GAME_MASTER)
+  def requireGm(): CommandSegment[B, T] = requires(CommandPermission.GAME_MASTER)
 
-  def requireAdmin(): CommandSegment[B, _] = requires(CommandPermission.ADMIN)
+  def requireAdmin(): CommandSegment[B, T] = requires(CommandPermission.ADMIN)
 
-  def requireOwner(): CommandSegment[B, _] = requires(CommandPermission.OWNER)
+  def requireOwner(): CommandSegment[B, T] = requires(CommandPermission.OWNER)
 
-  private def checkPermission(permission: CommandPermission.CommandPermission): CommandFilter = {
+  private def checkPermission(permission: CommandPermission.CommandPermission): CommandSegment.Filter = {
     source => source.hasPermission(permission.value)
   }
 }
 
 object CommandSegment {
   type Any = CommandSegment[_, _]
+
+  type Vanilla[T <: ArgumentBuilder[Command.Source, T]] = ArgumentBuilder[Command.Source, T]
+
+  type AnyVanilla = Vanilla[_]
+
+  private type Filter = Command.Source => Boolean
 }

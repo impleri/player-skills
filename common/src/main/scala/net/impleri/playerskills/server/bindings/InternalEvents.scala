@@ -50,7 +50,7 @@ case class InternalEvents(
   private[server] def registerEvents(): Unit = {
     // Player Skills Events
     eventHandler.onSkillChanged(onSkillChanged)
-    
+
     // Vanilla Events
     reloadListeners.registerServer(this)
     reloadListeners.registerServer(SkillsDataLoader(globalState.SKILL_OPS))
@@ -77,7 +77,7 @@ case class InternalEvents(
     //    maybeUpdateBlocks(event.player.getUUID)
   }
 
-  override protected def onReload(manager: Option[ResourceManager]): Unit = {
+  override protected[bindings] def onReload(manager: Option[ResourceManager]): Unit = {
     onReloadFn(manager)
   }
 }

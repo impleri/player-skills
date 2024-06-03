@@ -6,20 +6,20 @@ import net.impleri.slab.entity.Player
 import net.impleri.slab.item.crafting.Recipe
 
 case class RecipeRestriction(
-  target: Recipe[_],
+  target: Recipe.Any,
   condition: Player[_] => Boolean = Restriction.DEFAULT_CONDITION,
-  replacement: Option[Recipe[_]] = None,
+  replacement: Option[Recipe.Any] = None,
   includeDimensions: Seq[String] = Seq.empty,
   excludeDimensions: Seq[String] = Seq.empty,
   includeBiomes: Seq[String] = Seq.empty,
   excludeBiomes: Seq[String] = Seq.empty,
   producible: Boolean = false,
-) extends Restriction[Recipe[_]] {
+) extends Restriction[Recipe.Any, Recipe.AnyVanilla] {
   override val restrictionType: RestrictionType = RestrictionType.Recipe()
 }
 
 object RecipeRestriction {
-  def apply(target: Recipe[_], builder: RecipeConditions): RecipeRestriction = {
+  def apply(target: Recipe.Any, builder: RecipeConditions): RecipeRestriction = {
     new RecipeRestriction(
       target,
       builder.condition,

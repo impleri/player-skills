@@ -5,7 +5,7 @@ import dev.architectury.event.EventFactory
 
 import java.util.function.Consumer
 
-case class EventEmitter[T](underlying: Event[Consumer[T]]) {
+case class EventEmitter[T](underlying: EventEmitter.Vanilla[T]) {
   private def getInvoker = underlying.invoker()
 
   def register(listener: Consumer[T]): Unit = underlying.register(listener)
@@ -14,7 +14,9 @@ case class EventEmitter[T](underlying: Event[Consumer[T]]) {
 }
 
 object EventEmitter {
-  private def getConsumer[T]: Event[Consumer[T]] = EventFactory.createConsumerLoop()
+  type Vanilla[T] = Event[Consumer[T]]
+
+  private def getConsumer[T]: Vanilla[T] = EventFactory.createConsumerLoop()
 
   def apply[T](): EventEmitter[T] = new EventEmitter[T](getConsumer)
 }

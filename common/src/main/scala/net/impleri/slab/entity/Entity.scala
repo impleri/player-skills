@@ -1,52 +1,47 @@
 package net.impleri.slab.entity
 
 import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceWrapper
 import net.impleri.slab.world.Biome
+import net.impleri.slab.world.Level
 import net.impleri.slab.world.Position
 import net.minecraft.world.entity.{Entity => McEntity}
-import net.minecraft.world.entity.player.{Player => McPlayer}
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.level.Level
 
 import scala.util.Try
 
-class Entity[T <: McEntity](private val underlying: T) {
-  lazy val name: String = underlying.getName.getString
-
-  lazy val level: Level = underlying.getLevel
-
-  lazy val mobType: EntityType[_] = underlying.getType
-
-  lazy val mobTypeName: String = mobType.toString
-
-  lazy val dimension: Option[ResourceLocation] = Try(level.dimension().location()).toOption.flatMap(ResourceLocation(_))
-
-  lazy val biome: Option[Biome] = biomeAt()
+class Entity[T <: Entity.Vanilla](override val underlying: T) extends ResourceWrapper[T] {
+  lazy val name: Option[ResourceLocation] = getType.flatMap(_.name)
 
   lazy val position: Option[Position] = Try(underlying.getOnPos).toOption.map(Position(_))
 
-  def biomeAt(pos: Option[Position] = None): Option[Biome] = {
-    pos
-      .orElse(position)
-      .map(p => level.getBiome(p.raw))
-      .map(Biome.apply)
-  }
+  lazy val getType: Option[EntityType[_]] = Option(underlying.getType).map(EntityType(_))
 
-  def biomeNameAt(pos: Option[Position] = None): Option[ResourceLocation] = {
-    biomeAt(pos).flatMap(_.name)
+  lazy val level: Option[Level.Any] = Option(underlying.getLevel).map(Level(_))
+
+  lazy val mobTypeName: String = getType.toString
+
+  lazy val dimension: Option[ResourceLocation] = level.flatMap(_.getDimensionName)
+
+  lazy val biome: Option[Biome] = biomeAt()
+
+  def biomeAt(pos: Option[Position] = None): Option[Biome] = {
+    pos.orElse(position)
+      .flatMap(p => level.flatMap(_.getBiome(p)))
   }
 
   def isEmpty: Boolean = Option(underlying).isEmpty
 
   def asOption: Option[Entity[T]] = if (isEmpty) None else Option(this)
 
-  def isPlayer: Boolean = underlying.isInstanceOf[McPlayer]
+  def isPlayer: Boolean = underlying.isInstanceOf[Player.Vanilla]
 
-  def asPlayer[P <: McPlayer]: Player[P] = Player(underlying.asInstanceOf[P])
+  def asPlayer[P <: Player.Vanilla]: Player[P] = Player(underlying.asInstanceOf[P])
 }
 
 object Entity {
   type Any = Entity[_]
 
-  def apply[T <: McEntity](entity: T): Entity[T] = new Entity(entity)
+  type Vanilla = McEntity
+
+  def apply[T <: Vanilla](entity: T): Entity[T] = new Entity(entity)
 }

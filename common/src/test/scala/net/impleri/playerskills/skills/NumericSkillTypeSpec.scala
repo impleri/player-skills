@@ -3,14 +3,14 @@ package net.impleri.playerskills.skills
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.skills.numeric.NumericSkill
 import net.impleri.playerskills.skills.numeric.NumericSkillType
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 class NumericSkillTypeSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val skillName = ResourceLocation("test_skill").get
 

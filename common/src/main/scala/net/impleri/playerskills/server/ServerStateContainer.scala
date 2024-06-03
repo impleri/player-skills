@@ -48,7 +48,6 @@ case class ServerStateContainer(
   private val EVENT_BINDINGS = ServerEventBindings(
     PLAYERS,
     globalState.ITEM_RESTRICTIONS,
-    getNetHandler,
     onSetup,
     onServerChange,
     () => PlayerSkillsCommands(
@@ -57,6 +56,7 @@ case class ServerStateContainer(
       PLAYER_OPS,
       TEAM_OPS,
     ),
+    getNetHandler,
   )
   private val INTERNAL = InternalEvents(
     ItemRestrictionBuilder(Option(itemRegistry), globalState.RESTRICTIONS),

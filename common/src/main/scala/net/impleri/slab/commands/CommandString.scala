@@ -1,14 +1,19 @@
 package net.impleri.slab.commands
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.minecraft.commands.Commands
 
-class CommandString(override val underlying: TextCommand)
-  extends CommandSegment[TextCommand, CommandString](underlying) {
-  def asRoot: RootCommand = {
-    underlying.asInstanceOf[RootCommand]
+class CommandString(override val underlying: CommandString.Vanilla)
+  extends CommandSegment[CommandString.Vanilla, CommandString](underlying) {
+  def asRoot: CommandString.Root = {
+    underlying.asInstanceOf[CommandString.Root]
   }
 }
 
 object CommandString {
+  type Vanilla = CommandSegment.Vanilla[LiteralArgumentBuilder[Command.Source]]
+
+  private type Root = LiteralArgumentBuilder[Command.Source]
+
   def apply(segment: String): CommandString = new CommandString(Commands.literal(segment))
 }

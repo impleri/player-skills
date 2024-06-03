@@ -10,7 +10,7 @@ import net.impleri.slab.logging.Logger
 
 case class BeforeUseItem(
   itemRestrictionOps: ItemRestrictionOps,
-  upstream: InteractionEvents,
+  upstream: InteractionEvents = InteractionEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends ItemEventHandler {

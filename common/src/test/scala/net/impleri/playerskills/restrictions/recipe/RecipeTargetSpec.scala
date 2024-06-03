@@ -1,9 +1,9 @@
 package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.crafting.Recipe
-import net.impleri.playerskills.facades.minecraft.world.Item
+import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.item.Item
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.world.Container
 
 class RecipeTargetSpec extends BaseSpec {

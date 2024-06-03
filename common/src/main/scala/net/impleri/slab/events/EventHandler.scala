@@ -32,7 +32,8 @@ trait CompoundEventHandler[T] {
     value: Option[T] = None,
     expected: Boolean = false,
   ): CompoundEventResult[T] = {
-    if (received.contains(expected)) CompoundEventResult.interruptFalse(value.orNull) else CompoundEventResult.pass()
+    if (received.contains(expected)) CompoundEventResult
+      .interruptFalse(value.getOrElse(null.asInstanceOf[T])) else CompoundEventResult.pass()
   }
 }
 

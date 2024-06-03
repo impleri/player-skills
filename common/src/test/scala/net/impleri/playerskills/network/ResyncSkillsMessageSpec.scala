@@ -1,13 +1,13 @@
 package net.impleri.playerskills.network
 
-import dev.architectury.networking.simple.MessageType
 import dev.architectury.networking.NetworkManager
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.Server
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.Player
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.network.MessageType
+import net.impleri.slab.server.Server
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 
@@ -17,7 +17,7 @@ class ResyncSkillsMessageSpec extends BaseSpec {
   private val messageTypeMock = mock[MessageType]
 
   private val serverStateMock = mock[ServerStateContainer]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val testUuid = UUID.randomUUID()
 
@@ -83,7 +83,7 @@ class ResyncSkillsMessageSpec extends BaseSpec {
 
     bufferMock.readUUID() returns givenUuid
 
-    testFactory.setMessageType(messageTypeMock)
+    testFactory.setMessageType(messageTypeMock.value)
 
     val response = testFactory.receive(bufferMock)
 
@@ -109,13 +109,13 @@ class ResyncSkillsMessageSpec extends BaseSpec {
 
     playerMock.uuid returns givenUuid
 
-    testFactory.setMessageType(messageTypeMock)
+    testFactory.setMessageType(messageTypeMock.value)
 
     val response = testFactory.send(playerMock)
 
     loggerMock.error(*) wasNever called
 
-    response.isInstanceOf[ResyncSkillsMessage] should be(true)
+    response.value.isInstanceOf[ResyncSkillsMessage] should be(true)
   }
 
   "ResyncSkillsMessageFactory.apply" should "creates a valid class" in {

@@ -3,27 +3,27 @@ package net.impleri.playerskills.restrictions
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.RestrictionType
 import net.impleri.playerskills.utils.StatefulRegistry
-import net.impleri.slab.registry.HasName
 import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceWrapper
 
 import scala.collection.View
 import scala.util.chaining.scalaUtilChainingOps
 
 class RestrictionRegistry(var state: RestrictionRegistryState.Restrictions)
   extends StatefulRegistry[RestrictionRegistryState.Restrictions] {
-  def entries: List[Restriction[_]] = {
+  def entries: List[Restriction[_, _]] = {
     RestrictionRegistryState.entries().pipe(maintainState)
   }
 
-  def get[T <: HasName](kind: RestrictionType, key: ResourceLocation): View[Restriction[T]] = {
-    RestrictionRegistryState.get[T](kind, key).pipe(maintainState)
+  def get[T <: ResourceWrapper[U], U](kind: RestrictionType, key: ResourceLocation): View[Restriction[T, U]] = {
+    RestrictionRegistryState.get[T, U](kind, key).pipe(maintainState)
   }
 
   def has(kind: RestrictionType, key: ResourceLocation): Boolean = {
     RestrictionRegistryState.has(kind, key).pipe(maintainState)
   }
 
-  def add(restriction: Restriction[_]): Boolean = {
+  def add(restriction: Restriction[_, _]): Boolean = {
     RestrictionRegistryState.add(restriction)
       .run(state).map(r => {
         state = r._1

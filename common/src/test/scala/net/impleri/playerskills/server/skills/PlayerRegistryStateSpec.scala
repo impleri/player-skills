@@ -2,7 +2,7 @@ package net.impleri.playerskills.server.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.resources.ResourceLocation
 
 import java.util.UUID
 

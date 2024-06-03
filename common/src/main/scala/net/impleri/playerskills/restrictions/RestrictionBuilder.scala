@@ -4,13 +4,14 @@ import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.TargetResource
 import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.registry.IsRegistered
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.registry.Tag
+import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.ResourceWrapper
 
-trait RestrictionBuilder[T <: IsRegistered[_], C <: RestrictionConditionsBuilder] {
-  protected def registry: Option[Registry[T, _]] = None
+trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsBuilder] {
+  protected def registry: Option[Registry[T, U]] = None
 
   protected def logger: Logger
 
@@ -31,11 +32,11 @@ trait RestrictionBuilder[T <: IsRegistered[_], C <: RestrictionConditionsBuilder
   protected def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    TargetResource(resourceName, registry.map(_.nameKey), singleAsString) match {
+    TargetResource(resourceName, registry.map(r => ResourceKey(r.name)), singleAsString) match {
       case Some(ns: TargetResource.Namespace) => restrictNamespace(ns.target, builder)
       case Some(s: TargetResource.Single) => restrictOne(s.target, builder)
       case Some(s: TargetResource.SingleString) => restrictString(s.target, builder)
-      case Some(t: TargetResource.Tag[_]) => restrictTag(t.target.asInstanceOf[Tag[T]], builder)
+      case Some(t: TargetResource.Tag[_, _]) => restrictTag(t.target.asInstanceOf[Tag[T, U]], builder)
       case _ =>
     }
   }
@@ -63,7 +64,7 @@ trait RestrictionBuilder[T <: IsRegistered[_], C <: RestrictionConditionsBuilder
   }
 
   private def restrictTag(
-    tag: Tag[T],
+    tag: Tag[T, U],
     builder: C,
   ): Unit = {
     logger.info(s"Creating restriction for ${tag.location} tag")
@@ -76,7 +77,7 @@ trait RestrictionBuilder[T <: IsRegistered[_], C <: RestrictionConditionsBuilder
 
   protected[restrictions] def logRestriction(
     name: String,
-    restriction: Restriction[_],
+    restriction: Restriction[_, _],
     settings: Option[String] = None,
   ): Unit = {
     val details = List(

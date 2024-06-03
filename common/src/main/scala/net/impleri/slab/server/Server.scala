@@ -2,8 +2,8 @@ package net.impleri.slab.server
 
 import net.impleri.slab.entity.Player
 import net.impleri.slab.item.crafting.RecipeManager
-import net.impleri.slab.registry.IsRegistered
 import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.core.{Registry => McRegistry}
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -44,13 +44,13 @@ class Server(private val underlying: MinecraftServer, resourcePath: String, priv
       .toList
   }
 
-  def getRecipeManager: RecipeManager = underlying.getRecipeManager.pipe(RecipeManager)
+  def getRecipeManager: RecipeManager = underlying.getRecipeManager.pipe(RecipeManager(_))
 
-  def getRegistry[T <: IsRegistered[U], U](key: ResourceKey[McRegistry[U]], f: U => T): Option[Registry[T, U]] = {
+  def getRegistry[T <: ResourceWrapper[U], U](key: ResourceKey[McRegistry[U]], f: U => T): Option[Registry[T, U]] = {
     underlying.registryAccess()
       .registry[U](key)
       .toScala
-      .map(r => Registry(r, f))
+      .map(r => new Registry(r, f))
   }
 }
 
@@ -65,12 +65,5 @@ object Server {
           Option(l),
         ),
       )
-  }
-
-  def fromLevel(resourcePath: String = "")(level: Level): Server = {
-    new Server(level.getServer,
-      resourcePath,
-      Option(level),
-    )
   }
 }

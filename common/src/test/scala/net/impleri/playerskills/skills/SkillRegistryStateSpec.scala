@@ -2,7 +2,7 @@ package net.impleri.playerskills.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
+import net.impleri.slab.resources.ResourceLocation
 
 class SkillRegistryStateSpec extends BaseSpec {
   private case class TestSkill(

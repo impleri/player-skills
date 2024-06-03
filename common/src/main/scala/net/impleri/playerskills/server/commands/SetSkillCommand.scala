@@ -5,16 +5,14 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
-import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.commands.CommandAction
-import net.impleri.slab.commands.CommandCallback
 import net.impleri.slab.commands.CommandSegment
 import net.impleri.slab.commands.CommandString
 import net.impleri.slab.commands.PlayerArgument
 import net.impleri.slab.commands.StringArgument
 import net.impleri.slab.entity.Player
 
-trait SetSkillCommand extends SetCommandUtils {
+trait SetSkillCommand extends CommandUtils {
   protected def playerOps: PlayerOps
 
   protected def skillOps: SkillOps
@@ -22,6 +20,7 @@ trait SetSkillCommand extends SetCommandUtils {
   protected def skillTypeOps: SkillTypeOps
 
   protected def registerSetCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+
     builder.option(
       CommandString("set")
         .requireMod()
@@ -40,9 +39,9 @@ trait SetSkillCommand extends SetCommandUtils {
     )
   }
 
-  protected def successMessage: String = "commands.playerskills.skill_changed"
+  private def successMessage: String = "commands.playerskills.skill_changed"
 
-  protected def failureMessage: String = "commands.playerskills.skill_change_failed"
+  private def failureMessage: String = "commands.playerskills.skill_change_failed"
 
   private def grantFoundSkillTo[T](player: Player.Any, skill: Skill[T], value: String) = {
     skillTypeOps.get(skill)
@@ -52,15 +51,15 @@ trait SetSkillCommand extends SetCommandUtils {
       .forall(_.nonEmpty)
   }
 
-  override protected def handler(useCurrentUser: Boolean): CommandCallback = {
+  private def handler(useCurrentUser: Boolean): CommandAction.Callback = {
     context => {
       val player = CommandAction.getPlayer(context, useCurrentUser)
       val skillName = SkillHandler.getValue(context)
-      val value = CommandAction.getString("value", context)
+      val value = StringArgument.getValue("value", context)
 
       skillName.flatMap(skillOps.get)
         .flatMap(s => player.map(grantFoundSkillTo(_, s, value.getOrElse(""))))
-        .toRight(TranslatableText("commands.playerskills.skill_not_found", getSkillName(skillName)))
+        .toRight(skillNotFound(skillName))
         .filterOrElse(_ == true, formatMessage(failureMessage, skillName, player))
         .map(_ => formatMessage(successMessage, skillName, player))
     }

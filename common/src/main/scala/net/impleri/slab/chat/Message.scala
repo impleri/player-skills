@@ -1,36 +1,38 @@
 package net.impleri.slab.chat
 
-import net.impleri.slab.commands.CommandContext
+import net.impleri.slab.commands.Command
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 
 trait Message[T <: Message[_]] {
-  protected def underlying: MutableComponent
+  protected def underlying: Message.Vanilla
 
-  def output: Component = underlying
+  def output: Message.VanillaBase = underlying
 
-  def mutableOutput: MutableComponent = underlying
+  def mutableOutput: Message.Vanilla = underlying
 
-  def copyAs(newVal: MutableComponent): T
+  def asString: String = underlying.toString
 
-  protected[commands] def sendSuccess(context: CommandContext): Unit = {
+  def copyAs(newVal: Message.Vanilla): T
+
+  def sendSuccess(context: Command.Context): Unit = {
     context.getSource.sendSuccess(output, false)
   }
 
-  protected[commands] def sendSuccessWithAdmins(context: CommandContext): Unit = {
+  def sendSuccessWithAdmins(context: Command.Context): Unit = {
     context.getSource.sendSuccess(output, true)
   }
 
-  protected[commands] def sendGeneric(context: CommandContext): Unit = {
+  def sendGeneric(context: Command.Context): Unit = {
     context.getSource.sendSystemMessage(output)
   }
 
-  protected[commands] def sendFailure(context: CommandContext): Unit = {
+  def sendFailure(context: Command.Context): Unit = {
     context.getSource.sendFailure(output)
   }
 
-  def append(value: Message[_]): T = {
+  def append(value: Message.Any): T = {
     copyAs(underlying.append(value.underlying))
   }
 
@@ -125,4 +127,12 @@ trait Message[T <: Message[_]] {
   def reset(): T = {
     copyAs(underlying.withStyle(ChatFormatting.RESET))
   }
+}
+
+object Message {
+  type Any = Message[_]
+
+  type Vanilla = MutableComponent
+
+  type VanillaBase = Component
 }

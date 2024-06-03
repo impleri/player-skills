@@ -9,11 +9,11 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.facades.minecraft.Player
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.api.TeamOps
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.Player
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.contents.TranslatableContents
@@ -26,7 +26,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   private val skillTypeOpsMock: SkillTypeOps = mock[SkillTypeOps]
   private val playerOpsMock: PlayerOps = mock[PlayerOps]
   private val teamOpsMock: TeamOps = mock[TeamOps]
-  private val loggerMock: PlayerSkillsLogger = mock[PlayerSkillsLogger]
+  private val loggerMock: Logger = mock[Logger]
 
   private val testUnit: PlayerSkillsCommands = new PlayerSkillsCommands(
     skillOpsMock,
@@ -47,179 +47,22 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     dispatcher.register(*) wasCalled once
   }
 
-  "CommandHelpers.hasPermission" should "wrap hasPermission" in {
-    val sourceMock = mock[CommandSourceStack]
-
-    testUnit.hasPermission()(sourceMock)
-
-    sourceMock.hasPermission(1) wasCalled once
-  }
-
-  it should "pass param to hasPermission" in {
-    val sourceMock = mock[CommandSourceStack]
-
-    testUnit.hasPermission(5)(sourceMock)
-
-    sourceMock.hasPermission(5) wasCalled once
-  }
-
-  //  TODO: Get partial mock working correctly
-  //  "CommandHelpers.withCurrentPlayerCommand" should "trigger the callback" in {
-  //    val expected = 4
-  //
-  //    val contextMock = mock[CommandContext[CommandSourceStack]]
-  //    val sourceMock = mock[CommandSourceStack]
-  //    val playerMock = mock[Player[ServerPlayer]]
-  //    val testClass = spy(testUnit)
-  //
-  //    testClass.getCurrentPlayer(sourceMock) returns playerMock
-  //    contextMock.getSource returns sourceMock
-  //    sourceMock.getPlayer returns null
-  //
-  //    val givenCallback = (_: Player[_]) => expected
-  //
-  //    val result = testClass.withCurrentPlayerCommand(givenCallback).run(contextMock)
-  //
-  //    result should be(expected)
-  //  }
-
-  "CommandHelpers.withSuccessMessage" should "trigger sendSuccess" in {
-    val component = Component.literal("message")
-
-    val contextMock = mock[CommandContext[CommandSourceStack]]
-    val sourceMock = mock[CommandSourceStack]
-
-    contextMock.getSource returns sourceMock
-
-    val result = testUnit.withSuccessMessage(() => component).run(contextMock)
-
-    sourceMock.sendSuccess(component, false) wasCalled once
-
-    result should be(Command.SINGLE_SUCCESS)
-  }
-
   "DebugCommands.toggleDebug" should "proxy logger.toggleDebug call" in {
     loggerMock.toggleDebug() returns true
 
-    val response = testUnit.toggleDebug("Test label", loggerMock)()
+    val response = testUnit.toggleDebug("Test label", loggerMock)
 
-    response.getString.contains("debug_enabled") should be(true)
+    response.value.asString.contains("debug_enabled") should be(true)
   }
 
   it should "proxy logger.toggleDebug call with disabled message" in {
-    val loggerMock = mock[PlayerSkillsLogger]
+    val loggerMock = mock[Logger]
 
     loggerMock.toggleDebug() returns false
 
-    val response = testUnit.toggleDebug("Test label", loggerMock)()
+    val response = testUnit.toggleDebug("Test label", loggerMock)
 
-    response.getString.contains("debug_disabled") should be(true)
-  }
-
-  "DegradeSkillCommand.degradePlayerSkill" should "proxy teamOps.degrade" in {
-    val expected = false
-    val playerMock = mock[Player[_]]
-    val skillName = ResourceLocation("skillstest", "test")
-    val skillMock = mock[Skill[String]]
-
-    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
-    teamOpsMock.degrade(playerMock, skillMock, None, None) returns Option(expected)
-
-    val received = testUnit.degradePlayerSkill[String](Option(playerMock), skillName)
-
-    teamOpsMock.degrade(playerMock, skillMock, None, None) wasCalled once
-
-    received.value should be(expected)
-  }
-
-  it should "does nothing if no player" in {
-    val skillName = ResourceLocation("skillstest", "test")
-    val skillMock = mock[Skill[String]]
-
-    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
-
-    val received = testUnit.degradePlayerSkill[String](None, skillName)
-
-    teamOpsMock.degrade(*, *, *, *) wasNever called
-
-    received should be(None)
-  }
-
-  it should "does nothing if skill not found" in {
-    val playerMock = mock[Player[_]]
-    val skillName = ResourceLocation("skillstest", "test")
-
-    skillOpsMock.get[String](skillName.get) returns None
-
-    val received = testUnit.degradePlayerSkill[String](Option(playerMock), skillName)
-
-    teamOpsMock.degrade(*, *, *, *) wasNever called
-
-    received should be(None)
-  }
-
-  it should "does nothing if no skill name given" in {
-    val playerMock = mock[Player[_]]
-
-    val received = testUnit.degradePlayerSkill(Option(playerMock), None)
-
-    skillOpsMock.get(*) wasNever called
-    teamOpsMock.degrade(*, *, *, *) wasNever called
-
-    received should be(None)
-  }
-
-  "ImproveSkillCommand.improvePlayerSkill" should "proxy teamOps.improve" in {
-    val expected = false
-    val playerMock = mock[Player[_]]
-    val skillName = ResourceLocation("skillstest", "test")
-    val skillMock = mock[Skill[String]]
-
-    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
-    teamOpsMock.improve(playerMock, skillMock, None, None) returns Option(expected)
-
-    val received = testUnit.improvePlayerSkill[String](Option(playerMock), skillName)
-
-    teamOpsMock.improve(playerMock, skillMock, None, None) wasCalled once
-
-    received.value should be(expected)
-  }
-
-  it should "does nothing if no player" in {
-    val skillName = ResourceLocation("skillstest", "test")
-    val skillMock = mock[Skill[String]]
-
-    skillOpsMock.get[String](skillName.get) returns Option(skillMock)
-
-    val received = testUnit.improvePlayerSkill[String](None, skillName)
-
-    teamOpsMock.improve(*, *, *, *) wasNever called
-
-    received should be(None)
-  }
-
-  it should "does nothing if skill not found" in {
-    val playerMock = mock[Player[_]]
-    val skillName = ResourceLocation("skillstest", "test")
-
-    skillOpsMock.get[String](skillName.get) returns None
-
-    val received = testUnit.improvePlayerSkill[String](Option(playerMock), skillName)
-
-    teamOpsMock.improve(*, *, *, *) wasNever called
-
-    received should be(None)
-  }
-
-  it should "does nothing if no skill name given" in {
-    val playerMock = mock[Player[_]]
-
-    val received = testUnit.improvePlayerSkill(Option(playerMock), None)
-
-    skillOpsMock.get(*) wasNever called
-    teamOpsMock.improve(*, *, *, *) wasNever called
-
-    received should be(None)
+    response.value.asString.contains("debug_disabled") should be(true)
   }
 
   "ListAcquiredCommand.listOwnSkills" should "return acquired skills as strings" in {

@@ -13,13 +13,13 @@ object RecipeManagerHandler {
     PlayerSkillsClient.STATE.RECIPE_RESTRICTIONS.isProducible(recipe, None)
   }
 
-  def handleOnGetRecipe[T <: Recipe.BaseContainer](value: Option[Recipe[T]]): Boolean = {
-    value.fold(RestrictionsOps.DEFAULT_RESPONSE)(handleRecipeCheck)
+  def handleOnGetRecipe[C <: Recipe.BaseContainer, T <: Recipe.Vanilla[C]](value: Option[Recipe[T]]): Boolean = {
+    value.fold(RestrictionsOps.DEFAULT_RESPONSE)(r => handleRecipeCheck(r.asInstanceOf[Recipe.Any]))
   }
 
-  def handleOnGetRecipes[T <: Recipe.BaseContainer](value: Seq[Recipe[T]]): JavaList[Recipe.Vanilla[T]] = {
-    value.filter(handleRecipeCheck)
-      .map(_.value)
+  def handleOnGetRecipes[C <: Recipe.BaseContainer, T <: Recipe.Vanilla[C]](value: Seq[Recipe[T]]): JavaList[Recipe.AnyVanilla] = {
+    value.filter(r => handleRecipeCheck(r.asInstanceOf[Recipe.Any]))
+      .map(_.value.asInstanceOf[Recipe.AnyVanilla])
       .pipe(_.asJava)
   }
 }

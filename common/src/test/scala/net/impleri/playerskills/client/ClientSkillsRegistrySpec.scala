@@ -2,12 +2,12 @@ package net.impleri.playerskills.client
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 
 class ClientSkillsRegistrySpec extends BaseSpec {
   private val eventHandlerMock = mock[EventHandler]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val testUnit = ClientSkillsRegistry(eventHandlerMock, loggerMock)
 
@@ -24,7 +24,7 @@ class ClientSkillsRegistrySpec extends BaseSpec {
     testUnit.get.isEmpty should be(true)
 
     testUnit.update(givenSkills, forced)
-    
+
     eventHandlerMock.emitSkillsUpdated(givenSkills, List.empty, forced) wasCalled once
   }
 }

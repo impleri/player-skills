@@ -66,7 +66,7 @@ case class PlayerEvents(
 
   def onAward(handler: PlayerEvents.OnAward): Unit = {
     onAwardEvent.register { (player: ServerPlayer, advancement: Advancement) =>
-      withServerPlayer(player).foreach(handler(_, Option(advancement).map(Award)))
+      withServerPlayer(player).foreach(handler(_, Option(advancement).map(Award(_))))
     }
   }
 

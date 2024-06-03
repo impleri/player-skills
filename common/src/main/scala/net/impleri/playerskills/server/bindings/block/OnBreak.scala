@@ -8,7 +8,7 @@ import net.impleri.slab.logging.Logger
 
 case class OnBreak(
   itemRestrictionOps: ItemRestrictionOps,
-  upstream: BlockEvents,
+  upstream: BlockEvents = BlockEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {

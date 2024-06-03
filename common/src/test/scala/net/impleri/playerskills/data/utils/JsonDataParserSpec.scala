@@ -7,11 +7,11 @@ import com.google.gson.JsonPrimitive
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.data.SkillsDataLoader
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.logging.Logger
 
 class JsonDataParserSpec extends BaseSpec {
   private val skillOpsMock = mock[SkillOps]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val testUnit = SkillsDataLoader(skillOpsMock, loggerMock)
 

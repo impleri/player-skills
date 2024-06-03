@@ -18,7 +18,7 @@ case class ItemRestriction(
   harmful: Boolean = Restriction.DEFAULT_RESPONSE,
   usable: Boolean = Restriction.DEFAULT_RESPONSE,
   identifiable: Boolean = Restriction.DEFAULT_RESPONSE,
-) extends Restriction[Item] {
+) extends Restriction[Item, Item.Vanilla] {
   override val restrictionType: RestrictionType = RestrictionType.Item()
 }
 

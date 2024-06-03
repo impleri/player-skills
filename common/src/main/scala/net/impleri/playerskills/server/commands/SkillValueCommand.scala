@@ -5,7 +5,6 @@ import net.impleri.slab.chat.ListMessage
 import net.impleri.slab.chat.StaticText
 import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.commands.CommandAction
-import net.impleri.slab.commands.CommandCallback
 import net.impleri.slab.commands.CommandSegment
 import net.impleri.slab.commands.CommandString
 import net.impleri.slab.commands.PlayerArgument
@@ -27,7 +26,7 @@ trait SkillValueCommand {
     )
   }
 
-  protected def handler(useCurrentUser: Boolean = false): CommandCallback = {
+  private def handler(useCurrentUser: Boolean = false): CommandAction.Callback = {
     context => {
       val player = CommandAction.getPlayer(context, useCurrentUser)
       val skillName = SkillHandler.getValue(context)

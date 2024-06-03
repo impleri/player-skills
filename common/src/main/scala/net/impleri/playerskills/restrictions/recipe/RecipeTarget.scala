@@ -20,7 +20,7 @@ case class RecipeTarget(
         case ns: TargetResource.Namespace => Option(ResourceNamespace(ns.target))
         case s: TargetResource.Single => Item.parse(s.target.toString)
         case s: TargetResource.SingleString => Item.parse(s.target)
-        case t: TargetResource.Tag[_] => Option(ItemTag(t.target))
+        case t: TargetResource.Tag[_, _] => Option(ItemTag(t.target))
         case _ => None
       }
   }

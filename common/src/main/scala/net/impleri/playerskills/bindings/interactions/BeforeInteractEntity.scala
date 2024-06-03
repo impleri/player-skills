@@ -11,7 +11,7 @@ import net.impleri.slab.logging.Logger
 
 case class BeforeInteractEntity(
   itemRestrictionOps: ItemRestrictionOps,
-  upstream: InteractionEvents,
+  upstream: InteractionEvents = InteractionEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {

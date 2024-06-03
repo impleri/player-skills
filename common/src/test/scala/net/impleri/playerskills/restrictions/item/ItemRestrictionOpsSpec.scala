@@ -1,17 +1,17 @@
 package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.{Player => PlayerFacade}
-import net.impleri.playerskills.facades.minecraft.Entity
-import net.impleri.playerskills.facades.minecraft.core.ResourceLocation
-import net.impleri.playerskills.facades.minecraft.world.Item
 import net.impleri.playerskills.restrictions.RestrictionRegistry
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.{Player => PlayerFacade}
+import net.impleri.slab.entity.Entity
+import net.impleri.slab.item.Item
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
 
 class ItemRestrictionOpsSpec extends BaseSpec {
   private val mockRegistry = mock[RestrictionRegistry]
-  private val mockLogger = mock[PlayerSkillsLogger]
+  private val mockLogger = mock[Logger]
 
   private val testUnit = ItemRestrictionOps(mockRegistry, mockLogger)
 

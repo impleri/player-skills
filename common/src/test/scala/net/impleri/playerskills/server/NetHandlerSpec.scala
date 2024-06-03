@@ -1,19 +1,19 @@
 package net.impleri.playerskills.server
 
-import dev.architectury.networking.simple.BaseS2CMessage
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.events.SkillChangedEvent
-import net.impleri.playerskills.facades.minecraft.{Player => MinecraftPlayer}
 import net.impleri.playerskills.network.SyncSkillsMessage
 import net.impleri.playerskills.network.SyncSkillsMessageFactory
 import net.impleri.playerskills.server.api.Player
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.entity.{Player => MinecraftPlayer}
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.network.ClientboundMessage
 import net.minecraft.server.level.ServerPlayer
 
 class NetHandlerSpec extends BaseSpec {
   private val playerOpsMock = mock[Player]
   private val messageFactoryMock = mock[SyncSkillsMessageFactory]
-  private val loggerMock = mock[PlayerSkillsLogger]
+  private val loggerMock = mock[Logger]
 
   private val testUnit = NetHandler(playerOpsMock, messageFactoryMock, loggerMock)
 
@@ -51,7 +51,7 @@ class NetHandlerSpec extends BaseSpec {
     loggerMock.warn(*) wasCalled once
     playerOpsMock.get(playerMock) wasNever called
     loggerMock.debugP(*)(*) wasNever called
-    playerMock.sendMessage(any[BaseS2CMessage]) wasNever called
+    playerMock.sendMessage(any[ClientboundMessage]) wasNever called
   }
 
   "NetHandler.apply" should "return a workable instance" in {

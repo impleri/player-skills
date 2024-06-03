@@ -1,14 +1,15 @@
 package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.facades.minecraft.world.Item
+import net.impleri.slab.item.Item
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.resources.ResourceLocation
 
 class ItemRestrictionSpec extends BaseSpec {
   private val mockTarget = mock[Item]
 
   private case class TestConditions() extends ItemConditions {
-    override def name: ResourceLocation = new ResourceLocation("skillstest", "condition")
+    override def name: ResourceLocation = ResourceLocation("skillstest", "condition").get
   }
 
   "ItemRestriction.apply" should "create an ItemRestriction" in {
