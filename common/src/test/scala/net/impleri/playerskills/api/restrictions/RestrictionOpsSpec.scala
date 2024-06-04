@@ -9,7 +9,6 @@ import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.world.Biome
 import net.minecraft.world.entity.player.{Player => MinecraftPlayer}
-import net.minecraft.world.Container
 
 class RestrictionOpsSpec extends BaseSpec {
   private val mockRegistry = mock[RestrictionRegistry]
@@ -17,7 +16,8 @@ class RestrictionOpsSpec extends BaseSpec {
 
   private val testType: RestrictionType = RestrictionType.Recipe()
 
-  private case class TestOps() extends RestrictionsOps[Recipe[Container], Restriction[Recipe[Container]]] {
+  private case class TestOps()
+    extends RestrictionsOps[Recipe.Any, Recipe.AnyVanilla, Restriction[Recipe.Any, Recipe.AnyVanilla]] {
     override def restrictionType: RestrictionType = testType
 
     override def registry: RestrictionRegistry = mockRegistry
@@ -27,8 +27,8 @@ class RestrictionOpsSpec extends BaseSpec {
 
   private val mockPlayer = mock[Player[MinecraftPlayer]]
   private val mockTargetName = mock[ResourceLocation]
-  private val mockRestriction = mock[Restriction[Recipe[Container]]]
-  private val mockTarget = mock[Recipe[Container]]
+  private val mockRestriction = mock[Restriction[Recipe.Any, Recipe.AnyVanilla]]
+  private val mockTarget = mock[Recipe.Any]
 
   private val testUnit = TestOps()
 
@@ -186,9 +186,9 @@ class RestrictionOpsSpec extends BaseSpec {
     mockPlayer.dimension returns None
     mockPlayer.biomeAt(None) returns None
 
-    mockTarget.getName returns Option(mockTargetName)
+    mockTarget.name returns Option(mockTargetName)
 
-    val fieldGetter = mock[Restriction[Recipe[Container]] => Boolean]
+    val fieldGetter = mock[Restriction[Recipe.Any, Recipe.AnyVanilla] => Boolean]
     fieldGetter(*) returns true
 
     val mockCondition = mock[Player[_] => Boolean]
@@ -216,9 +216,9 @@ class RestrictionOpsSpec extends BaseSpec {
     mockPlayer.dimension returns None
     mockPlayer.biomeAt(None) returns None
 
-    mockTarget.getName returns Option(mockTargetName)
+    mockTarget.name returns Option(mockTargetName)
 
-    val fieldGetter = mock[Restriction[Recipe[Container]] => Boolean]
+    val fieldGetter = mock[Restriction[Recipe.Any, Recipe.AnyVanilla] => Boolean]
     fieldGetter(*) returns false
 
     val mockCondition = mock[Player[_] => Boolean]
@@ -242,9 +242,9 @@ class RestrictionOpsSpec extends BaseSpec {
   it should "return default value if there is no player" in {
     mockPlayer.asOption returns None
 
-    mockTarget.getName returns Option(mockTargetName)
+    mockTarget.name returns Option(mockTargetName)
 
-    val fieldGetter = mock[Restriction[Recipe[Container]] => Boolean]
+    val fieldGetter = mock[Restriction[Recipe.Any, Recipe.AnyVanilla] => Boolean]
 
     val playerCan = testUnit
       .canPlayer(mockPlayer, mockTarget, fieldGetter, "testField")
@@ -259,11 +259,11 @@ class RestrictionOpsSpec extends BaseSpec {
     val mockEntity = mock[Entity[MinecraftPlayer]]
     mockEntity.asPlayer[MinecraftPlayer] returns mockPlayer
     mockPlayer.asOption returns Option(mockEntity)
-    mockPlayer.name returns "player"
+    mockPlayer.handle returns "player"
 
-    mockTarget.getName returns None
+    mockTarget.name returns None
 
-    val fieldGetter = mock[Restriction[Recipe[Container]] => Boolean]
+    val fieldGetter = mock[Restriction[Recipe.Any, Recipe.AnyVanilla] => Boolean]
 
     val playerCan = testUnit
       .canPlayer(mockPlayer, mockTarget, fieldGetter, "testField")
@@ -284,7 +284,7 @@ class RestrictionOpsSpec extends BaseSpec {
     val mockCondition = mock[Player[_] => Boolean]
     mockCondition(*) returns true
 
-    val mockReplacement = mock[Recipe[Container]]
+    val mockReplacement = mock[Recipe.Any]
 
     mockRestriction.condition returns mockCondition
     mockRestriction.isType(testType) returns true
@@ -312,7 +312,7 @@ class RestrictionOpsSpec extends BaseSpec {
     val mockCondition = mock[Player[_] => Boolean]
     mockCondition(*) returns true
 
-    val mockReplacement = mock[Recipe[Container]]
+    val mockReplacement = mock[Recipe.Any]
 
     mockRestriction.condition returns mockCondition
     mockRestriction.isType(testType) returns true

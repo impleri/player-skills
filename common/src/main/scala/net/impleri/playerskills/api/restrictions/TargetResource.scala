@@ -1,6 +1,5 @@
 package net.impleri.playerskills.api.restrictions
 
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.slab.registry.{Tag => TagKey}
 import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
@@ -26,12 +25,11 @@ object TargetResource {
       case s"@$namespace" => Option(Namespace(namespace))
       case s"$namespace:*" => Option(Namespace(namespace))
 
-      case s"#$tag" if registryKey.nonEmpty =>
-      PlayerSkills.RESOURCE_FACTORY.create(tag)
+      case s"#$tag" if registryKey.nonEmpty => ResourceLocation(tag)
         .flatMap(rl => registryKey.map(rl.getTagKey[T, U]))
         .map(Tag(_))
 
-      case s if !singleAsString => PlayerSkills.RESOURCE_FACTORY.create(s, useDefaultNS = false).map(Single.apply)
+      case s if !singleAsString => ResourceLocation(s).map(Single.apply)
       case s if singleAsString => Option(SingleString(s))
       case _ => None
     }

@@ -3,7 +3,6 @@ package net.impleri.playerskills.restrictions.recipe
 import net.impleri.playerskills.BaseSpec
 import net.impleri.slab.item.crafting.Recipe
 import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.resources.ResourceLocation
 
 class RecipeRestrictionSpec extends BaseSpec {
   private val mockTarget = mock[Recipe.Any]

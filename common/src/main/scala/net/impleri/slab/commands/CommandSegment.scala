@@ -13,7 +13,7 @@ object CommandPermission extends Enumeration {
   final val OWNER = CommandPermission(4)
 }
 
-class CommandSegment[B <: CommandSegment.Vanilla[_], T <: CommandSegment[B, _]](protected val underlying: B) {
+class CommandSegment[B <: CommandSegment.Vanilla[_], T <: CommandSegment[B, T]](protected val underlying: B) {
   protected def copyAs(nextUnderlying: B): CommandSegment[B, T] = {
     new CommandSegment[B, T](
       nextUnderlying,
@@ -22,7 +22,7 @@ class CommandSegment[B <: CommandSegment.Vanilla[_], T <: CommandSegment[B, _]](
 
   def executes(action: CommandAction): CommandSegment[B, T] = copyAs(underlying.executes(action).asInstanceOf[B])
 
-  def option[N <: CommandSegment.Vanilla[_], S <: CommandSegment[N, _]](subtree: CommandSegment[N, S]): CommandSegment[B, T] = {
+  def option[N <: CommandSegment.Vanilla[_], S <: CommandSegment[N, S]](subtree: CommandSegment[N, S]): CommandSegment[B, T] = {
     copyAs(underlying
       .`then`(subtree.underlying).asInstanceOf[B],
     )

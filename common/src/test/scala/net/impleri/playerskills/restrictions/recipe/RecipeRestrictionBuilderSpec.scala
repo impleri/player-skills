@@ -11,9 +11,7 @@ import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.server.Server
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.crafting.SmeltingRecipe
-import net.minecraft.world.Container
 
 class RecipeRestrictionBuilderSpec extends BaseSpec {
   private val mockServerState = mock[ServerStateContainer]
@@ -30,12 +28,12 @@ class RecipeRestrictionBuilderSpec extends BaseSpec {
   private case class TestConditions() extends RecipeConditions {
     targets = Seq(mockRecipeTarget)
 
-    override def name: ResourceLocation = new ResourceLocation("skillstest", "condition")
+    override def name: ResourceLocation = ResourceLocation("skillstest", "condition").get
   }
 
   private val testBuilder = TestConditions()
 
-  private val mockSmeltingRecipe = mock[Recipe[Container]]
+  private val mockSmeltingRecipe = mock[Recipe.Any]
 
   "RecipeRestrictionBuilder.add" should "adds a new value to the internal restrictions map" in {
     testUnit.restrictions.isEmpty shouldBe true
@@ -49,20 +47,20 @@ class RecipeRestrictionBuilderSpec extends BaseSpec {
   "RecipeRestrictionBuilder.restrict" should "restrict a simple item" in {
     val targetName = "skillstest"
 
-    val mockRecipeType = mock[RecipeType[_, SmeltingRecipe]]
+    val mockRecipeType = mock[RecipeType.Any]
     val targetRecipeType = ResourceLocation("skillstest", "recipe_type").get
     mockRecipeTarget.recipeType returns targetRecipeType
     mockRegistry.get(targetRecipeType) returns Option(mockRecipeType)
 
     mockServerState.SERVER returns Option(mockServer)
     mockServer.getRecipeManager returns mockManager
-    mockManager.getAllFor[_, SmeltingRecipe](mockRecipeType) returns Seq(mockSmeltingRecipe)
+    mockManager.getAllFor[SmeltingRecipe](mockRecipeType) returns Seq(mockSmeltingRecipe)
     mockRecipeTarget.matches(mockSmeltingRecipe) returns true
 
     val mockItem = mock[Item]
-    mockSmeltingRecipe.getName returns None
+    mockSmeltingRecipe.name returns None
     mockSmeltingRecipe.getResultItem returns mockItem
-    mockItem.name returns "test-recipe"
+    mockItem.name returns ResourceLocation("skillstest", "recipe")
 
     testUnit.restrict((targetName, testBuilder))
 

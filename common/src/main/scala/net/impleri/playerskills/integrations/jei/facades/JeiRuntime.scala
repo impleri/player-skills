@@ -3,8 +3,8 @@ package net.impleri.playerskills.integrations.jei.facades
 import mezz.jei.api.recipe.IRecipeManager
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.runtime.IJeiRuntime
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.slab.item.crafting.Recipe
+import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.world.Container
 
 import java.util
@@ -17,8 +17,7 @@ case class JeiRuntime(private var runtime: IJeiRuntime) {
   }
 
   def getType(value: String): Option[RecipeType[_]] = {
-    PlayerSkills.RESOURCE_FACTORY.create(value, useDefaultNS = false)
-      .flatMap(t => recipeManager.getRecipeType(t.value).toScala)
+    ResourceLocation(value).flatMap(t => recipeManager.getRecipeType(t.value).toScala)
   }
 
   def hideRecipes[C <: Container, T <: Recipe.Vanilla[C]](recipesByType: Map[String, Seq[Recipe.Any]]): Unit = {

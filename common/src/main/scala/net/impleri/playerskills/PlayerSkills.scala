@@ -11,14 +11,11 @@ import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.slab.registry.DeferredRegistry
 import net.impleri.slab.registry.RegistrarFactory
 import net.impleri.slab.resources.ResourceKey
-import net.impleri.slab.resources.ResourceLocationFactory
 
 object PlayerSkills {
   final val MOD_ID = "playerskills"
 
   val REGISTRAR_FACTORY: RegistrarFactory = RegistrarFactory(MOD_ID)
-
-  val RESOURCE_FACTORY: ResourceLocationFactory = ResourceLocationFactory(MOD_ID)
 
   val STATE: StateContainer = StateContainer(SkillRegistry.REGISTRAR, SkillTypeRegistry.REGISTRAR)
 

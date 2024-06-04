@@ -18,7 +18,7 @@ class RestrictionRegistrySpec extends BaseSpec {
     override val includeBiomes: Seq[String] = Seq.empty,
     override val excludeBiomes: Seq[String] = Seq.empty,
     override val replacement: Option[Item] = None,
-  ) extends Restriction[Item] {
+  ) extends Restriction[Item, Item.Vanilla] {
     override def restrictionType: RestrictionType = RestrictionType.Item()
   }
 
@@ -30,7 +30,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
   "RestrictionRegistry.has" should "return true if there is a restriction with the given name" in {
     val testName = ResourceLocation("skillstest", "restriction").get
-    mockItem.getName returns Option(testName)
+    mockItem.name returns Option(testName)
     val testRestriction = TestRestriction()
 
     val (state, _) = RestrictionRegistryState.add(testRestriction).run(RestrictionRegistryState.empty).value
@@ -42,7 +42,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
   it should "return false if there is no restriction with the given name" in {
     val testName = ResourceLocation("skillstest", "restriction").get
-    mockItem.getName returns Option(testName)
+    mockItem.name returns Option(testName)
     val testRestriction = TestRestriction()
 
     val (state, _) = RestrictionRegistryState.add(testRestriction).run(RestrictionRegistryState.empty).value
@@ -54,7 +54,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
   "RestrictionRegistry.get" should "return a view if there is a restriction with the given name" in {
     val testName = ResourceLocation("skillstest", "restriction").get
-    mockItem.getName returns Option(testName)
+    mockItem.name returns Option(testName)
     val testRestriction = TestRestriction()
 
     val (state, _) = RestrictionRegistryState.add(testRestriction).run(RestrictionRegistryState.empty).value
@@ -66,7 +66,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
   it should "return an empty view if there is no restriction with the given name" in {
     val testName = ResourceLocation("skillstest", "restriction").get
-    mockItem.getName returns Option(testName)
+    mockItem.name returns Option(testName)
     val testRestriction = TestRestriction()
 
     val (state, _) = RestrictionRegistryState.add(testRestriction).run(RestrictionRegistryState.empty).value
@@ -78,7 +78,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
   "RestrictionRegistry.add" should "adds a restriction to the state" in {
     val testName = ResourceLocation("skillstest", "restriction").get
-    mockItem.getName returns Option(testName)
+    mockItem.name returns Option(testName)
     val testRestriction = TestRestriction()
 
     val target = RestrictionRegistry(RestrictionRegistryState.empty)

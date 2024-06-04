@@ -1,6 +1,7 @@
 package net.impleri.playerskills.network
 
 import dev.architectury.networking.NetworkManager
+import dev.architectury.networking.simple.{MessageType => ArchMessageType}
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillTypeOps
@@ -44,8 +45,11 @@ class SyncSkillsMessageSpec extends BaseSpec {
   private val playerMock = mock[Player[ServerPlayer]]
   private val bufferMock = mock[FriendlyByteBuf]
 
+  private val underlyingMessageType = mock[ArchMessageType]
+  messageTypeMock.value returns underlyingMessageType
+
   "SyncSkillsMessage.getType" should "return the messageType" in {
-    testMessage.getType should be(messageTypeMock)
+    testMessage.getType should be(underlyingMessageType)
   }
 
   "SyncSkillsMessage.write" should "create the right buffer" in {
@@ -89,13 +93,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
     skillTypeOpsMock.deserialize(serializedSkill1) returns Option(skill1)
     skillTypeOpsMock.deserialize(serializedSkill2) returns Option(skill2)
 
-    assertThrows[Throwable] {
-      testFactory.receive(bufferMock)
-    }
-
-    loggerMock.debug(*) wasCalled once
-
-    loggerMock.error(*) wasCalled once
+    testFactory.receive(bufferMock) shouldBe null
   }
 
   it should "returns a new message if there is a message type" in {
@@ -123,11 +121,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
   "SyncSkillsMessageFactory.send" should "throw an error if sending without a message type" in {
     playerMock.uuid returns testUuid
 
-    assertThrows[Throwable] {
-      testFactory.send(playerMock, skills, force = true)
-    }
-
-    loggerMock.error(*) wasCalled once
+    testFactory.send(playerMock, skills, force = true) shouldBe None
   }
 
   it should "returns a new message if there is a message type" in {

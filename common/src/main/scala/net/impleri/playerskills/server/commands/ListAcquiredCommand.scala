@@ -12,8 +12,8 @@ import net.impleri.slab.entity.{Player => MinecraftPlayer}
 trait ListAcquiredCommand {
   protected def playerOps: Player
 
-  protected def registerMineCommand(builder: CommandSegment.Any): CommandSegment.Any = {
-    builder.option(CommandString("mine").executes(CommandAction(handler).message()))
+  protected def registerMineCommand[T <: CommandSegment.Any](builder: T): T = {
+    builder.option(CommandString("mine").executes(CommandAction(handler).message())).asInstanceOf[T]
   }
 
   private val handler: CommandAction.Callback = {
@@ -25,7 +25,7 @@ trait ListAcquiredCommand {
     }
   }
 
-  private[commands] def getPlayerSkills(player: MinecraftPlayer.Any): ListMessage = {
+  protected[commands] def getPlayerSkills(player: MinecraftPlayer.Any): ListMessage = {
     val acquiredSkills = playerOps.get(player).filter(s => playerOps.can(player.uuid, s.name))
     val message = if (acquiredSkills.nonEmpty) {
       TranslatableText("commands.playerskills.acquired_skills", acquiredSkills.size)

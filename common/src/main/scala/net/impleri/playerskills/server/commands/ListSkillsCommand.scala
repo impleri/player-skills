@@ -11,8 +11,8 @@ import net.impleri.slab.commands.CommandString
 trait ListSkillsCommand {
   protected def skillOps: SkillOps
 
-  protected def registerAllCommand(builder: CommandSegment.Any): CommandSegment.Any = {
-    builder.option(CommandString("all").executes(CommandAction(handler).message()))
+  protected def registerAllCommand[T <: CommandSegment.Any](builder: T): T = {
+    builder.option(CommandString("all").executes(CommandAction(handler).message())).asInstanceOf[T]
   }
 
   private val handler: CommandAction.Callback = {

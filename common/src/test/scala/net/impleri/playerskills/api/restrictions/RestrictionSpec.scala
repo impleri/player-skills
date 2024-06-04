@@ -17,7 +17,7 @@ class RestrictionSpec extends BaseSpec {
     override val includeBiomes: Seq[String] = Seq.empty,
     override val excludeBiomes: Seq[String] = Seq.empty,
     override val replacement: Option[Item] = None,
-  ) extends Restriction[Item] {
+  ) extends Restriction[Item, Item.Vanilla] {
     override def restrictionType: RestrictionType = RestrictionType.Item()
   }
 
@@ -31,13 +31,13 @@ class RestrictionSpec extends BaseSpec {
 
   "Restriction.targets" should "return true if the target name matches" in {
     val givenSkill = ResourceLocation("skillstest:skill")
-    mockItem.getName returns givenSkill
+    mockItem.name returns givenSkill
     TestRestriction().targets(givenSkill.get) should be(true)
   }
 
   it should "return false if the target name does not matches" in {
     val givenSkill = ResourceLocation("skillstest:skill")
-    mockItem.getName returns givenSkill
+    mockItem.name returns givenSkill
 
     TestRestriction().targets(ResourceLocation("skillstest:other").get) should be(false)
   }

@@ -10,7 +10,6 @@ import net.impleri.playerskills.restrictions.recipe.RecipeConditions
 import net.impleri.playerskills.restrictions.recipe.RecipeTarget
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.utils.PlayerSkillsLogger
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.resources.ResourceLocation
@@ -26,7 +25,7 @@ case class RecipeRestrictionConditionBuilder(
     val el = element.getAsJsonObject
 
     parseString(el, "type", Option("crafting"))
-      .flatMap(PlayerSkills.RESOURCE_FACTORY.create(_, useDefaultNS = false))
+      .flatMap(ResourceLocation(_))
       .filter(Registry.RecipeTypes.isValid)
       .map(
         RecipeTarget(

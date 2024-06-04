@@ -1,13 +1,9 @@
 package net.impleri.playerskills.server.commands
 
-import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.context.CommandContext
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.api.skills.ChangeableSkillOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
-import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.api.TeamOps
@@ -15,9 +11,6 @@ import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.contents.TranslatableContents
-import org.mockito.captor.ArgCaptor
 
 import java.util.UUID
 
@@ -92,17 +85,17 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
     playerOpsMock.get(playerMock) returns skills
 
-    val (message, received) = testUnit.listOwnSkills(playerMock)
+    val message = testUnit.getPlayerSkills(playerMock)
 
-    message.getString.contains("acquired_skills") should be(true)
+    message.output.getString.contains("acquired_skills") should be(true)
 
-    received.length should be(2)
+    message.children.length should be(2)
 
-    received.head.contains(skill2Name.toString) should be(true)
-    received.head.contains("42") should be(true)
+    message.children.head.output.getString.contains(skill2Name.toString) should be(true)
+    message.children.head.output.getString.contains("42") should be(true)
 
-    received.last.contains(skill3Name.toString) should be(true)
-    received.last.contains("None") should be(true)
+    message.children.last.output.getString.contains(skill3Name.toString) should be(true)
+    message.children.last.output.getString.contains("None") should be(true)
   }
 
   it should "return message when no skills are acquired" in {
@@ -112,313 +105,10 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
     playerOpsMock.get(playerMock) returns List.empty
 
-    val (message, received) = testUnit.listOwnSkills(playerMock)
+    val message = testUnit.getPlayerSkills(playerMock)
 
-    message.getString.contains("no_acquired_skills") should be(true)
+    message.output.getString.contains("no_acquired_skills") should be(true)
 
-    received.length should be(0)
-  }
-
-  "ListSkillsCommand.listSkills" should "return all skills as strings" in {
-    val skill2Name = "skillstest:name"
-    val skillTwo = mock[Skill[Int]]
-    skillTwo.name returns ResourceLocation(skill2Name).get
-
-    val skill3Name = "skillstest:other"
-    val skillThree = mock[Skill[_]]
-    skillThree.name returns ResourceLocation(skill3Name).get
-
-    val skills = List(skillTwo, skillThree)
-
-    skillOpsMock.all() returns skills
-
-    val (message, received) = testUnit.listSkills()
-
-    message.getString.contains("registered_skills") should be(true)
-
-    received.length should be(2)
-
-    received.head.contains(skill2Name) should be(true)
-    received.last.contains(skill3Name) should be(true)
-  }
-
-  it should "return message when no skills are registered" in {
-    skillOpsMock.all() returns List.empty
-
-    val (message, received) = testUnit.listSkills()
-
-    message.getString.contains("no_registered_skills") should be(true)
-
-    received.length should be(0)
-  }
-
-  "ListTypesCommand.listTypes" should "return all skill types as strings" in {
-    val skill2Name = "skillstest:name"
-    val skillTwo = mock[SkillType[Int]]
-    skillTwo.name returns ResourceLocation(skill2Name).get
-
-    val skill3Name = "skillstest:other"
-    val skillThree = mock[SkillType[_]]
-    skillThree.name returns ResourceLocation(skill3Name).get
-
-    val skills = List(skillTwo, skillThree)
-
-    skillTypeOpsMock.all() returns skills
-
-    val (message, received) = testUnit.listTypes()
-
-    message.getString.contains("registered_types") should be(true)
-
-    received.length should be(2)
-
-    received.head.contains(skill2Name) should be(true)
-    received.last.contains(skill3Name) should be(true)
-  }
-
-  it should "return message when no skill types are registered" in {
-    skillTypeOpsMock.all() returns List.empty
-
-    val (message, received) = testUnit.listTypes()
-
-    message.getString.contains("no_registered_types") should be(true)
-
-    received.length should be(0)
-  }
-
-  // TODO: switch to testing withNotification once partial mocking works as desired
-  "SetCommandUtils.notifyPlayer" should "send a success message" in {
-    val sourceMock = mock[CommandSourceStack]
-    val playerMock = mock[Player[_]]
-    val playerName = "playerName"
-    playerMock.name returns playerName
-    val skillName = "testskills:name"
-    val success = "success"
-    val failure = "failure"
-    val givenResult = true
-
-    val captor = ArgCaptor[Component]
-
-    val received = testUnit.notifyPlayer(
-      sourceMock,
-      Option(playerMock),
-      ResourceLocation(skillName),
-      success,
-      failure,
-    )(Option(givenResult))
-
-    sourceMock.sendSuccess(captor, false) wasCalled once
-
-    captor.value.getString.contains(success) should be(true)
-
-    val components = captor.value.getContents.asInstanceOf[TranslatableContents].getArgs
-    components.head.asInstanceOf[Component].getString.contains(skillName) should be(true)
-    components.last.asInstanceOf[Option[Component]].value.getString.contains(playerName) should be(true)
-
-    received should be(Command.SINGLE_SUCCESS)
-  }
-
-  "SetCommandUtils.notifyPlayer" should "send a failure message" in {
-    val sourceMock = mock[CommandSourceStack]
-    val playerMock = mock[Player[_]]
-    val playerName = "playerName"
-    playerMock.name returns playerName
-    val skillName = "testskills:name"
-    val success = "success"
-    val failure = "failure"
-    val givenResult = false
-
-    val captor = ArgCaptor[Component]
-
-    val received = testUnit.notifyPlayer(
-      sourceMock,
-      None,
-      ResourceLocation(skillName),
-      success,
-      failure,
-    )(Option(givenResult))
-
-    sourceMock.sendFailure(captor) wasCalled once
-
-    captor.value.getString.contains(failure) should be(true)
-
-    val components = captor.value.getContents.asInstanceOf[TranslatableContents].getArgs
-    components.head.asInstanceOf[Component].getString.contains(skillName) should be(true)
-    components.last.asInstanceOf[Option[Component]] should be(None)
-
-    received should be(0)
-  }
-
-  "SetCommandUtils.notifyPlayer" should "send a failure message if no result from the callback" in {
-    val sourceMock = mock[CommandSourceStack]
-    val playerMock = mock[Player[_]]
-    val playerName = "playerName"
-    playerMock.name returns playerName
-    val skillName = "testskills:name"
-    val success = "success"
-    val failure = "failure"
-
-    val captor = ArgCaptor[Component]
-
-    val received = testUnit.notifyPlayer(
-      sourceMock,
-      None,
-      ResourceLocation(skillName),
-      success,
-      failure,
-    )(None)
-
-    sourceMock.sendFailure(captor) wasCalled once
-
-    captor.value.getString.contains("skill_not_found") should be(true)
-
-    val components = captor.value.getContents.asInstanceOf[TranslatableContents].getArgs
-    components.head.asInstanceOf[String].contains(skillName) should be(true)
-
-    received should be(0)
-  }
-
-  "SetSkillCommand.grantPlayerSkill" should "proxy upsert for player" in {
-    val sourceMock = mock[CommandSourceStack]
-    val playerMock = mock[Player[_]]
-    val skillName = "testskills:name"
-    val skillLocation = ResourceLocation(skillName)
-    val givenValue = "nextValue"
-    val parsedValue = 42
-    val newSkill = mock[Skill[Int]]
-
-    val skill = mock[Skill[Int] with ChangeableSkillOps[Int, Skill[Int]]]
-    skill.mutate(Option(parsedValue)) returns newSkill
-
-    skillOpsMock.get[Int](skillLocation.get) returns Option(skill)
-
-    val skillType = mock[SkillType[Int]]
-    skillType.castFromString(givenValue) returns Option(parsedValue)
-
-    skillTypeOpsMock.get(skill) returns Option(skillType)
-
-    playerOpsMock.upsert(playerMock, newSkill) returns List(newSkill)
-
-    testUnit.grantPlayerSkill(sourceMock, Option(playerMock), skillLocation, givenValue)
-
-    playerOpsMock.upsert(playerMock, newSkill) wasCalled once
-    sourceMock.sendSuccess(*, false) wasCalled once
-  }
-
-  "SkillValueCommand.getSkillValue" should "proxy playerOps.get" in {
-    val playerMock = mock[Player[_]]
-    val skillName = "testskills:name"
-    val skillLocation = ResourceLocation(skillName)
-
-    val skill = mock[Skill[Boolean]]
-    skill.name returns skillLocation.get
-    skill.value returns Option(true)
-
-    playerOpsMock.get[Boolean](playerMock, skillLocation.get) returns Option(skill)
-
-    val (message, values) = testUnit.getSkillValue(Option(playerMock), skillLocation)
-
-    message.getString.contains("acquired_skills") should be(true)
-
-    values.length should be(1)
-    values.head.contains(skillName) should be(true)
-    values.head.contains("true") should be(true)
-  }
-
-  it should "provide a different message if no skill found" in {
-    val playerMock = mock[Player[_]]
-    val skillName = "testskills:name"
-    val skillLocation = ResourceLocation(skillName)
-
-    playerOpsMock.get[Boolean](playerMock, skillLocation.get) returns None
-
-    val (message, values) = testUnit.getSkillValue(Option(playerMock), skillLocation)
-
-    message.getString.contains("no_acquired_skills") should be(true)
-
-    values.length should be(0)
-  }
-
-  "SyncTeamCommands.syncTeamFor" should "proxy teamOps.syncEntireTeam" in {
-    val playerMock = mock[Player[_]]
-
-    teamOpsMock.syncEntireTeam(playerMock) returns true
-
-    val response = testUnit.syncTeamFor(Option(playerMock))
-
-    response should be(Command.SINGLE_SUCCESS)
-  }
-
-  it should "returns an error code if fails" in {
-    val playerMock = mock[Player[_]]
-
-    teamOpsMock.syncEntireTeam(playerMock) returns false
-
-    val response = testUnit.syncTeamFor(Option(playerMock))
-
-    response shouldNot be(Command.SINGLE_SUCCESS)
-  }
-
-  it should "returns an error code if player isn't found" in {
-    val response = testUnit.syncTeamFor(None)
-
-    response shouldNot be(Command.SINGLE_SUCCESS)
-
-    teamOpsMock.syncEntireTeam(*) wasNever called
-  }
-
-  "SyncTeamCommands.syncToTeam" should "proxy teamOps.syncFromPlayer" in {
-    val playerMock = mock[Player[_]]
-
-    teamOpsMock.syncFromPlayer(playerMock) returns true
-
-    val response = testUnit.syncToTeam(playerMock)
-
-    response should be(Command.SINGLE_SUCCESS)
-  }
-
-  it should "returns an error code if fails" in {
-    val playerMock = mock[Player[_]]
-
-    teamOpsMock.syncFromPlayer(playerMock) returns false
-
-    val response = testUnit.syncToTeam(playerMock)
-
-    response shouldNot be(Command.SINGLE_SUCCESS)
-  }
-
-  "ValuesCommandUtils.withListValuesSource" should "wrap callback function to list things" in {
-    val expectedMessage = Component.literal("test")
-    val expectedValues = List("one", "two")
-    val contextMock = mock[CommandContext[CommandSourceStack]]
-    val sourceMock = mock[CommandSourceStack]
-
-    contextMock.getSource returns sourceMock
-
-    def callback = (_: CommandSourceStack) => (expectedMessage, expectedValues)
-
-    val received = testUnit.withListValuesSource(callback).run(contextMock)
-
-    sourceMock.sendSuccess(expectedMessage, false) wasCalled once
-    sourceMock.sendSystemMessage(*) wasCalled twice
-
-    received should be(Command.SINGLE_SUCCESS)
-  }
-
-  "ValuesCommandUtils.withListValues" should "wrap callback function to list things" in {
-    val expectedMessage = Component.literal("test")
-    val expectedValues = List.empty
-    val contextMock = mock[CommandContext[CommandSourceStack]]
-    val sourceMock = mock[CommandSourceStack]
-
-    contextMock.getSource returns sourceMock
-
-    def callback = () => (expectedMessage, expectedValues)
-
-    val received = testUnit.withListValues(callback).run(contextMock)
-
-    sourceMock.sendSuccess(expectedMessage, false) wasCalled once
-    sourceMock.sendSystemMessage(*) wasNever called
-
-    received should be(Command.SINGLE_SUCCESS)
+    message.children.length should be(0)
   }
 }

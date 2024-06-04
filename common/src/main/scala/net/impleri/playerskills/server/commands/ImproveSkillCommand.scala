@@ -22,7 +22,7 @@ trait ImproveSkillCommand {
     failureMessage,
   )
 
-  protected def registerImproveCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+  protected def registerImproveCommand[T <: CommandSegment.Any](builder: T): T = {
     builder.option(
       CommandString("improve")
         .requireMod()
@@ -32,7 +32,7 @@ trait ImproveSkillCommand {
         ).option(
           SkillHandler.getArgument.executes(CommandAction(factory.createCallback(true)).message()),
         ),
-    )
+    ).asInstanceOf[T]
   }
 
   private def successMessage: String = "commands.playerskills.skill_improved"

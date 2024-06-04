@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 trait QuestStateOps[T] {
-  protected var data: QuestState[T] = QuestState(PlayerSkills.RESOURCE_FACTORY.create("none").get)
+  protected var data: QuestState[T] = QuestState(ResourceLocation(PlayerSkills.MOD_ID, "none").get)
 
   protected def noneValue: T
 

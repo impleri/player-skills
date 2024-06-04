@@ -2,7 +2,6 @@ package net.impleri.playerskills.restrictions.item
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.resources.ResourceLocation
 
 class ItemConditionsSpec extends BaseSpec {
   private case class TestConditions() extends ItemConditions {

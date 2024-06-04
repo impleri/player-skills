@@ -6,9 +6,9 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 trait BaseCommand {
   def command: CommandString
 
-  protected def builders: List[CommandSegment.Any => CommandSegment.Any]
+  protected def builders[T <: CommandSegment.Any]: List[T => T]
 
-  protected def buildCommands: CommandSegment.Any => CommandSegment.Any = Function.chain(builders)
+  protected def buildCommands[T <: CommandSegment.Any]: T => T = Function.chain(builders)
 
   def register(
     dispatcher: CommandDispatcher[Command.Source],

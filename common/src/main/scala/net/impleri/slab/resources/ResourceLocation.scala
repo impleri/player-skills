@@ -18,8 +18,6 @@ case class ResourceLocation(private val underlying: McResourceLocation) {
 
   def path: String = underlying.getPath
 
-  def asRegistryKey[T <: Registerable]: ResourceKey.Registry[T] = ResourceKey.forRegistry[T](this)
-
   def getTagKey[T <: ResourceWrapper[U], U](registryKey: ResourceKey.Registry[U]): Tag[T, U] = new Tag(
     TagKey.create[U](registryKey.value, underlying),
   )
@@ -40,7 +38,7 @@ object ResourceLocation {
 
   def apply(resource: Option[McResourceLocation]): Option[ResourceLocation] = resource.map(r => new ResourceLocation(r))
 
-  def apply(resource: McResourceLocation): Option[ResourceLocation] = Option(resource).flatMap(apply)
+  def apply(resource: McResourceLocation): Option[ResourceLocation] = Option(resource).pipe(apply)
 
   def apply(namespace: String, path: String): Option[ResourceLocation] = {
     Try(
