@@ -29,7 +29,7 @@ class RecipeRestrictionOpsSpec extends BaseSpec {
   mockPlayer.dimension returns None
   mockPlayer.biomeAt(None) returns None
 
-  mockTarget.getName returns Option(mockTargetName)
+  mockTarget.name returns Option(mockTargetName)
 
   "RecipeRestrictionOps.apply" should "return a working class" in {
     RecipeRestrictionOps().restrictionType shouldBe RestrictionType.Recipe()

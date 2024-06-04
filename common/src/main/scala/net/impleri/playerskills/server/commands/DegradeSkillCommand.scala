@@ -22,7 +22,7 @@ trait DegradeSkillCommand {
     failureMessage,
   )
 
-  protected def registerDegradeCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+  protected def registerDegradeCommand[T <: CommandSegment.Any](builder: T): T = {
 
     builder.option(
       CommandString("degrade")
@@ -33,7 +33,7 @@ trait DegradeSkillCommand {
         ).option(
           SkillHandler.getArgument.executes(CommandAction(factory.createCallback(true)).message()),
         ),
-    )
+    ).asInstanceOf[T]
   }
 
   private def successMessage: String = "commands.playerskills.skill_degraded"

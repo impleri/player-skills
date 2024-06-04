@@ -6,7 +6,6 @@ import net.impleri.slab.item.Item
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.resources.ResourceLocation
 import org.mockito.captor.ArgCaptor
 
 class ItemRestrictionBuilderSpec extends BaseSpec {
@@ -17,7 +16,7 @@ class ItemRestrictionBuilderSpec extends BaseSpec {
   private val testUnit = ItemRestrictionBuilder(Option(mockRegistry), mockRestrictions, mockLogger)
 
   private case class TestConditions() extends ItemConditions {
-    override def name: ResourceLocation = new ResourceLocation("skillstest", "condition")
+    override def name: ResourceLocation = ResourceLocation("skillstest", "condition").get
   }
 
   private val testBuilder = TestConditions()

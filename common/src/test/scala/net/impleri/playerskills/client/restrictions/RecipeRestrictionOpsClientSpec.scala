@@ -21,9 +21,9 @@ class RecipeRestrictionOpsClientSpec extends BaseSpec {
   private val mockPlayer = mock[PlayerFacade[LocalPlayer]]
   private val mockEntity = mock[Entity[LocalPlayer]]
   private val mockTargetName = mock[ResourceLocation]
-  private val mockTarget = mock[Recipe[_]]
+  private val mockTarget = mock[Recipe.Any]
 
-  private val testRestriction = RecipeRestriction(mockTarget)
+  private val testRestriction = new RecipeRestriction(mockTarget)
 
   mockClient.getPlayer returns Option(mockPlayer)
 
@@ -33,7 +33,7 @@ class RecipeRestrictionOpsClientSpec extends BaseSpec {
   mockPlayer.dimension returns None
   mockPlayer.biomeAt(None) returns None
 
-  mockTarget.getName returns Option(mockTargetName)
+  mockTarget.name returns Option(mockTargetName)
 
   "RecipeRestrictionOpsClient.isProducible" should "return false if a restriction has producible = false" in {
     val testValue = false

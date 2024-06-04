@@ -34,7 +34,7 @@ class InternalEventsSpec extends BaseSpec {
     testUnit.registerEvents()
 
     eventHandlerMock.onSkillChanged(*) wasCalled once
-    reloadMock.register(*) wasCalled fourTimes
+    reloadMock.registerServer(*) wasCalled fourTimes
   }
 
   "InternalEvents.onResourceManagerReload" should "proxy calls to the reload listener" in {

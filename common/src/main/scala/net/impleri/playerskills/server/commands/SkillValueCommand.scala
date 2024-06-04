@@ -12,7 +12,7 @@ import net.impleri.slab.commands.PlayerArgument
 trait SkillValueCommand {
   protected def playerOps: Player
 
-  protected def registerValueCommand(builder: CommandSegment.Any): CommandSegment.Any = {
+  protected def registerValueCommand[T <: CommandSegment.Any](builder: T): T = {
     builder.option(
       CommandString("value")
         .option(
@@ -23,7 +23,7 @@ trait SkillValueCommand {
         .option(
           SkillHandler.getArgument.executes(CommandAction(handler(true))),
         ),
-    )
+    ).asInstanceOf[T]
   }
 
   private def handler(useCurrentUser: Boolean = false): CommandAction.Callback = {

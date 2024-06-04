@@ -13,6 +13,13 @@ class Tag[T <: ResourceWrapper[U], U](protected val underlying: TagKey[U])
   def location: Option[ResourceLocation] = ResourceLocation(underlying.location())
 
   override val name: Option[ResourceLocation] = location
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case t: Tag[_, _] => t.asString == asString
+      case _ => false
+    }
+  }
 }
 
 case class ItemTag(tag: TagKey[McItem]) extends Tag[Item, McItem](tag) with IsIngredient {

@@ -18,7 +18,7 @@ class RestrictionRegistryStateSpec extends BaseSpec {
     override val includeBiomes: Seq[String] = Seq.empty,
     override val excludeBiomes: Seq[String] = Seq.empty,
     override val replacement: Option[Item] = None,
-  ) extends Restriction[Item] {
+  ) extends Restriction[Item, Item.Vanilla] {
     override def restrictionType: RestrictionType = RestrictionType.Item()
   }
 
@@ -42,7 +42,7 @@ class RestrictionRegistryStateSpec extends BaseSpec {
 
   "RestrictionRegistryStateSpec.has" should "return a new state with a view of matching restrictions" in {
     val testName = ResourceLocation("skillstest", "restriction").get
-    mockItem.getName returns Option(testName)
+    mockItem.name returns Option(testName)
 
     val initialState = RestrictionRegistryState.empty
     val testRestriction = TestRestriction()
@@ -54,7 +54,7 @@ class RestrictionRegistryStateSpec extends BaseSpec {
 
   "RestrictionRegistryStateSpec.get" should "return a new state with a view of matching restrictions" in {
     val testName = ResourceLocation("skillstest", "restriction").get
-    mockItem.getName returns Option(testName)
+    mockItem.name returns Option(testName)
 
     val initialState = RestrictionRegistryState.empty
     val testRestriction = TestRestriction()

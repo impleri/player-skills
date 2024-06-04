@@ -5,8 +5,8 @@ import com.google.gson.JsonObject
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.slab.entity.Player
+import net.impleri.slab.resources.ResourceLocation
 
 trait ConditionDataParser extends JsonDataParser {
   protected def skillOps: SkillOps
@@ -17,7 +17,7 @@ trait ConditionDataParser extends JsonDataParser {
 
   private def parseSkill[T](raw: JsonObject) = {
     parseString(raw, "skill")
-      .flatMap(PlayerSkills.RESOURCE_FACTORY.create(_, useDefaultNS = false))
+      .flatMap(ResourceLocation(_))
       .flatMap(skillOps.get[T])
   }
 

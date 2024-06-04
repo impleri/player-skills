@@ -11,17 +11,15 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
-import net.impleri.playerskills.PlayerSkills
 import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.resources.ResourceLocation
 
 import java.util.{List => JavaList}
 import java.util.UUID
 
 class RestrictionConditionsBuilderSpec extends BaseSpec {
-  private val targetName = ResourceLocation("skillstest", "condition")
+  private val targetName = ResourceLocation("skillstest", "condition").get
   private val mockSkillOps = mock[SkillOps]
   private val mockSkillTypeOps = mock[SkillTypeOps]
   private val mockPlayerOps = mock[PlayerOps]
@@ -52,7 +50,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   "RestrictionConditionsBuilder.parse" should "parses the condition" in {
     val expectedSkillName = "skillstest:condition"
-    val expectedSkill = PlayerSkills.RESOURCE_FACTORY.create(expectedSkillName, useDefaultNS = false).get
+    val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = "value"
 
     val conditionSkillJson = mock[JsonPrimitive]
@@ -108,7 +106,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   it should "parses the unless condition" in {
     val expectedSkillName = "skillstest:condition"
-    val expectedSkill = PlayerSkills.RESOURCE_FACTORY.create(expectedSkillName, useDefaultNS = false).get
+    val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = "value"
 
     val conditionSkillJson = mock[JsonPrimitive]
@@ -164,7 +162,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   it should "handle no skill value" in {
     val expectedSkillName = "skillstest:condition"
-    val expectedSkill = PlayerSkills.RESOURCE_FACTORY.create(expectedSkillName, useDefaultNS = false).get
+    val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = ""
 
     val conditionSkillJson = mock[JsonPrimitive]
@@ -217,7 +215,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   it should "return false if no skill found" in {
     val expectedSkillName = "skillstest:condition"
-    val expectedSkill = PlayerSkills.RESOURCE_FACTORY.create(expectedSkillName, useDefaultNS = false).get
+    val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = ""
 
     val conditionSkillJson = mock[JsonPrimitive]

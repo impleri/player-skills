@@ -10,7 +10,7 @@ import net.impleri.slab.commands.PlayerArgument
 trait SyncTeamCommands {
   protected def teamOps: TeamOps
 
-  protected def registerTeamCommands(builder: CommandSegment.Any): CommandSegment.Any = {
+  protected def registerTeamCommands[T <: CommandSegment.Any](builder: T): T = {
     builder.option(
       CommandString("team")
         .option(
@@ -21,7 +21,7 @@ trait SyncTeamCommands {
             .requireGm()
             .option(PlayerArgument().executes(CommandAction(syncTeamForPlayer))),
         ),
-    )
+    ).asInstanceOf[T]
   }
 
   private[commands] val syncTeamForPlayer: CommandAction.Callback = {

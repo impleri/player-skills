@@ -20,7 +20,7 @@ class ServerEventBindingsSpec extends BaseSpec {
   private val mockOps = mock[ItemRestrictionOps]
   private val mockSetup = mock[() => Unit]
   private val mockOnChange = mock[Option[Server] => Unit]
-  private val mockCommands = mock[() => PlayerSkillsCommands]
+  private val mockCommands = mock[PlayerSkillsCommands]
   private val mockNetHandler = mock[NetHandler]
   private val mockCommonLifecycle = mock[CommonLifecycleEvents]
   private val mockServerLifecycle = mock[ServerLifecycleEvents]
@@ -36,7 +36,7 @@ class ServerEventBindingsSpec extends BaseSpec {
     mockOps,
     mockSetup,
     mockOnChange,
-    mockCommands,
+    () => mockCommands,
     mockNetHandler,
     mockCommonLifecycle,
     mockServerLifecycle,
@@ -64,9 +64,7 @@ class ServerEventBindingsSpec extends BaseSpec {
 
     mockTick.onPlayerEnd(*) wasCalled once
 
-    val mockCommandValue = mock[PlayerSkillsCommands]
-    mockCommands() returns mockCommandValue
-    mockCommand.register(mockCommandValue) wasCalled once
+    mockCommand.register(mockCommands) wasCalled once
 
   }
 }

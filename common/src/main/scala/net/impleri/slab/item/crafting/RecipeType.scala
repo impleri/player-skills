@@ -18,7 +18,7 @@ object RecipeType {
   type Vanilla[T <: Recipe.AnyVanilla] = McRecipeType[T]
   type AnyVanilla = Vanilla[_]
 
-  type Any = RecipeType[_]
+  type Any = RecipeType[AnyVanilla]
 
   val CRAFTING: Any = RecipeType(McRecipeType.CRAFTING)
 

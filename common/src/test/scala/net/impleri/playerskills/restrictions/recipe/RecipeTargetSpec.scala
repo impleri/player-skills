@@ -4,7 +4,6 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.slab.item.crafting.Recipe
 import net.impleri.slab.item.Item
 import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.world.Container
 
 class RecipeTargetSpec extends BaseSpec {
   private val mockRecipeType = mock[ResourceLocation]
@@ -20,16 +19,16 @@ class RecipeTargetSpec extends BaseSpec {
 
   private val testUnitEmpty = RecipeTarget(mockRecipeType)
 
-  private val mockRecipe = mock[Recipe[Container]]
+  private val mockRecipe = mock[Recipe.Any]
 
   "RecipeTarget.getOutputItem" should "returns the item parsed from the string" in {
     testUnit.getOutputItem.value.isInstanceOf[Item] shouldBe true
-    testUnit.getOutputItem.value.asInstanceOf[Item].name shouldBe outputItem
+    testUnit.getOutputItem.value.asInstanceOf[Item].name.value.asString shouldBe outputItem
   }
 
   "RecipeTarget.getIngredientItems" should "returns the items parsed from the strings" in {
     testUnit.getIngredients.head.isInstanceOf[Item] shouldBe true
-    testUnit.getIngredients.head.asInstanceOf[Item].name shouldBe ingredient
+    testUnit.getIngredients.head.asInstanceOf[Item].name.value.asString shouldBe ingredient
   }
 
   "RecipeTarget.matches" should "return false if target has no output and no ingredients" in {

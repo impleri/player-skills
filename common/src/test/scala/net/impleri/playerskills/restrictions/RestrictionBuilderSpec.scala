@@ -6,6 +6,7 @@ import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBui
 import net.impleri.slab.block.Block
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
+import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
 
 class RestrictionBuilderSpec extends BaseSpec {
@@ -14,14 +15,15 @@ class RestrictionBuilderSpec extends BaseSpec {
   private val mockRestrictString = mock[(String, TestConditionBuilder) => Unit]
   private val mockRestrictOne = mock[(ResourceLocation, TestConditionBuilder) => Unit]
   private val testName: ResourceLocation = ResourceLocation("skillstest", "test").get
+  private val mockRegistryKey = mock[ResourceKey.VanillaRegistry[Block.Vanilla]]
 
   private case class TestConditionBuilder(
     override val name: ResourceLocation = testName,
   ) extends RestrictionConditionsBuilder {}
 
   private case class TestRestrictionBuilder(override val singleAsString: Boolean = false)
-    extends RestrictionBuilder[Block, TestConditionBuilder] {
-    override protected val registry: Option[Registry[Block, _]] = Option(mockRegistry)
+    extends RestrictionBuilder[Block, Block.Vanilla, TestConditionBuilder] {
+    override protected val registry: Option[Registry.BLOCK] = Option(mockRegistry)
     protected val logger: Logger = mockLogger
 
     override protected def restrictString(
@@ -41,6 +43,8 @@ class RestrictionBuilderSpec extends BaseSpec {
 
   private val testUnit = TestRestrictionBuilder()
 
+  mockRegistry.name returns mockRegistryKey
+
   "RestrictionBuilder.add" should "produce restrictions for a namespace" in {
     val restrictionName = "skillstest"
     val namespace = s"@$restrictionName"
@@ -59,8 +63,11 @@ class RestrictionBuilderSpec extends BaseSpec {
   }
 
   it should "produce restrictions for a tag" in {
-    val registryName = ResourceLocation("skillstest", "registry").get
-    mockRegistry.name returns registryName.asRegistryKey
+    //    val registryName = ResourceLocation("skillstest", "registry").get
+    //    mockRegistry.name returns ResourceKey
+    //      .forRegistry(registryName)
+    //      .value
+    //      .asInstanceOf[ResourceKey.VanillaRegistry[Block.Vanilla]]
 
     val restrictionName = "skillstest:tag"
     val tag = s"#$restrictionName"
@@ -106,7 +113,7 @@ class RestrictionBuilderSpec extends BaseSpec {
 
   "RestrictionBuilder.logRestriction" should "log restriction metadata" in {
     val restrictionName = "skillstest"
-    val restriction = mock[Restriction[Block]]
+    val restriction = mock[Restriction[Block, Block.Vanilla]]
     restriction.includeBiomes returns Seq.empty
     restriction.excludeBiomes returns Seq.empty
     restriction.includeDimensions returns Seq.empty

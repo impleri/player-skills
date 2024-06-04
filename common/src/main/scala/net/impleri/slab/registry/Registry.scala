@@ -45,13 +45,6 @@ class Registry[T <: ResourceWrapper[U], U](protected val underlying: Registry.Va
   def getHolder: HolderLookup[U] = HolderLookup.forRegistry(underlying)
 }
 
-//class RecipeTypeRegistry(
-//  override val underlying: Registry.Vanilla[RecipeType.AnyVanilla],
-//) extends Registry[RecipeType.AnyForVanilla, RecipeType.AnyVanilla](
-//  underlying,
-//  (v: RecipeType.AnyVanilla) => new RecipeType(v).asInstanceOf[RecipeType.AnyForVanilla],
-//)
-
 object Registry {
   type Vanilla[T] = McRegistry[T]
   type AnyVanilla = Vanilla[_]

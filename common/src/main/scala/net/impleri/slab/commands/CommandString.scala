@@ -8,6 +8,12 @@ class CommandString(override val underlying: CommandString.Vanilla)
   def asRoot: CommandString.Root = {
     underlying.asInstanceOf[CommandString.Root]
   }
+
+  override def copyAs(nextUnderlying: CommandString.Vanilla): CommandString = {
+    new CommandString(
+      nextUnderlying,
+    )
+  }
 }
 
 object CommandString {

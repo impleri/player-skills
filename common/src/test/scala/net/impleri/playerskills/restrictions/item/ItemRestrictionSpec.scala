@@ -3,7 +3,6 @@ package net.impleri.playerskills.restrictions.item
 import net.impleri.playerskills.BaseSpec
 import net.impleri.slab.item.Item
 import net.impleri.slab.resources.ResourceLocation
-import net.minecraft.resources.ResourceLocation
 
 class ItemRestrictionSpec extends BaseSpec {
   private val mockTarget = mock[Item]

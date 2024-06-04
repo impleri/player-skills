@@ -2,10 +2,10 @@ package net.impleri.playerskills.api.skills
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.skills.SkillRegistry
+import net.impleri.slab.chat.Message
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.network.chat.contents.TranslatableContents
-import net.minecraft.network.chat.Component
 
 class SkillSpec extends BaseSpec {
   private case class TestSkill(
@@ -104,7 +104,7 @@ class SkillSpec extends BaseSpec {
       .getContents
       .asInstanceOf[TranslatableContents]
       .getArgs
-      .map(_.asInstanceOf[Component].getString) shouldBe Seq("testname", testValue, "").toArray
+      .map(_.asInstanceOf[Message.Any].output.getString) shouldBe Seq("testname", testValue, "").toArray
   }
 
   "SkillRegistryFacade.all" should "proxy SkillRegistry.entries" in {

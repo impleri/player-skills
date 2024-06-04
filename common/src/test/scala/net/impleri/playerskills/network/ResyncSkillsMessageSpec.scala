@@ -1,6 +1,7 @@
 package net.impleri.playerskills.network
 
 import dev.architectury.networking.NetworkManager
+import dev.architectury.networking.simple.{MessageType => ArchMessageType}
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
@@ -28,8 +29,11 @@ class ResyncSkillsMessageSpec extends BaseSpec {
   private val playerMock = mock[Player[ServerPlayer]]
   private val bufferMock = mock[FriendlyByteBuf]
 
+  private val underlyingMessageType = mock[ArchMessageType]
+  messageTypeMock.value returns underlyingMessageType
+
   "ResyncSkillsMessage.getType" should "return the messageType" in {
-    testMessage.getType should be(messageTypeMock)
+    testMessage.getType should be(underlyingMessageType)
   }
 
   "ResyncSkillsMessage.write" should "create the right buffer" in {
@@ -71,11 +75,7 @@ class ResyncSkillsMessageSpec extends BaseSpec {
 
     bufferMock.readUUID() returns givenUuid
 
-    assertThrows[Throwable] {
-      testFactory.receive(bufferMock)
-    }
-
-    loggerMock.error(*) wasCalled once
+    testFactory.receive(bufferMock) shouldBe null
   }
 
   it should "returns a new message if there is a message type" in {
@@ -97,11 +97,7 @@ class ResyncSkillsMessageSpec extends BaseSpec {
 
     playerMock.uuid returns givenUuid
 
-    assertThrows[Throwable] {
-      testFactory.send(playerMock)
-    }
-
-    loggerMock.error(*) wasCalled once
+    testFactory.send(playerMock) shouldBe None
   }
 
   it should "returns a new message if there is a message type" in {

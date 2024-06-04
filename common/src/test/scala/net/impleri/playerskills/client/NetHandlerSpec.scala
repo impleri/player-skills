@@ -6,7 +6,6 @@ import net.impleri.playerskills.network.ResyncSkillsMessageFactory
 import net.impleri.slab.client.Client
 import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.network.ServerboundMessage
 import net.minecraft.client.player.LocalPlayer
 
 import java.util.UUID
@@ -26,10 +25,12 @@ class NetHandlerSpec extends BaseSpec {
   private val testUnit = NetHandler(clientMock, clientSkillsMock, messageFactoryMock, loggerMock)
 
   "NetHandler.resyncPlayer" should "send a request to the server" in {
+    messageFactoryMock.send(playerMock) returns None
+
     testUnit.resyncPlayer(playerMock)
 
     loggerMock.debug(*) wasCalled once
-    playerMock.sendMessage(any[ServerboundMessage]) wasCalled once
+    messageFactoryMock.send(playerMock) wasCalled once
   }
 
   "NetHandler.onSyncPlayer" should "update stored skills" in {

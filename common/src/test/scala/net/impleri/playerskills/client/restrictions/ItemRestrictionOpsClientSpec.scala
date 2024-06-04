@@ -33,7 +33,7 @@ class ItemRestrictionOpsClientSpec extends BaseSpec {
   mockPlayer.dimension returns None
   mockPlayer.biomeAt(None) returns None
 
-  mockTarget.getName returns Option(mockTargetName)
+  mockTarget.name returns Option(mockTargetName)
 
   "ItemRestrictionOpsClient.isIdentifiable" should "return false if a restriction has identifiable = false" in {
     val testValue = false
