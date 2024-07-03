@@ -441,6 +441,8 @@ jacotura {
     project(":common").layout.projectDirectory.file("src/main/scala"),
     project(":common").layout.projectDirectory.file("src/main/java"),
     project(":fabric").layout.projectDirectory.file("src/main/scala"),
+    project(":fabric").layout.projectDirectory.file("src/main/java"),
     project(":forge").layout.projectDirectory.file("src/main/scala"),
+    project(":forge").layout.projectDirectory.file("src/main/java"),
   ]
 }
