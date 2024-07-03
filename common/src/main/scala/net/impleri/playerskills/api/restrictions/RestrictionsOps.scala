@@ -68,7 +68,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
 
     logger
       .debug(
-        s"Does ${player.name} have $fieldName restrictions with $target in  $dimension/$biome? $hasRestrictions",
+        s"Does ${player.handle} have $fieldName restrictions with $target in  $dimension/$biome? $hasRestrictions",
       )
 
     !hasRestrictions
@@ -108,7 +108,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
       case (_, None) =>
       logger
         .warn(
-          s"Attempted to determine if player ${player.name} can $fieldName on a non-target in $dimension/${
+          s"Attempted to determine if player ${player.handle} can $fieldName on a non-target in $dimension/${
             biome.flatMap(_.name)
           }",
         )
@@ -146,7 +146,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
         s"$target should be replaced with ${
           replacement
             .flatMap(_.name)
-        } in $dimension/${biome.flatMap(_.name)} for ${player.name}",
+        } in $dimension/${biome.flatMap(_.name)} for ${player.handle}",
       )
 
     replacement

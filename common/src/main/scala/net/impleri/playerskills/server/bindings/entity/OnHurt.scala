@@ -24,11 +24,11 @@ case class OnHurt(
       usable = itemRestrictionOps.isHarmful(player, tool)
     } yield {
       if (!usable) {
-        logger.debug(s"${player.name} cannot attack ${entity.mobTypeName} with ${tool.name}")
+        logger.debug(s"${player.handle} cannot attack ${entity.mobTypeName} with ${tool.name}")
       } else {
 
         skipLogger
-          .debug(s"${player.name} is going to attack ${entity.mobTypeName} with ${tool.name}")
+          .debug(s"${player.handle} is going to attack ${entity.mobTypeName} with ${tool.name}")
       }
 
       usable

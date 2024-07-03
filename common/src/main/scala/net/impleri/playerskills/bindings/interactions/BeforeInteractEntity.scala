@@ -28,13 +28,14 @@ case class BeforeInteractEntity(
       } yield {
         //    val mobType = MobRestrictions.getName(entity.type)
         //    if (!MobRestrictions.canInteractWith(entity.type, player)) {
-        //      PlayerSkillsLogger.MOBS.debug("${player.name.string} cannot interact with entity $mobType")
+        //      PlayerSkillsLogger.MOBS.debug("${player.handle} cannot interact with entity $mobType")
         //      return EventResult.interruptFalse()
         //    }
         if (!usable) {
-          logger.debug(s"${player.name} cannot interact with entity ${entity.mobTypeName} using ${item.name}")
+          logger.debug(s"${player.handle} cannot interact with entity ${entity.mobTypeName} using ${item.name}")
         } else {
-          skipLogger.debug(s"${player.name} is going to interact with entity ${entity.mobTypeName} using ${item.name}")
+          skipLogger
+            .debug(s"${player.handle} is going to interact with entity ${entity.mobTypeName} using ${item.name}")
         }
 
         usable

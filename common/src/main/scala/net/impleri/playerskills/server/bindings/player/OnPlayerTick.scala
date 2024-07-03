@@ -42,7 +42,7 @@ case class OnPlayerTick(
 
       // Drop the unholdable items from the normal inventory
       filterHoldable(player, player.inventory).values
-        .tap(r => if (r.nonEmpty) logger.debug(s"${player.name} is holding ${r.size} item(s) that should be dropped"))
+        .tap(r => if (r.nonEmpty) logger.debug(s"${player.handle} is holding ${r.size} item(s) that should be dropped"))
         .foreach(player.toss)
     }
   }

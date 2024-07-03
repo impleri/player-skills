@@ -20,9 +20,9 @@ case class BeforeUseItem(
       usable = itemRestrictionOps.isUsable(player, item, None)
     } yield {
       if (!usable) {
-        logger.debug(s"${player.name} cannot use ${item.name}")
+        logger.debug(s"${player.handle} cannot use ${item.name}")
       } else {
-        skipLogger.debug(s"${player.name} is going to use ${item.name}")
+        skipLogger.debug(s"${player.handle} is going to use ${item.name}")
       }
       usable
     }
