@@ -1,0 +1,12 @@
+{
+  "type": "tiered",
+  "description": "Mining level of bare fists",
+  "initialValue": "iron",
+  "options": [
+    "stone",
+    "iron",
+    "gold",
+    "diamond",
+    "netherite"
+  ]
+}

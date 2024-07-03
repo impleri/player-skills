@@ -1,0 +1,12 @@
+{
+  "type": "specialized",
+  "description": "Magic Specialization",
+  "changesAllowed": 2,
+  "options": [
+    "green",
+    "blue",
+    "white",
+    "black",
+    "red"
+  ]
+}

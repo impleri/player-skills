@@ -1,4 +1,4 @@
 # Basic Skill Test
 
-execute as @p[limit=1] run skills set playerskills:test true
-execute as @p[limit=1] run say Use `/skills mine` to verify
+skills set @p[limit=1] playerskills:one true
+say Use "/skills mine" to verify that playerskills:one is "true"
