@@ -1,0 +1,11 @@
+{
+  "type": "specialized",
+  "description": "Colors",
+  "options": [
+    "green",
+    "blue",
+    "white",
+    "black",
+    "red"
+  ]
+}

@@ -30,12 +30,12 @@ say Done Testaforming process
 kill @e[tag=setup,limit=1]
 scoreboard objectives remove test
 
-scoreboard players set 1_sec test_time 20
-scoreboard players set 2_sec test_time 40
-scoreboard players set 3_sec test_time 60
-scoreboard players set 4_sec test_time 80
-scoreboard players set 5_sec test_time 100
-scoreboard players set 6_sec test_time 120
-scoreboard players set 7_sec test_time 140
-scoreboard players set 8_sec test_time 160
-scoreboard players set 9_sec test_time 180
+scoreboard players set 1_moment test_time 200
+scoreboard players set 2_moment test_time 400
+scoreboard players set 3_moment test_time 600
+scoreboard players set 4_moment test_time 800
+scoreboard players set 5_moment test_time 1000
+scoreboard players set 6_moment test_time 1200
+scoreboard players set 7_moment test_time 1400
+scoreboard players set 8_moment test_time 1600
+scoreboard players set 9_moment test_time 1800
