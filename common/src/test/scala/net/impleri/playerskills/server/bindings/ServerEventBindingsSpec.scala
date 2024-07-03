@@ -5,6 +5,8 @@ import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.playerskills.server.commands.PlayerSkillsCommands
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.playerskills.server.NetHandler
+import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.slab.events.BlockEvents
 import net.impleri.slab.events.CommandEvents
 import net.impleri.slab.events.CommonLifecycleEvents
@@ -17,8 +19,9 @@ import net.impleri.slab.server.Server
 
 class ServerEventBindingsSpec extends BaseSpec {
   private val mockPlayerRegistry = mock[PlayerRegistry]
+  private val mockStateContainer = mock[StateContainer]
+  private val mockServerStateContainer = mock[ServerStateContainer]
   private val mockOps = mock[ItemRestrictionOps]
-  private val mockSetup = mock[() => Unit]
   private val mockOnChange = mock[Option[Server] => Unit]
   private val mockCommands = mock[PlayerSkillsCommands]
   private val mockNetHandler = mock[NetHandler]
@@ -31,10 +34,12 @@ class ServerEventBindingsSpec extends BaseSpec {
   private val mockTick = mock[TickEvents]
   private val mockLogger = mock[Logger]
 
+  mockStateContainer.ITEM_RESTRICTIONS returns mockOps
+
   private val testUnit = ServerEventBindings(
     mockPlayerRegistry,
-    mockOps,
-    mockSetup,
+    mockStateContainer,
+    mockServerStateContainer,
     mockOnChange,
     () => mockCommands,
     mockNetHandler,
@@ -51,7 +56,7 @@ class ServerEventBindingsSpec extends BaseSpec {
   "LifecycleEvents.registerEvents" should "bind events" in {
     testUnit.registerEvents()
 
-    mockCommonLifecycle.onSetup(mockSetup) wasCalled once
+    mockCommonLifecycle.onSetup(*) wasCalled once
     mockServerLifecycle.beforeServerStart(mockOnChange) wasCalled once
     mockServerLifecycle.beforeServerStop(*) wasCalled twice
 

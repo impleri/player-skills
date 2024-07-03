@@ -6,6 +6,7 @@ import net.impleri.slab.world.Biome
 import net.impleri.slab.world.Level
 import net.impleri.slab.world.Position
 import net.minecraft.world.entity.{Entity => McEntity}
+import net.minecraft.world.entity.LivingEntity
 
 import scala.util.Try
 
@@ -42,6 +43,8 @@ object Entity {
   type Any = Entity[_]
 
   type Vanilla = McEntity
+
+  type Living = LivingEntity
 
   def apply[T <: Vanilla](entity: T): Entity[T] = new Entity(entity)
 }

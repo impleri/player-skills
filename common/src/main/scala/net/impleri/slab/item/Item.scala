@@ -27,6 +27,8 @@ case class Item(
 
   def getStack: ItemStack = stack.getOrElse(new ItemStack(underlying, quantity))
 
+  def getAmountInStack: Int = quantity
+
   def isDefault: Boolean = name == Item.DEFAULT_ITEM.name
 
   def isEmptyStack: Boolean = stack.fold(quantity == 0)(_.isEmpty)

@@ -2,6 +2,7 @@ package net.impleri.playerskills.integrations.rei;
 
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
+import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.client.PlayerSkillsClient;
 import net.impleri.playerskills.client.restrictions.RecipeRestrictionOpsClient;
 import net.impleri.playerskills.restrictions.RestrictionRegistry;
@@ -14,8 +15,8 @@ public class PlayerSkillsReiPlugin implements REIClientPlugin {
   private final @NotNull RestrictionRegistry restrictions;
   private final @NotNull RecipeRestrictionOpsClient recipeOps;
 
-  public PlayerSkillsReiPlugin(@NotNull RestrictionRegistry r) {
-    restrictions = r;
+  public PlayerSkillsReiPlugin() {
+    restrictions = PlayerSkills.STATE().RESTRICTIONS();
     recipeOps = PlayerSkillsClient.STATE().RECIPE_RESTRICTIONS();
   }
 
