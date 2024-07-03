@@ -198,6 +198,17 @@ class TeamOps(
     }
   }
 
+  def reset[T](
+    player: MinecraftPlayer[_],
+    skill: Skill[T],
+  ): Option[Boolean] = {
+    withFullTeam(player.uuid) { team =>
+      skillOps.get[T](skill.name)
+        .tap(_ => logger.info(s"Resetting skill ${skill.name} for ${player.name}"))
+        .pipe(updateSkill[T](player))
+    }
+  }
+
   def syncFromPlayer(player: MinecraftPlayer[_]): Boolean = {
     logger.debug(s"Syncing skills from ${player.name}")
     withFullTeam(player.uuid) { team =>

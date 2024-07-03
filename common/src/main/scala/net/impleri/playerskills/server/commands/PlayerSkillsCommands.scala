@@ -32,7 +32,8 @@ case class PlayerSkillsCommands(
   with DebugCommands
   with SetSkillCommand
   with ImproveSkillCommand
-  with DegradeSkillCommand {
+  with DegradeSkillCommand
+  with ResetSkillCommand {
   protected def builders[T <: CommandSegment.Any]: List[T => T] =
     List(
       registerTypesCommand,
@@ -43,6 +44,7 @@ case class PlayerSkillsCommands(
       registerSetCommand,
       registerImproveCommand,
       registerDegradeCommand,
+      registerResetCommand,
       registerDebugCommands,
     )
 

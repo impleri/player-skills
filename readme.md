@@ -295,6 +295,8 @@ Lastly, we expose a handful of in-game commands for players and mods:
 - `/skills debug [category]`: Toggles debug-level logging for Player Skills. Requires mod permissions.
 - `/skills set [player] skill value`: Set the `skill`'s value to `value` for the player (omitting a player targets the
   one performing the command). Note that this requires mod permissions.
+- `/skills (improve|degrade|reset) [player] skill`: Improve (or degrade or reset) the `skill` for the player (omitting a
+  player targets the one performing the command). Note that this requires mod permissions.
 
 ## Developers
 

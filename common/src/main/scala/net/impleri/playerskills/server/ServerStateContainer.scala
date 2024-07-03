@@ -1,7 +1,6 @@
 package net.impleri.playerskills.server
 
 import net.impleri.playerskills.StateContainer
-import net.impleri.playerskills.integrations.IntegrationLoader
 import net.impleri.playerskills.network.Manager
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
 import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
@@ -47,8 +46,8 @@ case class ServerStateContainer(
 
   private val EVENT_BINDINGS = ServerEventBindings(
     PLAYERS,
-    globalState.ITEM_RESTRICTIONS,
-    onSetup,
+    globalState,
+    this,
     onServerChange,
     () => PlayerSkillsCommands(
       globalState.SKILL_OPS,
@@ -58,6 +57,7 @@ case class ServerStateContainer(
     ),
     getNetHandler,
   )
+
   private val INTERNAL = InternalEvents(
     ItemRestrictionBuilder(Option(itemRegistry), globalState.RESTRICTIONS),
     RecipeRestrictionBuilder(this, globalState.RESTRICTIONS),
@@ -68,8 +68,6 @@ case class ServerStateContainer(
     reloadListeners,
   )
 
-  private val INTEGRATIONS = IntegrationLoader(globalState, this)
-
   EVENT_BINDINGS.registerEvents()
   INTERNAL.registerEvents()
 
@@ -78,10 +76,6 @@ case class ServerStateContainer(
   def setTeam(instance: Team): Unit = {
     TEAM = instance
     TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
-  }
-
-  private[server] def onSetup(): Unit = {
-    INTEGRATIONS.onSetup()
   }
 
   private[server] def onServerChange(next: Option[Server] = None): Unit = {

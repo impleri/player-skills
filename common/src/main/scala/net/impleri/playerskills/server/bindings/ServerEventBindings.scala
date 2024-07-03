@@ -1,6 +1,5 @@
 package net.impleri.playerskills.server.bindings
 
-import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.playerskills.server.bindings.block.OnBreak
 import net.impleri.playerskills.server.bindings.entity.OnHurt
 import net.impleri.playerskills.server.bindings.lifecycle.BeforeServerStops
@@ -11,6 +10,9 @@ import net.impleri.playerskills.server.bindings.player.OnJoin
 import net.impleri.playerskills.server.bindings.player.OnPlayerTick
 import net.impleri.playerskills.server.bindings.player.OnQuit
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.playerskills.server.bindings.lifecycle.OnSetup
 import net.impleri.slab.events.BlockEvents
 import net.impleri.slab.events.CommandEvents
 import net.impleri.slab.events.CommonLifecycleEvents
@@ -23,8 +25,8 @@ import net.impleri.slab.server.Server
 
 case class ServerEventBindings(
   playerRegistry: PlayerRegistry,
-  itemRestrictionOps: ItemRestrictionOps,
-  onSetup: () => Unit = () => {},
+  globalState: StateContainer,
+  serverState: ServerStateContainer,
   onServerChange: Option[Server] => Unit = _ => {},
   getCommand: () => PlayerSkillsCommands,
   netHandler: NetHandler = NetHandler(),
@@ -39,7 +41,7 @@ case class ServerEventBindings(
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) {
   private[server] def registerEvents(): Unit = {
-    commonLifecycle.onSetup(onSetup)
+    OnSetup(globalState, serverState, commonLifecycle)
 
     serverLifecycle.beforeServerStart(onServerChange)
     serverLifecycle.beforeServerStop(onServerChange)
@@ -48,11 +50,11 @@ case class ServerEventBindings(
     OnJoin(playerRegistry, netHandler, players)
     OnQuit(playerRegistry, netHandler, players)
 
-    OnBreak(itemRestrictionOps, blocks, logger, skipLogger)
+    OnBreak(globalState.ITEM_RESTRICTIONS, blocks, logger, skipLogger)
 
-    OnHurt(itemRestrictionOps, entities, logger, skipLogger)
+    OnHurt(globalState.ITEM_RESTRICTIONS, entities, logger, skipLogger)
 
-    OnPlayerTick(itemRestrictionOps, ticks, logger)
+    OnPlayerTick(globalState.ITEM_RESTRICTIONS, ticks, logger)
 
     commands.register(getCommand())
   }

@@ -11,7 +11,7 @@ import java.util
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
-case class JeiRuntime(private var runtime: IJeiRuntime) {
+case class JeiRuntime(private val runtime: IJeiRuntime) {
   def recipeManager: IRecipeManager = {
     runtime.getRecipeManager
   }
