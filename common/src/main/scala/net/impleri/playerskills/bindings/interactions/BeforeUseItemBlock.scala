@@ -22,7 +22,7 @@ case class BeforeUseItemBlock(
     //    val blockName = BlockRestrictions.getName(replacement)
     //
     //    if (!BlockRestrictions.isUsable(player, replacement, pos)) {
-    //      PlayerSkillsLogger.BLOCKS.debug("${player.name.string} cannot interact with block $blockName")
+    //      PlayerSkillsLogger.BLOCKS.debug("${player.handle} cannot interact with block $blockName")
     //      return EventResult.interruptFalse()
     //    }
 
@@ -31,9 +31,9 @@ case class BeforeUseItemBlock(
       usable = itemRestrictionOps.isUsable(player, item, pos)
     } yield {
       if (!usable) {
-        logger.debug(s"${player.name} cannot interact with block using ${item.name}")
+        logger.debug(s"${player.handle} cannot interact with block using ${item.name}")
       } else {
-        skipLogger.debug(s"${player.name} is going to interact with block using ${item.name}")
+        skipLogger.debug(s"${player.handle} is going to interact with block using ${item.name}")
       }
 
       usable

@@ -16,7 +16,7 @@ class NetHandler(
 ) {
   def syncPlayer(player: MinecraftPlayer[_], force: Boolean = true): Unit = {
     playerOps.get(player)
-      .tap(logger.debugP(s => s"Syncing ${s.size} player skills to ${player.name}"))
+      .tap(logger.debugP(s => s"Syncing ${s.size} player skills to ${player.handle}"))
       .pipe(messageFactory.send(player, _, force))
       .foreach(player.sendMessage)
   }

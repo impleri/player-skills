@@ -143,7 +143,7 @@ class TeamOps(
     value: Option[T],
     team: Seq[UUID],
   ): Option[Skill[T]] = {
-    logger.info(s"Changing skill ${skill.name} to $value for $player")
+    logger.info(s"Changing skill ${skill.name} to $value for $player.handle")
     playerOps.calculateValue(player, skill, value)
       .filter(_ => allows(team, skill))
       .tap(logger.infoP(a => s"Is skill change allowed? $a"))
@@ -192,7 +192,7 @@ class TeamOps(
   ): Option[Boolean] = {
     withFullTeam(player.uuid) { team =>
       skillOps.calculateNext(skill, min, max)
-        .tap(_ => logger.info(s"Improving skill ${skill.name} for ${player.name}"))
+        .tap(_ => logger.info(s"Improving skill ${skill.name} for ${player.handle}"))
         .pipe(v => calculateNextValue(player.uuid, skill, v, team))
         .pipe(updateSkill[T](player))
     }
@@ -204,13 +204,13 @@ class TeamOps(
   ): Option[Boolean] = {
     withFullTeam(player.uuid) { team =>
       skillOps.get[T](skill.name)
-        .tap(_ => logger.info(s"Resetting skill ${skill.name} for ${player.name}"))
+        .tap(_ => logger.info(s"Resetting skill ${skill.name} for ${player.handle}"))
         .pipe(updateSkill[T](player))
     }
   }
 
   def syncFromPlayer(player: MinecraftPlayer[_]): Boolean = {
-    logger.debug(s"Syncing skills from ${player.name}")
+    logger.debug(s"Syncing skills from ${player.handle}")
     withFullTeam(player.uuid) { team =>
       getSharedSkills(player.uuid)
         .pipe(syncSkills(team))
@@ -221,7 +221,7 @@ class TeamOps(
   }
 
   def syncEntireTeam(player: MinecraftPlayer[_]): Boolean = {
-    logger.debug(s"Syncing entire team connected to ${player.name}")
+    logger.debug(s"Syncing entire team connected to ${player.handle}")
     val updates = withFullTeam(player.uuid) { team =>
       getSharedSkills(player.uuid)
         .pipe(getMaxTeamSkills(team))

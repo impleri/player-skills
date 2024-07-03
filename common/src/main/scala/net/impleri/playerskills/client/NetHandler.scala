@@ -22,7 +22,7 @@ case class NetHandler(
   }
 
   def resyncPlayer(player: Player[_]): Unit = {
-    logger.debug(s"Requesting skills resync for ${player.name}")
+    logger.debug(s"Requesting skills resync for ${player.handle}")
     messageFactory.send(player).foreach(player.sendMessage)
   }
 }

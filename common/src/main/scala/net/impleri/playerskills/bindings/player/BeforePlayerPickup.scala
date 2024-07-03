@@ -15,10 +15,10 @@ case class BeforePlayerPickup(
   private[bindings] val handler: PlayerEvents.CanPickup = (player, itemOpt, _) => {
     itemOpt.fold(skip) { item =>
       if (!itemRestrictionOps.isHoldable(player, item)) {
-        logger.debug(s"${player.name} cannot pickup ${item.name}")
+        logger.debug(s"${player.handle} cannot pickup ${item.name}")
         fail
       } else {
-        skipLogger.debug(s"${player.name} is going to pickup ${item.name}")
+        skipLogger.debug(s"${player.handle} is going to pickup ${item.name}")
         skip
       }
     }

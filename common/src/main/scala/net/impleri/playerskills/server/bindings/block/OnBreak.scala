@@ -20,7 +20,7 @@ case class OnBreak(
     //    val toolName = ItemRestrictions.getName(tool)
     //
     //    if (!BlockRestrictions.isBreakable(player, replacedBlock, pos)) {
-    //      PlayerSkillsLogger.BLOCKS.debug("${player.name.string} cannot mine block $blockName")
+    //      PlayerSkillsLogger.BLOCKS.debug("${player.handle} cannot mine block $blockName")
     //      return EventResult.interruptFalse()
     //    }
     val result = for {
@@ -29,9 +29,9 @@ case class OnBreak(
       usable = itemRestrictionOps.isUsable(player, tool, position)
     } yield {
       if (!usable) {
-        logger.debug(s"${player.name} cannot mine block ${block.name} using ${tool.name}")
+        logger.debug(s"${player.handle} cannot mine block ${block.name} using ${tool.name}")
       } else {
-        skipLogger.debug(s"${player.name} is going to mine block ${block.name} using ${tool.name}")
+        skipLogger.debug(s"${player.handle} is going to mine block ${block.name} using ${tool.name}")
       }
 
       usable
