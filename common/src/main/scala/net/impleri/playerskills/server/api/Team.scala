@@ -68,8 +68,8 @@ trait TeamUpdater {
 
   protected[api] def updateMemberSkill[T](skill: Skill[T])(playerId: UUID): Option[(UUID, Option[Skill[T]])] = {
     playerOps.get[T](playerId, skill.name)
-      .map(s => (playerOps.can(playerId, s.name, skill.value), s))
-      .map(t => (t._2, if (!t._1) playerOps.upsert(playerId, skill) else Seq.empty))
+      .tap(logger.infoP(o => s"Updating ${skill.name} from ${o.flatMap(_.value)} to ${skill.value} for $playerId"))
+      .map(o => (o, playerOps.upsert(playerId, skill)))
       .flatMap(t => if (t._2.nonEmpty) Some(playerId, Option(t._1)) else None)
   }
 
@@ -143,7 +143,7 @@ class TeamOps(
     value: Option[T],
     team: Seq[UUID],
   ): Option[Skill[T]] = {
-    logger.info(s"Changing skill ${skill.name} to $value for $player.handle")
+    logger.info(s"Changing skill ${skill.name} from ${skill.value} to $value for $player.handle")
     playerOps.calculateValue(player, skill, value)
       .filter(_ => allows(team, skill))
       .tap(logger.infoP(a => s"Is skill change allowed? $a"))
@@ -171,16 +171,34 @@ class TeamOps(
     }
   }
 
+  def change[T](
+    player: MinecraftPlayer[_],
+    skill: Skill[T],
+  ): Option[Boolean] = {
+    val current = playerOps.get[T](player.uuid, skill.name)
+    withFullTeam(player.uuid) { team =>
+      for {
+        c <- current
+        s = calculateNextValue[T](player.uuid, c, skill.value, team)
+        u <- updateSkill[T](player)(s)
+      } yield u
+    }
+  }
+
   def degrade[T](
     player: MinecraftPlayer[_],
     skill: Skill[T],
     min: Option[T] = None,
     max: Option[T] = None,
   ): Option[Boolean] = {
+    val current = playerOps.get[T](player.uuid, skill.name)
     withFullTeam(player.uuid) { team =>
-      skillOps.calculatePrev(skill, min, max)
-        .pipe(v => calculateNextValue(player.uuid, skill, v, team))
-        .pipe(updateSkill[T](player))
+      for {
+        c <- current
+        v = skillOps.calculatePrev[T](c, min, max)
+        s = calculateNextValue[T](player.uuid, c, v, team)
+        u <- updateSkill[T](player)(s)
+      } yield u
     }
   }
 
@@ -190,11 +208,14 @@ class TeamOps(
     min: Option[T] = None,
     max: Option[T] = None,
   ): Option[Boolean] = {
+    val current = playerOps.get[T](player.uuid, skill.name)
     withFullTeam(player.uuid) { team =>
-      skillOps.calculateNext(skill, min, max)
-        .tap(_ => logger.info(s"Improving skill ${skill.name} for ${player.handle}"))
-        .pipe(v => calculateNextValue(player.uuid, skill, v, team))
-        .pipe(updateSkill[T](player))
+      for {
+        c <- current
+        v = skillOps.calculateNext[T](c, min, max)
+        s = calculateNextValue[T](player.uuid, c, v, team)
+        u <- updateSkill[T](player)(s)
+      } yield u
     }
   }
 

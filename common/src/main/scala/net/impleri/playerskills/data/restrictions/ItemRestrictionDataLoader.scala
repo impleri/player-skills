@@ -24,7 +24,7 @@ case class ItemRestrictionDataLoader(
     name: ResourceLocation,
     jsonElement: JsonObject,
   ): Unit = {
-    val builder = ItemRestrictionConditionBuilder(name)
+    val builder = ItemRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
     builder.parse(jsonElement)
 
     if (builder.isValid) {

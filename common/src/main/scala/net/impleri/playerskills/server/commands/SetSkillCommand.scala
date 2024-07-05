@@ -4,7 +4,7 @@ import net.impleri.playerskills.api.skills.ChangeableSkillOps
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.server.api.{Player => PlayerOps}
+import net.impleri.playerskills.server.api.TeamOps
 import net.impleri.slab.commands.CommandAction
 import net.impleri.slab.commands.CommandSegment
 import net.impleri.slab.commands.CommandString
@@ -13,7 +13,7 @@ import net.impleri.slab.commands.StringArgument
 import net.impleri.slab.entity.Player
 
 trait SetSkillCommand extends CommandUtils {
-  protected def playerOps: PlayerOps
+  protected def teamOps: TeamOps
 
   protected def skillOps: SkillOps
 
@@ -47,7 +47,7 @@ trait SetSkillCommand extends CommandUtils {
     skillTypeOps.get(skill)
       .map(_.castFromString(value))
       .map(v => skill.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(v))
-      .map(s => playerOps.upsert(player, s))
+      .map(s => teamOps.change(player, s))
       .forall(_.nonEmpty)
   }
 

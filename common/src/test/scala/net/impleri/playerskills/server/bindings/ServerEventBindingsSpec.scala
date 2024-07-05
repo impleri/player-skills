@@ -35,9 +35,9 @@ class ServerEventBindingsSpec extends BaseSpec {
   private val mockLogger = mock[Logger]
 
   mockStateContainer.ITEM_RESTRICTIONS returns mockOps
+  mockServerStateContainer.PLAYERS returns mockPlayerRegistry
 
   private val testUnit = ServerEventBindings(
-    mockPlayerRegistry,
     mockStateContainer,
     mockServerStateContainer,
     mockOnChange,

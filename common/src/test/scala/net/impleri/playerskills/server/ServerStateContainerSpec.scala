@@ -76,6 +76,7 @@ private class ServerStateContainerSpec extends BaseSpec {
     globalStateMock.SKILLS returns skillRegistryMock
     globalStateMock.SKILL_TYPE_OPS returns skillTypeOpsMock
 
+    playerRegistryMock.close() returns List.empty
     playerRegistryMock.getState returns playerRegistryState
 
     testUnitWithServer.SERVER.value should be(serverMock)
@@ -96,7 +97,10 @@ private class ServerStateContainerSpec extends BaseSpec {
     globalStateMock.SKILLS returns skillRegistryMock
     globalStateMock.SKILL_TYPE_OPS returns skillTypeOpsMock
 
+    playerRegistryMock.close() returns List.empty
     playerRegistryMock.getState returns playerRegistryState
+
+    serverMock.getPlayers returns Seq.empty
 
     testUnit.SERVER should be(None)
 

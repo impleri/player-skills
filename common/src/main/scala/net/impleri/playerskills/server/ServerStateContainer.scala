@@ -20,6 +20,7 @@ import net.impleri.slab.resources.ReloadListeners
 import net.impleri.slab.resources.ResourceManager
 import net.impleri.slab.server.Server
 
+import java.util.UUID
 import scala.annotation.unused
 
 /**
@@ -45,7 +46,6 @@ case class ServerStateContainer(
   lazy private val MANAGER = Manager(globalState, serverStateContainer = Option(this))
 
   private val EVENT_BINDINGS = ServerEventBindings(
-    PLAYERS,
     globalState,
     this,
     onServerChange,
@@ -79,15 +79,21 @@ case class ServerStateContainer(
   }
 
   private[server] def onServerChange(next: Option[Server] = None): Unit = {
+    val playerList = PLAYERS.close()
     SERVER = next
     STORAGE = SERVER.map(PlayerStorageIO(_, skillTypeOps = globalState.SKILL_TYPE_OPS))
     PLAYERS = PlayerRegistry(STORAGE, PLAYERS.getState, globalState.SKILLS)
     PLAYER_OPS = Player(PLAYERS, globalState.SKILL_TYPE_OPS, globalState.SKILL_OPS)
     TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
+    resync(playerList)
   }
 
   private[server] def onReload(@unused resourceManager: Option[ResourceManager]): Unit = {
-    val playerList = PLAYERS.close()
+    resync(PLAYERS.close())
+
+  }
+
+  private[server] def resync(playerList: List[UUID]): Unit = {
     PLAYERS.open(playerList)
 
     SERVER.map(_.getPlayers).foreach {
