@@ -142,12 +142,6 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.get[String](secondUuid, skill1Name) returns Option(skill1)
     playerOpsMock.get[String](secondUuid, skill2Name) returns Option(skill2.copy(value = Option("delta")))
 
-    playerOpsMock.can(givenUuid, *, Option("delta")) returns false
-    playerOpsMock.can(givenUuid, *, Option("alpha")) returns true
-
-    playerOpsMock.can(secondUuid, *, Option("alpha")) returns false
-    playerOpsMock.can(secondUuid, *, Option("delta")) returns true
-
     playerOpsMock.upsert(givenUuid, *) returns List.empty
     playerOpsMock.upsert(secondUuid, *) returns List(
       skill1.copy(value = Option("alpha")),
@@ -156,7 +150,7 @@ class TeamSpec extends BaseSpec {
 
     val updated = testUnit.syncSkills(List(givenUuid, secondUuid))(allSkills)
 
-    updated.length should be(1)
+    updated.length should be(2)
 
     val received = updated
       .map(v => (v._1, v._2.map(_.name).getOrElse("NAME"), v
@@ -168,8 +162,7 @@ class TeamSpec extends BaseSpec {
     received._2 should be(skill1Name)
     received._3 should be(None)
 
-    playerOpsMock.upsert(givenUuid, *) wasCalled once
-    playerOpsMock.upsert(secondUuid, *) wasCalled once
+    playerOpsMock.upsert(*[UUID], *) wasCalled fourTimes
   }
 
   "TeamUpdater.notifyPlayers" should "trigger notifications" in {
@@ -308,8 +301,9 @@ class TeamSpec extends BaseSpec {
     val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = Option("oldvalue")
     val newValue = None
-    val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Shared())
-    val newSkill = oldSkill.copy(value = newValue)
+    val rawSkill = TestSkill(skillName, teamMode = TeamMode.Shared())
+    val oldSkill = rawSkill.copy(value = skillValue)
+    val newSkill = rawSkill.copy(value = newValue)
 
     val offline = List(secondUuid)
 
@@ -317,6 +311,7 @@ class TeamSpec extends BaseSpec {
     playerMock.server returns serverMock
 
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
 
     teamMock.getTeamMembersFor(givenUuid) returns List(givenUuid, secondUuid)
 
@@ -332,7 +327,7 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.isOnline(givenUuid) returns true
     playerOpsMock.isOnline(secondUuid) returns false
 
-    testUnit.degrade(playerMock, oldSkill)
+    testUnit.degrade(playerMock, rawSkill)
 
     eventHandlerMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
   }
@@ -345,8 +340,9 @@ class TeamSpec extends BaseSpec {
     val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = None
     val newValue = Option("newvalue")
-    val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Off())
-    val newSkill = oldSkill.copy(value = newValue)
+    val rawSkill = TestSkill(skillName, teamMode = TeamMode.Off())
+    val oldSkill = rawSkill.copy(value = skillValue)
+    val newSkill = rawSkill.copy(value = newValue)
 
     val offline = List(secondUuid)
 
@@ -354,6 +350,7 @@ class TeamSpec extends BaseSpec {
     playerMock.server returns serverMock
 
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
 
     teamMock.getTeamMembersFor(givenUuid) returns List(givenUuid, secondUuid)
 
@@ -368,7 +365,7 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.isOnline(givenUuid) returns true
     playerOpsMock.isOnline(secondUuid) returns false
 
-    testUnit.improve(playerMock, oldSkill)
+    testUnit.improve(playerMock, rawSkill)
 
     eventHandlerMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
   }
@@ -381,7 +378,8 @@ class TeamSpec extends BaseSpec {
     val skillName = ResourceLocation("testskills", "alpha").get
     val skillValue = None
     val newValue = Option("newvalue")
-    val oldSkill = TestSkill(skillName, value = skillValue, teamMode = TeamMode.Off())
+    val rawSkill = TestSkill(skillName, teamMode = TeamMode.Off())
+    val oldSkill = rawSkill.copy(value = skillValue)
 
     val offline = List(secondUuid)
 
@@ -389,6 +387,7 @@ class TeamSpec extends BaseSpec {
     playerMock.server returns serverMock
 
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
+    playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
 
     teamMock.getTeamMembersFor(givenUuid) returns List(givenUuid, secondUuid)
 
@@ -399,7 +398,7 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.can(givenUuid, skillName, newValue) returns false
     playerOpsMock.calculateValue(givenUuid, oldSkill, newValue) returns None
 
-    testUnit.improve(playerMock, oldSkill)
+    testUnit.improve(playerMock, rawSkill)
 
     eventHandlerMock.emitSkillChanged(*, *, *) wasNever called
   }

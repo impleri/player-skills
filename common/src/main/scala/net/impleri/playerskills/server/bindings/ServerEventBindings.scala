@@ -4,7 +4,6 @@ import net.impleri.playerskills.server.bindings.block.OnBreak
 import net.impleri.playerskills.server.bindings.entity.OnHurt
 import net.impleri.playerskills.server.bindings.lifecycle.BeforeServerStops
 import net.impleri.playerskills.server.commands.PlayerSkillsCommands
-import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.bindings.player.OnJoin
 import net.impleri.playerskills.server.bindings.player.OnPlayerTick
@@ -24,7 +23,6 @@ import net.impleri.slab.logging.Logger
 import net.impleri.slab.server.Server
 
 case class ServerEventBindings(
-  playerRegistry: PlayerRegistry,
   globalState: StateContainer,
   serverState: ServerStateContainer,
   onServerChange: Option[Server] => Unit = _ => {},
@@ -45,10 +43,10 @@ case class ServerEventBindings(
 
     serverLifecycle.beforeServerStart(onServerChange)
     serverLifecycle.beforeServerStop(onServerChange)
-    BeforeServerStops(playerRegistry, serverLifecycle)
+    BeforeServerStops(serverState.PLAYERS, serverLifecycle)
 
-    OnJoin(playerRegistry, netHandler, players)
-    OnQuit(playerRegistry, netHandler, players)
+    OnJoin(serverState.PLAYERS, netHandler, players)
+    OnQuit(serverState.PLAYERS, netHandler, players)
 
     OnBreak(globalState.ITEM_RESTRICTIONS, blocks, logger, skipLogger)
 
