@@ -20,7 +20,7 @@ execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~ minecraft:repeating_comman
 
 execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~-2 minecraft:command_block[facing=down]{ auto: 0b, Command: "/scoreboard players reset test_05 test_time" }
 execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_05,limit=1] at @s run function playerskills:action/start" }
-execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_05,limit=1] at @s run function playerskills:test/05" }execute at @e[tag=setup,limit=1] run setblock ~ ~ ~-2 minecraft:stone_button[face=floor]
+execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_05,limit=1] at @s run function playerskills:test/05" }
 execute at @e[tag=setup,limit=1] run setblock ~ ~ ~-2 minecraft:stone_button[face=floor]
 execute at @e[tag=setup,limit=1] run setblock ~ ~ ~-3 oak_sign[rotation=0]{ Text2: '{"text":"Start","bold":true,"color":"dark_blue"}' } replace
 
@@ -38,7 +38,7 @@ execute at @e[tag=setup,limit=1] run setblock ~-2 ~ ~ minecraft:stone_button[fac
 execute at @e[tag=setup,limit=1] run setblock ~-3 ~ ~ oak_sign[rotation=12]{ Text2: '{"text":"Pass","bold":true,"color":"dark_green"}' } replace
 
 execute at @e[tag=setup,limit=1] run summon minecraft:armor_stand ~ ~ ~ { Tags: ["test", "test_05"], Small: 1b, Invisible: 1b, Invulnerable: 1b }
-execute at @e[tag=setup,limit=1] run setblock ~-1 ~ ~-1 oak_sign[rotation=14]{ Text1: '{"text":"Invalid Type","bold":true}', Text3: '{"text": "no skill change"}' } replace
+execute at @e[tag=setup,limit=1] run setblock ~-1 ~ ~-1 oak_sign[rotation=14]{ Text1: '{"text":"Invalid Value","bold":true}', Text3: '{"text": "no skill change"}' } replace
 
 execute as @e[tag=test_05,limit=1] at @s run function playerskills:reset/05
 
