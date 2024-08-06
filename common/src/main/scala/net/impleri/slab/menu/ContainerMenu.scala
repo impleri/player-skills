@@ -4,7 +4,8 @@ import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.world.inventory.AbstractContainerMenu
 
-case class ContainerMenu[T <: ContainerMenu.Vanilla](override val underlying: T) extends ResourceWrapper[T] {
+case class ContainerMenu[T <: ContainerMenu.Vanilla](override val underlying: T)
+    extends ResourceWrapper[T] {
   def getId: Int = underlying.containerId
 
   def getNextStateId: Int = underlying.incrementStateId()
@@ -16,7 +17,6 @@ object ContainerMenu {
   type Vanilla = AbstractContainerMenu
 
   type Any = ContainerMenu[Vanilla]
-
 
   def fromVanilla[T <: Vanilla](underlying: T): Option[ContainerMenu[T]] = {
     Option(underlying).map(ContainerMenu(_))

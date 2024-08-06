@@ -23,12 +23,11 @@ import net.impleri.slab.server.Server
 import java.util.UUID
 import scala.annotation.unused
 
-/**
- * Single place for all stateful classes
- */
+/** Single place for all stateful classes
+  */
 case class ServerStateContainer(
   private val globalState: StateContainer = StateContainer(),
-  var PLAYERS: PlayerRegistry = PlayerRegistry(),
+  PLAYERS: PlayerRegistry = PlayerRegistry(),
   private val eventHandler: EventHandler = EventHandler(),
   private val reloadListeners: ReloadListeners = ReloadListeners(true),
   var TEAM: Team = StubTeam(),
@@ -36,25 +35,28 @@ case class ServerStateContainer(
   private val itemRegistry: Registry.ITEM = Registry.Items,
   private val logger: Logger = PlayerSkillsLogger.SKILLS,
 ) {
-  private var STORAGE: Option[PlayerStorageIO] = SERVER.map(
-    PlayerStorageIO(_, skillTypeOps = globalState.SKILL_TYPE_OPS),
-  )
+  private var STORAGE: Option[PlayerStorageIO] =
+    SERVER.map(PlayerStorageIO(_, globalState.SKILL_TYPE_OPS))
 
-  var PLAYER_OPS: Player = Player(PLAYERS, globalState.SKILL_TYPE_OPS, globalState.SKILL_OPS)
-  var TEAM_OPS: TeamOps = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
+  val PLAYER_OPS: Player =
+    Player(PLAYERS, globalState.SKILL_TYPE_OPS, globalState.SKILL_OPS)
+  private val TEAM_OPS: TeamOps =
+    Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
 
-  lazy private val MANAGER = Manager(globalState, serverStateContainer = Option(this))
+  private lazy val MANAGER =
+    Manager(globalState, serverStateContainer = Option(this))
 
   private val EVENT_BINDINGS = ServerEventBindings(
     globalState,
     this,
     onServerChange,
-    () => PlayerSkillsCommands(
-      globalState.SKILL_OPS,
-      globalState.SKILL_TYPE_OPS,
-      PLAYER_OPS,
-      TEAM_OPS,
-    ),
+    () =>
+      PlayerSkillsCommands(
+        globalState.SKILL_OPS,
+        globalState.SKILL_TYPE_OPS,
+        PLAYER_OPS,
+        TEAM_OPS,
+      ),
     getNetHandler,
   )
 
@@ -75,20 +77,21 @@ case class ServerStateContainer(
 
   def setTeam(instance: Team): Unit = {
     TEAM = instance
-    TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
+    TEAM_OPS.changeTeam(TEAM)
   }
 
   private[server] def onServerChange(next: Option[Server] = None): Unit = {
     val playerList = PLAYERS.close()
     SERVER = next
-    STORAGE = SERVER.map(PlayerStorageIO(_, skillTypeOps = globalState.SKILL_TYPE_OPS))
-    PLAYERS = PlayerRegistry(STORAGE, PLAYERS.getState, globalState.SKILLS)
-    PLAYER_OPS = Player(PLAYERS, globalState.SKILL_TYPE_OPS, globalState.SKILL_OPS)
-    TEAM_OPS = Team(TEAM, PLAYER_OPS, globalState.SKILL_OPS, eventHandler)
+    STORAGE = SERVER.map(PlayerStorageIO(_, globalState.SKILL_TYPE_OPS))
+    PLAYERS.changeStorage(STORAGE)
+    logger.info("Resyncing players after server change")
     resync(playerList)
   }
 
-  private[server] def onReload(@unused resourceManager: Option[ResourceManager]): Unit = {
+  private[server] def onReload(
+    @unused resourceManager: Option[ResourceManager],
+  ): Unit = {
     resync(PLAYERS.close())
 
   }

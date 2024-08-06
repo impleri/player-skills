@@ -15,9 +15,8 @@ import net.impleri.slab.logging.Logger
 import net.impleri.slab.network.Network
 import net.impleri.slab.registry.Registrar
 
-/**
- * Single place for all stateful classes shared between client and server
- */
+/** Single place for all stateful classes shared between client and server
+  */
 case class StateContainer(
   private val skillRegistrar: Registrar[Skill[_]] = Registrar(None),
   private val skillTypeRegistrar: Registrar[SkillType[_]] = Registrar(None),
@@ -31,9 +30,13 @@ case class StateContainer(
 
   lazy val SKILL_OPS: SkillOps = Skill(SKILL_TYPE_OPS, SKILLS)
 
-  lazy val ITEM_RESTRICTIONS: ItemRestrictionOps = ItemRestrictionOps(RESTRICTIONS)
+  lazy val ITEM_RESTRICTIONS: ItemRestrictionOps = ItemRestrictionOps(
+    RESTRICTIONS,
+  )
 
-  lazy val RECIPE_RESTRICTIONS: RecipeRestrictionOps = RecipeRestrictionOps(RESTRICTIONS)
+  lazy val RECIPE_RESTRICTIONS: RecipeRestrictionOps = RecipeRestrictionOps(
+    RESTRICTIONS,
+  )
 
   val NETWORK: Network = Network(PlayerSkills.MOD_ID)
   private val EVENT_BINDINGS = EventBindings(ITEM_RESTRICTIONS, onSetup)

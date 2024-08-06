@@ -25,7 +25,9 @@ case class NumericSkillType(
   }
 
   override def can(skill: Skill[Double], threshold: Option[Double]): Boolean = {
-    (skill.value.getOrElse(0.0) >= threshold.getOrElse(skill.asInstanceOf[NumericSkill].step))
+    (skill.value.getOrElse(0.0) >= threshold.getOrElse(
+      skill.asInstanceOf[NumericSkill].step,
+    ))
       .tap(
         logger.debugP(c =>
           s"Checking if player can ${skill.name} (is $threshold >= ${skill.value}? $c)",
@@ -33,14 +35,24 @@ case class NumericSkillType(
       )
   }
 
-  override def getPrevValue(skill: Skill[Double], min: Option[Double], max: Option[Double]): Option[Double] = {
-    MinMaxCalculator.calculate(skill.value, max, MinMaxCalculator.isLessThan)
+  override def getPrevValue(
+    skill: Skill[Double],
+    min: Option[Double],
+    max: Option[Double],
+  ): Option[Double] = {
+    MinMaxCalculator
+      .calculate(skill.value, max, MinMaxCalculator.isLessThan)
       .map(_ - skill.asInstanceOf[NumericSkill].step)
       .pipe(MinMaxCalculator.calculate(_, min, MinMaxCalculator.isGreaterThan))
   }
 
-  override def getNextValue(skill: Skill[Double], min: Option[Double], max: Option[Double]): Option[Double] = {
-    MinMaxCalculator.calculate(skill.value, min, MinMaxCalculator.isGreaterThan)
+  override def getNextValue(
+    skill: Skill[Double],
+    min: Option[Double],
+    max: Option[Double],
+  ): Option[Double] = {
+    MinMaxCalculator
+      .calculate(skill.value, min, MinMaxCalculator.isGreaterThan)
       .map(_ + skill.asInstanceOf[NumericSkill].step)
       .pipe(MinMaxCalculator.calculate(_, max, MinMaxCalculator.isLessThan))
   }

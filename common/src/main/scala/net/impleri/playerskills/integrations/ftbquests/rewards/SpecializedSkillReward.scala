@@ -17,8 +17,8 @@ case class SpecializedSkillReward(
   override val playerOps: PlayerOps,
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
-)
-  extends RestrictableReward[String](q, playerOps, skillOps, skillTypeOps) with StringQuest {
+) extends RestrictableReward[String](q, playerOps, skillOps, skillTypeOps)
+    with StringQuest {
   data = QuestState(SpecializedSkillType.NAME)
 
   override def getType: RewardType = SpecializedSkillReward.REWARD_TYPE
@@ -26,7 +26,11 @@ case class SpecializedSkillReward(
 
 object SpecializedSkillReward {
   val REWARD_TYPE: RewardType = QuestStateOps
-    .createRewardType(QuestStateOps.SPECIALIZED_SKILL, "minecraft:item/diamond_hoe", apply)
+    .createRewardType(
+      QuestStateOps.SPECIALIZED_SKILL,
+      "minecraft:item/diamond_hoe",
+      apply,
+    )
 
   def apply(quest: Quest): SpecializedSkillReward = {
     new SpecializedSkillReward(

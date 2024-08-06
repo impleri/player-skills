@@ -22,22 +22,33 @@ trait ImproveSkillCommand {
     failureMessage,
   )
 
-  protected def registerImproveCommand[T <: CommandSegment.Any](builder: T): T = {
-    builder.option(
-      CommandString("improve")
-        .requireMod()
-        .option(
-          PlayerArgument()
-            .option(SkillHandler.getArgument.executes(CommandAction(factory.createCallback(false)).message())),
-        ).option(
-          SkillHandler.getArgument.executes(CommandAction(factory.createCallback(true)).message()),
-        ),
-    ).asInstanceOf[T]
+  protected def registerImproveCommand[T <: CommandSegment.Any](
+    builder: T,
+  ): T = {
+    builder
+      .option(
+        CommandString("improve")
+          .requireMod()
+          .option(
+            PlayerArgument()
+              .option(
+                SkillHandler.getArgument.executes(
+                  CommandAction(factory.createCallback(false)).message(),
+                ),
+              ),
+          )
+          .option(
+            SkillHandler.getArgument
+              .executes(CommandAction(factory.createCallback(true)).message()),
+          ),
+      )
+      .asInstanceOf[T]
   }
 
   private def successMessage: String = "commands.playerskills.skill_improved"
 
-  private def failureMessage: String = "commands.playerskills.skill_improve_failed"
+  private def failureMessage: String =
+    "commands.playerskills.skill_improve_failed"
 
   private def action(player: Player.Any, skill: Skill[_]): Option[Boolean] = {
     teamOps.improve(player, skill, None, None)

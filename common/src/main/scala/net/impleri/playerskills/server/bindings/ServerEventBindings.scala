@@ -43,10 +43,10 @@ case class ServerEventBindings(
 
     serverLifecycle.beforeServerStart(onServerChange)
     serverLifecycle.beforeServerStop(onServerChange)
-    BeforeServerStops(serverState.PLAYERS, serverLifecycle)
+    BeforeServerStops(() => serverState.PLAYERS, serverLifecycle)
 
-    OnJoin(serverState.PLAYERS, netHandler, players)
-    OnQuit(serverState.PLAYERS, netHandler, players)
+    OnJoin(() => serverState.PLAYERS, netHandler, players)
+    OnQuit(() => serverState.PLAYERS, netHandler, players)
 
     OnBreak(globalState.ITEM_RESTRICTIONS, blocks, logger, skipLogger)
 

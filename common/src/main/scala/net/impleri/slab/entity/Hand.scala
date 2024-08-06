@@ -11,7 +11,7 @@ object Hand extends Enumeration {
   def fromVanilla(hand: InteractionHand): Hand = {
     hand match {
       case InteractionHand.OFF_HAND => OFF_HAND
-      case _ => MAIN_HAND
+      case _                        => MAIN_HAND
     }
   }
 }

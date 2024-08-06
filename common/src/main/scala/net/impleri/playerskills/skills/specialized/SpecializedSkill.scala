@@ -14,12 +14,17 @@ case class SpecializedSkill(
   override val teamMode: TeamMode = TeamMode.Off(),
   override val announceChange: Boolean = false,
   override val notifyKey: Option[String] = None,
-) extends Skill[String] with ChangeableSkillOps[String, SpecializedSkill] {
+) extends Skill[String]
+    with ChangeableSkillOps[String, SpecializedSkill] {
   override val skillType: ResourceLocation = SpecializedSkillType.NAME
 
-  override protected[playerskills] def mutate(value: Option[String], changesAllowed: Int): SpecializedSkill = {
+  override protected[playerskills] def mutate(
+    value: Option[String],
+    changesAllowed: Int,
+  ): SpecializedSkill = {
     copy(
-      value = value, changesAllowed = changesAllowed,
+      value = value,
+      changesAllowed = changesAllowed,
     )
   }
 

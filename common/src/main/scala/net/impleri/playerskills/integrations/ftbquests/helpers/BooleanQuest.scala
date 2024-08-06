@@ -15,17 +15,28 @@ trait BooleanQuest extends QuestStateOps[Boolean] {
 
   override protected val noneValue: Boolean = false
 
-  override def writeValueToTag(nbt: NbtContents, key: String, value: Option[Boolean]): NbtContents = {
+  override def writeValueToTag(
+    nbt: NbtContents,
+    key: String,
+    value: Option[Boolean],
+  ): NbtContents = {
     nbt.putBoolean(key, value.getOrElse(noneValue))
   }
 
-  override def readValueFromTag(nbt: NbtContents, key: String): Option[Boolean] = nbt.getBoolean(key)
+  override def readValueFromTag(
+    nbt: NbtContents,
+    key: String,
+  ): Option[Boolean] = nbt.getBoolean(key)
 
-  override def writeValueToBuffer(buffer: FriendlyBuffer, value: Option[Boolean]): FriendlyBuffer = {
+  override def writeValueToBuffer(
+    buffer: FriendlyBuffer,
+    value: Option[Boolean],
+  ): FriendlyBuffer = {
     buffer.writeBoolean(value.getOrElse(noneValue))
   }
 
-  override def readValueFromBuffer(buffer: FriendlyBuffer): Option[Boolean] = buffer.readBoolean()
+  override def readValueFromBuffer(buffer: FriendlyBuffer): Option[Boolean] =
+    buffer.readBoolean()
 
   override def addValueConfig(
     config: ConfigGroup,
@@ -34,6 +45,11 @@ trait BooleanQuest extends QuestStateOps[Boolean] {
     options: NameMap[Boolean],
     defaultValue: Boolean,
   ): ConfigValue[_] = {
-    config.addBool(key, value, v => data.copy(value = Try(v.booleanValue()).toOption).pipe(upsert), defaultValue)
+    config.addBool(
+      key,
+      value,
+      v => data.copy(value = Try(v.booleanValue()).toOption).pipe(upsert),
+      defaultValue,
+    )
   }
 }

@@ -12,16 +12,17 @@ case class BeforeSpawn(
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {
-  private[bindings] val handler: EntityEvents.CanSpawn = (entity, levelOpt, positionOpt, spawnTypeOpt, spawnerOpt) => {
-    skip
-    //      if (!MobRestrictions.canSpawn(livingEntity, levelAccessor, pos, mobSpawnType)) {
-    //        PlayerSkillsLogger.MOBS.debug("$mobType cannot spawn at $posString")
-    //        EventResult.interruptFalse()
-    //      } else {
-    //        PlayerSkillsLogger.SKIPS.debug("$mobType is going to spawn at $posString")
-    //        EventResult.pass()
-    //      }
-  }
+  private[bindings] val handler: EntityEvents.CanSpawn =
+    (entity, levelOpt, positionOpt, spawnTypeOpt, spawnerOpt) => {
+      skip
+      //      if (!MobRestrictions.canSpawn(livingEntity, levelAccessor, pos, mobSpawnType)) {
+      //        PlayerSkillsLogger.MOBS.debug("$mobType cannot spawn at $posString")
+      //        EventResult.interruptFalse()
+      //      } else {
+      //        PlayerSkillsLogger.SKIPS.debug("$mobType is going to spawn at $posString")
+      //        EventResult.pass()
+      //      }
+    }
 
   upstream.canSpawn(handler)
 }

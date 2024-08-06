@@ -14,7 +14,10 @@ import net.impleri.slab.logging.Logger
 
 import scala.util.chaining.scalaUtilChainingOps
 
-case class JeiPluginState(runtime: Option[JeiRuntime] = None, hiddenRecipes: Seq[Recipe.Any] = Seq.empty) {
+case class JeiPluginState(
+  runtime: Option[JeiRuntime] = None,
+  hiddenRecipes: Seq[Recipe.Any] = Seq.empty,
+) {
   def execute(f: JeiRuntime => Unit): Unit = runtime.foreach(f)
 }
 
@@ -29,12 +32,16 @@ case class JeiHelper(
   private def upsert(next: JeiPluginState): Unit = state = next
 
   private[jei] def updateRuntime(runtime: Option[JeiRuntime]): Unit = {
-    state.copy(runtime = runtime)
+    state
+      .copy(runtime = runtime)
       .pipe(upsert)
       .tap(_ => refresh(true))
   }
 
-  private def refreshHiddenRecipes(nextHidden: Seq[Recipe.Any], forced: Boolean)(jeiRuntime: JeiRuntime): Unit = {
+  private def refreshHiddenRecipes(
+    nextHidden: Seq[Recipe.Any],
+    forced: Boolean,
+  )(jeiRuntime: JeiRuntime): Unit = {
     val current = state.hiddenRecipes
 
     val toShow = if (forced) current else nextHidden.diff(current)
@@ -45,8 +52,7 @@ case class JeiHelper(
   }
 
   def refresh(forced: Boolean = false): Unit = {
-    restrictionRegistry
-      .entries
+    restrictionRegistry.entries
       .filter(_.isType(RestrictionType.Recipe()))
       .asInstanceOf[List[RecipeRestriction]]
       .map(_.target)

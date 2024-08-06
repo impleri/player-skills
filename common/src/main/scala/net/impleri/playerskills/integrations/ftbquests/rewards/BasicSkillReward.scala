@@ -15,13 +15,18 @@ case class BasicSkillReward(
   override val playerOps: PlayerOps,
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
-) extends SkillReward[Boolean](q, playerOps, skillOps, skillTypeOps) with BooleanQuest {
+) extends SkillReward[Boolean](q, playerOps, skillOps, skillTypeOps)
+    with BooleanQuest {
   override def getType: RewardType = BasicSkillReward.REWARD_TYPE
 }
 
 object BasicSkillReward {
   val REWARD_TYPE: RewardType = QuestStateOps
-    .createRewardType(QuestStateOps.BASIC_SKILL, "minecraft:item/wooden_hoe", apply)
+    .createRewardType(
+      QuestStateOps.BASIC_SKILL,
+      "minecraft:item/wooden_hoe",
+      apply,
+    )
 
   def apply(quest: Quest): BasicSkillReward = {
     new BasicSkillReward(

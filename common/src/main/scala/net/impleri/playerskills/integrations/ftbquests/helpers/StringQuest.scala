@@ -13,14 +13,22 @@ trait StringQuest extends RestrictableValue[String] {
   override val noneValue = ""
   override val maxValue = ""
 
-  override def writeValueToTag(nbt: NbtContents, key: String, value: Option[String]): NbtContents = {
+  override def writeValueToTag(
+    nbt: NbtContents,
+    key: String,
+    value: Option[String],
+  ): NbtContents = {
     nbt.putString(key, value.getOrElse(noneValue))
   }
 
-  override def readValueFromTag(nbt: NbtContents, key: String): Option[String] = nbt.getString(key)
+  override def readValueFromTag(nbt: NbtContents, key: String): Option[String] =
+    nbt.getString(key)
 
-
-  override def writeMinMaxTag(nbt: NbtContents, key: String, value: Option[String]): NbtContents = {
+  override def writeMinMaxTag(
+    nbt: NbtContents,
+    key: String,
+    value: Option[String],
+  ): NbtContents = {
     nbt.putString(key, value.getOrElse(noneValue))
   }
 
@@ -28,7 +36,10 @@ trait StringQuest extends RestrictableValue[String] {
     nbt.getString(key).filterNot(_.isBlank)
   }
 
-  override def writeValueToBuffer(buffer: FriendlyBuffer, value: Option[String]): FriendlyBuffer = {
+  override def writeValueToBuffer(
+    buffer: FriendlyBuffer,
+    value: Option[String],
+  ): FriendlyBuffer = {
     buffer.writeString(value.getOrElse(noneValue))
   }
 
@@ -36,7 +47,10 @@ trait StringQuest extends RestrictableValue[String] {
     buffer.readString()
   }
 
-  override def writeMinMaxBuffer(buffer: FriendlyBuffer, value: Option[String]): FriendlyBuffer = {
+  override def writeMinMaxBuffer(
+    buffer: FriendlyBuffer,
+    value: Option[String],
+  ): FriendlyBuffer = {
     buffer.writeString(value.getOrElse(noneValue))
   }
 
@@ -52,9 +66,14 @@ trait StringQuest extends RestrictableValue[String] {
     defaultValue: String,
   ): ConfigValue[_] = {
     config
-      .addString(key,
+      .addString(
+        key,
         value,
-        (v: String) => Option(v).filterNot(_.isBlank).pipe(n => data.copy(value = n)).pipe(upsert),
+        (v: String) =>
+          Option(v)
+            .filterNot(_.isBlank)
+            .pipe(n => data.copy(value = n))
+            .pipe(upsert),
         defaultValue,
       )
   }
@@ -69,23 +88,25 @@ trait StringQuest extends RestrictableValue[String] {
       .flatMap(skillOps.get)
       .map(_.options)
 
-    options.filter(_.nonEmpty)
+    options
+      .filter(_.nonEmpty)
       .map(List(noneValue) ++ _)
       .map(o =>
-        NameMap.of(
-          options.get.headOption.getOrElse(noneValue),
-          o.asJava,
-        ).create(),
+        NameMap
+          .of(
+            options.get.headOption.getOrElse(noneValue),
+            o.asJava,
+          )
+          .create(),
       )
-      .map(
-        options =>
-          config.addEnum(
-            name,
-            value,
-            (v: String) => Option(v).filterNot(_.isBlank).pipe(f),
-            options,
-            noneValue,
-          ),
+      .map(options =>
+        config.addEnum(
+          name,
+          value,
+          (v: String) => Option(v).filterNot(_.isBlank).pipe(f),
+          options,
+          noneValue,
+        ),
       )
   }
 }

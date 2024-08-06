@@ -17,10 +17,13 @@ object PlayerSkills {
 
   val REGISTRAR_FACTORY: RegistrarFactory = RegistrarFactory(MOD_ID)
 
-  val STATE: StateContainer = StateContainer(SkillRegistry.REGISTRAR, SkillTypeRegistry.REGISTRAR)
+  val STATE: StateContainer =
+    StateContainer(SkillRegistry.REGISTRAR, SkillTypeRegistry.REGISTRAR)
 
-  private val SKILL_TYPE_REGISTRY = ResourceKey.forRegistry[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY)
-  private val SKILL_TYPES = DeferredRegistry[SkillType[_]](MOD_ID, SKILL_TYPE_REGISTRY)
+  private val SKILL_TYPE_REGISTRY =
+    ResourceKey.forRegistry[SkillType[_]](SkillTypeRegistry.REGISTRY_KEY)
+  private val SKILL_TYPES =
+    DeferredRegistry[SkillType[_]](MOD_ID, SKILL_TYPE_REGISTRY)
 
   // We create the server-side handling here in case we are running in an integrated server/single-player instance
   PlayerSkillsServer.create()
@@ -31,9 +34,15 @@ object PlayerSkills {
 
   private def registerTypes(): Unit = {
     SKILL_TYPES.register(BasicSkillType.NAME, BasicSkillType(STATE.SKILL_OPS))
-    SKILL_TYPES.register(NumericSkillType.NAME, NumericSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(
+      NumericSkillType.NAME,
+      NumericSkillType(STATE.SKILL_OPS),
+    )
     SKILL_TYPES.register(TieredSkillType.NAME, TieredSkillType(STATE.SKILL_OPS))
-    SKILL_TYPES.register(SpecializedSkillType.NAME, SpecializedSkillType(STATE.SKILL_OPS))
+    SKILL_TYPES.register(
+      SpecializedSkillType.NAME,
+      SpecializedSkillType(STATE.SKILL_OPS),
+    )
 
     SKILL_TYPES.commit()
   }

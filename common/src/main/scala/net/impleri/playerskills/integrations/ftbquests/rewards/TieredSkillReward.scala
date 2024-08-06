@@ -17,8 +17,8 @@ case class TieredSkillReward(
   override val playerOps: PlayerOps,
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
-)
-  extends RestrictableReward[String](q, playerOps, skillOps, skillTypeOps) with StringQuest {
+) extends RestrictableReward[String](q, playerOps, skillOps, skillTypeOps)
+    with StringQuest {
   data = QuestState(TieredSkillType.NAME)
 
   override def getType: RewardType = TieredSkillReward.REWARD_TYPE
@@ -26,7 +26,11 @@ case class TieredSkillReward(
 
 object TieredSkillReward {
   val REWARD_TYPE: RewardType = QuestStateOps
-    .createRewardType(QuestStateOps.TIERED_SKILL, "minecraft:item/golden_hoe", apply)
+    .createRewardType(
+      QuestStateOps.TIERED_SKILL,
+      "minecraft:item/golden_hoe",
+      apply,
+    )
 
   def apply(quest: Quest): TieredSkillReward = {
     new TieredSkillReward(

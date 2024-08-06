@@ -6,12 +6,12 @@ import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.world.item.crafting.{RecipeType => McRecipeType}
 
 case class RecipeType[T <: RecipeType.AnyVanilla](override val underlying: T)
-  extends ResourceWrapper[T] {
-  override val name: Option[ResourceLocation] = Registry
-    .RecipeTypes
+    extends ResourceWrapper[T] {
+  override val name: Option[ResourceLocation] = Registry.RecipeTypes
     .getKey(this.asInstanceOf[RecipeType[RecipeType.AnyVanilla]])
 
-  def asType[R <: Recipe.AnyVanilla]: RecipeType.Vanilla[R] = value.asInstanceOf[RecipeType.Vanilla[R]]
+  def asType[R <: Recipe.AnyVanilla]: RecipeType.Vanilla[R] =
+    value.asInstanceOf[RecipeType.Vanilla[R]]
 }
 
 object RecipeType {

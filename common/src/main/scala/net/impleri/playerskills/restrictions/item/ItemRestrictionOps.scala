@@ -15,23 +15,43 @@ class ItemRestrictionOps(
 ) extends RestrictionsOps[Item, Item.Vanilla, ItemRestriction] {
   override val restrictionType: RestrictionType = RestrictionType.Item()
 
-  def isIdentifiable(player: Player[_], item: Item, pos: Option[Position] = None): Boolean = {
+  def isIdentifiable(
+    player: Player[_],
+    item: Item,
+    pos: Option[Position] = None,
+  ): Boolean = {
     canPlayer(player, item, _.identifiable, "identifiable", pos)
   }
 
-  def isHoldable(player: Player[_], item: Item, pos: Option[Position] = None): Boolean = {
+  def isHoldable(
+    player: Player[_],
+    item: Item,
+    pos: Option[Position] = None,
+  ): Boolean = {
     canPlayer(player, item, _.holdable, "holdable", pos)
   }
 
-  def isWearable(player: Player[_], item: Item, pos: Option[Position] = None): Boolean = {
+  def isWearable(
+    player: Player[_],
+    item: Item,
+    pos: Option[Position] = None,
+  ): Boolean = {
     canPlayer(player, item, _.wearable, "wearable", pos)
   }
 
-  def isUsable(player: Player[_], item: Item, pos: Option[Position] = None): Boolean = {
+  def isUsable(
+    player: Player[_],
+    item: Item,
+    pos: Option[Position] = None,
+  ): Boolean = {
     canPlayer(player, item, _.usable, "usable", pos)
   }
 
-  def isHarmful(player: Player[_], item: Item, pos: Option[Position] = None): Boolean = {
+  def isHarmful(
+    player: Player[_],
+    item: Item,
+    pos: Option[Position] = None,
+  ): Boolean = {
     canPlayer(player, item, _.harmful, "harmful", pos)
   }
 }

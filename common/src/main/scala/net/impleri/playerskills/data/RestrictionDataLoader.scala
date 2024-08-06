@@ -10,7 +10,7 @@ import net.impleri.slab.resources.JsonResourceReloadListener
 import net.impleri.slab.resources.ResourceLocation
 
 abstract class RestrictionDataLoader(group: String)
-  extends JsonResourceReloadListener(group)
+    extends JsonResourceReloadListener(group)
     with JsonDataParser
     with BiomeFacetParser
     with DimensionFacetParser

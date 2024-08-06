@@ -9,7 +9,6 @@ case class QuestState[T](
   value: Option[T] = None,
   min: Option[T] = None,
   max: Option[T] = None,
-
 ) {
   def skillAsString: String = skill.fold("")(_.asString)
 }

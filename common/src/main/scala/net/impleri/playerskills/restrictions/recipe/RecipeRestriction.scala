@@ -19,7 +19,10 @@ case class RecipeRestriction(
 }
 
 object RecipeRestriction {
-  def apply(target: Recipe.Any, builder: RecipeConditions): RecipeRestriction = {
+  def apply(
+    target: Recipe.Any,
+    builder: RecipeConditions,
+  ): RecipeRestriction = {
     new RecipeRestriction(
       target,
       builder.condition,

@@ -10,7 +10,9 @@ import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.resources.ResourceWrapper
 
-trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsBuilder] {
+trait RestrictionBuilder[T <: ResourceWrapper[
+  U,
+], U, C <: RestrictionConditionsBuilder] {
   protected def registry: Option[Registry[T, U]] = None
 
   protected def logger: Logger
@@ -32,11 +34,18 @@ trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsB
   protected def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    TargetResource(resourceName, registry.map(r => ResourceKey(r.name)), singleAsString) match {
-      case Some(ns: TargetResource.Namespace) => restrictNamespace(ns.target, builder)
+    TargetResource(
+      resourceName,
+      registry.map(r => ResourceKey(r.name)),
+      singleAsString,
+    ) match {
+      case Some(ns: TargetResource.Namespace) =>
+        restrictNamespace(ns.target, builder)
       case Some(s: TargetResource.Single) => restrictOne(s.target, builder)
-      case Some(s: TargetResource.SingleString) => restrictString(s.target, builder)
-      case Some(t: TargetResource.Tag[_, _]) => restrictTag(t.target.asInstanceOf[Tag[T, U]], builder)
+      case Some(s: TargetResource.SingleString) =>
+        restrictString(s.target, builder)
+      case Some(t: TargetResource.Tag[_, _]) =>
+        restrictTag(t.target.asInstanceOf[Tag[T, U]], builder)
       case _ =>
     }
   }

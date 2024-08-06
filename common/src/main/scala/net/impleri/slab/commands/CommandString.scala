@@ -4,7 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.minecraft.commands.Commands
 
 class CommandString(override val underlying: CommandString.Vanilla)
-  extends CommandSegment[CommandString.Vanilla, CommandString](underlying) {
+    extends CommandSegment[CommandString.Vanilla, CommandString](underlying) {
   def asRoot: CommandString.Root = {
     underlying.asInstanceOf[CommandString.Root]
   }
@@ -21,5 +21,7 @@ object CommandString {
 
   private type Root = LiteralArgumentBuilder[Command.Source]
 
-  def apply(segment: String): CommandString = new CommandString(Commands.literal(segment))
+  def apply(segment: String): CommandString = new CommandString(
+    Commands.literal(segment),
+  )
 }

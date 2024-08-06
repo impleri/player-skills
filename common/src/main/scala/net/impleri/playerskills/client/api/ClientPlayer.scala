@@ -8,7 +8,9 @@ case class ClientPlayer(
   skillTypeOps: SkillTypeOps = SkillType(),
 ) {
   def can[T](skill: Skill[T], expectedValue: Option[T] = None): Boolean = {
-    skillTypeOps.get(skill).fold(ClientPlayer.DEFAULT_SKILL_RESPONSE)(_.can(skill, expectedValue))
+    skillTypeOps
+      .get(skill)
+      .fold(ClientPlayer.DEFAULT_SKILL_RESPONSE)(_.can(skill, expectedValue))
   }
 }
 

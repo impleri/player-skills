@@ -8,75 +8,72 @@ import net.impleri.slab.resources.ResourceLocation
 
 import scala.util.chaining.scalaUtilChainingOps
 
-/**
- * In-game registry interfacing for Skills
- */
+/** In-game registry interfacing for Skills
+  */
 class SkillRegistry(
   var state: SkillRegistryState.Skills,
   private val gameRegistrar: Registrar[Skill[_]],
 ) extends StatefulRegistry[SkillRegistryState.Skills] {
-  /**
-   * Helper method to aggregate the skills created directly by mods
-   */
+
+  /** Helper method to aggregate the skills created directly by mods
+    */
   private def getInitialSkills = {
     gameRegistrar.entries().values.toList
   }
 
-  /**
-   * Resets the state to match the initially created skills
-   */
+  /** Resets the state to match the initially created skills
+    */
   def resync(): Unit = {
-    SkillRegistryState.resync(getInitialSkills)
+    SkillRegistryState
+      .resync(getInitialSkills)
       .pipe(maintainState)
   }
 
-  /**
-   * Get all skills in the state
-   */
+  /** Get all skills in the state
+    */
   def entries: List[Skill[_]] = {
     SkillRegistryState.entries().pipe(maintainState)
   }
 
-  /**
-   * Checks if there is a skill saved in state with the given name
-   */
+  /** Checks if there is a skill saved in state with the given name
+    */
   def has(key: ResourceLocation): Boolean = {
     SkillRegistryState.has(key).pipe(maintainState)
   }
 
   def has(value: Skill[_]): Boolean = has(value.name)
 
-  /**
-   * Returns the full skill if one exists in state with the given name
-   */
+  /** Returns the full skill if one exists in state with the given name
+    */
   def find(key: ResourceLocation): Option[Skill[_]] = {
     SkillRegistryState.find(key).pipe(maintainState)
   }
 
-  /**
-   * Upsert a skill in state even if it already exists
-   */
+  /** Upsert a skill in state even if it already exists
+    */
   def upsert(skill: Skill[_]): Unit = {
-    SkillRegistryState.upsert(skill)
+    SkillRegistryState
+      .upsert(skill)
       .pipe(maintainState)
   }
 
-  /**
-   * Adds a Skill if it does not already exist
-   */
+  /** Adds a Skill if it does not already exist
+    */
   def add(skill: Skill[_]): Boolean = {
-    SkillRegistryState.add(skill)
-      .run(state).map(r => {
+    SkillRegistryState
+      .add(skill)
+      .run(state)
+      .map(r => {
         state = r._1
-      },
-      ).isRight
+      })
+      .isRight
   }
 
-  /**
-   * Removes a Skill if it exists
-   */
+  /** Removes a Skill if it exists
+    */
   def remove(key: ResourceLocation): Unit = {
-    SkillRegistryState.remove(key)
+    SkillRegistryState
+      .remove(key)
       .pipe(maintainState)
   }
 
@@ -86,7 +83,8 @@ class SkillRegistry(
 object SkillRegistry {
   val REGISTRY_KEY: ResourceLocation = ResourceLocation("skills_registry").get
 
-  lazy val REGISTRAR: Registrar[Skill[_]] = Registrar(REGISTRY_KEY, PlayerSkills.MOD_ID)
+  lazy val REGISTRAR: Registrar[Skill[_]] =
+    Registrar(REGISTRY_KEY, PlayerSkills.MOD_ID)
 
   def apply(
     state: SkillRegistryState.Skills = SkillRegistryState.empty,

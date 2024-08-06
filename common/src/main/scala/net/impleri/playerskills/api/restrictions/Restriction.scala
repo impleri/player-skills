@@ -25,24 +25,35 @@ trait Restriction[T <: ResourceWrapper[U], U] {
 
   def isType(input: RestrictionType): Boolean = restrictionType == input
 
-  def targets(value: ResourceLocation): Boolean = target.name.exists(value.equals)
+  def targets(value: ResourceLocation): Boolean =
+    target.name.exists(value.equals)
 
   def hasReplacement: Boolean = replacement.nonEmpty
 
   def isAllowedDimension(dimension: ResourceLocation): Boolean = {
-    dimensionListIncludes(includeDimensions, dimension) && !dimensionListIncludes(excludeDimensions, dimension)
+    dimensionListIncludes(
+      includeDimensions,
+      dimension,
+    ) && !dimensionListIncludes(excludeDimensions, dimension)
   }
 
   def isAllowedBiome(biome: Biome): Boolean = {
-    biomeListIncludes(includeBiomes, biome) && !biomeListIncludes(excludeBiomes, biome)
+    biomeListIncludes(includeBiomes, biome) && !biomeListIncludes(
+      excludeBiomes,
+      biome,
+    )
   }
 
-  private def dimensionListIncludes(list: Seq[String], dimension: ResourceLocation): Boolean = {
+  private def dimensionListIncludes(
+    list: Seq[String],
+    dimension: ResourceLocation,
+  ): Boolean = {
     list.exists(d =>
       TargetResource(d, None) match {
-        case Some(n: TargetResource.Namespace) => dimension.namespace == n.target
+        case Some(n: TargetResource.Namespace) =>
+          dimension.namespace == n.target
         case Some(n: TargetResource.Single) => dimension == n.target
-        case _ => false
+        case _                              => false
       },
     )
   }
@@ -51,9 +62,10 @@ trait Restriction[T <: ResourceWrapper[U], U] {
     list.exists(d =>
       TargetResource(d, Option(ResourceKey.BIOME_REGISTRY)) match {
         case Some(n: TargetResource.Namespace) => biome.isNamespaced(n.target)
-        case Some(n: TargetResource.Tag[_, _]) => biome.isTagged(n.target.asInstanceOf)
+        case Some(n: TargetResource.Tag[_, _]) =>
+          biome.isTagged(n.target.asInstanceOf)
         case Some(n: TargetResource.Single) => biome.isNamed(n.target)
-        case _ => false
+        case _                              => false
       },
     )
   }

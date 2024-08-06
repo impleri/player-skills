@@ -29,17 +29,23 @@ trait TeamSkillCalculator {
   protected def skillOps: SkillOps
 
   protected[api] def getSharedSkills(player: UUID): Seq[Skill[_]] = {
-    playerOps.get(player)
+    playerOps
+      .get(player)
       .filter(_.teamMode == TeamMode.Shared())
   }
 
-  private def getMaxSkill[T](players: Seq[UUID], skill: Skill[T]): Option[Skill[T]] = {
+  private def getMaxSkill[T](
+    players: Seq[UUID],
+    skill: Skill[T],
+  ): Option[Skill[T]] = {
     players
       .flatMap(playerOps.get[T](_, skill.name))
       .maxOption(ord = skillOps.sortHelper[T])
   }
 
-  protected[api] def getMaxTeamSkills(players: Seq[UUID])(skills: Seq[Skill[_]]): Seq[Skill[_]] = {
+  protected[api] def getMaxTeamSkills(
+    players: Seq[UUID],
+  )(skills: Seq[Skill[_]]): Seq[Skill[_]] = {
     skills
       .filterNot(_.teamMode == TeamMode.Off())
       .flatMap(getMaxSkill(players, _))
@@ -66,35 +72,53 @@ trait TeamUpdater {
     response
   }
 
-  protected[api] def updateMemberSkill[T](skill: Skill[T])(playerId: UUID): Option[(UUID, Option[Skill[T]])] = {
-    playerOps.get[T](playerId, skill.name)
-      .tap(logger.infoP(o => s"Updating ${skill.name} from ${o.flatMap(_.value)} to ${skill.value} for $playerId"))
+  protected[api] def updateMemberSkill[T](
+    skill: Skill[T],
+  )(playerId: UUID): Option[(UUID, Option[Skill[T]])] = {
+    playerOps
+      .get[T](playerId, skill.name)
+      .tap(
+        logger.infoP(o =>
+          s"Updating ${skill.name} from ${o.flatMap(_.value)} to ${skill.value} for $playerId",
+        ),
+      )
       .map(o => (o, playerOps.upsert(playerId, skill)))
       .flatMap(t => if (t._2.nonEmpty) Some(playerId, Option(t._1)) else None)
   }
 
-  protected[api] def syncSkills(team: Seq[UUID])
-    (skills: Seq[Skill[_]]): Seq[(UUID, Option[Skill[_]], Option[Skill[_]])] = {
+  protected[api] def syncSkills(
+    team: Seq[UUID],
+  )(skills: Seq[Skill[_]]): Seq[(UUID, Option[Skill[_]], Option[Skill[_]])] = {
     skills
       .flatMap(s => team.flatMap(updateMemberSkill(s)))
       .map(t => (t._1, t._2, t._2.flatMap(s => skills.find(_.name == s.name))))
   }
 
-  protected[api] def notifyPlayers[T](server: Server, originalSkill: Skill[T], emit: Boolean = true)(
+  protected[api] def notifyPlayers[T](
+    server: Server,
+    originalSkill: Skill[T],
+    emit: Boolean = true,
+  )(
     updates: List[(UUID, Option[Skill[_]])],
   ): Unit = {
     if (emit) {
       updates
         .filter(t => playerOps.isOnline(t._1))
         .foreach(tuple =>
-          server.getPlayer(tuple._1)
-            .foreach(
-              player => {
-                eventHandler.emitSkillChanged(player, originalSkill, tuple._2.asInstanceOf[Option[Skill[T]]])
-                originalSkill.getNotification(tuple._2.asInstanceOf[Option[Skill[T]]].flatMap(_.value))
-                  .foreach(player.sendMessage(_))
-              },
-            ),
+          server
+            .getPlayer(tuple._1)
+            .foreach(player => {
+              eventHandler.emitSkillChanged(
+                player,
+                originalSkill,
+                tuple._2.asInstanceOf[Option[Skill[T]]],
+              )
+              originalSkill
+                .getNotification(
+                  tuple._2.asInstanceOf[Option[Skill[T]]].flatMap(_.value),
+                )
+                .foreach(player.sendMessage(_))
+            }),
         )
     }
   }
@@ -106,7 +130,8 @@ trait TeamLimit {
   protected def logger: Logger
 
   private[api] def countWith[T](playerIds: Seq[UUID], skill: Skill[T]): Int = {
-    playerIds.map(p => (p, playerOps.get[T](p, skill.name)))
+    playerIds
+      .map(p => (p, playerOps.get[T](p, skill.name)))
       .flatMap(t => t._2.map(v => (t._1, v)))
       .count(t => playerOps.can(t._1, t._2.name, skill.value))
   }
@@ -114,60 +139,87 @@ trait TeamLimit {
   private[api] def getTeamLimit[T](players: Seq[UUID], skill: Skill[T]) = {
     Option(players.size)
       .filter(_ > 1)
-      .filter(_ => skill.teamMode match {
-        case TeamMode.Off() => false
-        case TeamMode.Shared() => false
-        case _ => true
-      },
+      .filter(_ =>
+        skill.teamMode match {
+          case TeamMode.Off()    => false
+          case TeamMode.Shared() => false
+          case _                 => true
+        },
       )
       .map(skill.teamMode.getLimit(skill, _))
   }
 
   protected[api] def allows[T](players: Seq[UUID], skill: Skill[T]): Boolean = {
     (countWith(players, skill), getTeamLimit(players, skill))
-      .tap(logger.infoP(t => s"Does the team allow updating skill? (${t._1} < ${t._2})"))
+      .tap(
+        logger.infoP(t =>
+          s"Does the team allow updating skill? (${t._1} < ${t._2})",
+        ),
+      )
       .pipe(t => t._2.forall(t._1 < _))
   }
 }
 
-class TeamOps(
+case class TeamOps(
   override val playerOps: Player,
   override val skillOps: SkillOps,
-  override val team: Team,
+  private var teamInstance: Team,
   override val eventHandler: EventHandler,
   override val logger: Logger,
-) extends TeamUpdater with TeamSkillCalculator with TeamLimit {
+) extends TeamUpdater
+    with TeamSkillCalculator
+    with TeamLimit {
+  override def team: Team = teamInstance
+
+  def changeTeam(next: Team): Unit = {
+    teamInstance = next
+  }
+
   private def calculateNextValue[T](
     player: UUID,
     skill: Skill[T],
     value: Option[T],
     team: Seq[UUID],
   ): Option[Skill[T]] = {
-    logger.info(s"Changing skill ${skill.name} from ${skill.value} to $value for $player.handle")
-    playerOps.calculateValue(player, skill, value)
+    logger.info(
+      s"Changing skill ${skill.name} from ${skill.value} to $value for $player.handle",
+    )
+    playerOps
+      .calculateValue(player, skill, value)
       .filter(_ => allows(team, skill))
       .tap(logger.infoP(a => s"Is skill change allowed? $a"))
   }
 
-  private def updateTeamSkill[T](player: MinecraftPlayer[_], skill: Skill[T], emit: Boolean = true): Boolean = {
-    team.getTeamMembersFor(player.uuid)
+  private def updateTeamSkill[T](
+    player: MinecraftPlayer[_],
+    skill: Skill[T],
+    emit: Boolean = true,
+  ): Boolean = {
+    team
+      .getTeamMembersFor(player.uuid)
       .flatMap(updateMemberSkill(skill))
       .tap(notifyPlayers(player.server, skill, emit))
       .nonEmpty
   }
 
-  private def updatePlayerSkill[T](player: MinecraftPlayer[_], skill: Skill[T], emit: Boolean = true): Boolean = {
-    updateMemberSkill(skill)(player.uuid)
-      .toList
+  private def updatePlayerSkill[T](
+    player: MinecraftPlayer[_],
+    skill: Skill[T],
+    emit: Boolean = true,
+  ): Boolean = {
+    updateMemberSkill(skill)(player.uuid).toList
       .tap(notifyPlayers(player.server, skill, emit))
       .nonEmpty
   }
 
-  private def updateSkill[T](player: MinecraftPlayer[_])(skill: Option[Skill[T]]): Option[Boolean] = {
+  private def updateSkill[T](
+    player: MinecraftPlayer[_],
+  )(skill: Option[Skill[T]]): Option[Boolean] = {
     skill match {
-      case Some(s) if s.teamMode == TeamMode.Shared() => Option(updateTeamSkill(player, s))
+      case Some(s) if s.teamMode == TeamMode.Shared() =>
+        Option(updateTeamSkill(player, s))
       case Some(s) => Option(updatePlayerSkill(player, s))
-      case None => None
+      case None    => None
     }
   }
 
@@ -223,9 +275,12 @@ class TeamOps(
     player: MinecraftPlayer[_],
     skill: Skill[T],
   ): Option[Boolean] = {
-    withFullTeam(player.uuid) { team =>
-      skillOps.get[T](skill.name)
-        .tap(_ => logger.info(s"Resetting skill ${skill.name} for ${player.handle}"))
+    withFullTeam(player.uuid) { _ =>
+      skillOps
+        .get[T](skill.name)
+        .tap(_ =>
+          logger.info(s"Resetting skill ${skill.name} for ${player.handle}"),
+        )
         .pipe(updateSkill[T](player))
     }
   }
@@ -248,7 +303,9 @@ class TeamOps(
         .pipe(getMaxTeamSkills(team))
         .pipe(syncSkills(team))
     }
-    updates.foreach(t => notifyPlayers(player.server, t._3.get)(List((t._1, t._3))))
+    updates.foreach(t =>
+      notifyPlayers(player.server, t._3.get)(List((t._1, t._3))),
+    )
 
     updates.nonEmpty
   }
@@ -262,6 +319,6 @@ object Team {
     eventHandler: EventHandler = EventHandler(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
   ): TeamOps = {
-    new TeamOps(playerOps, skillOps, instance, eventHandler, logger)
+    TeamOps(playerOps, skillOps, instance, eventHandler, logger)
   }
 }

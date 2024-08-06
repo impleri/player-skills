@@ -12,9 +12,12 @@ import java.util
 import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
-abstract class JsonResourceReloadListener(pathName: String, gson: Gson = JsonResourceReloadListener.GsonService)
-  extends SimpleJsonResourceReloadListener(gson, pathName) with ReloadListener {
-  
+abstract class JsonResourceReloadListener(
+  pathName: String,
+  gson: Gson = JsonResourceReloadListener.GsonService,
+) extends SimpleJsonResourceReloadListener(gson, pathName)
+    with ReloadListener {
+
   def parse(values: Map[ResourceLocation, JsonElement]): Unit
 
   override def apply(
@@ -30,5 +33,6 @@ abstract class JsonResourceReloadListener(pathName: String, gson: Gson = JsonRes
 }
 
 object JsonResourceReloadListener {
-  private[resources] val GsonService: Gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
+  private[resources] val GsonService: Gson =
+    new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
 }

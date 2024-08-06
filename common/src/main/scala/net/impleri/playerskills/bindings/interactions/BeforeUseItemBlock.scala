@@ -16,31 +16,36 @@ case class BeforeUseItemBlock(
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {
-  private[bindings] val handler: InteractionEvents.OnClickBlock = (player: Player[_], pos: Option[Position], hand: Hand, _: Direction) => {
-    //    val blockState = BlockRestrictions.getBlockState(pos, player.getLevel())
-    //    val replacement = BlockRestrictions.getReplacement(player, blockState, pos)
-    //    val blockName = BlockRestrictions.getName(replacement)
-    //
-    //    if (!BlockRestrictions.isUsable(player, replacement, pos)) {
-    //      PlayerSkillsLogger.BLOCKS.debug("${player.handle} cannot interact with block $blockName")
-    //      return EventResult.interruptFalse()
-    //    }
+  private[bindings] val handler: InteractionEvents.OnClickBlock =
+    (player: Player[_], pos: Option[Position], hand: Hand, _: Direction) => {
+      //    val blockState = BlockRestrictions.getBlockState(pos, player.getLevel())
+      //    val replacement = BlockRestrictions.getReplacement(player, blockState, pos)
+      //    val blockName = BlockRestrictions.getName(replacement)
+      //
+      //    if (!BlockRestrictions.isUsable(player, replacement, pos)) {
+      //      PlayerSkillsLogger.BLOCKS.debug("${player.handle} cannot interact with block $blockName")
+      //      return EventResult.interruptFalse()
+      //    }
 
-    val result = for {
-      item <- player.getItemInHand(hand).filterNot(_.isDefault)
-      usable = itemRestrictionOps.isUsable(player, item, pos)
-    } yield {
-      if (!usable) {
-        logger.debug(s"${player.handle} cannot interact with block using ${item.name}")
-      } else {
-        skipLogger.debug(s"${player.handle} is going to interact with block using ${item.name}")
+      val result = for {
+        item <- player.getItemInHand(hand).filterNot(_.isDefault)
+        usable = itemRestrictionOps.isUsable(player, item, pos)
+      } yield {
+        if (!usable) {
+          logger.debug(
+            s"${player.handle} cannot interact with block using ${item.name}",
+          )
+        } else {
+          skipLogger.debug(
+            s"${player.handle} is going to interact with block using ${item.name}",
+          )
+        }
+
+        usable
       }
 
-      usable
+      failOn(result)
     }
-
-    failOn(result)
-  }
 
   upstream.onLeftClickBlock(handler)
   upstream.onRightClickBlock(handler)

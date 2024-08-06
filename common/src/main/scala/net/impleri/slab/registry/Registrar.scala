@@ -10,7 +10,8 @@ import scala.util.chaining.scalaUtilChainingOps
 
 class Registrar[T](private val underlying: Option[Registrar.Vanilla[T]]) {
   def entries(): Map[ResourceKey.Vanilla[T], T] = {
-    underlying.map(_.entrySet())
+    underlying
+      .map(_.entrySet())
       .map(_.asScala)
       .map(_.map(e => (e.getKey, e.getValue)))
       .map(_.toMap)
@@ -21,14 +22,17 @@ class Registrar[T](private val underlying: Option[Registrar.Vanilla[T]]) {
 object Registrar {
   type Vanilla[T] = ArchRegistrar[T]
 
-  def apply[T](registrar: Option[ArchRegistrar[T]]): Registrar[T] = new Registrar(registrar)
+  def apply[T](registrar: Option[ArchRegistrar[T]]): Registrar[T] =
+    new Registrar(registrar)
 
   def apply[T](key: ResourceLocation, modName: String): Registrar[T] = {
-    apply[T](Registries.get(modName)
-      .builder(key.value)
-      .build()
-      .asInstanceOf[ArchRegistrar[T]]
-      .pipe(Option.apply),
+    apply[T](
+      Registries
+        .get(modName)
+        .builder(key.value)
+        .build()
+        .asInstanceOf[ArchRegistrar[T]]
+        .pipe(Option.apply),
     )
   }
 }

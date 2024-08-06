@@ -26,7 +26,7 @@ case class EventBindings(
     BeforeUseItem(itemRestrictionOps, interaction, logger, skipLogger)
     BeforeUseItemBlock(itemRestrictionOps, interaction, logger, skipLogger)
     BeforeInteractEntity(itemRestrictionOps, interaction, logger, skipLogger)
-    
+
     BeforePlayerPickup(itemRestrictionOps, player, logger, skipLogger)
   }
 }

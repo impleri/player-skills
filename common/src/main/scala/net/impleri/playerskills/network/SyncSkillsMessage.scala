@@ -13,6 +13,7 @@ import net.impleri.slab.network.MessageFactory
 import net.impleri.slab.network.MessageType
 
 import java.util.UUID
+import scala.util.chaining.scalaUtilChainingOps
 
 case class SyncSkillsMessage(
   private val playerId: UUID,
@@ -23,20 +24,20 @@ case class SyncSkillsMessage(
   override val messageType: MessageType,
   private val logger: Logger,
 ) extends ClientboundMessage {
-  override def onReceive: () => Unit = {
-    () =>
+  override def onReceive: () => Unit = { () =>
     clientStateContainer
       .map(_.getNetHandler)
       .foreach(_.onSyncPlayer(skills, force))
   }
 
   override def write(writer: FriendlyBuffer): Unit = {
-    writer.writeUUID(playerId)
+    writer
+      .writeUUID(playerId)
       .writeBoolean(force)
-      .writeInt(skills.size)
 
-    skills.flatMap(skillTypeOps.serialize(_))
-      .map(writer.writeString)
+    skills
+      .flatMap(skillTypeOps.serialize(_))
+      .pipe(writer.writeStrings)
 
     logger.debug(s"Sending skill sync of ${skills.size} skills for $playerId")
   }
@@ -49,29 +50,42 @@ case class SyncSkillsMessageFactory(
 ) extends MessageFactory[SyncSkillsMessage] {
   final val name: String = "sync_skills"
 
-  override val onReceive: MessageFactory.ReceiveFn[SyncSkillsMessage] = (buffer, messageType) => {
-    val playerId = buffer.readUUID()
-    val force = buffer.readBoolean()
-    val skills = buffer.readStrings().flatMap(skillTypeOps.deserialize)
+  override val onReceive: MessageFactory.ReceiveFn[SyncSkillsMessage] =
+    (buffer, messageType) => {
+      val playerId = buffer.readUUID()
+      val force = buffer.readBoolean()
+      val skills = buffer.readStrings().flatMap(skillTypeOps.deserialize)
 
-    logger.debug(s"Received skill sync of ${skills.size} skills for $playerId")
+      logger.debug(
+        s"Received skill sync of ${skills.size} skills for $playerId",
+      )
 
-    SyncSkillsMessage(
-      playerId.get,
-      skills.toList,
-      force.getOrElse(false),
-      skillTypeOps,
-      clientStateContainer,
-      messageType,
-      logger,
-    )
-  }
+      SyncSkillsMessage(
+        playerId.get,
+        skills.toList,
+        force.getOrElse(false),
+        skillTypeOps,
+        clientStateContainer,
+        messageType,
+        logger,
+      )
+    }
 
   def send(
     player: Player[_],
     skills: List[Skill[_]],
     force: Boolean,
   ): Option[SyncSkillsMessage] = {
-    createForSend(SyncSkillsMessage(player.uuid, skills, force, skillTypeOps, clientStateContainer, _, logger))
+    createForSend(
+      SyncSkillsMessage(
+        player.uuid,
+        skills,
+        force,
+        skillTypeOps,
+        clientStateContainer,
+        _,
+        logger,
+      ),
+    )
   }
 }

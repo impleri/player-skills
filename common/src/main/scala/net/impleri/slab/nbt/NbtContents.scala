@@ -16,8 +16,7 @@ import scala.util.chaining.scalaUtilChainingOps
 
 case class NbtContents(private val underlying: CompoundTag) {
   def writeToFile(file: File): Either[NbtFileWriteError, Unit] = {
-    Try(NbtIo.writeCompressed(underlying, file))
-      .toOption
+    Try(NbtIo.writeCompressed(underlying, file)).toOption
       .toRight(FailedToWrite(file))
   }
 
@@ -29,9 +28,7 @@ case class NbtContents(private val underlying: CompoundTag) {
   }
 
   private def readList(key: String, tagType: Int): List[Tag] = {
-    Try(underlying.getList(key, tagType))
-      .toOption
-      .toList
+    Try(underlying.getList(key, tagType)).toOption.toList
       .flatMap(_.asScala.toList)
   }
 
@@ -45,33 +42,33 @@ case class NbtContents(private val underlying: CompoundTag) {
   }
 
   def getBoolean(key: String): Option[Boolean] = {
-    Try(underlying.getBoolean(key))
-      .toOption
+    Try(underlying.getBoolean(key)).toOption
   }
 
   def putBoolean(key: String, value: Boolean): NbtContents = {
-    ByteTag.valueOf(value)
+    ByteTag
+      .valueOf(value)
       .pipe(upsert(key, _))
   }
 
   def getDouble(key: String): Option[Double] = {
-    Try(underlying.getDouble(key))
-      .toOption
+    Try(underlying.getDouble(key)).toOption
   }
 
   def putDouble(key: String, value: Double): NbtContents = {
-    DoubleTag.valueOf(value)
+    DoubleTag
+      .valueOf(value)
       .pipe(upsert(key, _))
   }
 
   def getString(key: String): Option[String] = {
-    Try(underlying.getString(key))
-      .toOption
+    Try(underlying.getString(key)).toOption
       .filter(_.nonEmpty)
   }
 
   def putString(key: String, value: String): NbtContents = {
-    StringTag.valueOf(value)
+    StringTag
+      .valueOf(value)
       .pipe(upsert(key, _))
   }
 
@@ -94,8 +91,7 @@ object NbtContents {
   def apply(): NbtContents = new NbtContents(new CompoundTag())
 
   def fromFile(file: File): Either[NbtFileReadError, NbtContents] = {
-    Try(NbtIo.readCompressed(file))
-      .toOption
+    Try(NbtIo.readCompressed(file)).toOption
       .map(new NbtContents(_))
       .toRight(NbtFileMissing(file))
   }

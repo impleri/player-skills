@@ -10,12 +10,15 @@ import scala.collection.View
 import scala.util.chaining.scalaUtilChainingOps
 
 class RestrictionRegistry(var state: RestrictionRegistryState.Restrictions)
-  extends StatefulRegistry[RestrictionRegistryState.Restrictions] {
+    extends StatefulRegistry[RestrictionRegistryState.Restrictions] {
   def entries: List[Restriction[_, _]] = {
     RestrictionRegistryState.entries().pipe(maintainState)
   }
 
-  def get[T <: ResourceWrapper[U], U](kind: RestrictionType, key: ResourceLocation): View[Restriction[T, U]] = {
+  def get[T <: ResourceWrapper[U], U](
+    kind: RestrictionType,
+    key: ResourceLocation,
+  ): View[Restriction[T, U]] = {
     RestrictionRegistryState.get[T, U](kind, key).pipe(maintainState)
   }
 
@@ -24,18 +27,21 @@ class RestrictionRegistry(var state: RestrictionRegistryState.Restrictions)
   }
 
   def add(restriction: Restriction[_, _]): Boolean = {
-    RestrictionRegistryState.add(restriction)
-      .run(state).map(r => {
+    RestrictionRegistryState
+      .add(restriction)
+      .run(state)
+      .map(r => {
         state = r._1
         true
-      },
-      ).value
+      })
+      .value
   }
 }
 
 object RestrictionRegistry {
   def apply(
-    state: RestrictionRegistryState.Restrictions = RestrictionRegistryState.empty,
+    state: RestrictionRegistryState.Restrictions =
+      RestrictionRegistryState.empty,
   ): RestrictionRegistry = {
     new RestrictionRegistry(state)
   }

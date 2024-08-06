@@ -23,7 +23,8 @@ abstract class SkillTask[T](
   q: Quest,
   override val playerOps: PlayerOps,
   override val skillOps: SkillOps,
-) extends BooleanTask(q) with QuestStateOps[T] {
+) extends BooleanTask(q)
+    with QuestStateOps[T] {
   protected def writeData(nbt: NbtContents): NbtContents = {
     nbt
       .pipe(writeSkillTag)
@@ -87,7 +88,10 @@ abstract class SkillTask[T](
 
   override def autoSubmitOnPlayerTick(): Int = 20
 
-  private def isCompleted(player: Player[_], expected: Option[T] = None): Boolean = {
+  private def isCompleted(
+    player: Player[_],
+    expected: Option[T] = None,
+  ): Boolean = {
     data.skill.exists(s => playerOps.can(player.uuid, s, expected))
   }
 

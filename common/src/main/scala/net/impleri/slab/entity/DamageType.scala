@@ -44,74 +44,126 @@ sealed trait Projectile extends DamageType
 
 protected case class SimpleDamage(name: String) extends DamageType
 
-protected case class WithFire(name: String) extends DamageType with BypassArmor with Fire
+protected case class WithFire(name: String)
+    extends DamageType
+    with BypassArmor
+    with Fire
 
 protected case class Lightning(name: String) extends DamageType
 
 protected case class Lava(name: String) extends DamageType with Fire
 
-protected case class Suffocation(name: String) extends DamageType with BypassArmor
+protected case class Suffocation(name: String)
+    extends DamageType
+    with BypassArmor
 
-protected case class Starve(name: String) extends DamageType with BypassMagic with BypassArmor
+protected case class Starve(name: String)
+    extends DamageType
+    with BypassMagic
+    with BypassArmor
 
-protected case class Falling(name: String) extends DamageType with BypassArmor with Fall
+protected case class Falling(name: String)
+    extends DamageType
+    with BypassArmor
+    with Fall
 
-protected case class DirectedDamage(name: String) extends DamageType with BypassArmor
+protected case class DirectedDamage(name: String)
+    extends DamageType
+    with BypassArmor
 
 protected case class MagicDamage(name: String) extends DamageType with Magic
 
-protected case class FallenDamage(name: String) extends DamageType with DamagesHelmet
+protected case class FallenDamage(name: String)
+    extends DamageType
+    with DamagesHelmet
 
-protected case class OutOfWorld(name: String) extends DamageType with BypassArmor with BypassInvulnerability
+protected case class OutOfWorld(name: String)
+    extends DamageType
+    with BypassArmor
+    with BypassInvulnerability
 
-protected case class EntityDamage(name: String, source: Option[Entity.Any]) extends DamageType with HasSource
+protected case class EntityDamage(name: String, source: Option[Entity.Any])
+    extends DamageType
+    with HasSource
 
 protected case class IndirectEntityDamage(
   name: String,
   source: Option[Entity.Any],
   indirectSource: Option[Entity.Any],
-) extends DamageType with HasSource with HasIndirectSource
+) extends DamageType
+    with HasSource
+    with HasIndirectSource
 
 protected case class ProjectileDamage(
   name: String,
   source: Option[Entity.Any],
   indirectSource: Option[Entity.Any],
-) extends DamageType with HasSource with HasIndirectSource with Projectile
+) extends DamageType
+    with HasSource
+    with HasIndirectSource
+    with Projectile
 
 protected case class FireProjectileDamage(
   name: String,
   source: Option[Entity.Any],
   indirectSource: Option[Entity.Any],
-) extends DamageType with HasSource with HasIndirectSource with Projectile with Fire
+) extends DamageType
+    with HasSource
+    with HasIndirectSource
+    with Projectile
+    with Fire
 
-protected case class IndirectExplosionDamage(name: String, indirectSource: Option[Entity.Any])
-  extends DamageType with HasIndirectSource with Explosive with ScalesWithDifficulty
+protected case class IndirectExplosionDamage(
+  name: String,
+  indirectSource: Option[Entity.Any],
+) extends DamageType
+    with HasIndirectSource
+    with Explosive
+    with ScalesWithDifficulty
 
-protected case class ExplosionDamage(name: String) extends DamageType with Explosive with ScalesWithDifficulty
+protected case class ExplosionDamage(name: String)
+    extends DamageType
+    with Explosive
+    with ScalesWithDifficulty
 
 protected case class FireworksDamage(
   name: String,
   source: Option[Entity.Any],
   indirectSource: Option[Entity.Any],
-) extends DamageType with HasSource with HasIndirectSource with Explosive
+) extends DamageType
+    with HasSource
+    with HasIndirectSource
+    with Explosive
 
 protected case class MagicAttackDamage(
   name: String,
   source: Option[Entity.Any],
   indirectSource: Option[Entity.Any],
-) extends DamageType with HasSource with HasIndirectSource with BypassArmor with Magic
+) extends DamageType
+    with HasSource
+    with HasIndirectSource
+    with BypassArmor
+    with Magic
 
 protected case class ThornsDamage(
   name: String,
   source: Option[Entity.Any],
-) extends DamageType with HasSource with Thorns with Magic
+) extends DamageType
+    with HasSource
+    with Thorns
+    with Magic
 
 protected case class SonicBoomDamage(
   name: String,
   source: Option[Entity.Any],
-) extends DamageType with HasSource with BypassArmor with BypassEnchantments with Magic
+) extends DamageType
+    with HasSource
+    with BypassArmor
+    with BypassEnchantments
+    with Magic
 
-protected case class UnknownDamage(private val underlying: DamageSource) extends DamageType {
+protected case class UnknownDamage(private val underlying: DamageSource)
+    extends DamageType {
   def name: String = underlying.getMsgId
 }
 
@@ -153,78 +205,72 @@ object DamageType {
     source match {
       // Direct Sources
       case e: EntityDamageSource if e.getMsgId == "sonic_boom" =>
-      SonicBoomDamage(
-        e.getMsgId,
-        Option(e.getEntity).map(Entity(_)),
-      )
-
+        SonicBoomDamage(
+          e.getMsgId,
+          Option(e.getEntity).map(Entity(_)),
+        )
 
       case e: EntityDamageSource if e.getMsgId == "thorns" =>
-      ThornsDamage(
-        e.getMsgId,
-        Option(e.getEntity).map(Entity(_)),
-      )
-
+        ThornsDamage(
+          e.getMsgId,
+          Option(e.getEntity).map(Entity(_)),
+        )
 
       case e: EntityDamageSource if entities.contains(e.getMsgId) =>
-      EntityDamage(
-        e.getMsgId,
-        Option(e.getEntity).map(Entity(_)),
-      )
-
+        EntityDamage(
+          e.getMsgId,
+          Option(e.getEntity).map(Entity(_)),
+        )
 
       // Indirect Sources
       case e: EntityDamageSource if e.getMsgId == "explosion.player" =>
-      IndirectExplosionDamage(
-        e.getMsgId,
-        Option(e.getEntity).map(Entity(_)),
-      )
-
+        IndirectExplosionDamage(
+          e.getMsgId,
+          Option(e.getEntity).map(Entity(_)),
+        )
 
       case p: IndirectEntityDamageSource if p.getMsgId == "fireworks" =>
-      FireworksDamage(
-        p.getMsgId,
-        Option(p.getDirectEntity).map(Entity(_)),
-        Option(p.getEntity).map(Entity(_)),
-      )
-
+        FireworksDamage(
+          p.getMsgId,
+          Option(p.getDirectEntity).map(Entity(_)),
+          Option(p.getEntity).map(Entity(_)),
+        )
 
       case p: IndirectEntityDamageSource if p.getMsgId == "indirectMagic" =>
-      MagicAttackDamage(
-        p.getMsgId,
-        Option(p.getDirectEntity).map(Entity(_)),
-        Option(p.getEntity).map(Entity(_)),
-      )
+        MagicAttackDamage(
+          p.getMsgId,
+          Option(p.getDirectEntity).map(Entity(_)),
+          Option(p.getEntity).map(Entity(_)),
+        )
 
-
-      case p: IndirectEntityDamageSource if fireProjectiles.contains(p.getMsgId) =>
-      FireProjectileDamage(
-        p.getMsgId,
-        Option(p.getDirectEntity).map(Entity(_)),
-        Option(p.getEntity).map(Entity(_)),
-      )
-
+      case p: IndirectEntityDamageSource
+          if fireProjectiles.contains(p.getMsgId) =>
+        FireProjectileDamage(
+          p.getMsgId,
+          Option(p.getDirectEntity).map(Entity(_)),
+          Option(p.getEntity).map(Entity(_)),
+        )
 
       case p: IndirectEntityDamageSource if projectiles.contains(p.getMsgId) =>
-      ProjectileDamage(
-        p.getMsgId,
-        Option(p.getDirectEntity).map(Entity(_)),
-        Option(p.getEntity).map(Entity(_)),
-      )
-
+        ProjectileDamage(
+          p.getMsgId,
+          Option(p.getDirectEntity).map(Entity(_)),
+          Option(p.getEntity).map(Entity(_)),
+        )
 
       case p: IndirectEntityDamageSource if entities.contains(p.getMsgId) =>
-      IndirectEntityDamage(
-        p.getMsgId,
-        Option(p.getDirectEntity).map(Entity(_)),
-        Option(p.getEntity).map(Entity(_)),
-      )
-
+        IndirectEntityDamage(
+          p.getMsgId,
+          Option(p.getDirectEntity).map(Entity(_)),
+          Option(p.getEntity).map(Entity(_)),
+        )
 
       // Simple Sources
-      case d: DamageSource if d.getMsgId == "explosion" => ExplosionDamage(d.getMsgId)
+      case d: DamageSource if d.getMsgId == "explosion" =>
+        ExplosionDamage(d.getMsgId)
 
-      case d: DamageSource if simpleTypes.keySet.contains(d.getMsgId) => simpleTypes(d.getMsgId)
+      case d: DamageSource if simpleTypes.keySet.contains(d.getMsgId) =>
+        simpleTypes(d.getMsgId)
 
       // Catchall
 

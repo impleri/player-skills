@@ -18,7 +18,8 @@ import net.minecraft.world.entity.player.{Player => McPlayer}
 import java.util.UUID
 import scala.jdk.CollectionConverters._
 
-case class Player[T <: Player.Vanilla](override val underlying: T) extends Entity[T](underlying) {
+case class Player[T <: Player.Vanilla](override val underlying: T)
+    extends Entity[T](underlying) {
   val handle: String = underlying.getName.getString
 
   val isClient: Boolean = underlying.isInstanceOf[Player.VanillaLocal]
@@ -31,7 +32,9 @@ case class Player[T <: Player.Vanilla](override val underlying: T) extends Entit
 
   val server: Server = Server(underlying.getServer)
 
-  private def toItemMap(values: NonNullList[Item.VanillaStack]): Map[Int, Item] = {
+  private def toItemMap(
+    values: NonNullList[Item.VanillaStack],
+  ): Map[Int, Item] = {
     values.asScala
       .map(Item(_))
       .view
@@ -43,7 +46,8 @@ case class Player[T <: Player.Vanilla](override val underlying: T) extends Entit
 
   val armor: Map[Int, Item] = toItemMap(underlying.getInventory.armor)
 
-  def emptyArmor(slot: Int): Unit = underlying.getInventory.armor.set(slot, Item.DEFAULT_ITEM.getStack)
+  def emptyArmor(slot: Int): Unit =
+    underlying.getInventory.armor.set(slot, Item.DEFAULT_ITEM.getStack)
 
   val inventory: Map[Int, Item] = toItemMap(underlying.getInventory.items)
 
@@ -51,13 +55,15 @@ case class Player[T <: Player.Vanilla](override val underlying: T) extends Entit
 
   val offHand: Map[Int, Item] = toItemMap(underlying.getInventory.offhand)
 
-  def emptyOffHand(slot: Int): Unit = underlying.getInventory.offhand.set(slot, Item.DEFAULT_ITEM.getStack)
+  def emptyOffHand(slot: Int): Unit =
+    underlying.getInventory.offhand.set(slot, Item.DEFAULT_ITEM.getStack)
 
   private def getServerConnection: Option[ServerGamePacketListenerImpl] = {
     if (isServer) {
-      Option(underlying
-        .asInstanceOf[ServerPlayer]
-        .connection,
+      Option(
+        underlying
+          .asInstanceOf[ServerPlayer]
+          .connection,
       )
     } else {
       None
@@ -65,18 +71,23 @@ case class Player[T <: Player.Vanilla](override val underlying: T) extends Entit
   }
 
   def getItemInHand(hand: Hand): Option[Item] = {
-    Option(underlying.getItemInHand(hand.underlying)).map(Item(_)).filterNot(_.isDefault)
+    Option(underlying.getItemInHand(hand.underlying))
+      .map(Item(_))
+      .filterNot(_.isDefault)
   }
 
   def getItemInMainHand: Option[Item] = {
     Option(underlying.getMainHandItem).map(Item(_)).filterNot(_.isDefault)
   }
 
-  def putInInventory(item: Item): Unit = underlying.getInventory.placeItemBackInInventory(item.getStack)
+  def putInInventory(item: Item): Unit =
+    underlying.getInventory.placeItemBackInInventory(item.getStack)
 
   def sendMessage(message: Message[_], notifyPlayer: Boolean = true): Unit = {
     if (isServer && !isEmpty) {
-      underlying.asInstanceOf[ServerPlayer].sendSystemMessage(message.output, notifyPlayer)
+      underlying
+        .asInstanceOf[ServerPlayer]
+        .sendSystemMessage(message.output, notifyPlayer)
     }
   }
 
@@ -92,11 +103,17 @@ case class Player[T <: Player.Vanilla](override val underlying: T) extends Entit
     }
   }
 
-  private def sendPacket(packet: Packet[_]): Unit = getServerConnection.foreach(_.send(packet))
+  private def sendPacket(packet: Packet[_]): Unit =
+    getServerConnection.foreach(_.send(packet))
 
   def sendEmptyContainerSlot(menu: ContainerMenu.Any): Unit = {
     sendPacket(
-      new ClientboundContainerSetSlotPacket(menu.getId, menu.getNextStateId, 0, Item.EMPTY_STACK),
+      new ClientboundContainerSetSlotPacket(
+        menu.getId,
+        menu.getNextStateId,
+        0,
+        Item.EMPTY_STACK,
+      ),
     )
   }
 }
@@ -110,6 +127,6 @@ object Player {
   type Local = Player[VanillaLocal]
   type Server = Player[VanillaServer]
 
-
-  def fromVanilla(underlying: McPlayer): Option[Player.Any] = Option(underlying).map(Player(_))
+  def fromVanilla(underlying: McPlayer): Option[Player.Any] =
+    Option(underlying).map(Player(_))
 }

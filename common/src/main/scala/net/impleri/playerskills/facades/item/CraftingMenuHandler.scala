@@ -16,7 +16,8 @@ object CraftingMenuHandler {
     container: CraftingContainer,
     menu: ContainerMenu.Any,
   ): Option[Boolean] = {
-    container.getCraftingRecipe(server)
+    container
+      .getCraftingRecipe(server)
       .map(PlayerSkills.STATE.RECIPE_RESTRICTIONS.isProducible(player, _, None))
       .tap(v => if (v.contains(false)) player.sendEmptyContainerSlot(menu))
   }
@@ -28,7 +29,11 @@ object CraftingMenuHandler {
     menu: Option[ContainerMenu.Any],
   ): Boolean = {
     player
-      .flatMap(p => server.flatMap(s => container.flatMap(c => menu.flatMap(m => getRecipeFor(p, s, c, m)))))
+      .flatMap(p =>
+        server.flatMap(s =>
+          container.flatMap(c => menu.flatMap(m => getRecipeFor(p, s, c, m))),
+        ),
+      )
       .fold(RestrictionsOps.DEFAULT_RESPONSE)(identity)
   }
 }

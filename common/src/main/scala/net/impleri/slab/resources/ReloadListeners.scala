@@ -9,11 +9,18 @@ case class ReloadListeners(private val isStub: Boolean = false) {
     listenerType: ListenerType.ListenerType = ListenerType.Server,
   ): Unit = {
     if (!isStub) {
-      ReloadListenerRegistry.register(listenerType.asPack, listener, identifier.map(_.value).orNull)
+      ReloadListenerRegistry.register(
+        listenerType.asPack,
+        listener,
+        identifier.map(_.value).orNull,
+      )
     }
   }
 
-  def registerClient(listener: ReloadListener, identifier: Option[ResourceLocation] = None): Unit = {
+  def registerClient(
+    listener: ReloadListener,
+    identifier: Option[ResourceLocation] = None,
+  ): Unit = {
     register(
       listener,
       identifier,
@@ -21,7 +28,10 @@ case class ReloadListeners(private val isStub: Boolean = false) {
     )
   }
 
-  def registerServer(listener: ReloadListener, identifier: Option[ResourceLocation] = None): Unit = {
+  def registerServer(
+    listener: ReloadListener,
+    identifier: Option[ResourceLocation] = None,
+  ): Unit = {
     register(
       listener,
       identifier,

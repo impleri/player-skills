@@ -7,10 +7,17 @@ import net.impleri.slab.pubsub.EventEmitter
 
 import java.util.function.Consumer
 
-case class EventHandler(SKILL_CHANGED: EventEmitter[SkillChangedEvent[_]] = EventEmitter()) {
-  def onSkillChanged(listener: Consumer[SkillChangedEvent[_]]): Unit = SKILL_CHANGED.register(listener)
+case class EventHandler(
+  SKILL_CHANGED: EventEmitter[SkillChangedEvent[_]] = EventEmitter(),
+) {
+  def onSkillChanged(listener: Consumer[SkillChangedEvent[_]]): Unit =
+    SKILL_CHANGED.register(listener)
 
-  def emitSkillChanged[T](player: Player[_], newSkill: Skill[T], oldSkill: Option[Skill[T]]): Unit = {
+  def emitSkillChanged[T](
+    player: Player[_],
+    newSkill: Skill[T],
+    oldSkill: Option[Skill[T]],
+  ): Unit = {
     SKILL_CHANGED.emit(SkillChangedEvent[T](player, Option(newSkill), oldSkill))
   }
 }

@@ -11,22 +11,27 @@ trait SyncTeamCommands {
   protected def teamOps: TeamOps
 
   protected def registerTeamCommands[T <: CommandSegment.Any](builder: T): T = {
-    builder.option(
-      CommandString("team")
-        .option(
-          CommandString("share").executes(CommandAction(syncToTeam)),
-        )
-        .option(
-          CommandString("sync")
-            .requireGm()
-            .option(PlayerArgument().executes(CommandAction(syncTeamForPlayer))),
-        ),
-    ).asInstanceOf[T]
+    builder
+      .option(
+        CommandString("team")
+          .option(
+            CommandString("share").executes(CommandAction(syncToTeam)),
+          )
+          .option(
+            CommandString("sync")
+              .requireGm()
+              .option(
+                PlayerArgument().executes(CommandAction(syncTeamForPlayer)),
+              ),
+          ),
+      )
+      .asInstanceOf[T]
   }
 
-  private[commands] val syncTeamForPlayer: CommandAction.Callback = {
-    context => {
-      PlayerArgument.getValue(context)
+  private[commands] val syncTeamForPlayer: CommandAction.Callback = { context =>
+    {
+      PlayerArgument
+        .getValue(context)
         .map(teamOps.syncEntireTeam)
         .toRight(StaticText("Player Not Found"))
         .filterOrElse(_ == true, StaticText("Sync Failed"))
@@ -34,9 +39,10 @@ trait SyncTeamCommands {
     }
   }
 
-  private[commands] val syncToTeam: CommandAction.Callback = {
-    context => {
-      CommandAction.getCurrentPlayer(context)
+  private[commands] val syncToTeam: CommandAction.Callback = { context =>
+    {
+      CommandAction
+        .getCurrentPlayer(context)
         .map(teamOps.syncFromPlayer)
         .toRight(StaticText("Player Not Found"))
         .filterOrElse(_ == true, StaticText("Sync Failed"))

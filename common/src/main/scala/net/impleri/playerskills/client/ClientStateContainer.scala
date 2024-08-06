@@ -16,11 +16,15 @@ case class ClientStateContainer(
 ) {
   val SKILLS: ClientSkillsRegistry = ClientSkillsRegistry(eventHandler)
 
-  lazy val ITEM_RESTRICTIONS: ItemRestrictionOpsClient = ItemRestrictionOpsClient(globalState.RESTRICTIONS, client)
+  lazy val ITEM_RESTRICTIONS: ItemRestrictionOpsClient =
+    ItemRestrictionOpsClient(globalState.RESTRICTIONS, client)
 
-  lazy val RECIPE_RESTRICTIONS: RecipeRestrictionOpsClient = RecipeRestrictionOpsClient(globalState.RESTRICTIONS)
+  lazy val RECIPE_RESTRICTIONS: RecipeRestrictionOpsClient =
+    RecipeRestrictionOpsClient(globalState.RESTRICTIONS)
 
-  lazy private val MANAGER = Manager(globalState, clientStateContainer = Option(this))
+  lazy private val MANAGER =
+    Manager(globalState, clientStateContainer = Option(this))
 
-  def getNetHandler: NetHandler = NetHandler(client, SKILLS, MANAGER.RESYNC_SKILLS)
+  def getNetHandler: NetHandler =
+    NetHandler(client, SKILLS, MANAGER.RESYNC_SKILLS)
 }

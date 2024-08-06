@@ -27,7 +27,9 @@ abstract class SkillReward[T](
   protected val playerOps: PlayerOps,
   protected val skillOps: SkillOps,
   protected val skillTypeOps: SkillTypeOps,
-) extends Reward(q) with QuestStateOps[T] with Downgradable[T] {
+) extends Reward(q)
+    with QuestStateOps[T]
+    with Downgradable[T] {
   autoclaim = RewardAutoClaim.INVISIBLE
 
   protected def writeData(nbt: NbtContents): NbtContents = {
@@ -104,15 +106,18 @@ abstract class SkillReward[T](
     true
   }
 
-  protected def getPlayerValue(player: Player[_]): Option[Skill[T]] = data
-    .skill
+  protected def getPlayerValue(player: Player[_]): Option[Skill[T]] = data.skill
     .flatMap(s => playerOps.get[T](player, s))
 
   protected def getNextValue(player: Player[_]): Option[Skill[T]] = {
     val current = data.skill.flatMap(s => playerOps.get[T](player, s))
     val skillType = data.skill.flatMap(skillTypeOps.get[T])
     val regradeValue = skillType
-      .flatMap(t => current.flatMap(s => if (data.downgrade) t.getPrevValue(s) else t.getNextValue(s)))
+      .flatMap(t =>
+        current.flatMap(s =>
+          if (data.downgrade) t.getPrevValue(s) else t.getNextValue(s),
+        ),
+      )
     val nextValue = data.value.orElse(regradeValue)
 
     current.flatMap(c => playerOps.calculateValue(player, c, nextValue))
@@ -123,7 +128,11 @@ abstract class SkillReward[T](
       player <- Option(p).map(Player(_))
       notify = Option(n).getOrElse(false)
       _ = getNextValue(player)
-        .flatMap(v => playerOps.upsert(player, v).find(s => s.name == v.name && s.value == v.value))
+        .flatMap(v =>
+          playerOps
+            .upsert(player, v)
+            .find(s => s.name == v.name && s.value == v.value),
+        )
         .flatMap(_.value.asInstanceOf[Option[T]])
         .foreach(v => maybeNotify(player, notify, v.toString))
     } yield {}

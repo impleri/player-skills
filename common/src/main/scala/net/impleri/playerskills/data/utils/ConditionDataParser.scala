@@ -41,19 +41,22 @@ trait ConditionDataParser extends JsonDataParser {
 
     val rawValue = getElement(raw, "value").flatMap {
       case null => None
-      case v: JsonElement if v.isJsonPrimitive => Option(v.getAsString).filterNot(_.isBlank)
+      case v: JsonElement if v.isJsonPrimitive =>
+        Option(v.getAsString).filterNot(_.isBlank)
     }
 
     val value = (skillType, rawValue) match {
       case (Some(t), Some(v)) => t.castFromString(v)
-      case _ => None
+      case _                  => None
     }
 
     (player: Player[_]) => {
-      val can = skill.map(s => playerOps.can(player.uuid, s.name, value)) match {
-        case Some(v) => if (negate) !v else v
-        case _ => false
-      }
+      // TODO: Lift out playerOps from here
+      val can =
+        skill.map(s => playerOps.can(player.uuid, s.name, value)) match {
+          case Some(v) => if (negate) !v else v
+          case _       => false
+        }
 
       if (isCannot) !can else can
     }
@@ -64,6 +67,8 @@ trait ConditionDataParser extends JsonDataParser {
   }
 
   protected def parseUnless(raw: JsonObject): Seq[Player[_] => Boolean] = {
-    parseObjectOrArray(raw, "unless").map(e => parseCondition(e.getAsJsonObject, negate = true))
+    parseObjectOrArray(raw, "unless").map(e =>
+      parseCondition(e.getAsJsonObject, negate = true),
+    )
   }
 }

@@ -13,7 +13,8 @@ case class NumericSkillTask(
   q: Quest,
   override val playerOps: Player,
   override val skillOps: SkillOps,
-) extends SkillTask[Double](q, playerOps, skillOps) with DoubleQuest {
+) extends SkillTask[Double](q, playerOps, skillOps)
+    with DoubleQuest {
   override def getType: TaskType = NumericSkillTask.TASK_TYPE
 
   override def getMaxProgress: Long = data.value.fold(0L)(_.toLong)
@@ -21,7 +22,11 @@ case class NumericSkillTask(
 
 object NumericSkillTask {
   val TASK_TYPE: TaskType = QuestStateOps
-    .createTaskType(QuestStateOps.NUMERIC_SKILL, "minecraft:item/iron_shovel", apply)
+    .createTaskType(
+      QuestStateOps.NUMERIC_SKILL,
+      "minecraft:item/iron_shovel",
+      apply,
+    )
 
   def apply(quest: Quest): NumericSkillTask = {
     new NumericSkillTask(

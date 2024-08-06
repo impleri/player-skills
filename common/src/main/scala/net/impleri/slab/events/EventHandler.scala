@@ -13,27 +13,36 @@ trait EventHandler {
 
   protected def fail: EventResult = EventResult.interruptFalse()
 
-  protected def failOn(received: Option[Boolean], expected: Boolean = false): EventResult = {
-    if (received.contains(expected)) EventResult.interruptFalse() else EventResult.pass()
+  protected def failOn(
+    received: Option[Boolean],
+    expected: Boolean = false,
+  ): EventResult = {
+    if (received.contains(expected)) EventResult.interruptFalse()
+    else EventResult.pass()
   }
 }
 
 trait CompoundEventHandler[T] {
   protected def skip: CompoundEventResult[T] = CompoundEventResult.pass[T]()
 
-  protected def stop(newValue: T): CompoundEventResult[T] = CompoundEventResult.interruptDefault(newValue)
+  protected def stop(newValue: T): CompoundEventResult[T] =
+    CompoundEventResult.interruptDefault(newValue)
 
-  protected def force(newValue: T): CompoundEventResult[T] = CompoundEventResult.interruptTrue(newValue)
+  protected def force(newValue: T): CompoundEventResult[T] =
+    CompoundEventResult.interruptTrue(newValue)
 
-  protected def fail(newValue: T): CompoundEventResult[T] = CompoundEventResult.interruptFalse(newValue)
+  protected def fail(newValue: T): CompoundEventResult[T] =
+    CompoundEventResult.interruptFalse(newValue)
 
   protected def failOn(
     received: Option[Boolean],
     value: Option[T] = None,
     expected: Boolean = false,
   ): CompoundEventResult[T] = {
-    if (received.contains(expected)) CompoundEventResult
-      .interruptFalse(value.getOrElse(null.asInstanceOf[T])) else CompoundEventResult.pass()
+    if (received.contains(expected))
+      CompoundEventResult
+        .interruptFalse(value.getOrElse(null.asInstanceOf[T]))
+    else CompoundEventResult.pass()
   }
 }
 

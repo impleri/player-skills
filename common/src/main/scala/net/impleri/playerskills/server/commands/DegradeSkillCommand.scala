@@ -22,23 +22,34 @@ trait DegradeSkillCommand {
     failureMessage,
   )
 
-  protected def registerDegradeCommand[T <: CommandSegment.Any](builder: T): T = {
+  protected def registerDegradeCommand[T <: CommandSegment.Any](
+    builder: T,
+  ): T = {
 
-    builder.option(
-      CommandString("degrade")
-        .requireMod()
-        .option(
-          PlayerArgument()
-            .option(SkillHandler.getArgument.executes(CommandAction(factory.createCallback(false)).message())),
-        ).option(
-          SkillHandler.getArgument.executes(CommandAction(factory.createCallback(true)).message()),
-        ),
-    ).asInstanceOf[T]
+    builder
+      .option(
+        CommandString("degrade")
+          .requireMod()
+          .option(
+            PlayerArgument()
+              .option(
+                SkillHandler.getArgument.executes(
+                  CommandAction(factory.createCallback(false)).message(),
+                ),
+              ),
+          )
+          .option(
+            SkillHandler.getArgument
+              .executes(CommandAction(factory.createCallback(true)).message()),
+          ),
+      )
+      .asInstanceOf[T]
   }
 
   private def successMessage: String = "commands.playerskills.skill_degraded"
 
-  private def failureMessage: String = "commands.playerskills.skill_degrade_failed"
+  private def failureMessage: String =
+    "commands.playerskills.skill_degrade_failed"
 
   private def action(player: Player.Any, skill: Skill[_]): Option[Boolean] = {
     teamOps.degrade(player, skill, None, None)

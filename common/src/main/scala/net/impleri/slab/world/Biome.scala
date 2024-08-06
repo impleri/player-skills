@@ -8,10 +8,12 @@ import net.minecraft.world.level.biome.{Biome => McBiome}
 
 import scala.jdk.OptionConverters._
 
-case class Biome(private val holder: Holder[Biome.Vanilla]) extends ResourceWrapper[Biome.Vanilla] {
+case class Biome(private val holder: Holder[Biome.Vanilla])
+    extends ResourceWrapper[Biome.Vanilla] {
   override protected val underlying: Biome.Vanilla = holder.value()
 
-  override val name: Option[ResourceLocation] = holder.unwrapKey()
+  override val name: Option[ResourceLocation] = holder
+    .unwrapKey()
     .toScala
     .map(_.location())
     .flatMap(ResourceLocation(_))

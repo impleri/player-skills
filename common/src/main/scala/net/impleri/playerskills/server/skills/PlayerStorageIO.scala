@@ -14,9 +14,8 @@ import net.impleri.slab.server.Server
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
 
-/**
- * Public wrapper to rest of storage package
- */
+/** Public wrapper to rest of storage package
+  */
 case class PlayerStorageIO private[skills] (
   private val storage: SkillNbtStorage,
   private[skills] val skillFile: SkillResourceFile,
@@ -24,13 +23,14 @@ case class PlayerStorageIO private[skills] (
   private val logger: Logger,
 ) {
   def read(playerId: UUID): List[Skill[_]] = {
-    skillFile.getPlayerFile(playerId)
+    skillFile
+      .getPlayerFile(playerId)
       .tap(logger.debugP(file => s"Reading from file ${file.getPath}"))
       .pipe(storage.read)
       .tap {
         case Right(_) => logger.debug(s"Restoring saved skills for $playerId")
         case Left(NbtFileMissing(_)) => ()
-        case Left(e) => logger.warn(e.toString)
+        case Left(e)                 => logger.warn(e.toString)
       }
       .map(skillTypeOps.deserializeAll)
       .toList
@@ -40,12 +40,13 @@ case class PlayerStorageIO private[skills] (
   def write(playerId: UUID, skills: List[Skill[_]]): Boolean = {
     val skillsAsString = skills.flatMap(skillTypeOps.serialize(_))
 
-    skillFile.getPlayerFile(playerId)
+    skillFile
+      .getPlayerFile(playerId)
       .tap(logger.debugP(file => s"Writing to file ${file.getPath}"))
       .pipe(storage.write(_, skillsAsString))
       .tap {
         case Right(_) => logger.info(s"Saving skills for $playerId")
-        case Left(e) => logger.warn(e.toString)
+        case Left(e)  => logger.warn(e.toString)
       }
       .getOrElse(false)
   }
@@ -63,10 +64,11 @@ object PlayerStorageIO {
 
   protected[server] def apply(
     server: Server,
-    storage: SkillNbtStorage = SkillNbtStorage(),
     skillTypeOps: SkillTypeOps = SkillType(),
+    storage: SkillNbtStorage = SkillNbtStorage(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
   ): PlayerStorageIO = {
-    SkillResourceFile(server).pipe(apply(_, storage, skillTypeOps, logger))
+    SkillResourceFile(server)
+      .pipe(apply(_, storage, skillTypeOps, logger))
   }
 }

@@ -25,7 +25,9 @@ import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 trait QuestStateOps[T] {
-  protected var data: QuestState[T] = QuestState(ResourceLocation(PlayerSkills.MOD_ID, "none").get)
+  protected var data: QuestState[T] = QuestState(
+    ResourceLocation(PlayerSkills.MOD_ID, "none").get,
+  )
 
   protected def noneValue: T
 
@@ -49,7 +51,11 @@ trait QuestStateOps[T] {
   }
 
   // Implemented by type-specific traits
-  protected def writeValueToTag(nbt: NbtContents, key: String, value: Option[T]): NbtContents
+  protected def writeValueToTag(
+    nbt: NbtContents,
+    key: String,
+    value: Option[T],
+  ): NbtContents
 
   protected def writeValueTag(nbt: NbtContents): NbtContents = {
     writeValueToTag(nbt, QuestStateOps.VALUE_TAG_KEY, data.value)
@@ -75,7 +81,10 @@ trait QuestStateOps[T] {
   }
 
   // Implemented by type-specific traits
-  protected def writeValueToBuffer(buffer: FriendlyBuffer, value: Option[T]): FriendlyBuffer
+  protected def writeValueToBuffer(
+    buffer: FriendlyBuffer,
+    value: Option[T],
+  ): FriendlyBuffer
 
   protected def writeValueBuffer(buffer: FriendlyBuffer): FriendlyBuffer = {
     writeValueToBuffer(buffer, data.value)
@@ -92,24 +101,30 @@ trait QuestStateOps[T] {
   // Config handling
 
   protected def addSkillToConfig(config: ConfigGroup): Unit = {
-    val skills = skillOps.all()
+    val skills = skillOps
+      .all()
       .filter(_.skillType == data.skillType)
       .map(_.name)
 
     val firstOption = skills.headOption
     val skill = data.skill.orElse(firstOption)
 
-    config.addEnum(
-      QuestStateOps.SKILL_TAG_KEY,
-      skill.fold("")(_.asString),
-      (s: String) => Option(s)
-        .filter(_.nonEmpty)
-        .flatMap(ResourceLocation(_))
-        .pipe(v => data.copy(skill = v))
-        .pipe(upsert),
-      NameMap.of(firstOption.fold("")(_.toString), skills.map(_.toString).asJava).create(),
-      firstOption.fold("")(_.toString),
-    ).setNameKey(QuestStateOps.uiKey(QuestStateOps.SKILL_TAG_KEY))
+    config
+      .addEnum(
+        QuestStateOps.SKILL_TAG_KEY,
+        skill.fold("")(_.asString),
+        (s: String) =>
+          Option(s)
+            .filter(_.nonEmpty)
+            .flatMap(ResourceLocation(_))
+            .pipe(v => data.copy(skill = v))
+            .pipe(upsert),
+        NameMap
+          .of(firstOption.fold("")(_.toString), skills.map(_.toString).asJava)
+          .create(),
+        firstOption.fold("")(_.toString),
+      )
+      .setNameKey(QuestStateOps.uiKey(QuestStateOps.SKILL_TAG_KEY))
   }
 
   // Implemented by type-specific traits
@@ -143,10 +158,12 @@ trait QuestStateOps[T] {
 
     val allOptions = List(noneValue) ++ options
 
-    val optionsMap = NameMap.of(
-      options.headOption.getOrElse(noneValue),
-      allOptions.asJava,
-    ).create()
+    val optionsMap = NameMap
+      .of(
+        options.headOption.getOrElse(noneValue),
+        allOptions.asJava,
+      )
+      .create()
 
     val value = Option(data.value)
       .filter(v => actualSkill.exists(_.isAllowedValue(v)))
@@ -154,7 +171,8 @@ trait QuestStateOps[T] {
       .orElse(options.headOption)
       .getOrElse(noneValue)
 
-    val callback: QuestStateOps.VALUE_CALLBACK[T] = if (options.isEmpty) addValueConfig else addValueOptionsConfig
+    val callback: QuestStateOps.VALUE_CALLBACK[T] =
+      if (options.isEmpty) addValueConfig else addValueOptionsConfig
 
     callback(
       config,
@@ -180,7 +198,8 @@ object QuestStateOps {
   final val SPECIALIZED_SKILL: String = "specialized_skill"
   final val TIERED_SKILL: String = "tiered_skill"
 
-  private type VALUE_CALLBACK[T] = (ConfigGroup, String, T, NameMap[T], T) => ConfigValue[_]
+  private type VALUE_CALLBACK[T] =
+    (ConfigGroup, String, T, NameMap[T], T) => ConfigValue[_]
   private final val VALUE_TAG_KEY = "value"
 
   def localeKey(name: String): String = s"playerskills.quests.$name"
@@ -189,15 +208,24 @@ object QuestStateOps {
 
   def rewardKey(name: String): String = localeKey(s"reward.$name")
 
-  def createRewardType(name: String, icon: String, f: Quest => Reward): RewardType = RewardTypes.register(
-    ResourceLocation(s"${name}_reward").get.value,
-    q => f(q),
-    () => Icon.getIcon(icon),
-  ).setDisplayName(TranslatableText(QuestStateOps.localeKey(name)).output)
+  def createRewardType(
+    name: String,
+    icon: String,
+    f: Quest => Reward,
+  ): RewardType = RewardTypes
+    .register(
+      ResourceLocation(s"${name}_reward").get.value,
+      q => f(q),
+      () => Icon.getIcon(icon),
+    )
+    .setDisplayName(TranslatableText(QuestStateOps.localeKey(name)).output)
 
-  def createTaskType(name: String, icon: String, f: Quest => Task): TaskType = TaskTypes.register(
-    ResourceLocation(s"${name}_task").get.value,
-    q => f(q),
-    () => Icon.getIcon(icon),
-  ).setDisplayName(TranslatableText(QuestStateOps.localeKey(name)).output)
+  def createTaskType(name: String, icon: String, f: Quest => Task): TaskType =
+    TaskTypes
+      .register(
+        ResourceLocation(s"${name}_task").get.value,
+        q => f(q),
+        () => Icon.getIcon(icon),
+      )
+      .setDisplayName(TranslatableText(QuestStateOps.localeKey(name)).output)
 }

@@ -10,7 +10,11 @@ import scala.util.chaining.scalaUtilChainingOps
 trait RestrictableValue[T] extends QuestStateOps[T] {
   protected def maxValue: T = noneValue
 
-  protected def writeMinMaxTag(nbt: NbtContents, key: String, value: Option[T]): NbtContents
+  protected def writeMinMaxTag(
+    nbt: NbtContents,
+    key: String,
+    value: Option[T],
+  ): NbtContents
 
   protected def writeMinMaxToTag(nbt: NbtContents): NbtContents = {
     writeMinMaxTag(nbt, RestrictableValue.MIN_TAG_NAME, data.min)
@@ -26,7 +30,10 @@ trait RestrictableValue[T] extends QuestStateOps[T] {
     upsert(data.copy(min = min, max = max))
   }
 
-  protected def writeMinMaxBuffer(buffer: FriendlyBuffer, value: Option[T]): FriendlyBuffer
+  protected def writeMinMaxBuffer(
+    buffer: FriendlyBuffer,
+    value: Option[T],
+  ): FriendlyBuffer
 
   protected def writeMinMaxToBuffer(buffer: FriendlyBuffer): FriendlyBuffer = {
     writeMinMaxBuffer(buffer, data.min)

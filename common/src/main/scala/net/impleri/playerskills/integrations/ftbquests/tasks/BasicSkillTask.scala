@@ -13,13 +13,18 @@ case class BasicSkillTask(
   q: Quest,
   override val playerOps: PlayerOps,
   override val skillOps: SkillOps,
-) extends SkillTask[Boolean](q, playerOps, skillOps) with BooleanQuest {
+) extends SkillTask[Boolean](q, playerOps, skillOps)
+    with BooleanQuest {
   override def getType: TaskType = BasicSkillTask.TASK_TYPE
 }
 
 object BasicSkillTask {
   val TASK_TYPE: TaskType = QuestStateOps
-    .createTaskType(QuestStateOps.BASIC_SKILL, "minecraft:item/wooden_shovel", apply)
+    .createTaskType(
+      QuestStateOps.BASIC_SKILL,
+      "minecraft:item/wooden_shovel",
+      apply,
+    )
 
   def apply(quest: Quest): BasicSkillTask = {
     new BasicSkillTask(

@@ -20,7 +20,8 @@ case class Item(
   private val stack: Option[ItemStack] = None,
   private val quantity: Int = 1,
   private val registry: Registry[Item, MCItem] = Registry.Items,
-) extends ResourceWrapper[MCItem] with IsIngredient {
+) extends ResourceWrapper[MCItem]
+    with IsIngredient {
   def asString: String = name.fold("nothing")(_.toString)
 
   override val name: Option[ResourceLocation] = registry.getKey(this)
@@ -66,10 +67,7 @@ object Item {
   def DEFAULT_ITEM: Item = new Item(Items.AIR)
 
   def apply(itemStack: ItemStack): Item = {
-    new Item(itemStack.getItem,
-      Option(itemStack),
-      itemStack.getCount,
-    )
+    new Item(itemStack.getItem, Option(itemStack), itemStack.getCount)
   }
 
   def apply(entity: ItemEntity): Item = apply(entity.getItem)
@@ -85,19 +83,18 @@ object Item {
     Item(stack)
   }
 
-  /**
-   * Parse
-   *
-   * Creates an Item facade using a string representation of item plus nbt if parsing is successful
-   */
+  /** Parse
+    *
+    * Creates an Item facade using a string representation of item plus nbt if
+    * parsing is successful
+    */
   def parse(identifier: String): Option[Item] = {
     Try(
       ItemParser.parseForItem(
         Registry.Items.getHolder,
         new StringReader(identifier),
       ),
-    )
-      .toOption
+    ).toOption
       .map(r => (r.item().value(), Option(r.nbt())))
       .map(t => if (t._2.nonEmpty) Item(t._1, t._2.get) else Item(t._1))
   }

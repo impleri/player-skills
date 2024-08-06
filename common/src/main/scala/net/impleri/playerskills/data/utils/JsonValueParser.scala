@@ -16,19 +16,24 @@ trait JsonValueParser {
     raw: JsonObject,
     key: String,
   ): Option[JsonElement] = {
-    Try(raw.get(key)).tap {
-      case Failure(e: NullPointerException) =>
-      logger.info(s"Could not get value for $key")
-      logger.error(e.getMessage)
-      case _ => ()
-    }.toOption.flatMap(Option(_))
+    Try(raw.get(key))
+      .tap {
+        case Failure(e: NullPointerException) =>
+          logger.info(s"Could not get value for $key")
+          logger.error(e.getMessage)
+        case _ => ()
+      }
+      .toOption
+      .flatMap(Option(_))
   }
 
-  private[utils] def parseValueHelper[T](parser: JsonElement => T)(element: JsonElement): Option[T] = {
+  private[utils] def parseValueHelper[T](
+    parser: JsonElement => T,
+  )(element: JsonElement): Option[T] = {
     Try(parser(element)).tap {
       case Failure(e) =>
-      logger.info(s"Could not parse value for ${element.getAsString}")
-      logger.error(e.getMessage)
+        logger.info(s"Could not parse value for ${element.getAsString}")
+        logger.error(e.getMessage)
       case _ => ()
     }.toOption
   }
@@ -51,11 +56,18 @@ trait JsonValueParser {
       .getOrElse(defaultValue)
   }
 
-  protected def isPrimitiveType(value: JsonElement, f: JsonPrimitive => Boolean): Boolean = {
+  protected def isPrimitiveType(
+    value: JsonElement,
+    f: JsonPrimitive => Boolean,
+  ): Boolean = {
     value.isJsonPrimitive && f(value.asInstanceOf[JsonPrimitive])
   }
 
-  private def wrapCast[T](raw: JsonElement, f: JsonPrimitive => Boolean, t: JsonElement => T): Option[T] = {
+  private def wrapCast[T](
+    raw: JsonElement,
+    f: JsonPrimitive => Boolean,
+    t: JsonElement => T,
+  ): Option[T] = {
     if (isPrimitiveType(raw, f)) Option(t(raw)) else None
   }
 
