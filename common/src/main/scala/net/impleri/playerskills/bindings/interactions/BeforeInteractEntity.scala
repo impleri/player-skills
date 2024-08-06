@@ -17,32 +17,37 @@ case class BeforeInteractEntity(
 ) extends EventHandler {
   private[bindings] def handler: InteractionEvents.OnClickEntity = {
     (
-    player: Player[_],
-    entityOpt: Option[Entity[_]],
-    hand: Hand,
-    ) => {
-      val result = for {
-        entity <- entityOpt
-        item <- player.getItemInHand(hand).filterNot(_.isDefault)
-        usable = itemRestrictionOps.isUsable(player, item, None)
-      } yield {
-        //    val mobType = MobRestrictions.getName(entity.type)
-        //    if (!MobRestrictions.canInteractWith(entity.type, player)) {
-        //      PlayerSkillsLogger.MOBS.debug("${player.handle} cannot interact with entity $mobType")
-        //      return EventResult.interruptFalse()
-        //    }
-        if (!usable) {
-          logger.debug(s"${player.handle} cannot interact with entity ${entity.mobTypeName} using ${item.name}")
-        } else {
-          skipLogger
-            .debug(s"${player.handle} is going to interact with entity ${entity.mobTypeName} using ${item.name}")
+      player: Player[_],
+      entityOpt: Option[Entity[_]],
+      hand: Hand,
+    ) =>
+      {
+        val result = for {
+          entity <- entityOpt
+          item <- player.getItemInHand(hand).filterNot(_.isDefault)
+          usable = itemRestrictionOps.isUsable(player, item, None)
+        } yield {
+          //    val mobType = MobRestrictions.getName(entity.type)
+          //    if (!MobRestrictions.canInteractWith(entity.type, player)) {
+          //      PlayerSkillsLogger.MOBS.debug("${player.handle} cannot interact with entity $mobType")
+          //      return EventResult.interruptFalse()
+          //    }
+          if (!usable) {
+            logger.debug(
+              s"${player.handle} cannot interact with entity ${entity.mobTypeName} using ${item.name}",
+            )
+          } else {
+            skipLogger
+              .debug(
+                s"${player.handle} is going to interact with entity ${entity.mobTypeName} using ${item.name}",
+              )
+          }
+
+          usable
         }
 
-        usable
+        failOn(result)
       }
-
-      failOn(result)
-    }
   }
 
   upstream.onRightClickEntity(handler)

@@ -21,30 +21,40 @@ trait SetSkillCommand extends CommandUtils {
 
   protected def registerSetCommand[T <: CommandSegment.Any](builder: T): T = {
 
-    builder.option(
-      CommandString("set")
-        .requireMod()
-        .option(
-          PlayerArgument().option(
+    builder
+      .option(
+        CommandString("set")
+          .requireMod()
+          .option(
+            PlayerArgument().option(
+              SkillHandler.getArgument.option(
+                StringArgument("value")
+                  .executes(CommandAction(handler(false)).message()),
+              ),
+            ),
+          )
+          .option(
             SkillHandler.getArgument.option(
-              StringArgument("value").executes(CommandAction(handler(false)).message()),
+              StringArgument("value")
+                .executes(CommandAction(handler(true)).message()),
             ),
           ),
-        )
-        .option(
-          SkillHandler.getArgument.option(
-            StringArgument("value").executes(CommandAction(handler(true)).message()),
-          ),
-        ),
-    ).asInstanceOf[T]
+      )
+      .asInstanceOf[T]
   }
 
   private def successMessage: String = "commands.playerskills.skill_changed"
 
-  private def failureMessage: String = "commands.playerskills.skill_change_failed"
+  private def failureMessage: String =
+    "commands.playerskills.skill_change_failed"
 
-  protected def grantFoundSkillTo[T](player: Player.Any, skill: Skill[T], value: String) = {
-    skillTypeOps.get(skill)
+  protected def grantFoundSkillTo[T](
+    player: Player.Any,
+    skill: Skill[T],
+    value: String,
+  ) = {
+    skillTypeOps
+      .get(skill)
       .map(_.castFromString(value))
       .map(v => skill.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(v))
       .map(s => teamOps.change(player, s))
@@ -52,16 +62,23 @@ trait SetSkillCommand extends CommandUtils {
   }
 
   private def handler(useCurrentUser: Boolean): CommandAction.Callback = {
-    context => {
-      val player = CommandAction.getPlayer(context, useCurrentUser)
-      val skillName = SkillHandler.getValue(context)
-      val value = StringArgument.getValue("value", context)
+    context =>
+      {
+        val player = CommandAction.getPlayer(context, useCurrentUser)
+        val skillName = SkillHandler.getValue(context)
+        val value = StringArgument.getValue("value", context)
 
-      skillName.flatMap(skillOps.get)
-        .flatMap(s => player.map(grantFoundSkillTo(_, s, value.getOrElse(""))))
-        .toRight(skillNotFound(skillName))
-        .filterOrElse(_ == true, formatMessage(failureMessage, skillName, player))
-        .map(_ => formatMessage(successMessage, skillName, player))
-    }
+        skillName
+          .flatMap(skillOps.get)
+          .flatMap(s =>
+            player.map(grantFoundSkillTo(_, s, value.getOrElse(""))),
+          )
+          .toRight(skillNotFound(skillName))
+          .filterOrElse(
+            _ == true,
+            formatMessage(failureMessage, skillName, player),
+          )
+          .map(_ => formatMessage(successMessage, skillName, player))
+      }
   }
 }

@@ -8,9 +8,8 @@ import java.nio.file.Path
 import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
 
-/**
- * Manages _where_ to save data
- */
+/** Manages _where_ to save data
+  */
 class SkillResourceFile private[skills] (private[skills] val storage: Path) {
   private def storageDirectory: File = {
     storage.toFile

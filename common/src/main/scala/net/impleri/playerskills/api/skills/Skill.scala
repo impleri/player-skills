@@ -30,8 +30,10 @@ sealed trait ChangeableSkill[T] extends SkillData[T] {
 
 // This is separated from ChangeableSkill above in order to get mutate's return type to be the resolved skill rather
 // than the generic Skill[T]. Each new skill class should inherit ChangeableSkillOps in addition to Skill.
-trait ChangeableSkillOps[T, S <: ChangeableSkill[T]] extends ChangeableSkill[T] {
-  def mutate(newValue: Option[T] = None): S = mutate(newValue, changesAllowed - 1)
+trait ChangeableSkillOps[T, S <: ChangeableSkill[T]]
+    extends ChangeableSkill[T] {
+  def mutate(newValue: Option[T] = None): S =
+    mutate(newValue, changesAllowed - 1)
 
   protected[playerskills] def mutate(value: Option[T], changesAllowed: Int): S
 }
@@ -41,7 +43,8 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
 
   def notifyKey: Option[String] = None
 
-  protected[playerskills] def getMessageKey: String = "playerskills.notify.skill_change"
+  protected[playerskills] def getMessageKey: String =
+    "playerskills.notify.skill_change"
 
   private def formatSkillName(): StaticText = {
     StaticText(name.path.replace("_", " ")).darkAqua().bold()
@@ -51,11 +54,21 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
     StaticText(value.fold("")(v => s"$v")).gold()
   }
 
-  private def formatNotificationMessage(messageKey: String, oldValue: Option[T] = None): TranslatableText = {
-    TranslatableText(messageKey, formatSkillName(), formatSkillValue(), formatSkillValue(oldValue))
+  private def formatNotificationMessage(
+    messageKey: String,
+    oldValue: Option[T] = None,
+  ): TranslatableText = {
+    TranslatableText(
+      messageKey,
+      formatSkillName(),
+      formatSkillValue(),
+      formatSkillValue(oldValue),
+    )
   }
 
-  private def formatNotification(oldValue: Option[T] = None): TranslatableText = {
+  private def formatNotification(
+    oldValue: Option[T] = None,
+  ): TranslatableText = {
     formatNotificationMessage(notifyKey.getOrElse(getMessageKey), oldValue)
   }
 
@@ -64,11 +77,13 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
   }
 }
 
-trait Skill[T] extends SkillData[T] with ChangeableSkill[T] with TranslatableSkill[T]
+trait Skill[T]
+    extends SkillData[T]
+    with ChangeableSkill[T]
+    with TranslatableSkill[T]
 
-/**
- * Facade to Skills registry for interacting with the registered skills
- */
+/** Facade to Skills registry for interacting with the registered skills
+  */
 trait SkillRegistryFacade {
   protected def state: SkillRegistry
 
@@ -76,7 +91,8 @@ trait SkillRegistryFacade {
 
   def all(): List[Skill[_]] = state.entries
 
-  def get[T](name: ResourceLocation): Option[Skill[T]] = state.find(name).asInstanceOf[Option[Skill[T]]]
+  def get[T](name: ResourceLocation): Option[Skill[T]] =
+    state.find(name).asInstanceOf[Option[Skill[T]]]
 
   def upsert[T](skill: Skill[T]): Unit = {
     logger.info(s"Saving skill ${skill.name}")
@@ -91,13 +107,23 @@ class SkillOps(
   protected val state: SkillRegistry,
   protected val logger: Logger,
 ) extends SkillRegistryFacade {
-  def calculatePrev[T](skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T] = {
-    skillType.get(skill)
+  def calculatePrev[T](
+    skill: Skill[T],
+    min: Option[T] = None,
+    max: Option[T] = None,
+  ): Option[T] = {
+    skillType
+      .get(skill)
       .flatMap(_.getPrevValue(skill, min, max))
   }
 
-  def calculateNext[T](skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T] = {
-    skillType.get(skill)
+  def calculateNext[T](
+    skill: Skill[T],
+    min: Option[T] = None,
+    max: Option[T] = None,
+  ): Option[T] = {
+    skillType
+      .get(skill)
       .flatMap(_.getNextValue(skill, min, max))
   }
 
@@ -108,9 +134,9 @@ class SkillOps(
 
     (xGreater, yGreater) match {
       case (Some(true), Some(true)) => 0
-      case (Some(true), _) => -1
-      case (_, Some(true)) => 1
-      case _ => 0
+      case (Some(true), _)          => -1
+      case (_, Some(true))          => 1
+      case _                        => 0
     }
   }
 }

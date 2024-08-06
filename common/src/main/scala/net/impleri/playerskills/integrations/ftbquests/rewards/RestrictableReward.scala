@@ -18,8 +18,8 @@ abstract class RestrictableReward[T](
   override val playerOps: PlayerOps,
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
-)
-  extends SkillReward[T](q, playerOps, skillOps, skillTypeOps) with RestrictableValue[T] {
+) extends SkillReward[T](q, playerOps, skillOps, skillTypeOps)
+    with RestrictableValue[T] {
   override def writeData(nbt: NbtContents): NbtContents = {
     nbt
       .pipe(super.writeData)
@@ -54,10 +54,14 @@ abstract class RestrictableReward[T](
     val current = getPlayerValue(player)
     val skillType = data.skill.flatMap(skillTypeOps.get[T])
     val minMaxValue = skillType
-      .flatMap(t => current
-        .flatMap(s => if (data.downgrade) t.getPrevValue(s, data.min, data.max) else t
-          .getNextValue(s, data.min, data.max),
-        ),
+      .flatMap(t =>
+        current
+          .flatMap(s =>
+            if (data.downgrade) t.getPrevValue(s, data.min, data.max)
+            else
+              t
+                .getNextValue(s, data.min, data.max),
+          ),
       )
     val nextValue = data.value.orElse(minMaxValue)
 

@@ -11,9 +11,9 @@ import net.impleri.slab.resources.ResourceLocation
 
 import java.util.UUID
 
-/**
- * Facade to the Players registry for interacting with skills for a given player
- */
+/** Facade to the Players registry for interacting with skills for a given
+  * player
+  */
 trait PlayerRegistryFacade {
   protected def registry: PlayerRegistry
 
@@ -22,12 +22,16 @@ trait PlayerRegistryFacade {
   def get(player: MinecraftPlayer[_]): List[Skill[_]] = get(player.uuid)
 
   def get[T](playerId: UUID, name: ResourceLocation): Option[Skill[T]] = {
-    registry.get(playerId)
+    registry
+      .get(playerId)
       .find(_.name == name)
       .asInstanceOf[Option[Skill[T]]]
   }
 
-  def get[T](player: MinecraftPlayer[_], name: ResourceLocation): Option[Skill[T]] = {
+  def get[T](
+    player: MinecraftPlayer[_],
+    name: ResourceLocation,
+  ): Option[Skill[T]] = {
     get(player.uuid, name)
   }
 
@@ -37,9 +41,11 @@ trait PlayerRegistryFacade {
 
   def open(players: List[UUID]): List[UUID] = registry.open(players)
 
-  def upsert(playerId: UUID, skill: Skill[_]): List[Skill[_]] = registry.upsert(playerId, skill)
+  def upsert(playerId: UUID, skill: Skill[_]): List[Skill[_]] =
+    registry.upsert(playerId, skill)
 
-  def upsert(player: MinecraftPlayer[_], skill: Skill[_]): List[Skill[_]] = upsert(player.uuid, skill)
+  def upsert(player: MinecraftPlayer[_], skill: Skill[_]): List[Skill[_]] =
+    upsert(player.uuid, skill)
 
   def close(playerId: UUID): Boolean = registry.close(playerId)
 
@@ -47,31 +53,48 @@ trait PlayerRegistryFacade {
 }
 
 class Player(
-  override val registry: PlayerRegistry,
+  getRegistry: => PlayerRegistry,
   protected val skillTypeOps: SkillTypeOps,
   protected val skillOps: SkillOps,
 ) extends PlayerRegistryFacade {
-  private def canHelper[T](playerId: UUID, skill: ResourceLocation): Option[(SkillType[T], Skill[T])] = {
+  override lazy val registry: PlayerRegistry = getRegistry
+
+  private def canHelper[T](
+    playerId: UUID,
+    skill: ResourceLocation,
+  ): Option[(SkillType[T], Skill[T])] = {
     (skillTypeOps.get[T](skill), get[T](playerId, skill)) match {
       case (Some(t), Some(s)) => Option((t, s))
-      case _ => None
+      case _                  => None
     }
   }
 
-  def can[T](playerId: UUID, skill: ResourceLocation, expectedValue: Option[T] = None): Boolean = {
-    canHelper[T](playerId, skill).fold(Player.DEFAULT_SKILL_RESPONSE)(t => t._1.can(t._2, expectedValue))
+  def can[T](
+    playerId: UUID,
+    skill: ResourceLocation,
+    expectedValue: Option[T] = None,
+  ): Boolean = {
+    canHelper[T](playerId, skill).fold(Player.DEFAULT_SKILL_RESPONSE)(t =>
+      t._1.can(t._2, expectedValue),
+    )
   }
 
   def reset(playerId: UUID, skill: Skill[_]): List[Skill[_]] = {
-    skillOps.get(skill.name)
+    skillOps
+      .get(skill.name)
       .asInstanceOf[Option[Skill[_]]]
       .map(upsert(playerId, _))
       .getOrElse(List.empty)
   }
 
-  def reset(player: MinecraftPlayer[_], skill: Skill[_]): List[Skill[_]] = reset(player.uuid, skill)
+  def reset(player: MinecraftPlayer[_], skill: Skill[_]): List[Skill[_]] =
+    reset(player.uuid, skill)
 
-  def calculateValue[T](player: UUID, skill: Skill[T], value: Option[T]): Option[Skill[T]] = {
+  def calculateValue[T](
+    player: UUID,
+    skill: Skill[T],
+    value: Option[T],
+  ): Option[Skill[T]] = {
     get[T](player, skill.name)
       .orElse(skillOps.get[T](skill.name))
       .filter(_.areChangesAllowed())
@@ -80,7 +103,11 @@ class Player(
       .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(value))
   }
 
-  def calculateValue[T](player: MinecraftPlayer[_], skill: Skill[T], value: Option[T]): Option[Skill[T]] = {
+  def calculateValue[T](
+    player: MinecraftPlayer[_],
+    skill: Skill[T],
+    value: Option[T],
+  ): Option[Skill[T]] = {
     calculateValue(player.uuid, skill, value)
   }
 }

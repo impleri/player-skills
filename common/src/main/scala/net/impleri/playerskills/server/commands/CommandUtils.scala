@@ -6,7 +6,9 @@ import net.impleri.slab.entity.Player
 import net.impleri.slab.resources.ResourceLocation
 
 trait CommandUtils {
-  protected def skillNotFound(skillName: Option[ResourceLocation]): TranslatableText = TranslatableText(
+  protected def skillNotFound(
+    skillName: Option[ResourceLocation],
+  ): TranslatableText = TranslatableText(
     "commands.playerskills.skill_not_found",
     getSkillName(skillName),
   )

@@ -22,5 +22,7 @@ case class Network(private val underlying: SimpleNetworkManager) {
 object Network {
   type Context = NetworkManager.PacketContext
 
-  def apply(namespace: String): Network = Network(SimpleNetworkManager.create(namespace))
+  def apply(namespace: String): Network = Network(
+    SimpleNetworkManager.create(namespace),
+  )
 }

@@ -8,7 +8,8 @@ trait BaseCommand {
 
   protected def builders[T <: CommandSegment.Any]: List[T => T]
 
-  protected def buildCommands[T <: CommandSegment.Any]: T => T = Function.chain(builders)
+  protected def buildCommands[T <: CommandSegment.Any]: T => T =
+    Function.chain(builders)
 
   def register(
     dispatcher: CommandDispatcher[Command.Source],

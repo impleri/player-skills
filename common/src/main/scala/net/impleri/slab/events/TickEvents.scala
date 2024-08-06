@@ -22,45 +22,61 @@ object PlayerTickType {
 case class TickEvents(
   onServerStartEvent: Event[TickEvent.Server] = TickEvent.SERVER_PRE,
   onServerEndEvent: Event[TickEvent.Server] = TickEvent.SERVER_POST,
-  onLevelStartEvent: Event[TickEvent.ServerLevelTick] = TickEvent.SERVER_LEVEL_PRE,
-  onLevelEndEvent: Event[TickEvent.ServerLevelTick] = TickEvent.SERVER_LEVEL_POST,
+  onLevelStartEvent: Event[TickEvent.ServerLevelTick] =
+    TickEvent.SERVER_LEVEL_PRE,
+  onLevelEndEvent: Event[TickEvent.ServerLevelTick] =
+    TickEvent.SERVER_LEVEL_POST,
   onPlayerStartEvent: Event[TickEvent.Player] = TickEvent.PLAYER_PRE,
   onPlayerEndEvent: Event[TickEvent.Player] = TickEvent.PLAYER_POST,
 ) {
   def onServerStart(f: TickEvents.OnServerTick): Unit = {
-    onServerStartEvent.register((server: MinecraftServer) => Option(server).map(Server(_)).foreach(f))
+    onServerStartEvent.register((server: MinecraftServer) =>
+      Option(server).map(Server(_)).foreach(f),
+    )
   }
 
   def onServerEnd(f: TickEvents.OnServerTick): Unit = {
-    onServerEndEvent.register((server: MinecraftServer) => Option(server).map(Server(_)).foreach(f))
+    onServerEndEvent.register((server: MinecraftServer) =>
+      Option(server).map(Server(_)).foreach(f),
+    )
   }
 
   def onLevelStart(f: TickEvents.OnLevelTick): Unit = {
-    onLevelStartEvent.register((level: ServerLevel) => Option(level).map(Level(_)).foreach(f))
+    onLevelStartEvent.register((level: ServerLevel) =>
+      Option(level).map(Level(_)).foreach(f),
+    )
   }
 
   def onLevelEnd(f: TickEvents.OnLevelTick): Unit = {
-    onLevelEndEvent.register((level: ServerLevel) => Option(level).map(Level(_)).foreach(f))
+    onLevelEndEvent.register((level: ServerLevel) =>
+      Option(level).map(Level(_)).foreach(f),
+    )
   }
 
-  def onPlayerStart(f: TickEvents.OnPlayerTick, side: PlayerTickType = PlayerTickType.Any()): Unit = {
+  def onPlayerStart(
+    f: TickEvents.OnPlayerTick,
+    side: PlayerTickType = PlayerTickType.Any(),
+  ): Unit = {
 
     onPlayerStartEvent.register((rawPlayer: McPlayer) => {
       val player = Option(rawPlayer).map(Player(_)) flatMap {
         // Skip tick handler if handler wants client-side only and we're server-side
-        case p: Player.Any if p.isServer && side != PlayerTickType.Client() => None
+        case p: Player.Any if p.isServer && side != PlayerTickType.Client() =>
+          None
         // Skip tick handler if handler wants server-side only and we're client-side
-        case p: Player.Any if p.isClient && side == PlayerTickType.Server() => None
+        case p: Player.Any if p.isClient && side == PlayerTickType.Server() =>
+          None
         case p: Player.Any => Option(p)
       }
 
       player.foreach(f)
-    },
-    )
+    })
   }
 
   def onPlayerEnd(f: TickEvents.OnPlayerTick): Unit = {
-    onPlayerEndEvent.register((player: McPlayer) => Option(player).map(Player(_)).foreach(f))
+    onPlayerEndEvent.register((player: McPlayer) =>
+      Option(player).map(Player(_)).foreach(f),
+    )
   }
 }
 

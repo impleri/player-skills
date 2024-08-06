@@ -15,10 +15,14 @@ case class NumericSkill(
   override val announceChange: Boolean = false,
   override val notifyKey: Option[String] = None,
   step: Double = NumericSkill.DefaultStep,
-) extends Skill[Double] with ChangeableSkillOps[Double, NumericSkill] {
+) extends Skill[Double]
+    with ChangeableSkillOps[Double, NumericSkill] {
   override val skillType: ResourceLocation = NumericSkillType.NAME
 
-  override protected[playerskills] def mutate(value: Option[Double], changesAllowed: Int): NumericSkill = {
+  override protected[playerskills] def mutate(
+    value: Option[Double],
+    changesAllowed: Int,
+  ): NumericSkill = {
     copy(value = value, changesAllowed = changesAllowed)
   }
 }

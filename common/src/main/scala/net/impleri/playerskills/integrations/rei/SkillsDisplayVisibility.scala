@@ -25,22 +25,22 @@ case class SkillsDisplayVisibility(
   restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
   recipeOpsClient: RecipeRestrictionOpsClient = RecipeRestrictionOpsClient(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
-) extends DisplayVisibilityPredicate with EventHandler {
+) extends DisplayVisibilityPredicate
+    with EventHandler {
   override def getPriority: Double = 100
 
   override def handleDisplay(
     category: DisplayCategory[_],
     display: Display,
   ) = {
-    val isRestricted = castDisplayToRecipe(display).fold(false)(hasMatchingRestriction)
+    val isRestricted =
+      castDisplayToRecipe(display).fold(false)(hasMatchingRestriction)
 
     failOn(Option(isRestricted))
   }
 
   private def getRestrictedRecipes: View[Recipe[_]] = {
-    restrictionRegistry
-      .entries
-      .view
+    restrictionRegistry.entries.view
       .filter(_.isType(RestrictionType.Recipe()))
       .asInstanceOf[SeqView[RecipeRestriction]]
       .map(_.target)
@@ -58,8 +58,8 @@ case class SkillsDisplayVisibility(
   private def castDisplayToRecipe(value: Display): Option[IsRecipe] = {
     Option(displayRegistry.getDisplayOrigin(value)) flatMap {
       case r: RawRecipe[_] => Option(Recipe(r))
-      case b: RawBrewing => Option(BrewingRecipe(b))
-      case _ => None
+      case b: RawBrewing   => Option(BrewingRecipe(b))
+      case _               => None
     }
   }
 }

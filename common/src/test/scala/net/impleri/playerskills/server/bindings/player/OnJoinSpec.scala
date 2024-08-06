@@ -13,7 +13,7 @@ class OnJoinSpec extends BaseSpec {
   private val mockNet = mock[NetHandler]
   private val mockUpstream = mock[PlayerEvents]
 
-  private val testUnit = OnJoin(mockRegistry, mockNet, mockUpstream)
+  private val testUnit = OnJoin(() => mockRegistry, mockNet, mockUpstream)
 
   private val mockPlayer = mock[Player[_]]
   private val mockUuid = mock[UUID]

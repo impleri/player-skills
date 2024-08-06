@@ -12,33 +12,38 @@ case class OnBreak(
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {
-  private[bindings] val handler: BlockEvents.OnBreak = (player, blockOpt, position, _, _) => {
-    //    val replacedBlock = BlockRestrictions.getReplacement(player, originalBlockState, pos)
-    //    val blockName = BlockRestrictions.getName(replacedBlock)
-    //
-    //    val tool = ItemRestrictions.getValue(player.mainHandItem)
-    //    val toolName = ItemRestrictions.getName(tool)
-    //
-    //    if (!BlockRestrictions.isBreakable(player, replacedBlock, pos)) {
-    //      PlayerSkillsLogger.BLOCKS.debug("${player.handle} cannot mine block $blockName")
-    //      return EventResult.interruptFalse()
-    //    }
-    val result = for {
-      block <- blockOpt
-      tool <- player.getItemInMainHand
-      usable = itemRestrictionOps.isUsable(player, tool, position)
-    } yield {
-      if (!usable) {
-        logger.debug(s"${player.handle} cannot mine block ${block.name} using ${tool.name}")
-      } else {
-        skipLogger.debug(s"${player.handle} is going to mine block ${block.name} using ${tool.name}")
+  private[bindings] val handler: BlockEvents.OnBreak =
+    (player, blockOpt, position, _, _) => {
+      //    val replacedBlock = BlockRestrictions.getReplacement(player, originalBlockState, pos)
+      //    val blockName = BlockRestrictions.getName(replacedBlock)
+      //
+      //    val tool = ItemRestrictions.getValue(player.mainHandItem)
+      //    val toolName = ItemRestrictions.getName(tool)
+      //
+      //    if (!BlockRestrictions.isBreakable(player, replacedBlock, pos)) {
+      //      PlayerSkillsLogger.BLOCKS.debug("${player.handle} cannot mine block $blockName")
+      //      return EventResult.interruptFalse()
+      //    }
+      val result = for {
+        block <- blockOpt
+        tool <- player.getItemInMainHand
+        usable = itemRestrictionOps.isUsable(player, tool, position)
+      } yield {
+        if (!usable) {
+          logger.debug(
+            s"${player.handle} cannot mine block ${block.name} using ${tool.name}",
+          )
+        } else {
+          skipLogger.debug(
+            s"${player.handle} is going to mine block ${block.name} using ${tool.name}",
+          )
+        }
+
+        usable
       }
 
-      usable
+      failOn(result)
     }
-
-    failOn(result)
-  }
 
   upstream.onBreak(handler)
 }

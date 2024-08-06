@@ -14,21 +14,22 @@ case class BeforeUseItem(
   logger: Logger = PlayerSkillsLogger.ITEMS,
   skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends ItemEventHandler {
-  private[bindings] val handler: InteractionEvents.OnUseItem = (player: Player[_], hand: Hand) => {
-    val result = for {
-      item <- player.getItemInHand(hand).filterNot(_.isDefault)
-      usable = itemRestrictionOps.isUsable(player, item, None)
-    } yield {
-      if (!usable) {
-        logger.debug(s"${player.handle} cannot use ${item.name}")
-      } else {
-        skipLogger.debug(s"${player.handle} is going to use ${item.name}")
+  private[bindings] val handler: InteractionEvents.OnUseItem =
+    (player: Player[_], hand: Hand) => {
+      val result = for {
+        item <- player.getItemInHand(hand).filterNot(_.isDefault)
+        usable = itemRestrictionOps.isUsable(player, item, None)
+      } yield {
+        if (!usable) {
+          logger.debug(s"${player.handle} cannot use ${item.name}")
+        } else {
+          skipLogger.debug(s"${player.handle} is going to use ${item.name}")
+        }
+        usable
       }
-      usable
-    }
 
-    failOn(result)
-  }
+      failOn(result)
+    }
 
   upstream.onRightClickItem(handler)
 }

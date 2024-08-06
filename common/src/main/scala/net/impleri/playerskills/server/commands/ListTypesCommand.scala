@@ -12,11 +12,13 @@ trait ListTypesCommand {
   protected def skillTypeOps: SkillTypeOps
 
   protected def registerTypesCommand[T <: CommandSegment.Any](builder: T): T = {
-    builder.option(CommandString("types").executes(CommandAction(handler).message())).asInstanceOf[T]
+    builder
+      .option(CommandString("types").executes(CommandAction(handler).message()))
+      .asInstanceOf[T]
   }
 
-  private val handler: CommandAction.Callback = {
-    _ => {
+  private val handler: CommandAction.Callback = { _ =>
+    {
       val types = skillTypeOps.all()
       val message = if (types.nonEmpty) {
         TranslatableText("commands.playerskills.registered_types", types.size)

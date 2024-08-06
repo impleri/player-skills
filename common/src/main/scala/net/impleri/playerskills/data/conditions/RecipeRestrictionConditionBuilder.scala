@@ -20,7 +20,9 @@ case class RecipeRestrictionConditionBuilder(
   protected val skillTypeOps: SkillTypeOps = SkillType(),
   protected val playerOps: Player = Player(),
   protected val logger: Logger = PlayerSkillsLogger.ITEMS,
-) extends RestrictionConditionsBuilder with MultiTargetParser[RecipeTarget] with RecipeConditions {
+) extends RestrictionConditionsBuilder
+    with MultiTargetParser[RecipeTarget]
+    with RecipeConditions {
   private def parseRecipe(element: JsonElement): Seq[RecipeTarget] = {
     val el = element.getAsJsonObject
 

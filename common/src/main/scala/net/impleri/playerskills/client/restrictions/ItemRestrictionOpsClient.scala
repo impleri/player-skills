@@ -12,7 +12,8 @@ case class ItemRestrictionOpsClient(
   r: RestrictionRegistry = RestrictionRegistry(),
   protected val client: Client = Client(),
   l: Logger = PlayerSkillsLogger.ITEMS,
-) extends ItemRestrictionOps(r, l) with RestrictionOpsClient {
+) extends ItemRestrictionOps(r, l)
+    with RestrictionOpsClient {
   def isIdentifiable(item: Item, pos: Option[Position]): Boolean = {
     maybeCan(isIdentifiable(_, item, pos))
   }

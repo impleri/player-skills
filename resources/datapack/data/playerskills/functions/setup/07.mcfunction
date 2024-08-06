@@ -40,7 +40,7 @@ execute at @e[tag=setup,limit=1] run setblock ~-3 ~ ~ oak_sign[rotation=12]{ Tex
 execute at @e[tag=setup,limit=1] run summon minecraft:armor_stand ~ ~ ~ { Tags: ["test", "test_07"], Small: 1b, Invisible: 1b, Invulnerable: 1b }
 execute at @e[tag=setup,limit=1] run setblock ~-1 ~ ~-1 oak_sign[rotation=14]{ Text1: '{"text":"Max Changes","bold":true}', Text3: '{"text": "Player should not be allowed to always change a skill"}' } replace
 
-fexecute as @e[tag=test_07,limit=1] at @s run function playerskills:reset/07
+execute as @e[tag=test_07,limit=1] at @s run function playerskills:reset/07
 
 execute at @e[tag=setup,limit=1] run teleport @e[tag=setup,limit=1] ~10 ~ ~
 scoreboard players add something test 1

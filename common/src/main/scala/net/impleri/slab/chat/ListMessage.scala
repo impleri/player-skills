@@ -2,9 +2,12 @@ package net.impleri.slab.chat
 
 import net.impleri.slab.commands.Command
 
-case class ListMessage(override val underlying: Message.Vanilla, children: Seq[Message.Any])
-  extends Message[ListMessage] {
-  override def copyAs(newVal: Message.Vanilla): ListMessage = copy(underlying = newVal)
+case class ListMessage(
+  override val underlying: Message.Vanilla,
+  children: Seq[Message.Any],
+) extends Message[ListMessage] {
+  override def copyAs(newVal: Message.Vanilla): ListMessage =
+    copy(underlying = newVal)
 
   override def sendSuccess(context: Command.Context): Unit = {
     super.sendSuccess(context)

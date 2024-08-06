@@ -10,9 +10,17 @@ import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
 
 sealed trait ChangeableSkillType[T] {
-  def getPrevValue(skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T]
+  def getPrevValue(
+    skill: Skill[T],
+    min: Option[T] = None,
+    max: Option[T] = None,
+  ): Option[T]
 
-  def getNextValue(skill: Skill[T], min: Option[T] = None, max: Option[T] = None): Option[T]
+  def getNextValue(
+    skill: Skill[T],
+    min: Option[T] = None,
+    max: Option[T] = None,
+  ): Option[T]
 }
 
 sealed trait SerializableSkillType[T] {
@@ -31,14 +39,24 @@ sealed trait SerializableSkillType[T] {
     ).mkString(SkillType.stringValueSeparator)
   }
 
-  def deserialize(name: String, value: Option[String], changesAllowed: Int): Option[Skill[T]] = {
+  def deserialize(
+    name: String,
+    value: Option[String],
+    changesAllowed: Int,
+  ): Option[Skill[T]] = {
     ResourceLocation(name)
       .flatMap(skillOps.get[T])
-      .map(_.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(value.flatMap(castFromString), changesAllowed))
+      .map(
+        _.asInstanceOf[ChangeableSkillOps[T, Skill[T]]]
+          .mutate(value.flatMap(castFromString), changesAllowed),
+      )
   }
 }
 
-trait SkillType[T] extends Registerable with ChangeableSkillType[T] with SerializableSkillType[T] {
+trait SkillType[T]
+    extends Registerable
+    with ChangeableSkillType[T]
+    with SerializableSkillType[T] {
   val name: ResourceLocation = ResourceLocation("skill").get
 
   def can(skill: Skill[T], threshold: Option[T] = None): Boolean = {
@@ -46,9 +64,8 @@ trait SkillType[T] extends Registerable with ChangeableSkillType[T] with Seriali
   }
 }
 
-/**
- * Facade to Skill Types registry for interacting with registered skill types
- */
+/** Facade to Skill Types registry for interacting with registered skill types
+  */
 sealed trait SkillTypeRegistryFacade {
   protected def state: SkillTypeRegistry
 
@@ -56,7 +73,8 @@ sealed trait SkillTypeRegistryFacade {
 
   def get[T](name: ResourceLocation): Option[SkillType[T]] = state.find(name)
 
-  def get[T](name: String): Option[SkillType[T]] = ResourceLocation(name).flatMap(state.find)
+  def get[T](name: String): Option[SkillType[T]] =
+    ResourceLocation(name).flatMap(state.find)
 
   def get[T](skill: Skill[T]): Option[SkillType[T]] = get(skill.skillType)
 }
@@ -68,11 +86,16 @@ class SkillTypeOps(
   def serialize[T](skill: Skill[T]): Option[String] = {
     get(skill)
       .map(_.serialize(skill))
-      .tap(logger.debugP(v => s"Dehydrated skill ${skill.name} of type ${skill.skillType} for storage: $v"))
+      .tap(
+        logger.debugP(v =>
+          s"Dehydrated skill ${skill.name} of type ${skill.skillType} for storage: $v",
+        ),
+      )
   }
 
   private def splitRawSkill(value: String) = {
-    value.split(SkillType.stringValueSeparator)
+    value
+      .split(SkillType.stringValueSeparator)
       .toList
       .reverse
       .dropWhile(_.isEmpty)
@@ -84,10 +107,11 @@ class SkillTypeOps(
   }
 
   private def parseChanges(value: String): Int = {
-    Try(value.toInt)
-      .toOption
+    Try(value.toInt).toOption
       .getOrElse {
-        logger.warn(s"Unable to parse changesAllowed ($value) back into an integer, data possibly corrupted")
+        logger.warn(
+          s"Unable to parse changesAllowed ($value) back into an integer, data possibly corrupted",
+        )
         0
       }
   }
@@ -95,14 +119,18 @@ class SkillTypeOps(
   private def createSkill[T](parts: List[String]): Option[Skill[T]] = {
     parts match {
       case name :: skillType :: value :: changesAllowed :: _ =>
-      logger.debug(s"Hydrating $skillType skill named $name: $value")
-      ResourceLocation(skillType)
-        .flatMap(get[T])
-        .flatMap(_.deserialize(name, parseValue(value), parseChanges(changesAllowed)))
+        logger.debug(s"Hydrating $skillType skill named $name: $value")
+        ResourceLocation(skillType)
+          .flatMap(get[T])
+          .flatMap(
+            _.deserialize(name, parseValue(value), parseChanges(changesAllowed)),
+          )
 
       case _ =>
-      logger.error(s"Tried to parse skill with incorrectly stored data: ${parts.mkString("|||")}")
-      None
+        logger.error(
+          s"Tried to parse skill with incorrectly stored data: ${parts.mkString("|||")}",
+        )
+        None
     }
 
   }
@@ -115,15 +143,18 @@ class SkillTypeOps(
   def deserializeAll(values: List[String]): List[Skill[_]] = {
     values
       .partition(_.isEmpty)
-      .tap(_._1.foreach(logger.warnP(v => s"Unable to unpack skill $v from storage")))
+      .tap(
+        _._1.foreach(
+          logger.warnP(v => s"Unable to unpack skill $v from storage"),
+        ),
+      )
       ._2
       .flatMap(deserialize)
   }
 }
 
-/**
- * Facade to Skill Types registry for interacting with registered skill types
- */
+/** Facade to Skill Types registry for interacting with registered skill types
+  */
 object SkillType {
   val REGISTRY_KEY: ResourceLocation = SkillTypeRegistry.REGISTRY_KEY
 

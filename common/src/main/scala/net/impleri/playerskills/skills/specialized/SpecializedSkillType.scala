@@ -5,7 +5,8 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.slab.resources.ResourceLocation
 
-case class SpecializedSkillType(override val skillOps: SkillOps = Skill()) extends SkillType[String] {
+case class SpecializedSkillType(override val skillOps: SkillOps = Skill())
+    extends SkillType[String] {
   override val name: ResourceLocation = SpecializedSkillType.NAME
 
   override def castToString(value: String): Option[String] = Option(value)
@@ -15,14 +16,22 @@ case class SpecializedSkillType(override val skillOps: SkillOps = Skill()) exten
   override def can(skill: Skill[String], threshold: Option[String]): Boolean = {
     (skill.value, threshold) match {
       case (Some(v), Some(t)) => v == t
-      case (Some(_), None) => true
-      case _ => false
+      case (Some(_), None)    => true
+      case _                  => false
     }
   }
 
-  override def getPrevValue(skill: Skill[String], min: Option[String], max: Option[String]): Option[String] = None
+  override def getPrevValue(
+    skill: Skill[String],
+    min: Option[String],
+    max: Option[String],
+  ): Option[String] = None
 
-  override def getNextValue(skill: Skill[String], min: Option[String], max: Option[String]): Option[String] = None
+  override def getNextValue(
+    skill: Skill[String],
+    min: Option[String],
+    max: Option[String],
+  ): Option[String] = None
 }
 
 object SpecializedSkillType {

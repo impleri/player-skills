@@ -2,7 +2,6 @@ package net.impleri.playerskills.restrictions.conditions
 
 import net.impleri.slab.resources.ResourceLocation
 
-
 trait SingleTargetRestriction[T] {
   var target: Option[T] = None
 
@@ -19,6 +18,9 @@ trait MultiTargetRestriction[T] {
   }
 }
 
-trait RestrictionConditionsBuilder extends BiomeConditions with DimensionConditions with PlayerConditions {
+trait RestrictionConditionsBuilder
+    extends BiomeConditions
+    with DimensionConditions
+    with PlayerConditions {
   def name: ResourceLocation
 }

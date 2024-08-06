@@ -10,13 +10,18 @@ import net.impleri.slab.logging.Logger
 import scala.util.chaining.scalaUtilChainingOps
 
 class NetHandler(
-  private val playerOps: Player,
+  playerOps: => Player,
   private val messageFactory: SyncSkillsMessageFactory,
   private val logger: Logger,
 ) {
   def syncPlayer(player: MinecraftPlayer[_], force: Boolean = true): Unit = {
-    playerOps.get(player)
-      .tap(logger.debugP(s => s"Syncing ${s.size} player skills to ${player.handle}"))
+    playerOps
+      .get(player)
+      .tap(
+        logger.debugP(s =>
+          s"Syncing ${s.size} player skills to ${player.handle}",
+        ),
+      )
       .pipe(messageFactory.send(player, _, force))
       .foreach(player.sendMessage)
   }
@@ -32,7 +37,7 @@ class NetHandler(
 
 object NetHandler {
   def apply(
-    playerOps: Player = Player(),
+    playerOps: => Player = Player(),
     messageFactory: SyncSkillsMessageFactory = SyncSkillsMessageFactory(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
   ): NetHandler = {

@@ -30,8 +30,8 @@ case class ProportionRequiredForTeamMode() extends Exception
 case class SkillsDataLoader(
   protected val skillOps: SkillOps = Skill(),
   override val logger: Logger = PlayerSkillsLogger.SKILLS,
-)
-  extends JsonResourceReloadListener("skills") with JsonDataParser {
+) extends JsonResourceReloadListener("skills")
+    with JsonDataParser {
   override def parse(
     data: Map[ResourceLocation, JsonElement],
   ): Unit = {
@@ -40,28 +40,59 @@ case class SkillsDataLoader(
       .foreach(skillOps.upsert(_))
   }
 
-  private def parseSkill(name: ResourceLocation, json: JsonElement): Option[Skill[_]] = {
+  private def parseSkill(
+    name: ResourceLocation,
+    json: JsonElement,
+  ): Option[Skill[_]] = {
     val raw = json.getAsJsonObject
     val description = parseString(raw, "description")
-    val changesAllowed = parseInt(raw, "changesAllowed").getOrElse(Skill.UNLIMITED_CHANGES)
+    val changesAllowed =
+      parseInt(raw, "changesAllowed").getOrElse(Skill.UNLIMITED_CHANGES)
     val (notify, notifyString) = parseNotify(raw)
     val skillType = parseSkillType(raw)
 
-    skillType.flatMap(ResourceLocation(_))
+    skillType
+      .flatMap(ResourceLocation(_))
       .flatMap {
-        case BasicSkillType.NAME => createBasicSkill(raw, name, description, changesAllowed, notify, notifyString)
-        case NumericSkillType.NAME => createNumericSkill(raw, name, description, changesAllowed, notify, notifyString)
-        case TieredSkillType.NAME => createTieredSkill(raw, name, description, changesAllowed, notify, notifyString)
-        case SpecializedSkillType.NAME => createSpecializedSkill(raw,
-          name,
-          description,
-          changesAllowed,
-          notify,
-          notifyString,
-        )
+        case BasicSkillType.NAME =>
+          createBasicSkill(
+            raw,
+            name,
+            description,
+            changesAllowed,
+            notify,
+            notifyString,
+          )
+        case NumericSkillType.NAME =>
+          createNumericSkill(
+            raw,
+            name,
+            description,
+            changesAllowed,
+            notify,
+            notifyString,
+          )
+        case TieredSkillType.NAME =>
+          createTieredSkill(
+            raw,
+            name,
+            description,
+            changesAllowed,
+            notify,
+            notifyString,
+          )
+        case SpecializedSkillType.NAME =>
+          createSpecializedSkill(
+            raw,
+            name,
+            description,
+            changesAllowed,
+            notify,
+            notifyString,
+          )
         case _ =>
-        logger.warn(s"Unknown skill $name with type $skillType")
-        None
+          logger.warn(s"Unknown skill $name with type $skillType")
+          None
       }
   }
 
@@ -154,25 +185,37 @@ case class SkillsDataLoader(
     )
   }
 
-  private def createTeamMode(mode: String, rate: Option[Double]): Either[Exception, TeamMode] = {
+  private def createTeamMode(
+    mode: String,
+    rate: Option[Double],
+  ): Either[Exception, TeamMode] = {
     mode match {
-      case "shared" => Right(TeamMode.Shared())
+      case "shared"      => Right(TeamMode.Shared())
       case "splitEvenly" => Right(TeamMode.SplitEvenly())
-      case "pyramid" => Right(TeamMode.Pyramid())
+      case "pyramid"     => Right(TeamMode.Pyramid())
       case "limited" =>
-      rate.map(_.floor.toInt)
-        .map(TeamMode.Limited.apply)
-        .toRight(LimitRequiredForTeamMode())
+        rate
+          .map(_.floor.toInt)
+          .map(TeamMode.Limited.apply)
+          .toRight(LimitRequiredForTeamMode())
 
-      case "proportional" => rate.map(TeamMode.Proportional.apply).toRight(ProportionRequiredForTeamMode())
+      case "proportional" =>
+        rate
+          .map(TeamMode.Proportional.apply)
+          .toRight(ProportionRequiredForTeamMode())
       case _ => Right(TeamMode.Off())
     }
   }
 
-  private def restrictTeamMode(allowed: Option[TeamMode])(mode: TeamMode): TeamMode = {
+  private def restrictTeamMode(
+    allowed: Option[TeamMode],
+  )(mode: TeamMode): TeamMode = {
     mode match {
-      case _: TeamMode.Pyramid if !allowed.contains(TeamMode.Pyramid()) => TeamMode.Off()
-      case _: TeamMode.SplitEvenly if !allowed.contains(TeamMode.SplitEvenly()) => TeamMode.Off()
+      case _: TeamMode.Pyramid if !allowed.contains(TeamMode.Pyramid()) =>
+        TeamMode.Off()
+      case _: TeamMode.SplitEvenly
+          if !allowed.contains(TeamMode.SplitEvenly()) =>
+        TeamMode.Off()
       case _ => mode
     }
   }
@@ -180,7 +223,7 @@ case class SkillsDataLoader(
   private def parseSkillType(raw: JsonObject): Option[String] = {
     parseString(raw, "type").tap {
       case None => logger.warn("Tried to parse undefined skill type")
-      case _ => ()
+      case _    => ()
     }
   }
 
@@ -193,10 +236,11 @@ case class SkillsDataLoader(
       "teamMode",
       {
         case m if m.isJsonObject =>
-        val mode = parseString(m.getAsJsonObject, "mode")
-        val rate = parseDouble(m.getAsJsonObject, "rate")
-        mode.flatMap(createTeamMode(_, rate).toOption)
-        case s if isPrimitiveType(s, _.isString) => createTeamMode(s.getAsString, None).toOption
+          val mode = parseString(m.getAsJsonObject, "mode")
+          val rate = parseDouble(m.getAsJsonObject, "rate")
+          mode.flatMap(createTeamMode(_, rate).toOption)
+        case s if isPrimitiveType(s, _.isString) =>
+          createTeamMode(s.getAsString, None).toOption
         case _ => None
       },
     )
@@ -209,7 +253,7 @@ case class SkillsDataLoader(
   ): (Boolean, Option[String]) = {
     parseBoolean(raw, "notify") match {
       case Some(v) => (v, None)
-      case _ => parseNotifyString(raw)
+      case _       => parseNotifyString(raw)
     }
   }
 
@@ -218,11 +262,12 @@ case class SkillsDataLoader(
   ): (Boolean, Option[String]) = {
     parseString(raw, "notify") match {
       case Some(v) => (true, Option(v))
-      case _ => (false, None)
+      case _       => (false, None)
     }
   }
 }
 
 object SkillsDataLoader {
-  private[data] val GsonService: Gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
+  private[data] val GsonService: Gson =
+    new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
 }

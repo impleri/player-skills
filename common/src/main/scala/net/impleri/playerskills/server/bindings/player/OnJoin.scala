@@ -5,12 +5,12 @@ import net.impleri.playerskills.server.NetHandler
 import net.impleri.slab.events.PlayerEvents
 
 case class OnJoin(
-  playerRegistry: PlayerRegistry = PlayerRegistry(),
+  playerRegistry: () => PlayerRegistry = () => PlayerRegistry(),
   netHandler: NetHandler = NetHandler(),
   upstream: PlayerEvents = PlayerEvents(),
 ) {
   private[bindings] val handler: PlayerEvents.OnJoinOrQuit = player => {
-    playerRegistry.open(player.uuid)
+    playerRegistry().open(player.uuid)
     netHandler.syncPlayer(player)
   }
 

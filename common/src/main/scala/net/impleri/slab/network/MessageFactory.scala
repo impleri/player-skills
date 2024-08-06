@@ -18,7 +18,8 @@ trait MessageFactory[T <: NetworkMessage] {
       .fold(null.asInstanceOf[T])(t => onReceive(t._1, t._2))
   }
 
-  def createForSend(f: MessageFactory.FactoryFn[T]): Option[T] = messageType.map(f)
+  def createForSend(f: MessageFactory.FactoryFn[T]): Option[T] =
+    messageType.map(f)
 }
 
 object MessageFactory {

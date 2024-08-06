@@ -24,7 +24,8 @@ case class RecipeRestrictionDataLoader(
     name: ResourceLocation,
     jsonElement: JsonObject,
   ): Unit = {
-    val builder = RecipeRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
+    val builder =
+      RecipeRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
     builder.parse(jsonElement)
 
     if (builder.isValid) {

@@ -16,7 +16,7 @@ case class OnHurt(
   private[bindings] val handler: EntityEvents.OnHurt = (entity, source, _) => {
     val playerOpt = source match {
       case Some(p: HasSource) if p.isPlayer => p.source.map(_.asPlayer)
-      case _ => None
+      case _                                => None
     }
     val result = for {
       player <- playerOpt
@@ -24,11 +24,15 @@ case class OnHurt(
       usable = itemRestrictionOps.isHarmful(player, tool)
     } yield {
       if (!usable) {
-        logger.debug(s"${player.handle} cannot attack ${entity.mobTypeName} with ${tool.name}")
+        logger.debug(
+          s"${player.handle} cannot attack ${entity.mobTypeName} with ${tool.name}",
+        )
       } else {
 
         skipLogger
-          .debug(s"${player.handle} is going to attack ${entity.mobTypeName} with ${tool.name}")
+          .debug(
+            s"${player.handle} is going to attack ${entity.mobTypeName} with ${tool.name}",
+          )
       }
 
       usable

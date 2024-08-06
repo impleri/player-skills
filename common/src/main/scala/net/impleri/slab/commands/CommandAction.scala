@@ -9,35 +9,42 @@ case class CommandAction(
   fallbackMessage: Option[Message.Any] = None,
   responseCode: Int = McCommand.SINGLE_SUCCESS,
   responseType: ResponseType.Value = ResponseType.NONE,
-)
-  extends CommandAction.Executor {
+) extends CommandAction.Executor {
   private final val COMMAND_FAILURE = 0
 
-  private def sendMessage(context: Command.Context)(message: Message.Any): Int = {
+  private def sendMessage(
+    context: Command.Context,
+  )(message: Message.Any): Int = {
     responseType match {
-      case ResponseType.MESSAGE => message.sendSuccess(context)
+      case ResponseType.MESSAGE       => message.sendSuccess(context)
       case ResponseType.MESSAGE_ADMIN => message.sendSuccessWithAdmins(context)
-      case _ =>
+      case _                          =>
     }
 
     responseCode
   }
 
-  private def sendFailure(context: Command.Context)(message: Message.Any): Int = {
+  private def sendFailure(
+    context: Command.Context,
+  )(message: Message.Any): Int = {
     responseType match {
-      case ResponseType.MESSAGE | ResponseType.MESSAGE_ADMIN => message.sendFailure(context)
+      case ResponseType.MESSAGE | ResponseType.MESSAGE_ADMIN =>
+        message.sendFailure(context)
       case _ =>
     }
 
     COMMAND_FAILURE
   }
 
-  def run(context: Command.Context): Int = f(context).fold(sendFailure(context), sendMessage(context))
+  def run(context: Command.Context): Int =
+    f(context).fold(sendFailure(context), sendMessage(context))
 
   def silent(): CommandAction = copy(responseType = ResponseType.NONE)
 
   def message(includeAdmins: Boolean = false): CommandAction = {
-    copy(responseType = if (includeAdmins) ResponseType.MESSAGE_ADMIN else ResponseType.MESSAGE)
+    copy(responseType =
+      if (includeAdmins) ResponseType.MESSAGE_ADMIN else ResponseType.MESSAGE,
+    )
   }
 }
 
@@ -52,7 +59,10 @@ object CommandAction {
       .map(Player(_))
   }
 
-  def getPlayer(context: Command.Context, skipArgument: Boolean = false): Option[Player.Server] = {
+  def getPlayer(
+    context: Command.Context,
+    skipArgument: Boolean = false,
+  ): Option[Player.Server] = {
     val p = if (skipArgument) None else PlayerArgument.getValue(context)
 
     p.orElse(getCurrentPlayer(context))

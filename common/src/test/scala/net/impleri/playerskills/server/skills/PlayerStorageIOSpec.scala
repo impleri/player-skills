@@ -34,7 +34,8 @@ class PlayerStorageIOSpec extends BaseSpec {
     val returnedSkills = List(TestSkill())
     typeOpsMock.deserializeAll(returnedContents) returns returnedSkills
 
-    val target = new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
+    val target =
+      new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
 
     val received = target.read(givenUuid)
 
@@ -54,7 +55,8 @@ class PlayerStorageIOSpec extends BaseSpec {
 
     storageMock.read(file) returns Left(NbtFileMissing(file))
 
-    val target = new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
+    val target =
+      new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
 
     val received = target.read(givenUuid)
 
@@ -78,7 +80,8 @@ class PlayerStorageIOSpec extends BaseSpec {
 
     storageMock.write(file, List(serializedSkill)) returns Right(true)
 
-    val target = new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
+    val target =
+      new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
 
     val received = target.write(givenUuid, givenSkills)
 
@@ -100,9 +103,12 @@ class PlayerStorageIOSpec extends BaseSpec {
     val file = new File("/tmp")
     resourceMock.getPlayerFile(givenUuid) returns file
 
-    storageMock.write(file, List(serializedSkill)) returns Left(FailedToWrite(file))
+    storageMock.write(file, List(serializedSkill)) returns Left(
+      FailedToWrite(file)
+    )
 
-    val target = new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
+    val target =
+      new PlayerStorageIO(storageMock, resourceMock, typeOpsMock, loggerMock)
 
     val received = target.write(givenUuid, givenSkills)
 
@@ -111,12 +117,13 @@ class PlayerStorageIOSpec extends BaseSpec {
 
   "PlayerStorageIO.apply" should "return the correct class" in {
     val serverMock = mock[Server]
+    val skillTypeOpsMock = mock[SkillTypeOps]
     val storageMock = mock[SkillNbtStorage]
 
     val pathMock = mock[Path]
     serverMock.getWorldPath(*) returns pathMock
 
-    val target = PlayerStorageIO(serverMock, storageMock)
+    val target = PlayerStorageIO(serverMock, skillTypeOpsMock, storageMock)
 
     target.skillFile.storage should be(pathMock)
   }

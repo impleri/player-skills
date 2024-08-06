@@ -15,7 +15,8 @@ import scala.util.chaining.scalaUtilChainingOps
 class PlayerSkillsJeiPlugin extends IModPlugin {
   lazy val helper: JeiHelper = JeiHelper()
 
-  override def getPluginUid: ResourceLocation.Vanilla = ResourceLocation(PlayerSkills.MOD_ID, "jei_plugin").get.value
+  override def getPluginUid: ResourceLocation.Vanilla =
+    ResourceLocation(PlayerSkills.MOD_ID, "jei_plugin").get.value
 
   override def onRuntimeAvailable(jeiRuntime: IJeiRuntime): Unit = {
     Option(jeiRuntime)

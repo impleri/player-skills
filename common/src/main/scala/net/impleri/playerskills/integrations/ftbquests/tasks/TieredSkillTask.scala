@@ -15,8 +15,8 @@ case class TieredSkillTask(
   q: Quest,
   override val playerOps: Player,
   override val skillOps: SkillOps,
-)
-  extends SkillTask[String](q, playerOps, skillOps) with StringQuest {
+) extends SkillTask[String](q, playerOps, skillOps)
+    with StringQuest {
   data = QuestState(TieredSkillType.NAME)
 
   override def getType: TaskType = TieredSkillTask.TASK_TYPE
@@ -24,7 +24,11 @@ case class TieredSkillTask(
 
 object TieredSkillTask {
   val TASK_TYPE: TaskType = QuestStateOps
-    .createTaskType(QuestStateOps.TIERED_SKILL, "minecraft:item/golden_shovel", apply)
+    .createTaskType(
+      QuestStateOps.TIERED_SKILL,
+      "minecraft:item/golden_shovel",
+      apply,
+    )
 
   def apply(quest: Quest): TieredSkillTask = {
     new TieredSkillTask(

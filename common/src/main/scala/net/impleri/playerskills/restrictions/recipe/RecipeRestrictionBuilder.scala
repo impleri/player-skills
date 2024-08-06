@@ -12,17 +12,24 @@ import net.impleri.slab.resources.ResourceLocation
 
 case class RecipeRestrictionBuilder(
   protected val serverState: ServerStateContainer = ServerStateContainer(),
-  protected val restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
+  protected val restrictionRegistry: RestrictionRegistry =
+    RestrictionRegistry(),
   protected val recipeTypeRegistry: Registry.RECIPE_TYPE = Registry.RecipeTypes,
   override val logger: Logger = PlayerSkillsLogger.ITEMS,
 ) extends RestrictionBuilder[Recipe.Any, Recipe.AnyVanilla, RecipeConditions] {
   override val singleAsString = true
 
-  private def restrictRecipe(recipe: Recipe.Any, builder: RecipeConditions): Unit = {
+  private def restrictRecipe(
+    recipe: Recipe.Any,
+    builder: RecipeConditions,
+  ): Unit = {
     val restriction = RecipeRestriction(recipe, builder)
 
     restrictionRegistry.add(restriction)
-    logRestriction(recipe.name.fold(s"${recipe.getResultItem.name}")(_.asString), restriction)
+    logRestriction(
+      recipe.name.fold(s"${recipe.getResultItem.name}")(_.asString),
+      restriction,
+    )
   }
 
   def add(builder: RecipeConditions): Unit = {
@@ -46,7 +53,8 @@ case class RecipeRestrictionBuilder(
     target: RecipeTarget,
     builder: RecipeConditions,
   ): Unit = {
-    recipeTypeRegistry.get(target.recipeType)
+    recipeTypeRegistry
+      .get(target.recipeType)
       .foreach(t => restrictRecipes(t, target, builder))
   }
 

@@ -5,7 +5,9 @@ import net.impleri.playerskills.PlayerSkills
 import net.impleri.slab.registry.Registrar
 import net.impleri.slab.resources.ResourceLocation
 
-case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillType[_]]) {
+case class SkillTypeRegistry(
+  private[skills] val gameRegistrar: Registrar[SkillType[_]],
+) {
   private[skills] var state: List[SkillType[_]] = List.empty
 
   def resync(): Unit = {
@@ -22,9 +24,12 @@ case class SkillTypeRegistry(private[skills] val gameRegistrar: Registrar[SkillT
 }
 
 object SkillTypeRegistry {
-  val REGISTRY_KEY: ResourceLocation = ResourceLocation("skill_types_registry").get
+  val REGISTRY_KEY: ResourceLocation = ResourceLocation(
+    "skill_types_registry",
+  ).get
 
-  lazy val REGISTRAR: Registrar[SkillType[_]] = PlayerSkills.REGISTRAR_FACTORY.create(REGISTRY_KEY)
+  lazy val REGISTRAR: Registrar[SkillType[_]] =
+    PlayerSkills.REGISTRAR_FACTORY.create(REGISTRY_KEY)
 
   def apply(
     gameRegistrar: Registrar[SkillType[_]] = Registrar(None),

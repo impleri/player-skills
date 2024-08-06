@@ -9,7 +9,8 @@ object MinMaxCalculator {
     a.flatMap(aa => b.map(bb => if (comparator(aa, bb)) aa else bb).orElse(a))
   }
 
-  val isGreaterThan: (Double, Double) => Boolean = (a: Double, b: Double) => a > b
+  val isGreaterThan: (Double, Double) => Boolean = (a: Double, b: Double) =>
+    a > b
 
   val isLessThan: (Double, Double) => Boolean = (a: Double, b: Double) => a < b
 

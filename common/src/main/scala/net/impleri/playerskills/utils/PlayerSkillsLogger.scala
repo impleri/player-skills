@@ -33,10 +33,10 @@ object PlayerSkillsLogger {
     logType match {
       case Some(LoggerType.BLOCKS) => BLOCKS.toggleDebug()
       case Some(LoggerType.FLUIDS) => FLUIDS.toggleDebug()
-      case Some(LoggerType.ITEMS) => ITEMS.toggleDebug()
-      case Some(LoggerType.MOBS) => MOBS.toggleDebug()
-      case Some(LoggerType.SKIPS) => SKIPS.toggleDebug()
-      case _ => SKILLS.toggleDebug()
+      case Some(LoggerType.ITEMS)  => ITEMS.toggleDebug()
+      case Some(LoggerType.MOBS)   => MOBS.toggleDebug()
+      case Some(LoggerType.SKIPS)  => SKIPS.toggleDebug()
+      case _                       => SKILLS.toggleDebug()
     }
   }
 }

@@ -17,17 +17,18 @@ case class ResyncSkillsMessage(
   private val playerId: UUID,
   private val serverStateContainer: Option[ServerStateContainer],
   override val messageType: MessageType,
-)
-  extends ServerboundMessage {
+) extends ServerboundMessage {
   def write(buffer: FriendlyBuffer): Unit = buffer.writeUUID(playerId)
 
-  override def onReceive: () => Unit = {
-    () => {
-      val player = serverStateContainer.flatMap(_.SERVER).flatMap(_.getPlayer(playerId))
+  override def onReceive: () => Unit = { () =>
+    {
+      val player =
+        serverStateContainer.flatMap(_.SERVER).flatMap(_.getPlayer(playerId))
       val netHandler = serverStateContainer.map(_.getNetHandler)
 
       (player, netHandler) match {
-        case (Some(player: Player[_]), Some(netHandler: NetHandler)) => netHandler.syncPlayer(player)
+        case (Some(player: Player[_]), Some(netHandler: NetHandler)) =>
+          netHandler.syncPlayer(player)
         case _ =>
       }
     }
@@ -47,10 +48,11 @@ case class ResyncSkillsMessageFactory(
   }
 
   override protected def onReceive: ReceiveFn[ResyncSkillsMessage] = {
-    (buffer, messageType) => {
-      val playerId = buffer.readUUID()
+    (buffer, messageType) =>
+      {
+        val playerId = buffer.readUUID()
 
-      ResyncSkillsMessage(playerId.get, serverStateContainer, messageType)
-    }
+        ResyncSkillsMessage(playerId.get, serverStateContainer, messageType)
+      }
   }
 }

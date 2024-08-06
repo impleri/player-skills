@@ -17,28 +17,32 @@ trait JsonDataParser extends JsonCollectionParser {
     )
   }
 
-  protected[utils] def parseExclude[T](raw: JsonElement, callback: JsonElement => Option[T]): List[T] = {
-    parseArray(raw, "exclude",
-      callback,
-    )
+  protected[utils] def parseExclude[T](
+    raw: JsonElement,
+    callback: JsonElement => Option[T],
+  ): List[T] = {
+    parseArray(raw, "exclude", callback)
   }
 
-  protected def parseExcludeAction(raw: JsonElement, callback: JsonElement => Unit): Unit = {
-    parseArrayEach(raw, "exclude",
-      callback,
-    )
+  protected def parseExcludeAction(
+    raw: JsonElement,
+    callback: JsonElement => Unit,
+  ): Unit = {
+    parseArrayEach(raw, "exclude", callback)
   }
 
-  protected[utils] def parseInclude[T](raw: JsonElement, callback: JsonElement => Option[T]): List[T] = {
-    parseArray(raw, "include",
-      callback,
-    )
+  protected[utils] def parseInclude[T](
+    raw: JsonElement,
+    callback: JsonElement => Option[T],
+  ): List[T] = {
+    parseArray(raw, "include", callback)
   }
 
-  protected def parseIncludeAction(raw: JsonElement, callback: JsonElement => Unit): Unit = {
-    parseArrayEach(raw, "include",
-      callback,
-    )
+  protected def parseIncludeAction(
+    raw: JsonElement,
+    callback: JsonElement => Unit,
+  ): Unit = {
+    parseArrayEach(raw, "include", callback)
   }
 
   protected[utils] def parseFacet(
@@ -49,13 +53,12 @@ trait JsonDataParser extends JsonCollectionParser {
   ): Unit = {
     getElement(raw, key) match {
       case Some(obj) if obj.isJsonObject =>
-      parseIncludeAction(obj, onInclude)
-      parseExcludeAction(obj, onExclude)
+        parseIncludeAction(obj, onInclude)
+        parseExcludeAction(obj, onExclude)
 
       case Some(list) if list.isJsonArray =>
-      list.getAsJsonArray
-        .asScala
-        .foreach(onInclude)
+        list.getAsJsonArray.asScala
+          .foreach(onInclude)
 
       case _ =>
     }

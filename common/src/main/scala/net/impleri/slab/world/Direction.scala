@@ -14,12 +14,12 @@ object Direction extends Enumeration {
 
   def fromVanilla(value: McDirection): Direction = {
     value match {
-      case McDirection.UP => UP
+      case McDirection.UP    => UP
       case McDirection.NORTH => NORTH
       case McDirection.SOUTH => SOUTH
-      case McDirection.EAST => EAST
-      case McDirection.WEST => WEST
-      case _ => DOWN
+      case McDirection.EAST  => EAST
+      case McDirection.WEST  => WEST
+      case _                 => DOWN
     }
   }
 }

@@ -10,23 +10,28 @@ import net.minecraft.world.entity.LivingEntity
 
 import scala.util.Try
 
-class Entity[T <: Entity.Vanilla](override val underlying: T) extends ResourceWrapper[T] {
+class Entity[T <: Entity.Vanilla](override val underlying: T)
+    extends ResourceWrapper[T] {
   lazy val name: Option[ResourceLocation] = getType.flatMap(_.name)
 
-  lazy val position: Option[Position] = Try(underlying.getOnPos).toOption.map(Position(_))
+  lazy val position: Option[Position] =
+    Try(underlying.getOnPos).toOption.map(Position(_))
 
-  lazy val getType: Option[EntityType[_]] = Option(underlying.getType).map(EntityType(_))
+  lazy val getType: Option[EntityType[_]] =
+    Option(underlying.getType).map(EntityType(_))
 
   lazy val level: Option[Level.Any] = Option(underlying.getLevel).map(Level(_))
 
   lazy val mobTypeName: String = getType.toString
 
-  lazy val dimension: Option[ResourceLocation] = level.flatMap(_.getDimensionName)
+  lazy val dimension: Option[ResourceLocation] =
+    level.flatMap(_.getDimensionName)
 
   lazy val biome: Option[Biome] = biomeAt()
 
   def biomeAt(pos: Option[Position] = None): Option[Biome] = {
-    pos.orElse(position)
+    pos
+      .orElse(position)
       .flatMap(p => level.flatMap(_.getBiome(p)))
   }
 
@@ -36,7 +41,9 @@ class Entity[T <: Entity.Vanilla](override val underlying: T) extends ResourceWr
 
   def isPlayer: Boolean = underlying.isInstanceOf[Player.Vanilla]
 
-  def asPlayer[P <: Player.Vanilla]: Player[P] = Player(underlying.asInstanceOf[P])
+  def asPlayer[P <: Player.Vanilla]: Player[P] = Player(
+    underlying.asInstanceOf[P],
+  )
 }
 
 object Entity {

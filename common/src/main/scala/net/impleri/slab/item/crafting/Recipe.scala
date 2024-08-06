@@ -14,8 +14,10 @@ import scala.jdk.OptionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 case class Recipe[T <: Recipe.AnyVanilla](override val underlying: T)
-  extends ResourceWrapper[T] with IsRecipe {
-  override val name: Option[ResourceLocation] = Option(underlying.getId).flatMap(ResourceLocation(_))
+    extends ResourceWrapper[T]
+    with IsRecipe {
+  override val name: Option[ResourceLocation] =
+    Option(underlying.getId).flatMap(ResourceLocation(_))
 
   def getType: RecipeType.Any = RecipeType(underlying.getType)
 
@@ -23,7 +25,8 @@ case class Recipe[T <: Recipe.AnyVanilla](override val underlying: T)
 
   def getResultItem: Item = getResult.pipe(Item(_))
 
-  def getIngredients: List[Item.VanillaIngredient] = underlying.getIngredients.asScala.toList
+  def getIngredients: List[Item.VanillaIngredient] =
+    underlying.getIngredients.asScala.toList
 }
 
 object Recipe {
@@ -34,19 +37,27 @@ object Recipe {
 
   type Any = Recipe[AnyVanilla]
 
-  def fromVanillaOpt[C <: BaseContainer, T <: Vanilla[C]](underlying: Optional[T]): Option[Recipe[T]] = {
+  def fromVanillaOpt[C <: BaseContainer, T <: Vanilla[C]](
+    underlying: Optional[T],
+  ): Option[Recipe[T]] = {
     underlying.toScala.map(Recipe(_))
   }
 
-  def fromVanilla[C <: BaseContainer, T <: Vanilla[C]](underlying: T): Option[Recipe[T]] = {
+  def fromVanilla[C <: BaseContainer, T <: Vanilla[C]](
+    underlying: T,
+  ): Option[Recipe[T]] = {
     Option(underlying).map(Recipe(_))
   }
 
-  def fromVanillaPair[C <: BaseContainer, T <: Vanilla[C]](value: Optional[Pair[ResourceLocation.Vanilla, T]]): Option[Recipe[T]] = {
+  def fromVanillaPair[C <: BaseContainer, T <: Vanilla[C]](
+    value: Optional[Pair[ResourceLocation.Vanilla, T]],
+  ): Option[Recipe[T]] = {
     value.toScala.map(_.getSecond).map(Recipe(_))
   }
 
-  def fromVanillaList[C <: BaseContainer, T <: Vanilla[C]](values: JavaList[T]): Seq[Recipe[T]] = {
+  def fromVanillaList[C <: BaseContainer, T <: Vanilla[C]](
+    values: JavaList[T],
+  ): Seq[Recipe[T]] = {
     values.asScala.flatMap(fromVanilla[C, T]).toSeq
   }
 }

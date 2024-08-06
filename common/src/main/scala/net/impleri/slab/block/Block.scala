@@ -6,8 +6,10 @@ import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.world.level.block.{Block => McBlock}
 import net.minecraft.world.level.block.state.BlockState
 
-case class Block(protected val state: Block.VanillaState, registry: Registry[Block, Block.Vanilla] = Registry.Blocks)
-  extends ResourceWrapper[Block.Vanilla] {
+case class Block(
+  protected val state: Block.VanillaState,
+  registry: Registry[Block, Block.Vanilla] = Registry.Blocks,
+) extends ResourceWrapper[Block.Vanilla] {
   override val underlying: Block.Vanilla = state.getBlock
 
   override val name: Option[ResourceLocation] = registry.getKey(this)

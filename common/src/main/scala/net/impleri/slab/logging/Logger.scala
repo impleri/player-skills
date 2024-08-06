@@ -25,9 +25,15 @@ class Logger(modId: String, private val prefix: String) {
 
   def error(message: String): Unit = instance.error(addPrefix(message))
 
+  def error(error: Throwable, message: String = ""): Unit =
+    instance.error(addPrefix(message), error)
+
   def errorP[T](f: T => String)(value: T): Unit = error(f(value))
 
   def warn(message: String): Unit = instance.warn(addPrefix(message))
+
+  def warn(error: Throwable, message: String = ""): Unit =
+    instance.warn(addPrefix(message), error)
 
   def warnP[T](f: T => String)(value: T): Unit = warn(f(value))
 
@@ -35,7 +41,8 @@ class Logger(modId: String, private val prefix: String) {
 
   def infoP[T](f: T => String)(value: T): Unit = info(f(value))
 
-  def debug(message: String): Unit = if (debugEnabled) info(s"[DEBUG]$message") else instance.debug(addPrefix(message))
+  def debug(message: String): Unit = if (debugEnabled) info(s"[DEBUG]$message")
+  else instance.debug(addPrefix(message))
 
   def debugP[T](f: T => String)(value: T): Unit = debug(f(value))
 }

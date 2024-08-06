@@ -9,5 +9,6 @@ trait IsRecipe {
 
   def getIngredients: List[Item.VanillaIngredient]
 
-  def getIngredientItems: List[Item] = getIngredients.flatMap(_.getItems).map(Item(_))
+  def getIngredientItems: List[Item] =
+    getIngredients.flatMap(_.getItems).map(Item(_))
 }

@@ -12,5 +12,7 @@ case class ClientEventBindings(
     reloadListeners.registerClient(this)
   }
 
-  override def onReload(manager: Option[ResourceManager]): Unit = callback(manager)
+  override def onReload(manager: Option[ResourceManager]): Unit = callback(
+    manager,
+  )
 }

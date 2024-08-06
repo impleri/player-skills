@@ -9,8 +9,8 @@ class BeforeServerStopsSpec extends BaseSpec {
   private val mockUpstream = mock[ServerLifecycleEvents]
 
   private val testUnit = BeforeServerStops(
-    mockPlayerRegistry,
-    mockUpstream,
+    () => mockPlayerRegistry,
+    mockUpstream
   )
 
   "BeforeServerStops.handler" should "handle stop" in {

@@ -15,8 +15,8 @@ case class SpecializedSkillTask(
   q: Quest,
   override val playerOps: Player,
   override val skillOps: SkillOps,
-)
-  extends SkillTask[String](q, playerOps, skillOps) with StringQuest {
+) extends SkillTask[String](q, playerOps, skillOps)
+    with StringQuest {
   data = QuestState(SpecializedSkillType.NAME)
 
   override def getType: TaskType = SpecializedSkillTask.TASK_TYPE
@@ -24,7 +24,11 @@ case class SpecializedSkillTask(
 
 object SpecializedSkillTask {
   val TASK_TYPE: TaskType = QuestStateOps
-    .createTaskType(QuestStateOps.SPECIALIZED_SKILL, "minecraft:item/diamond_shovel", apply)
+    .createTaskType(
+      QuestStateOps.SPECIALIZED_SKILL,
+      "minecraft:item/diamond_shovel",
+      apply,
+    )
 
   def apply(quest: Quest): SpecializedSkillTask = {
     new SpecializedSkillTask(

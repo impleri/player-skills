@@ -11,28 +11,47 @@ import net.impleri.playerskills.restrictions.conditions.MultiTargetRestriction
 import net.impleri.playerskills.restrictions.conditions.SingleTargetRestriction
 import net.impleri.slab.entity.Player
 
-trait SingleTargetParser[T] extends JsonDataParser with SingleTargetRestriction[T] {
-  protected[conditions] def getTarget(raw: JsonObject, key: String = "target"): Option[String] = {
+trait SingleTargetParser[T]
+    extends JsonDataParser
+    with SingleTargetRestriction[T] {
+  protected[conditions] def getTarget(
+    raw: JsonObject,
+    key: String = "target",
+  ): Option[String] = {
     parseValue(raw, key, v => Option(v.getAsString))
   }
 }
 
-trait MultiTargetParser[T] extends JsonDataParser with MultiTargetRestriction[T] {
-  protected[conditions] def getTarget(raw: JsonObject, key: String = "target"): Seq[JsonElement] = {
+trait MultiTargetParser[T]
+    extends JsonDataParser
+    with MultiTargetRestriction[T] {
+  protected[conditions] def getTarget(
+    raw: JsonObject,
+    key: String = "target",
+  ): Seq[JsonElement] = {
     getObject(raw, key).filter(_.isJsonObject).toSeq
   }
 }
 
-trait RestrictionConditionsBuilder extends ParentBuilder
-  with JsonDataParser
-  with BiomeFacetParser
-  with DimensionFacetParser
-  with ConditionDataParser {
+trait RestrictionConditionsBuilder
+    extends ParentBuilder
+    with JsonDataParser
+    with BiomeFacetParser
+    with DimensionFacetParser
+    with ConditionDataParser {
   def parse(
     jsonElement: JsonObject,
   ): Unit = {
-    parseDimensions(jsonElement, d => inDimension(d.getAsString), d => notInDimension(d.getAsString))
-    parseBiomes(jsonElement, d => inBiome(d.getAsString), d => notInBiome(d.getAsString))
+    parseDimensions(
+      jsonElement,
+      d => inDimension(d.getAsString),
+      d => notInDimension(d.getAsString),
+    )
+    parseBiomes(
+      jsonElement,
+      d => inBiome(d.getAsString),
+      d => notInBiome(d.getAsString),
+    )
     parseCondition(jsonElement)
     parseRestriction(jsonElement)
     parseEverything(jsonElement)
@@ -43,7 +62,8 @@ trait RestrictionConditionsBuilder extends ParentBuilder
     val conditions = parseIf(raw)
     val unless = parseUnless(raw)
 
-    condition = (player: Player[_]) => conditions.forall(_(player)) && unless.forall(_(player))
+    condition = (player: Player[_]) =>
+      conditions.forall(_(player)) && unless.forall(_(player))
   }
 
   private def parseEverything(raw: JsonObject): Unit = {

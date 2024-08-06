@@ -14,12 +14,17 @@ case class TieredSkill(
   override val teamMode: TeamMode = TeamMode.Off(),
   override val announceChange: Boolean = false,
   override val notifyKey: Option[String] = None,
-) extends Skill[String] with ChangeableSkillOps[String, TieredSkill] {
+) extends Skill[String]
+    with ChangeableSkillOps[String, TieredSkill] {
   override val skillType: ResourceLocation = TieredSkillType.NAME
 
-  override protected[playerskills] def mutate(value: Option[String], changesAllowed: Int): TieredSkill = {
+  override protected[playerskills] def mutate(
+    value: Option[String],
+    changesAllowed: Int,
+  ): TieredSkill = {
     copy(
-      value = value, changesAllowed = changesAllowed,
+      value = value,
+      changesAllowed = changesAllowed,
     )
   }
 }

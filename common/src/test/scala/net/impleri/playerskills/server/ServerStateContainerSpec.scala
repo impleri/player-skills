@@ -35,24 +35,26 @@ private class ServerStateContainerSpec extends BaseSpec {
   private val networkMock = mock[Network]
   private val registryMock = mock[Registry.ITEM]
 
-  lazy private val testUnit = ServerStateContainer(globalStateMock,
+  lazy private val testUnit = ServerStateContainer(
+    globalStateMock,
     playerRegistryMock,
     eventHandlerMock,
     reloadListenersMock,
     StubTeam(),
     None,
     registryMock,
-    loggerMock,
+    loggerMock
   )
 
-  lazy private val testUnitWithServer = ServerStateContainer(globalStateMock,
+  lazy private val testUnitWithServer = ServerStateContainer(
+    globalStateMock,
     playerRegistryMock,
     eventHandlerMock,
     reloadListenersMock,
     StubTeam(),
     Option(serverMock),
     registryMock,
-    loggerMock,
+    loggerMock
   )
 
   "ServerStateContainer init" should "logs the startup" in {
@@ -73,11 +75,9 @@ private class ServerStateContainerSpec extends BaseSpec {
     val playerRegistryState = PlayerRegistryState.empty
 
     globalStateMock.NETWORK returns networkMock
-    globalStateMock.SKILLS returns skillRegistryMock
     globalStateMock.SKILL_TYPE_OPS returns skillTypeOpsMock
 
     playerRegistryMock.close() returns List.empty
-    playerRegistryMock.getState returns playerRegistryState
 
     testUnitWithServer.SERVER.value should be(serverMock)
 
@@ -85,20 +85,16 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     testUnitWithServer.SERVER should be(None)
 
-    globalStateMock.SKILL_TYPE_OPS wasCalled sevenTimes
-    globalStateMock.SKILLS wasCalled once
-    playerRegistryMock.getState wasCalled once
+    globalStateMock.SKILL_TYPE_OPS wasCalled sixTimes
   }
 
   it should "change the team instance" in {
     val playerRegistryState = PlayerRegistryState.empty
 
     globalStateMock.NETWORK returns networkMock
-    globalStateMock.SKILLS returns skillRegistryMock
     globalStateMock.SKILL_TYPE_OPS returns skillTypeOpsMock
 
     playerRegistryMock.close() returns List.empty
-    playerRegistryMock.getState returns playerRegistryState
 
     serverMock.getPlayers returns Seq.empty
 
@@ -108,9 +104,7 @@ private class ServerStateContainerSpec extends BaseSpec {
 
     testUnit.SERVER.value should be(serverMock)
 
-    globalStateMock.SKILL_TYPE_OPS wasCalled sevenTimes
-    globalStateMock.SKILLS wasCalled once
-    playerRegistryMock.getState wasCalled once
+    globalStateMock.SKILL_TYPE_OPS wasCalled sixTimes
   }
 
   "ServerStateContainer.onReload" should "resync all players" in {
@@ -121,7 +115,8 @@ private class ServerStateContainerSpec extends BaseSpec {
     val currentUsers = List(givenUuid)
 
     val messageTypeMock = mock[MessageType]
-    networkMock.registerMessageToClient[SyncSkillsMessage](*, *) returns messageTypeMock
+    networkMock
+      .registerMessageToClient[SyncSkillsMessage](*, *) returns messageTypeMock
     globalStateMock.NETWORK returns networkMock
 
     playerRegistryMock.close() returns currentUsers

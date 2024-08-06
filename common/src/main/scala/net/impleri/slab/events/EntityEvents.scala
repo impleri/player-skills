@@ -23,12 +23,17 @@ import net.minecraft.world.level.BaseSpawner
 import net.minecraft.world.level.LevelAccessor
 
 case class EntityEvents(
-  private val onDeathEvent: Event[EntityEvent.LivingDeath] = EntityEvent.LIVING_DEATH,
-  private val onHurtEvent: Event[EntityEvent.LivingHurt] = EntityEvent.LIVING_HURT,
-  private val canSpawnEvent: Event[EntityEvent.LivingCheckSpawn] = EntityEvent.LIVING_CHECK_SPAWN,
+  private val onDeathEvent: Event[EntityEvent.LivingDeath] =
+    EntityEvent.LIVING_DEATH,
+  private val onHurtEvent: Event[EntityEvent.LivingHurt] =
+    EntityEvent.LIVING_HURT,
+  private val canSpawnEvent: Event[EntityEvent.LivingCheckSpawn] =
+    EntityEvent.LIVING_CHECK_SPAWN,
   private val onSpawnEvent: Event[EntityEvent.Add] = EntityEvent.ADD,
-  private val onEnterChunkEvent: Event[EntityEvent.EnterSection] = EntityEvent.ENTER_SECTION,
-  private val onTameEvent: Event[EntityEvent.AnimalTame] = EntityEvent.ANIMAL_TAME,
+  private val onEnterChunkEvent: Event[EntityEvent.EnterSection] =
+    EntityEvent.ENTER_SECTION,
+  private val onTameEvent: Event[EntityEvent.AnimalTame] =
+    EntityEvent.ANIMAL_TAME,
 ) {
   def onDeath(f: EntityEvents.OnDeath): Unit = {
     onDeathEvent.register { (entity: LivingEntity, source: DamageSource) =>
@@ -44,33 +49,43 @@ case class EntityEvents(
   }
 
   def onHurt(f: EntityEvents.OnHurt): Unit = {
-    onHurtEvent.register { (entity: LivingEntity, source: DamageSource, damage: Float) =>
-      Option(entity)
-        .map(Entity(_))
-        .fold(EventResult.pass)(
-          f(
-            _,
-            Option(source).map(DamageType(_)),
-            damage,
-          ),
-        )
-    }
-  }
-
-  def canSpawn(f: EntityEvents.CanSpawn): Unit = {
-    canSpawnEvent
-      .register { (entity: LivingEntity, world: LevelAccessor, x: Double, y: Double, z: Double, spawnType: MobSpawnType, spawner: BaseSpawner) =>
+    onHurtEvent.register {
+      (entity: LivingEntity, source: DamageSource, damage: Float) =>
         Option(entity)
           .map(Entity(_))
           .fold(EventResult.pass)(
             f(
               _,
-              Option(world).map(Level(_)),
-              Coordinates(x, y, z).map(_.toPosition),
-              Option(spawnType).map(SpawnType.fromVanilla),
-              Option(spawner).map(Spawner(_)),
+              Option(source).map(DamageType(_)),
+              damage,
             ),
           )
+    }
+  }
+
+  def canSpawn(f: EntityEvents.CanSpawn): Unit = {
+    canSpawnEvent
+      .register {
+        (
+          entity: LivingEntity,
+          world: LevelAccessor,
+          x: Double,
+          y: Double,
+          z: Double,
+          spawnType: MobSpawnType,
+          spawner: BaseSpawner,
+        ) =>
+          Option(entity)
+            .map(Entity(_))
+            .fold(EventResult.pass)(
+              f(
+                _,
+                Option(world).map(Level(_)),
+                Coordinates(x, y, z).map(_.toPosition),
+                Option(spawnType).map(SpawnType.fromVanilla),
+                Option(spawner).map(Spawner(_)),
+              ),
+            )
       }
   }
 
@@ -89,16 +104,17 @@ case class EntityEvents(
   }
 
   def onEnterChunk(f: EntityEvents.OnEnterChunk): Unit = {
-    onEnterChunkEvent.register { (entity: McEntity, x: Int, y: Int, z: Int, px: Int, py: Int, pz: Int) =>
-      Option(entity)
-        .map(Entity(_))
-        .foreach(
-          f(
-            _,
-            Coordinates(x, y, z),
-            Coordinates(px, py, pz),
-          ),
-        )
+    onEnterChunkEvent.register {
+      (entity: McEntity, x: Int, y: Int, z: Int, px: Int, py: Int, pz: Int) =>
+        Option(entity)
+          .map(Entity(_))
+          .foreach(
+            f(
+              _,
+              Coordinates(x, y, z),
+              Coordinates(px, py, pz),
+            ),
+          )
 
     }
   }
@@ -121,8 +137,15 @@ case class EntityEvents(
 object EntityEvents {
   type OnDeath = (Entity.Any, Option[DamageType]) => EventResult
   type OnHurt = (Entity.Any, Option[DamageType], Float) => EventResult
-  type CanSpawn = (Entity.Any, Option[Level.Any], Option[Position], Option[SpawnType.Value], Option[Spawner.Any]) => EventResult
+  type CanSpawn = (
+    Entity.Any,
+    Option[Level.Any],
+    Option[Position],
+    Option[SpawnType.Value],
+    Option[Spawner.Any],
+  ) => EventResult
   type OnSpawn = (Entity.Any, Option[Level.Any]) => EventResult
-  type OnEnterChunk = (Entity.Any, Option[Coordinates], Option[Coordinates]) => Unit
+  type OnEnterChunk =
+    (Entity.Any, Option[Coordinates], Option[Coordinates]) => Unit
   type OnTame = (Player.Any, Option[Animal.Any]) => EventResult
 }

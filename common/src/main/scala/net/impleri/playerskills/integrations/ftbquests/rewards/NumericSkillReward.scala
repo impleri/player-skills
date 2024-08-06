@@ -15,15 +15,18 @@ case class NumericSkillReward(
   override val playerOps: PlayerOps,
   override val skillOps: SkillOps,
   override val skillTypeOps: SkillTypeOps,
-)
-  extends RestrictableReward[Double](q, playerOps, skillOps, skillTypeOps) with DoubleQuest {
+) extends RestrictableReward[Double](q, playerOps, skillOps, skillTypeOps)
+    with DoubleQuest {
   override def getType: RewardType = NumericSkillReward.REWARD_TYPE
 }
 
 object NumericSkillReward {
   val REWARD_TYPE: RewardType = QuestStateOps
-    .createRewardType(QuestStateOps.NUMERIC_SKILL, "minecraft:item/iron_hoe", apply)
-
+    .createRewardType(
+      QuestStateOps.NUMERIC_SKILL,
+      "minecraft:item/iron_hoe",
+      apply,
+    )
 
   def apply(quest: Quest): NumericSkillReward = {
     new NumericSkillReward(

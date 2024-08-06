@@ -24,16 +24,16 @@ case class PlayerSkillsCommands(
   override val itemLogger: Logger = PlayerSkillsLogger.ITEMS,
   override val mobLogger: Logger = PlayerSkillsLogger.MOBS,
 ) extends BaseCommand
-  with ListTypesCommand
-  with ListSkillsCommand
-  with ListAcquiredCommand
-  with SkillValueCommand
-  with SyncTeamCommands
-  with DebugCommands
-  with SetSkillCommand
-  with ImproveSkillCommand
-  with DegradeSkillCommand
-  with ResetSkillCommand {
+    with ListTypesCommand
+    with ListSkillsCommand
+    with ListAcquiredCommand
+    with SkillValueCommand
+    with SyncTeamCommands
+    with DebugCommands
+    with SetSkillCommand
+    with ImproveSkillCommand
+    with DegradeSkillCommand
+    with ResetSkillCommand {
   protected def builders[T <: CommandSegment.Any]: List[T => T] =
     List(
       registerTypesCommand,

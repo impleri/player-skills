@@ -18,8 +18,8 @@ case class SetCommandFactory(
 
   def createCallback(
     useCurrentUser: Boolean,
-  ): CommandAction.Callback = {
-    context => {
+  ): CommandAction.Callback = { context =>
+    {
       val player = CommandAction.getPlayer(context, useCurrentUser)
       val skillName = SkillHandler.getValue(context)
 
@@ -34,7 +34,8 @@ case class SetCommandFactory(
     failureMessage: String,
     action: (Player.Any, Skill[_]) => Option[Boolean],
   ): Either[Message[_], Message[_]] = {
-    skillName.flatMap(skillOps.get[T])
+    skillName
+      .flatMap(skillOps.get[T])
       .flatMap(s => player.flatMap(action(_, s)))
       .toRight(skillNotFound(skillName))
       .filterOrElse(_ == true, formatMessage(failureMessage, skillName, player))

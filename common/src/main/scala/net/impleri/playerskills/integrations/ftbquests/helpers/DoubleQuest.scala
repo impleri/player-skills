@@ -16,13 +16,22 @@ trait DoubleQuest extends RestrictableValue[Double] {
 
   override protected val maxValue: Double = Double.MaxValue
 
-  override def writeValueToTag(nbt: NbtContents, key: String, value: Option[Double]): NbtContents = {
+  override def writeValueToTag(
+    nbt: NbtContents,
+    key: String,
+    value: Option[Double],
+  ): NbtContents = {
     nbt.putDouble(key, value.getOrElse(noneValue))
   }
 
-  override def readValueFromTag(nbt: NbtContents, key: String): Option[Double] = nbt.getDouble(key)
+  override def readValueFromTag(nbt: NbtContents, key: String): Option[Double] =
+    nbt.getDouble(key)
 
-  override def writeMinMaxTag(nbt: NbtContents, key: String, value: Option[Double]): NbtContents = {
+  override def writeMinMaxTag(
+    nbt: NbtContents,
+    key: String,
+    value: Option[Double],
+  ): NbtContents = {
     nbt.putDouble(key, value.getOrElse(noneValue))
   }
 
@@ -30,13 +39,20 @@ trait DoubleQuest extends RestrictableValue[Double] {
     nbt.getDouble(key)
   }
 
-  override def writeValueToBuffer(buffer: FriendlyBuffer, value: Option[Double]): FriendlyBuffer = {
+  override def writeValueToBuffer(
+    buffer: FriendlyBuffer,
+    value: Option[Double],
+  ): FriendlyBuffer = {
     buffer.writeDouble(value.getOrElse(noneValue))
   }
 
-  override def readValueFromBuffer(buffer: FriendlyBuffer): Option[Double] = buffer.readDouble()
+  override def readValueFromBuffer(buffer: FriendlyBuffer): Option[Double] =
+    buffer.readDouble()
 
-  override def writeMinMaxBuffer(buffer: FriendlyBuffer, value: Option[Double]): FriendlyBuffer = {
+  override def writeMinMaxBuffer(
+    buffer: FriendlyBuffer,
+    value: Option[Double],
+  ): FriendlyBuffer = {
     buffer.writeDouble(value.getOrElse(noneValue))
   }
 
@@ -52,9 +68,11 @@ trait DoubleQuest extends RestrictableValue[Double] {
     defaultValue: Double,
   ): ConfigValue[_] = {
     config
-      .addDouble(key,
+      .addDouble(
+        key,
         value,
-        v => Option(v.doubleValue()).pipe(n => data.copy(value = n)).pipe(upsert),
+        v =>
+          Option(v.doubleValue()).pipe(n => data.copy(value = n)).pipe(upsert),
         defaultValue,
         data.min.getOrElse(noneValue),
         data.max.getOrElse(maxValue),
@@ -67,14 +85,19 @@ trait DoubleQuest extends RestrictableValue[Double] {
     value: Double,
     f: Option[Double] => Unit,
   ): Option[ConfigValue[_]] = {
-    Option(config.addDouble(
-      name,
-      value,
-      v => Option(v.doubleValue()).filterNot(_ == noneValue).filterNot(_ == maxValue).pipe(f),
-      noneValue,
-      noneValue,
-      Double.MaxValue,
-    ),
+    Option(
+      config.addDouble(
+        name,
+        value,
+        v =>
+          Option(v.doubleValue())
+            .filterNot(_ == noneValue)
+            .filterNot(_ == maxValue)
+            .pipe(f),
+        noneValue,
+        noneValue,
+        Double.MaxValue,
+      ),
     )
   }
 }

@@ -13,31 +13,51 @@ trait SkillValueCommand {
   protected def playerOps: Player
 
   protected def registerValueCommand[T <: CommandSegment.Any](builder: T): T = {
-    builder.option(
-      CommandString("value")
-        .option(
-          PlayerArgument().requireMod().option(
-            SkillHandler.getArgument.executes(CommandAction(handler())),
+    builder
+      .option(
+        CommandString("value")
+          .option(
+            PlayerArgument()
+              .requireMod()
+              .option(
+                SkillHandler.getArgument.executes(CommandAction(handler())),
+              ),
+          )
+          .option(
+            SkillHandler.getArgument.executes(CommandAction(handler(true))),
           ),
-        )
-        .option(
-          SkillHandler.getArgument.executes(CommandAction(handler(true))),
-        ),
-    ).asInstanceOf[T]
+      )
+      .asInstanceOf[T]
   }
 
-  private def handler(useCurrentUser: Boolean = false): CommandAction.Callback = {
-    context => {
+  private def handler(
+    useCurrentUser: Boolean = false,
+  ): CommandAction.Callback = { context =>
+    {
       val player = CommandAction.getPlayer(context, useCurrentUser)
       val skillName = SkillHandler.getValue(context)
 
-      player.flatMap(p => skillName.map(playerOps.get(p, _)))
-        .toRight(TranslatableText("commands.playerskills.skill_not_found", skillName.fold("")(_.asString)))
-        .filterOrElse(_.nonEmpty, TranslatableText("commands.playerskills.no_acquired_skills"))
+      player
+        .flatMap(p => skillName.map(playerOps.get(p, _)))
+        .toRight(
+          TranslatableText(
+            "commands.playerskills.skill_not_found",
+            skillName.fold("")(_.asString),
+          ),
+        )
+        .filterOrElse(
+          _.nonEmpty,
+          TranslatableText("commands.playerskills.no_acquired_skills"),
+        )
         .map(_.toSeq)
         .map(_.map(s => s"${s.name} = ${s.value.getOrElse("None")}"))
         .map(_.map(StaticText(_)))
-        .map(ListMessage(TranslatableText("commands.playerskills.acquired_skills", 1), _))
+        .map(
+          ListMessage(
+            TranslatableText("commands.playerskills.acquired_skills", 1),
+            _,
+          ),
+        )
     }
   }
 }
