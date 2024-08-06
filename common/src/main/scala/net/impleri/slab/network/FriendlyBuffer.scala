@@ -51,9 +51,13 @@ case class FriendlyBuffer(private var underlying: FriendlyBuffer.Vanilla) {
       .flatMap(ResourceLocation(_))
   }
 
-  def writeString(value: String): FriendlyBuffer = {
+  private def writeStringInternal(value: String): ByteBuf = {
     underlying.writeInt(value.length)
-    chain(underlying.writeUtf(value, value.length))
+    underlying.writeUtf(value, value.length)
+  }
+
+  def writeString(value: String): FriendlyBuffer = {
+    chain(writeStringInternal(value))
   }
 
   def readStrings(): Seq[String] = {
@@ -65,7 +69,12 @@ case class FriendlyBuffer(private var underlying: FriendlyBuffer.Vanilla) {
 
   def writeStrings(value: Seq[String]): FriendlyBuffer = {
     val next = underlying.writeInt(value.size)
-    value.map(writeString).lastOption.getOrElse(next)
+    chain(
+      value
+        .map(writeStringInternal)
+        .lastOption
+        .getOrElse(next),
+    )
   }
 }
 
