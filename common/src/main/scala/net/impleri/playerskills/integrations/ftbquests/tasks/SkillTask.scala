@@ -25,7 +25,7 @@ abstract class SkillTask[T](
   override val skillOps: SkillOps,
 ) extends BooleanTask(q)
     with QuestStateOps[T] {
-  protected def writeData(nbt: NbtContents): NbtContents = {
+  private def writeTaskData(nbt: NbtContents): NbtContents = {
     nbt
       .pipe(writeSkillTag)
       .pipe(writeValueTag)
@@ -33,7 +33,7 @@ abstract class SkillTask[T](
 
   override def writeData(nbt: CompoundTag): Unit = {
     super.writeData(nbt)
-    writeData(NbtContents(nbt))
+    writeTaskData(NbtContents(nbt))
   }
 
   protected def readData(nbt: NbtContents): NbtContents = {

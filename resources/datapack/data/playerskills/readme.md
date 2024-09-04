@@ -60,7 +60,7 @@ incrementing along the z-axis.
 3. Tiered skill can be degraded.
 4. Specialized skill can be changed.
 5. Skill cannot be given an invalid type of value.
-6. Skill cannot be given an value outside of its options.
+6. Skill cannot be given a value not in its allowed options.
 7. Skill cannot be changed more than allowed.
 8. Quest basic skill task can be completed and rewards a basic skill.
 9. Quest numeric skill task can be completed and rewards an improvement to a numeric skill.

@@ -32,7 +32,7 @@ abstract class SkillReward[T](
     with Downgradable[T] {
   autoclaim = RewardAutoClaim.INVISIBLE
 
-  protected def writeData(nbt: NbtContents): NbtContents = {
+  private def writeRewardData(nbt: NbtContents): NbtContents = {
     nbt
       .pipe(writeSkillTag)
       .pipe(writeValueTag)
@@ -41,7 +41,7 @@ abstract class SkillReward[T](
 
   override def writeData(nbt: CompoundTag): Unit = {
     super.writeData(nbt)
-    writeData(NbtContents(nbt))
+    writeRewardData(NbtContents(nbt))
   }
 
   protected def readData(nbt: NbtContents): NbtContents = {
