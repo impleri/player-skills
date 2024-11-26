@@ -12,11 +12,9 @@ import net.impleri.slab.network.FriendlyBuffer
 import net.impleri.slab.network.MessageFactory
 import net.impleri.slab.network.MessageType
 
-import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
 
 case class SyncSkillsMessage(
-  private val playerId: UUID,
   private val skills: List[Skill[_]],
   private val force: Boolean,
   private val skillTypeOps: SkillTypeOps,
@@ -24,46 +22,40 @@ case class SyncSkillsMessage(
   override val messageType: MessageType,
   private val logger: Logger,
 ) extends ClientboundMessage {
-  override def onReceive: () => Unit = { () =>
-    clientStateContainer
-      .map(_.getNetHandler)
-      .foreach(_.onSyncPlayer(skills, force))
-  }
+  override protected[network] def onReceive(player: Option[Player]): Unit =
+    for {
+      clientState <- clientStateContainer
+    } yield clientState.getNetHandler.onSyncPlayer(skills, force)
 
-  override def write(writer: FriendlyBuffer): Unit = {
+  override protected[network] def onSend(writer: FriendlyBuffer): Unit = {
     writer
-      .writeUUID(playerId)
       .writeBoolean(force)
 
     skills
       .flatMap(skillTypeOps.serialize(_))
+      .tap(logger.debugP(s => s"Sending skill sync of ${s.size} skills: $s"))
       .pipe(writer.writeStrings)
-
-    logger.debug(s"Sending skill sync of ${skills.size} skills for $playerId")
   }
 }
 
 case class SyncSkillsMessageFactory(
   skillTypeOps: SkillTypeOps = SkillType(),
   clientStateContainer: Option[ClientStateContainer] = None,
-  logger: Logger = PlayerSkillsLogger.SKILLS,
+  logger: Logger = PlayerSkillsLogger.NETWORK,
 ) extends MessageFactory[SyncSkillsMessage] {
   final val name: String = "sync_skills"
 
-  override val onReceive: MessageFactory.ReceiveFn[SyncSkillsMessage] =
-    (buffer, messageType) => {
-      val playerId = buffer.readUUID()
-      val force = buffer.readBoolean()
-      val skills = buffer.readStrings().flatMap(skillTypeOps.deserialize)
-
-      logger.debug(
-        s"Received skill sync of ${skills.size} skills for $playerId",
-      )
+  override def parse(buffer: FriendlyBuffer, messageType: MessageType): Option[SyncSkillsMessage] =
+    for {
+      force <- buffer.readBoolean().orElse(Option(false))
+      _ = logger.debug(s"Received skill sync with force $force")
+      skills = buffer.readStrings().flatMap(skillTypeOps.deserialize).toList
+    } yield {
+      logger.info(s"Received skill sync of ${skills.size} skills")
 
       SyncSkillsMessage(
-        playerId.get,
-        skills.toList,
-        force.getOrElse(false),
+        skills,
+        force,
         skillTypeOps,
         clientStateContainer,
         messageType,
@@ -72,13 +64,11 @@ case class SyncSkillsMessageFactory(
     }
 
   def send(
-    player: Player[_],
     skills: List[Skill[_]],
     force: Boolean,
-  ): Option[SyncSkillsMessage] = {
+  ): Option[SyncSkillsMessage] =
     createForSend(
       SyncSkillsMessage(
-        player.uuid,
         skills,
         force,
         skillTypeOps,
@@ -87,5 +77,4 @@ case class SyncSkillsMessageFactory(
         logger,
       ),
     )
-  }
 }

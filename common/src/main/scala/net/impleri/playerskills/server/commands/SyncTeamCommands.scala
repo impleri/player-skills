@@ -10,7 +10,7 @@ import net.impleri.slab.commands.PlayerArgument
 trait SyncTeamCommands {
   protected def teamOps: TeamOps
 
-  protected def registerTeamCommands[T <: CommandSegment.Any](builder: T): T = {
+  protected def registerTeamCommands[T <: CommandSegment.Any](builder: T): T =
     builder
       .option(
         CommandString("team")
@@ -26,27 +26,20 @@ trait SyncTeamCommands {
           ),
       )
       .asInstanceOf[T]
-  }
 
-  private[commands] val syncTeamForPlayer: CommandAction.Callback = { context =>
-    {
+  private[commands] val syncTeamForPlayer: CommandAction.Callback = context =>
       PlayerArgument
         .getValue(context)
         .map(teamOps.syncEntireTeam)
         .toRight(StaticText("Player Not Found"))
         .filterOrElse(_ == true, StaticText("Sync Failed"))
         .map(_ => StaticText("Success"))
-    }
-  }
 
-  private[commands] val syncToTeam: CommandAction.Callback = { context =>
-    {
+  private[commands] val syncToTeam: CommandAction.Callback = context =>
       CommandAction
         .getCurrentPlayer(context)
         .map(teamOps.syncFromPlayer)
         .toRight(StaticText("Player Not Found"))
         .filterOrElse(_ == true, StaticText("Sync Failed"))
         .map(_ => StaticText("Success"))
-    }
-  }
 }

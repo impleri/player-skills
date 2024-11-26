@@ -14,7 +14,7 @@ class OnPlayerTickSpec extends BaseSpec {
 
   private val testUnit = OnPlayerTick(mockOps, mockUpstream, mockLogger)
 
-  private val mockPlayer = mock[Player[_]]
+  private val mockPlayer = mock[Player]
 
   private val indexRestricted = 2
   private val restrictedItem = mock[Item]
@@ -23,10 +23,10 @@ class OnPlayerTickSpec extends BaseSpec {
   private val indexOther = 3
   private val otherItem = mock[Item]
 
-  mockPlayer.isClientSide returns false
+  mockPlayer.isClient returns false
 
   "OnPlayerTick.handler" should "do nothing clientside" in {
-    mockPlayer.isClientSide returns true
+    mockPlayer.isClient returns true
     mockPlayer.armor returns Map.empty
 
     testUnit.handler(mockPlayer)

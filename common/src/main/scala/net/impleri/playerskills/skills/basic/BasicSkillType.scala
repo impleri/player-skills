@@ -15,43 +15,38 @@ case class BasicSkillType(
 ) extends SkillType[Boolean] {
   override val name: ResourceLocation = BasicSkillType.NAME
 
-  override def castToString(value: Boolean): Option[String] = {
+  override def castToString(value: Boolean): Option[String] =
     Option(
       if (value) BasicSkillType.STRING_TRUE else BasicSkillType.STRING_FALSE,
     )
-  }
 
-  override def castFromString(value: String): Option[Boolean] = {
+  override def castFromString(value: String): Option[Boolean] =
     Option(value == BasicSkillType.STRING_TRUE)
-  }
 
   override def can(
     skill: Skill[Boolean],
     threshold: Option[Boolean],
-  ): Boolean = {
+  ): Boolean =
     (threshold.getOrElse(true) == skill.value.getOrElse(false))
       .tap(
-        logger.debugP(c =>
+        logger.infoP(c =>
           s"Checking if player can ${skill.name} (does $threshold == ${skill.value}? $c)",
         ),
       )
-  }
 
   override def getPrevValue(
     skill: Skill[Boolean],
     min: Option[Boolean] = None,
     max: Option[Boolean] = None,
-  ): Option[Boolean] = {
+  ): Option[Boolean] =
     Option(false)
-  }
 
   override def getNextValue(
     skill: Skill[Boolean],
     min: Option[Boolean] = None,
     max: Option[Boolean] = None,
-  ): Option[Boolean] = {
+  ): Option[Boolean] =
     Option(true)
-  }
 }
 
 object BasicSkillType {

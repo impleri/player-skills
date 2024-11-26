@@ -9,48 +9,43 @@ trait JsonDataParser extends JsonCollectionParser {
   protected[utils] def parseOptions[T](
     raw: JsonObject,
     parser: JsonElement => Option[T],
-  ): List[T] = {
+  ): List[T] =
     parseArray(
       raw,
       "options",
       parser,
     )
-  }
 
   protected[utils] def parseExclude[T](
     raw: JsonElement,
     callback: JsonElement => Option[T],
-  ): List[T] = {
+  ): List[T] =
     parseArray(raw, "exclude", callback)
-  }
 
   protected def parseExcludeAction(
     raw: JsonElement,
     callback: JsonElement => Unit,
-  ): Unit = {
+  ): Unit =
     parseArrayEach(raw, "exclude", callback)
-  }
 
   protected[utils] def parseInclude[T](
     raw: JsonElement,
     callback: JsonElement => Option[T],
-  ): List[T] = {
+  ): List[T] =
     parseArray(raw, "include", callback)
-  }
 
   protected def parseIncludeAction(
     raw: JsonElement,
     callback: JsonElement => Unit,
-  ): Unit = {
+  ): Unit =
     parseArrayEach(raw, "include", callback)
-  }
 
   protected[utils] def parseFacet(
     raw: JsonObject,
     key: String,
     onInclude: JsonElement => Unit,
     onExclude: JsonElement => Unit,
-  ): Unit = {
+  ): Unit =
     getElement(raw, key) match {
       case Some(obj) if obj.isJsonObject =>
         parseIncludeAction(obj, onInclude)
@@ -60,7 +55,6 @@ trait JsonDataParser extends JsonCollectionParser {
         list.getAsJsonArray.asScala
           .foreach(onInclude)
 
-      case _ =>
+      case _ => ()
     }
-  }
 }

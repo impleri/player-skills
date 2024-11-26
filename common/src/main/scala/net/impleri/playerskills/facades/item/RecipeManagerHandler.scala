@@ -9,24 +9,21 @@ import scala.jdk.CollectionConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
 object RecipeManagerHandler {
-  private def handleRecipeCheck(recipe: Recipe.Any): Boolean = {
+  private def handleRecipeCheck(recipe: Recipe.Any): Boolean =
     PlayerSkillsClient.STATE.RECIPE_RESTRICTIONS.isProducible(recipe, None)
-  }
 
   def handleOnGetRecipe[C <: Recipe.BaseContainer, T <: Recipe.Vanilla[C]](
     value: Option[Recipe[T]],
-  ): Boolean = {
+  ): Boolean =
     value.fold(RestrictionsOps.DEFAULT_RESPONSE)(r =>
       handleRecipeCheck(r.asInstanceOf[Recipe.Any]),
     )
-  }
 
   def handleOnGetRecipes[C <: Recipe.BaseContainer, T <: Recipe.Vanilla[C]](
     value: Seq[Recipe[T]],
-  ): JavaList[Recipe.AnyVanilla] = {
+  ): JavaList[Recipe.AnyVanilla] =
     value
       .filter(r => handleRecipeCheck(r.asInstanceOf[Recipe.Any]))
       .map(_.value.asInstanceOf[Recipe.AnyVanilla])
       .pipe(_.asJava)
-  }
 }

@@ -60,7 +60,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
   "ListAcquiredCommand.listOwnSkills" should "return acquired skills as strings" in {
     val givenUuid = UUID.randomUUID()
-    val playerMock = mock[Player[_]]
+    val playerMock = mock[Player]
     playerMock.uuid returns givenUuid
 
     val skill1Name = ResourceLocation("skillstest:first").get
@@ -100,7 +100,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
 
   it should "return message when no skills are acquired" in {
     val givenUuid = UUID.randomUUID()
-    val playerMock = mock[Player[_]]
+    val playerMock = mock[Player]
     playerMock.uuid returns givenUuid
 
     playerOpsMock.get(playerMock) returns List.empty

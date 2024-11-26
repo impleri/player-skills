@@ -8,7 +8,6 @@ import net.minecraft.core.{Registry => McRegistry}
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.LevelResource
 import net.minecraft.world.level.Level
 
@@ -28,27 +27,27 @@ class Server(
   def getWorldPath(level: LevelResource = levelResource): Path =
     underlying.getWorldPath(level)
 
-  def getPlayer(playerId: UUID): Option[Player[ServerPlayer]] = {
+  def getPlayer(playerId: UUID): Option[Player] =
     underlying.getPlayerList
       .getPlayer(playerId)
       .pipe(Option.apply)
       .map(Player.apply)
-  }
 
-  def getPlayers: Seq[Player[ServerPlayer]] = {
-    underlying.getPlayerList.getPlayers.asScala.toList
+  def getPlayers: Seq[Player] =
+    underlying.getPlayerList
+      .getPlayers
+      .asScala
+      .toList
       .map(Player.apply)
-  }
 
   def getLevel: Option[Level] = level
 
-  def getDimensions: Seq[ResourceLocation] = {
+  def getDimensions: Seq[ResourceLocation] =
     underlying
       .levelKeys()
       .asScala
       .map(_.location())
       .toList
-  }
 
   def getRecipeManager: RecipeManager =
     underlying.getRecipeManager.pipe(RecipeManager(_))
@@ -56,21 +55,19 @@ class Server(
   def getRegistry[T <: ResourceWrapper[U], U](
     key: ResourceKey[McRegistry[U]],
     f: U => T,
-  ): Option[Registry[T, U]] = {
+  ): Option[Registry[T, U]] =
     underlying
       .registryAccess()
       .registry[U](key)
       .toScala
       .map(r => new Registry(r, f))
-  }
 }
 
 object Server {
   def apply(server: MinecraftServer, resourcePath: String = ""): Server =
     new Server(server, resourcePath)
 
-  def fromLevel(level: Level, resourcePath: String = ""): Option[Server] = {
+  def fromLevel(level: Level, resourcePath: String = ""): Option[Server] =
     Option(level)
       .map(l => new Server(l.getServer, resourcePath, Option(l)))
-  }
 }

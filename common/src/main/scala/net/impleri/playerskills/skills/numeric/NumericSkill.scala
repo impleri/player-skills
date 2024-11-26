@@ -22,9 +22,8 @@ case class NumericSkill(
   override protected[playerskills] def mutate(
     value: Option[Double],
     changesAllowed: Int,
-  ): NumericSkill = {
+  ): NumericSkill =
     copy(value = value, changesAllowed = changesAllowed)
-  }
 }
 
 object NumericSkill {

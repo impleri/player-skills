@@ -24,13 +24,12 @@ case class ResourceLocation(private val underlying: McResourceLocation) {
     TagKey.create[U](registryKey.value, underlying),
   )
 
-  override def equals(obj: Any): Boolean = {
+  override def equals(obj: Any): Boolean =
     obj match {
       case r: ResourceLocation   => underlying.equals(r.underlying)
       case r: McResourceLocation => underlying.equals(r)
       case _                     => false
     }
-  }
 
   override def toString: String = asString
 }
@@ -44,7 +43,7 @@ object ResourceLocation {
   def apply(resource: McResourceLocation): Option[ResourceLocation] =
     Option(resource).pipe(apply)
 
-  def apply(namespace: String, path: String): Option[ResourceLocation] = {
+  def apply(namespace: String, path: String): Option[ResourceLocation] =
     Try(
       new McResourceLocation(namespace, path),
     ).tap {
@@ -56,9 +55,8 @@ object ResourceLocation {
       case _ => ()
     }.toOption
       .flatMap(apply)
-  }
 
-  def apply(resource: String): Option[ResourceLocation] = {
+  def apply(resource: String): Option[ResourceLocation] =
     Try(
       new McResourceLocation(resource),
     ).tap {
@@ -67,5 +65,4 @@ object ResourceLocation {
       case _ => ()
     }.toOption
       .flatMap(apply)
-  }
 }

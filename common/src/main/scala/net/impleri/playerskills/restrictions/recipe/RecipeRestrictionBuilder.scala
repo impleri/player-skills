@@ -32,47 +32,42 @@ case class RecipeRestrictionBuilder(
     )
   }
 
-  def add(builder: RecipeConditions): Unit = {
-    restrictions += s"recipe-${restrictions.size}" -> builder
-  }
-
   private def restrictRecipes[R <: Recipe.BaseVanilla](
     recipeType: RecipeType.Any,
     target: RecipeTarget,
     builder: RecipeConditions,
-  ): Unit = {
-    serverState.SERVER
-      .map(_.getRecipeManager)
-      .toList
-      .flatMap(_.getAllFor[R](recipeType))
-      .filter(target.matches)
-      .foreach(restrictRecipe(_, builder))
-  }
+  ): Unit =
+    for {
+      manager <- serverState.SERVER.map(_.getRecipeManager).toList
+      recipe <- manager.getAllFor(recipeType)
+      if target.matches(recipe)
+    } yield restrictRecipe(recipe, builder)
 
   private def restrictTarget(
     target: RecipeTarget,
     builder: RecipeConditions,
-  ): Unit = {
-    recipeTypeRegistry
-      .get(target.recipeType)
-      .foreach(t => restrictRecipes(t, target, builder))
-  }
-
-  override def restrict(data: (String, RecipeConditions)): Unit = {
-    data._2.targets.foreach(restrictTarget(_, data._2))
-  }
+  ): Unit =
+    for {
+      recipeType <- recipeTypeRegistry.get(target.recipeType)
+    } yield restrictRecipes(recipeType, target, builder)
 
   override protected def restrictString(
     targetName: String,
     builder: RecipeConditions,
-  ): Unit = {
+  ): Unit =
     logger.error(s"Unused path")
-  }
 
   override protected def restrictOne(
     targetName: ResourceLocation,
     builder: RecipeConditions,
-  ): Unit = {
+  ): Unit =
     logger.error(s"Unused path")
-  }
+
+  override def restrict(data: (String, RecipeConditions)): Unit =
+    for {
+      target <- data._2.targets
+    } yield restrictTarget(target, data._2)
+
+  def add(builder: RecipeConditions): Unit =
+    restrictions += s"recipe-${restrictions.size}" -> builder
 }

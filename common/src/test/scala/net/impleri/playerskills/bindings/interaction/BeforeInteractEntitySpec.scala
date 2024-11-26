@@ -20,11 +20,10 @@ class BeforeInteractEntitySpec extends BaseSpec {
     mockOps,
     mockUpstream,
     mockLogger,
-    mockLogger,
   )
 
   "BeforeInteractEntitySpec.handler" should "interrupts the event if restricted" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockMob = mock[Entity[_]]
     val mockHand = mock[Hand]
     val mockItem = mock[Item]
@@ -40,7 +39,7 @@ class BeforeInteractEntitySpec extends BaseSpec {
   }
 
   it should "does nothing to the event if not restricted" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockMob = mock[Entity[_]]
     val mockHand = mock[Hand]
     val mockItem = mock[Item]
@@ -53,7 +52,7 @@ class BeforeInteractEntitySpec extends BaseSpec {
   }
 
   it should "does nothing to the event if the item is nothing" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockMob = mock[Entity[_]]
     val mockHand = mock[Hand]
     val mockItem = mock[Item]

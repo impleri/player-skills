@@ -13,7 +13,6 @@ trait BaseCommand {
 
   def register(
     dispatcher: CommandDispatcher[Command.Source],
-  ): LiteralCommandNode[Command.Source] = {
+  ): LiteralCommandNode[Command.Source] =
     dispatcher.register(command.asRoot)
-  }
 }

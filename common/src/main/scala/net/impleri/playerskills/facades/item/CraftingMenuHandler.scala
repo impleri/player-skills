@@ -11,29 +11,31 @@ import scala.util.chaining.scalaUtilChainingOps
 
 object CraftingMenuHandler {
   private def getRecipeFor(
-    player: Player.Any,
+    player: Player,
     server: Server,
     container: CraftingContainer,
     menu: ContainerMenu.Any,
-  ): Option[Boolean] = {
+  ): Option[Boolean] =
     container
       .getCraftingRecipe(server)
       .map(PlayerSkills.STATE.RECIPE_RESTRICTIONS.isProducible(player, _, None))
       .tap(v => if (v.contains(false)) player.sendEmptyContainerSlot(menu))
-  }
+
+  private def guarantee(response: Option[Boolean]) = response.getOrElse(RestrictionsOps.DEFAULT_RESPONSE)
 
   def handleGetRecipeFor(
-    player: Option[Player.Any],
-    server: Option[Server],
-    container: Option[CraftingContainer],
-    menu: Option[ContainerMenu.Any],
-  ): Boolean = {
-    player
-      .flatMap(p =>
-        server.flatMap(s =>
-          container.flatMap(c => menu.flatMap(m => getRecipeFor(p, s, c, m))),
-        ),
-      )
-      .fold(RestrictionsOps.DEFAULT_RESPONSE)(identity)
-  }
+    playerOpt: Option[Player],
+    serverOpt: Option[Server],
+    containerOpt: Option[CraftingContainer],
+    menuOpt: Option[ContainerMenu.Any],
+  ): Boolean =
+    guarantee {
+      for {
+        player <- playerOpt
+        server <- serverOpt
+        container <- containerOpt
+        menu <- menuOpt
+        response <- getRecipeFor(player, server, container, menu)
+      } yield response
+    }
 }

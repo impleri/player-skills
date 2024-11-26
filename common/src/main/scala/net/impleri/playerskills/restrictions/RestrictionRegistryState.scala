@@ -14,25 +14,24 @@ object RestrictionRegistryState {
   ) {
     protected def matchesTarget(kind: RestrictionType, name: ResourceLocation)(
       restriction: Restriction[_, _],
-    ): Boolean = {
+    ): Boolean =
       restriction.isType(kind) && restriction.targets(name)
-    }
 
     def entries: List[Restriction[_, _]] = restrictions
 
     def get[T <: ResourceWrapper[U], U](
       kind: RestrictionType,
       name: ResourceLocation,
-    ): View[Restriction[T, U]] = {
-      restrictions.view
+    ): View[Restriction[T, U]] =
+      restrictions
+        .view
         .filter(matchesTarget(kind, name))
         .asInstanceOf[View[Restriction[T, U]]]
-    }
 
-    def has(kind: RestrictionType, name: ResourceLocation): Boolean = {
-      restrictions.view
+    def has(kind: RestrictionType, name: ResourceLocation): Boolean =
+      restrictions
+        .view
         .exists(matchesTarget(kind, name))
-    }
 
     def add(restriction: Restriction[_, _]): Restrictions = Restrictions(
       restrictions :+ restriction,
@@ -47,16 +46,14 @@ object RestrictionRegistryState {
   def add(restriction: Restriction[_, _]): State[Restrictions, Unit] =
     State.modify(_.add(restriction))
 
-  def entries(): State[Restrictions, List[Restriction[_, _]]] = {
+  def entries(): State[Restrictions, List[Restriction[_, _]]] =
     State[Restrictions, List[Restriction[_, _]]](s => (s, s.entries))
-  }
 
   def get[T <: ResourceWrapper[U], U](
     kind: RestrictionType,
     name: ResourceLocation,
-  ): State[Restrictions, View[Restriction[T, U]]] = {
+  ): State[Restrictions, View[Restriction[T, U]]] =
     readOp(_.get[T, U](kind, name))
-  }
 
   def has(
     kind: RestrictionType,

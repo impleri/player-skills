@@ -21,10 +21,9 @@ case class TieredSkill(
   override protected[playerskills] def mutate(
     value: Option[String],
     changesAllowed: Int,
-  ): TieredSkill = {
+  ): TieredSkill =
     copy(
       value = value,
       changesAllowed = changesAllowed,
     )
-  }
 }

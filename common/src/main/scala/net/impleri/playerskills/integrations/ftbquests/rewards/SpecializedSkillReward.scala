@@ -7,9 +7,9 @@ import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestState
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestStateOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.StringQuest
+import net.impleri.playerskills.integrations.ftbquests.quests.QuestState
+import net.impleri.playerskills.integrations.ftbquests.quests.QuestStateOps
+import net.impleri.playerskills.integrations.ftbquests.quests.StringQuest
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 
 case class SpecializedSkillReward(
@@ -25,19 +25,18 @@ case class SpecializedSkillReward(
 }
 
 object SpecializedSkillReward {
-  val REWARD_TYPE: RewardType = QuestStateOps
+  final val REWARD_TYPE: RewardType = QuestStateOps
     .createRewardType(
       QuestStateOps.SPECIALIZED_SKILL,
       "minecraft:item/diamond_hoe",
       apply,
     )
 
-  def apply(quest: Quest): SpecializedSkillReward = {
+  def apply(quest: Quest): SpecializedSkillReward =
     new SpecializedSkillReward(
       quest,
       PlayerSkillsServer.STATE.PLAYER_OPS,
       PlayerSkills.STATE.SKILL_OPS,
       PlayerSkills.STATE.SKILL_TYPE_OPS,
     )
-  }
 }

@@ -5,7 +5,7 @@ import dev.ftb.mods.ftbquests.quest.Quest
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.RestrictableValue
+import net.impleri.playerskills.integrations.ftbquests.quests.RestrictableValue
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.slab.entity.Player
 import net.impleri.slab.nbt.NbtContents
@@ -20,51 +20,40 @@ abstract class RestrictableReward[T](
   override val skillTypeOps: SkillTypeOps,
 ) extends SkillReward[T](q, playerOps, skillOps, skillTypeOps)
     with RestrictableValue[T] {
-  override def writeData(nbt: NbtContents): NbtContents = {
-    nbt
-      .pipe(super.writeData)
-      .pipe(writeMinMaxToTag)
-  }
+  override def writeRewardDataTags(nbt: NbtContents): NbtContents =
+      nbt
+        .tap(super.writeRewardDataTags)
+        .tap(writeMinMaxToTag)
 
-  override def readData(nbt: NbtContents): NbtContents = {
+  override def readRewardData(nbt: NbtContents): NbtContents =
     nbt
-      .tap(super.readData)
+      .tap(super.readRewardData)
       .tap(readMinMaxFromTag)
-  }
 
-  override def writeNetData(buffer: FriendlyBuffer): FriendlyBuffer = {
-    buffer
-      .pipe(super.writeNetData)
-      .pipe(writeMinMaxToBuffer)
-  }
+  override def writeNetRewardData(buffer: FriendlyBuffer): Unit =
+    if (data.isValid) {
+      buffer
+        .tap(super.writeNetRewardData)
+        .tap(writeMinMaxToBuffer)
+    }
 
-  override def readNetData(buffer: FriendlyBuffer): FriendlyBuffer = {
+  override def readNetRewardData(buffer: FriendlyBuffer): FriendlyBuffer =
     buffer
-      .tap(super.readNetData)
+      .tap(super.readNetRewardData)
       .tap(readMinMaxFromBuffer)
-  }
 
-  override def createConfig(config: ConfigGroup): ConfigGroup = {
+  override def createConfig(config: ConfigGroup): ConfigGroup =
     config
       .tap(super.getConfig)
       .tap(addMinMaxToConfig)
-  }
 
-  override def getNextValue(player: Player[_]): Option[Skill[T]] = {
-    val current = getPlayerValue(player)
-    val skillType = data.skill.flatMap(skillTypeOps.get[T])
-    val minMaxValue = skillType
-      .flatMap(t =>
-        current
-          .flatMap(s =>
-            if (data.downgrade) t.getPrevValue(s, data.min, data.max)
-            else
-              t
-                .getNextValue(s, data.min, data.max),
-          ),
-      )
-    val nextValue = data.value.orElse(minMaxValue)
-
-    current.flatMap(c => playerOps.calculateValue(player, c, nextValue))
-  }
+  override def getNextValue(player: Player): Option[Skill[T]] =
+    for {
+      skillName <- data.skill
+      skill <- playerOps.get[T](player, skillName)
+      skillType <- skillTypeOps.get[T](skill)
+      regradeValue = if (data.downgrade) skillType.getPrevValue(skill, data.min, data.max) else skillType.getNextValue(skill, data.min, data.max)
+      desiredValue = data.value.orElse(regradeValue)
+      nextValue <- playerOps.calculateValue(player, skill, desiredValue)
+    } yield nextValue
 }

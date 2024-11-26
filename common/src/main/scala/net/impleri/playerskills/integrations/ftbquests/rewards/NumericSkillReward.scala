@@ -7,8 +7,8 @@ import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.DoubleQuest
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestStateOps
+import net.impleri.playerskills.integrations.ftbquests.quests.{DoubleQuest, QuestState, QuestStateOps}
+import net.impleri.playerskills.skills.numeric.NumericSkillType
 
 case class NumericSkillReward(
   q: Quest,
@@ -17,23 +17,24 @@ case class NumericSkillReward(
   override val skillTypeOps: SkillTypeOps,
 ) extends RestrictableReward[Double](q, playerOps, skillOps, skillTypeOps)
     with DoubleQuest {
+  data = QuestState(NumericSkillType.NAME)
+
   override def getType: RewardType = NumericSkillReward.REWARD_TYPE
 }
 
 object NumericSkillReward {
-  val REWARD_TYPE: RewardType = QuestStateOps
+  final val REWARD_TYPE: RewardType = QuestStateOps
     .createRewardType(
       QuestStateOps.NUMERIC_SKILL,
       "minecraft:item/iron_hoe",
       apply,
     )
 
-  def apply(quest: Quest): NumericSkillReward = {
+  def apply(quest: Quest): NumericSkillReward =
     new NumericSkillReward(
       quest,
       PlayerSkillsServer.STATE.PLAYER_OPS,
       PlayerSkills.STATE.SKILL_OPS,
       PlayerSkills.STATE.SKILL_TYPE_OPS,
     )
-  }
 }

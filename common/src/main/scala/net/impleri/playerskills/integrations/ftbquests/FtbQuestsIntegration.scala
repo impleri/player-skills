@@ -25,7 +25,7 @@ class FtbQuestsIntegration(
 object FtbQuestsIntegration {
   val STATE: FtbQuestsIntegration = init()
 
-  private def init(): FtbQuestsIntegration = {
+  private def init(): FtbQuestsIntegration =
     new FtbQuestsIntegration(
       BasicSkillTask.TASK_TYPE,
       NumericSkillTask.TASK_TYPE,
@@ -36,9 +36,7 @@ object FtbQuestsIntegration {
       TieredSkillReward.REWARD_TYPE,
       SpecializedSkillReward.REWARD_TYPE,
     )
-  }
 
-  def apply(): FtbQuestsIntegration = {
+  def apply(): FtbQuestsIntegration =
     STATE
-  }
 }

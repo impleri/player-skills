@@ -16,14 +16,14 @@ class RecipeRestrictionOpsSpec extends BaseSpec {
 
   private val testUnit = RecipeRestrictionOps(mockRegistry, mockLogger)
 
-  private val mockPlayer = mock[PlayerFacade[Player]]
+  private val mockPlayer = mock[PlayerFacade]
   private val mockEntity = mock[Entity[Player]]
   private val mockTargetName = mock[ResourceLocation]
   private val mockTarget = mock[Recipe.Any]
 
   private val testRestriction = RecipeRestriction(mockTarget)
 
-  mockEntity.asPlayer[Player] returns mockPlayer
+  mockEntity.asPlayer returns mockPlayer
 
   mockPlayer.asOption returns Option(mockEntity)
   mockPlayer.dimension returns None
@@ -32,7 +32,7 @@ class RecipeRestrictionOpsSpec extends BaseSpec {
   mockTarget.name returns Option(mockTargetName)
 
   "RecipeRestrictionOps.apply" should "return a working class" in {
-    RecipeRestrictionOps().restrictionType shouldBe RestrictionType.Recipe()
+    RecipeRestrictionOps().restrictionType shouldBe RestrictionType.Recipe
   }
 
   "RecipeRestrictionOps.isProducible" should "return false if a restriction has identifiable = false" in {

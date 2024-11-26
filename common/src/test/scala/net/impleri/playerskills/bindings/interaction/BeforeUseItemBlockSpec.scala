@@ -21,11 +21,10 @@ class BeforeUseItemBlockSpec extends BaseSpec {
     mockOps,
     mockUpstream,
     mockLogger,
-    mockLogger,
   )
 
   "BeforeUseItemBlock.handler" should "interrupts the event if restricted" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockHand = mock[Hand]
     val mockPos = mock[Position]
     val mockItem = mock[Item]
@@ -42,7 +41,7 @@ class BeforeUseItemBlockSpec extends BaseSpec {
   }
 
   it should "does nothing to the event if not restricted" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockHand = mock[Hand]
     val mockPos = mock[Position]
     val mockItem = mock[Item]
@@ -56,7 +55,7 @@ class BeforeUseItemBlockSpec extends BaseSpec {
   }
 
   it should "does nothing to the event if the item is nothing" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockHand = mock[Hand]
     val mockPos = mock[Position]
     val mockItem = mock[Item]

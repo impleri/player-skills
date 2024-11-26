@@ -20,74 +20,85 @@ case class BlockEvents(
   private val onPlaceEvent: Event[BlockEvent.Place] = BlockEvent.PLACE,
   private val onFallingLandEvent: Event[BlockEvent.FallingLand] =
     BlockEvent.FALLING_LAND,
-) {
-  def onBreak(f: BlockEvents.OnBreak): Unit = {
+) extends ResultHandler {
+  def onBreak(handler: BlockEvents.OnBreak): Unit =
     onBreakEvent.register {
       (
-        level: McLevel,
+        rawLevel: McLevel,
         pos: BlockPos,
         state: BlockState,
-        player: ServerPlayer,
+        serverPlayer: ServerPlayer,
         xp: IntValue,
       ) =>
-        Option(player)
-          .map(Player(_))
-          .fold(EventResult.pass())(
-            f(
-              _,
-              Option(state).map(Block(_)),
-              Option(pos).map(Position(_)),
-              Option(level).map(Level(_)),
-              Option(xp).map(_.getAsInt),
-            ),
+        ensureResult {
+          for {
+            player <- Option(serverPlayer).map(Player(_))
+            block = Option(state).map(Block(_))
+            location = Option(pos).map(Position(_))
+            level = Option(rawLevel).map(Level(_))
+            xpGain = Option(xp).map(_.getAsInt)
+          } yield handler(
+            player,
+            block,
+            location,
+            level,
+            xpGain,
           )
+        }
     }
-  }
 
-  def onPlace(f: BlockEvents.OnPlace): Unit = {
+  def onPlace(handler: BlockEvents.OnPlace): Unit =
     onPlaceEvent.register {
-      (level: McLevel, pos: BlockPos, state: BlockState, entity: McEntity) =>
-        Option(state)
-          .map(Block(_))
-          .fold(EventResult.pass())(
-            f(
-              _,
-              Option(pos).map(Position(_)),
-              Option(level).map(Level(_)),
-              Option(entity).map(Entity(_)),
-            ),
+      (
+        rawLevel: McLevel,
+        pos: BlockPos,
+        state: BlockState,
+        rawEntity: McEntity,
+      ) =>
+        ensureResult {
+          for {
+            block <- Option(state).map(Block(_))
+            location = Option(pos).map(Position(_))
+            level = Option(rawLevel).map(Level(_))
+            entity = Option(rawEntity).map(Entity(_))
+          } yield handler(
+            block,
+            location,
+            level,
+            entity,
           )
+        }
     }
-  }
 
-  def onFallingLand(f: BlockEvents.OnFallingLand): Unit = {
+  def onFallingLand(handler: BlockEvents.OnFallingLand): Unit =
     onFallingLandEvent
       .register {
         (
-          level: McLevel,
+          rawLevel: McLevel,
           pos: BlockPos,
           state: BlockState,
           surface: BlockState,
-          entity: McEntity,
+          rawEntity: McEntity,
         ) =>
-          Option(state)
-            .map(Block(_))
-            .foreach(
-              f(
-                _,
-                Option(surface).map(Block(_)),
-                Option(pos).map(Position(_)),
-                Option(level).map(Level(_)),
-                Option(entity).map(Entity(_)),
-              ),
-            )
+          for {
+            block <- Option(state).map(Block(_))
+            onBlock = Option(surface).map(Block(_))
+            location = Option(pos).map(Position(_))
+            level = Option(rawLevel).map(Level(_))
+            entity = Option(rawEntity).map(Entity(_))
+          } yield handler(
+            block,
+            onBlock,
+            location,
+            level,
+            entity,
+          )
       }
-  }
 }
 
 object BlockEvents {
   type OnBreak = (
-    Player.Any,
+    Player,
     Option[Block],
     Option[Position],
     Option[Level.Any],

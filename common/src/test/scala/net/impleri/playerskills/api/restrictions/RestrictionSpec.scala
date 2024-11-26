@@ -11,22 +11,22 @@ class RestrictionSpec extends BaseSpec {
 
   private case class TestRestriction(
     override val target: Item = mockItem,
-    override val condition: Player[_] => Boolean = _ => true,
+    override val condition: Player => Boolean = _ => true,
     override val includeDimensions: Seq[String] = Seq.empty,
     override val excludeDimensions: Seq[String] = Seq.empty,
     override val includeBiomes: Seq[String] = Seq.empty,
     override val excludeBiomes: Seq[String] = Seq.empty,
     override val replacement: Option[Item] = None,
   ) extends Restriction[Item, Item.Vanilla] {
-    override def restrictionType: RestrictionType = RestrictionType.Item()
+    override def restrictionType: RestrictionType = RestrictionType.Item
   }
 
   "Restriction.isType" should "return true if the type matches" in {
-    TestRestriction().isType(RestrictionType.Item()) should be(true)
+    TestRestriction().isType(RestrictionType.Item) should be(true)
   }
 
   it should "return false if the type does not match" in {
-    TestRestriction().isType(RestrictionType.Recipe()) should be(false)
+    TestRestriction().isType(RestrictionType.Recipe) should be(false)
   }
 
   "Restriction.targets" should "return true if the target name matches" in {

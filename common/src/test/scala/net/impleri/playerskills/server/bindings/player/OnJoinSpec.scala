@@ -15,7 +15,7 @@ class OnJoinSpec extends BaseSpec {
 
   private val testUnit = OnJoin(() => mockRegistry, mockNet, mockUpstream)
 
-  private val mockPlayer = mock[Player[_]]
+  private val mockPlayer = mock[Player]
   private val mockUuid = mock[UUID]
   mockPlayer.uuid returns mockUuid
 

@@ -17,9 +17,8 @@ trait SingleTargetParser[T]
   protected[conditions] def getTarget(
     raw: JsonObject,
     key: String = "target",
-  ): Option[String] = {
+  ): Option[String] =
     parseValue(raw, key, v => Option(v.getAsString))
-  }
 }
 
 trait MultiTargetParser[T]
@@ -28,9 +27,10 @@ trait MultiTargetParser[T]
   protected[conditions] def getTarget(
     raw: JsonObject,
     key: String = "target",
-  ): Seq[JsonElement] = {
-    getObject(raw, key).filter(_.isJsonObject).toSeq
-  }
+  ): Seq[JsonElement] =
+    getObject(raw, key)
+      .filter(_.isJsonObject)
+      .toSeq
 }
 
 trait RestrictionConditionsBuilder
@@ -62,21 +62,19 @@ trait RestrictionConditionsBuilder
     val conditions = parseIf(raw)
     val unless = parseUnless(raw)
 
-    condition = (player: Player[_]) =>
+    condition = (player: Player) =>
       conditions.forall(_(player)) && unless.forall(_(player))
   }
 
-  private def parseEverything(raw: JsonObject): Unit = {
+  private def parseEverything(raw: JsonObject): Unit =
     if (parseBoolean(raw, "everything").getOrElse(false)) {
       toggleEverything()
     }
-  }
 
-  private def parseNothing(raw: JsonObject): Unit = {
+  private def parseNothing(raw: JsonObject): Unit =
     if (parseBoolean(raw, "nothing").getOrElse(false)) {
       toggleNothing()
     }
-  }
 
   def parseRestriction(jsonElement: JsonObject): Unit
 

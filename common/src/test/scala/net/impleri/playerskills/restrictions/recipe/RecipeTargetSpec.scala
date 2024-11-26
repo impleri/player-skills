@@ -43,12 +43,12 @@ class RecipeTargetSpec extends BaseSpec {
     testUnitJustOutput.matches(mockRecipe) shouldBe false
   }
 
-  it should "return true for a recipe that has the same output and no ingredients are targeted" in {
+  it should "return false for a recipe that has the same output and no ingredients are targeted" in {
     val recipeOutput = mock[Item]
     recipeOutput.matches(*) returns true
     mockRecipe.getResultItem returns recipeOutput
 
-    val result = testUnitJustOutput.matches(mockRecipe) shouldBe true
+    testUnitJustOutput.matches(mockRecipe) shouldBe false
   }
 
   it should "return false for a recipe that does not have all of the same ingredients" in {
@@ -59,12 +59,12 @@ class RecipeTargetSpec extends BaseSpec {
     testUnitJustIngredients.matches(mockRecipe) shouldBe false
   }
 
-  it should "return true for a recipe that has all of the same ingredients and no output is targeted" in {
+  it should "return false for a recipe that has all of the same ingredients and no output is targeted" in {
     val ingredients = mock[List[Item]]
     ingredients.exists(*) returns true
     mockRecipe.getIngredientItems returns ingredients
 
-    testUnitJustIngredients.matches(mockRecipe) shouldBe true
+    testUnitJustIngredients.matches(mockRecipe) shouldBe false
   }
 
   it should "return true for a recipe that matches the output and has all of the same ingredients" in {

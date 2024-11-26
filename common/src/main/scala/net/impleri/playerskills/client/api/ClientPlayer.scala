@@ -7,11 +7,10 @@ import net.impleri.playerskills.api.skills.SkillTypeOps
 case class ClientPlayer(
   skillTypeOps: SkillTypeOps = SkillType(),
 ) {
-  def can[T](skill: Skill[T], expectedValue: Option[T] = None): Boolean = {
+  def can[T](skill: Skill[T], expectedValue: Option[T] = None): Boolean =
     skillTypeOps
       .get(skill)
       .fold(ClientPlayer.DEFAULT_SKILL_RESPONSE)(_.can(skill, expectedValue))
-  }
 }
 
 object ClientPlayer {

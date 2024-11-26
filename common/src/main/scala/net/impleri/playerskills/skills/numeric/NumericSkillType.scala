@@ -3,7 +3,6 @@ package net.impleri.playerskills.skills.numeric
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
-import net.impleri.playerskills.utils.MinMaxCalculator
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
@@ -16,15 +15,13 @@ case class NumericSkillType(
 ) extends SkillType[Double] {
   override val name: ResourceLocation = NumericSkillType.NAME
 
-  override def castToString(value: Double): Option[String] = {
+  override def castToString(value: Double): Option[String] =
     Option(value.toString)
-  }
 
-  override def castFromString(value: String): Option[Double] = {
+  override def castFromString(value: String): Option[Double] =
     value.toDoubleOption
-  }
 
-  override def can(skill: Skill[Double], threshold: Option[Double]): Boolean = {
+  override def can(skill: Skill[Double], threshold: Option[Double]): Boolean =
     (skill.value.getOrElse(0.0) >= threshold.getOrElse(
       skill.asInstanceOf[NumericSkill].step,
     ))
@@ -33,29 +30,34 @@ case class NumericSkillType(
           s"Checking if player can ${skill.name} (is $threshold >= ${skill.value}? $c)",
         ),
       )
-  }
+
+  private def stepFor(skill: Skill[Double]): Double = skill.asInstanceOf[NumericSkill].step
+
+  private def floor(value: Double, min: Option[Double]): Double = min.fold(value)(value max _)
+
+  private def ceil(value: Double, max: Option[Double]): Double = max.fold(value)(value min _)
 
   override def getPrevValue(
     skill: Skill[Double],
     min: Option[Double],
     max: Option[Double],
-  ): Option[Double] = {
-    MinMaxCalculator
-      .calculate(skill.value, max, MinMaxCalculator.isLessThan)
-      .map(_ - skill.asInstanceOf[NumericSkill].step)
-      .pipe(MinMaxCalculator.calculate(_, min, MinMaxCalculator.isGreaterThan))
-  }
+  ): Option[Double] =
+    for {
+      next <- skill.value.map(_ - stepFor(skill))
+      floored = floor(next, min)
+      ceiling = ceil(floored, max)
+    } yield ceiling
 
   override def getNextValue(
     skill: Skill[Double],
     min: Option[Double],
     max: Option[Double],
-  ): Option[Double] = {
-    MinMaxCalculator
-      .calculate(skill.value, min, MinMaxCalculator.isGreaterThan)
-      .map(_ + skill.asInstanceOf[NumericSkill].step)
-      .pipe(MinMaxCalculator.calculate(_, max, MinMaxCalculator.isLessThan))
-  }
+  ): Option[Double] =
+  for {
+    next <- skill.value.map(_ + stepFor(skill))
+    floored = floor(next, min)
+    ceiling = ceil(floored, max)
+  } yield ceiling
 }
 
 object NumericSkillType {

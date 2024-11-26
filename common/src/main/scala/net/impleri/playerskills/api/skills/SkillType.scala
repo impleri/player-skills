@@ -3,8 +3,7 @@ package net.impleri.playerskills.api.skills
 import net.impleri.playerskills.skills.SkillTypeRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.resources.Registerable
-import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.{Named, ResourceLocation}
 
 import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
@@ -30,38 +29,36 @@ sealed trait SerializableSkillType[T] {
 
   def castFromString(value: String): Option[T]
 
-  def serialize(skill: Skill[T]): String = {
+  def serialize(skill: Skill[T]): String =
     List(
       s"${skill.name}",
       s"${skill.skillType}",
       skill.value.flatMap(castToString).getOrElse(SkillType.stringValueNone),
       s"${skill.changesAllowed}",
     ).mkString(SkillType.stringValueSeparator)
-  }
 
   def deserialize(
     name: String,
     value: Option[String],
     changesAllowed: Int,
-  ): Option[Skill[T]] = {
+  ): Option[Skill[T]] =
     ResourceLocation(name)
       .flatMap(skillOps.get[T])
       .map(
         _.asInstanceOf[ChangeableSkillOps[T, Skill[T]]]
           .mutate(value.flatMap(castFromString), changesAllowed),
       )
-  }
 }
 
 trait SkillType[T]
-    extends Registerable
+    extends Named
     with ChangeableSkillType[T]
     with SerializableSkillType[T] {
   val name: ResourceLocation = ResourceLocation("skill").get
 
-  def can(skill: Skill[T], threshold: Option[T] = None): Boolean = {
-    skill.value.exists(v => threshold.forall(v == _))
-  }
+  def can(skill: Skill[T], threshold: Option[T] = None): Boolean =
+    skill.value
+      .exists(v => threshold.forall(v == _))
 }
 
 /** Facade to Skill Types registry for interacting with registered skill types
@@ -83,7 +80,7 @@ class SkillTypeOps(
   override val state: SkillTypeRegistry,
   protected val logger: Logger,
 ) extends SkillTypeRegistryFacade {
-  def serialize[T](skill: Skill[T]): Option[String] = {
+  def serialize[T](skill: Skill[T]): Option[String] =
     get(skill)
       .map(_.serialize(skill))
       .tap(
@@ -91,32 +88,30 @@ class SkillTypeOps(
           s"Dehydrated skill ${skill.name} of type ${skill.skillType} for storage: $v",
         ),
       )
-  }
 
-  private def splitRawSkill(value: String) = {
+  private def splitRawSkill(value: String) =
     value
       .split(SkillType.stringValueSeparator)
       .toList
       .reverse
       .dropWhile(_.isEmpty)
       .reverse
-  }
 
-  private def parseValue(value: String): Option[String] = {
-    if (value == SkillType.stringValueNone) None else Option(value)
-  }
+  private def parseValue(value: String): Option[String] =
+    Option(value)
+      .filterNot(_ == SkillType.stringValueNone)
 
-  private def parseChanges(value: String): Int = {
-    Try(value.toInt).toOption
+  private def parseChanges(value: String): Int =
+    Try(value.toInt)
+      .toOption
       .getOrElse {
         logger.warn(
           s"Unable to parse changesAllowed ($value) back into an integer, data possibly corrupted",
         )
         0
       }
-  }
 
-  private def createSkill[T](parts: List[String]): Option[Skill[T]] = {
+  private def createSkill[T](parts: List[String]): Option[Skill[T]] =
     parts match {
       case name :: skillType :: value :: changesAllowed :: _ =>
         logger.debug(s"Hydrating $skillType skill named $name: $value")
@@ -133,14 +128,12 @@ class SkillTypeOps(
         None
     }
 
-  }
 
-  def deserialize(value: String): Option[Skill[_]] = {
+  def deserialize(value: String): Option[Skill[_]] =
     splitRawSkill(value)
       .pipe(createSkill)
-  }
 
-  def deserializeAll(values: List[String]): List[Skill[_]] = {
+  def deserializeAll(values: List[String]): List[Skill[_]] =
     values
       .partition(_.isEmpty)
       .tap(
@@ -150,7 +143,6 @@ class SkillTypeOps(
       )
       ._2
       .flatMap(deserialize)
-  }
 }
 
 /** Facade to Skill Types registry for interacting with registered skill types
@@ -164,7 +156,6 @@ object SkillType {
   def apply(
     state: SkillTypeRegistry = SkillTypeRegistry(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
-  ): SkillTypeOps = {
+  ): SkillTypeOps =
     new SkillTypeOps(state, logger)
-  }
 }

@@ -13,16 +13,15 @@ case class BeforeInteractEntity(
   itemRestrictionOps: ItemRestrictionOps,
   upstream: InteractionEvents = InteractionEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
-  skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {
   private[bindings] def handler: InteractionEvents.OnClickEntity = {
     (
-      player: Player[_],
+      player: Player,
       entityOpt: Option[Entity[_]],
       hand: Hand,
     ) =>
-      {
-        val result = for {
+      failOn {
+        for {
           entity <- entityOpt
           item <- player.getItemInHand(hand).filterNot(_.isDefault)
           usable = itemRestrictionOps.isUsable(player, item, None)
@@ -37,16 +36,14 @@ case class BeforeInteractEntity(
               s"${player.handle} cannot interact with entity ${entity.mobTypeName} using ${item.name}",
             )
           } else {
-            skipLogger
-              .debug(
+            logger
+              .trace(
                 s"${player.handle} is going to interact with entity ${entity.mobTypeName} using ${item.name}",
               )
           }
 
           usable
         }
-
-        failOn(result)
       }
   }
 

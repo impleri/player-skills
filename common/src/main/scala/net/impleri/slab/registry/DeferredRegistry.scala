@@ -10,9 +10,8 @@ import scala.util.chaining.scalaUtilChainingOps
 case class DeferredRegistry[T <: Registerable](
   private val underlying: DeferredRegistry.Vanilla[T],
 ) {
-  def register(name: ResourceLocation, value: T): Unit = {
+  def register(name: ResourceLocation, value: T): Unit =
     underlying.register(name.value, () => value)
-  }
 
   def commit(): Unit = underlying.register()
 }
@@ -23,9 +22,8 @@ object DeferredRegistry {
   def apply[T <: Registerable](
     modId: String,
     key: ResourceKey.Registry[T],
-  ): DeferredRegistry[T] = {
+  ): DeferredRegistry[T] =
     DeferredRegister
       .create(modId, key.value)
       .pipe(DeferredRegistry(_))
-  }
 }

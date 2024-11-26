@@ -21,7 +21,7 @@ trait DebugCommands {
 
   protected def registerDebugCommands[T <: CommandSegment.Any](
     builder: T,
-  ): T = {
+  ): T =
     builder
       .option(
         CommandString("debug")
@@ -55,7 +55,6 @@ trait DebugCommands {
           ),
       )
       .asInstanceOf[T]
-  }
 
   private[commands] def handler(
     modLabel: String,
@@ -67,7 +66,7 @@ trait DebugCommands {
   protected[commands] def toggleDebug(
     modLabel: String,
     logInstance: Logger,
-  ): Either[Message[_], Message[_]] = {
+  ): Either[Message[_], Message[_]] =
     if (logInstance.toggleDebug()) {
       Right(
         TranslatableText("commands.playerskills.debug_enabled", modLabel)
@@ -81,5 +80,4 @@ trait DebugCommands {
           .italic(),
       )
     }
-  }
 }

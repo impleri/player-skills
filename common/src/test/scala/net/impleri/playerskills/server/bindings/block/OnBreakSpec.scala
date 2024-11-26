@@ -16,9 +16,9 @@ class OnBreakSpec extends BaseSpec {
   private val mockUpstream = mock[BlockEvents]
   private val mockLogger = mock[Logger]
 
-  private val testUnit = OnBreak(mockOps, mockUpstream, mockLogger, mockLogger)
+  private val testUnit = OnBreak(mockOps, mockUpstream, mockLogger)
 
-  private val mockPlayer = mock[Player[_]]
+  private val mockPlayer = mock[Player]
   private val mockBlock = mock[Block]
   private val mockPos = mock[Position]
   private val mockItem = mock[Item]

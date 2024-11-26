@@ -1,6 +1,5 @@
 package net.impleri.playerskills.network
 
-import dev.architectury.networking.NetworkManager
 import dev.architectury.networking.simple.{MessageType => ArchMessageType}
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
@@ -9,9 +8,7 @@ import net.impleri.playerskills.client.ClientStateContainer
 import net.impleri.playerskills.client.NetHandler
 import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.network.MessageType
-import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.server.level.ServerPlayer
+import net.impleri.slab.network.{FriendlyBuffer, MessageType}
 
 import java.util.UUID
 
@@ -27,7 +24,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
   private val skill2 = mock[Skill[String]]
   private val skills = List(skill1, skill2)
 
-  private val testMessage = SyncSkillsMessage(testUuid,
+  private val testMessage = SyncSkillsMessage(
     skills,
     force = false,
     skillTypeOpsMock,
@@ -41,9 +38,8 @@ class SyncSkillsMessageSpec extends BaseSpec {
     loggerMock,
   )
 
-  private val packetContextMock = mock[NetworkManager.PacketContext]
-  private val playerMock = mock[Player[ServerPlayer]]
-  private val bufferMock = mock[FriendlyByteBuf]
+  private val playerMock = mock[Player]
+  private val bufferMock = mock[FriendlyBuffer]
 
   private val underlyingMessageType = mock[ArchMessageType]
   messageTypeMock.value returns underlyingMessageType
@@ -56,72 +52,47 @@ class SyncSkillsMessageSpec extends BaseSpec {
     val serializedSkill1 = "testone"
     val serializedSkill2 = "testtwoo"
 
-    bufferMock.writeUUID(testUuid) returns bufferMock
     bufferMock.writeBoolean(false) returns bufferMock
 
     skillTypeOpsMock.serialize(skill1) returns Option(serializedSkill1)
     skillTypeOpsMock.serialize(skill2) returns Option(serializedSkill2)
 
-    testMessage.write(bufferMock)
+    testMessage.onSend(bufferMock)
 
-    bufferMock.writeUUID(testUuid) wasCalled once
     bufferMock.writeBoolean(false) wasCalled once
-    bufferMock.writeInt(*) wasCalled thrice
-    bufferMock.writeUtf(*, *) wasCalled twice
-
-    loggerMock.debug(*) wasCalled once
+    bufferMock.writeStrings(Seq(serializedSkill1, serializedSkill2)) wasCalled once
   }
 
-  "SyncSkillsMessage.handle" should "resyncs clientside data" in {
+  "SyncSkillsMessage.onReceive" should "resyncs clientside data" in {
     val netHandlerMock = mock[NetHandler]
     clientStateMock.getNetHandler returns netHandlerMock
-    testMessage.handle(packetContextMock)
+
+    testMessage.onReceive(Option(playerMock))
 
     netHandlerMock.onSyncPlayer(skills, force = false) wasCalled once
   }
 
-  "SyncSkillsMessageFactory.receive" should "throw an error if sending without a message type" in {
+  "SyncSkillsMessageFactory.parse" should "returns a new message if there is a message type" in {
     val serializedSkill1 = "testone"
     val serializedSkill2 = "testtwoo"
 
-    bufferMock.readUUID() returns testUuid
-    bufferMock.readBoolean() returns true
-    bufferMock.readInt() returns skills.length andThen serializedSkill1.length andThen serializedSkill2.length
-    bufferMock.readUtf(serializedSkill1.length) returns serializedSkill1
-    bufferMock.readUtf(serializedSkill2.length) returns serializedSkill2
+    bufferMock.readBoolean() returns Option(true)
+    bufferMock.readStrings() returns Seq(serializedSkill1, serializedSkill2)
 
     skillTypeOpsMock.deserialize(serializedSkill1) returns Option(skill1)
     skillTypeOpsMock.deserialize(serializedSkill2) returns Option(skill2)
 
-    testFactory.receive(bufferMock) shouldBe null
-  }
-
-  it should "returns a new message if there is a message type" in {
-    val serializedSkill1 = "testone"
-    val serializedSkill2 = "testtwoo"
-
-    bufferMock.readUUID() returns testUuid
-    bufferMock.readBoolean() returns true
-    bufferMock.readInt() returns skills.length andThen serializedSkill1.length andThen serializedSkill2.length
-    bufferMock.readUtf(serializedSkill1.length) returns serializedSkill1
-    bufferMock.readUtf(serializedSkill2.length) returns serializedSkill2
-
-    skillTypeOpsMock.deserialize(serializedSkill1) returns Option(skill1)
-    skillTypeOpsMock.deserialize(serializedSkill2) returns Option(skill2)
-
-    testFactory.setMessageType(messageTypeMock.value)
-
-    val response = testFactory.receive(bufferMock)
+    val response = testFactory.parse(bufferMock, messageTypeMock)
 
     loggerMock.error(*) wasNever called
 
-    response.isInstanceOf[SyncSkillsMessage] should be(true)
+    response.value.isInstanceOf[SyncSkillsMessage] should be(true)
   }
 
   "SyncSkillsMessageFactory.send" should "throw an error if sending without a message type" in {
     playerMock.uuid returns testUuid
 
-    testFactory.send(playerMock, skills, force = true) shouldBe None
+    testFactory.send(skills, force = true) shouldBe None
   }
 
   it should "returns a new message if there is a message type" in {
@@ -131,7 +102,7 @@ class SyncSkillsMessageSpec extends BaseSpec {
 
     testFactory.setMessageType(messageTypeMock.value)
 
-    val response = testFactory.send(playerMock, skills, force = true)
+    val response = testFactory.send(skills, force = true)
 
     loggerMock.error(*) wasNever called
 

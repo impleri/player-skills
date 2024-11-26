@@ -18,10 +18,10 @@ case class Coordinates(
 }
 
 object Coordinates {
-  def apply(x: Double, y: Double, z: Double): Option[Coordinates] = {
-    Option(x)
-      .flatMap(i => Option(y).map((i, _)))
-      .flatMap(t => Option(z).map((t._1, t._2, _)))
-      .map(t => new Coordinates(t._1, t._2, t._3))
-  }
+  def apply(x: Double, y: Double, z: Double): Option[Coordinates] =
+    for {
+      vx <- Option(x)
+      vy <- Option(y)
+      vz <- Option(z)
+    } yield new Coordinates(vx, vy, vz)
 }

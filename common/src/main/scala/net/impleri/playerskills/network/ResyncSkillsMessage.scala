@@ -1,58 +1,44 @@
 package net.impleri.playerskills.network
 
-import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.network.FriendlyBuffer
 import net.impleri.slab.network.MessageFactory
-import net.impleri.slab.network.MessageFactory.ReceiveFn
 import net.impleri.slab.network.MessageType
 import net.impleri.slab.network.ServerboundMessage
 
-import java.util.UUID
-
 case class ResyncSkillsMessage(
-  private val playerId: UUID,
   private val serverStateContainer: Option[ServerStateContainer],
   override val messageType: MessageType,
+  logger: Logger,
 ) extends ServerboundMessage {
-  def write(buffer: FriendlyBuffer): Unit = buffer.writeUUID(playerId)
+  override protected[network] def onReceive(playerOpt: Option[Player]): Unit =
+      for {
+        serverState <- serverStateContainer
+        player <- playerOpt
+      } yield serverState.getNetHandler.syncPlayer(player)
 
-  override def onReceive: () => Unit = { () =>
-    {
-      val player =
-        serverStateContainer.flatMap(_.SERVER).flatMap(_.getPlayer(playerId))
-      val netHandler = serverStateContainer.map(_.getNetHandler)
-
-      (player, netHandler) match {
-        case (Some(player: Player[_]), Some(netHandler: NetHandler)) =>
-          netHandler.syncPlayer(player)
-        case _ =>
-      }
-    }
+  def onSend(buffer: FriendlyBuffer): Unit = {
+    // Write something to the buffer so that it's non-empty
+    buffer.writeBoolean(true)
+    logger.debug(s"Sending skill resync request")
   }
 }
 
 case class ResyncSkillsMessageFactory(
   serverStateContainer: Option[ServerStateContainer] = None,
-  logger: Logger = PlayerSkillsLogger.SKILLS,
+  logger: Logger = PlayerSkillsLogger.NETWORK,
 ) extends MessageFactory[ResyncSkillsMessage] {
   final val name: String = "resync_skills"
 
-  def send(
-    player: Player[_],
-  ): Option[ResyncSkillsMessage] = {
-    createForSend(ResyncSkillsMessage(player.uuid, serverStateContainer, _))
+  override protected def parse(buffer: FriendlyBuffer, messageType: MessageType): Option[ResyncSkillsMessage] = {
+    logger.info(s"Received skill resync request")
+
+    Option(ResyncSkillsMessage(serverStateContainer, messageType, logger))
   }
 
-  override protected def onReceive: ReceiveFn[ResyncSkillsMessage] = {
-    (buffer, messageType) =>
-      {
-        val playerId = buffer.readUUID()
-
-        ResyncSkillsMessage(playerId.get, serverStateContainer, messageType)
-      }
-  }
+  def send(): Option[ResyncSkillsMessage] =
+    createForSend(ResyncSkillsMessage(serverStateContainer, _, logger))
 }

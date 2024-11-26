@@ -7,7 +7,7 @@ import top.theillusivec4.curios.api.CuriosApi
 import scala.jdk.OptionConverters._
 
 case class Curios() {
-  def getCuriosFor(player: Player.Any): Option[Curio] = {
+  def getCuriosFor(player: Player): Option[Curio] = {
     CuriosApi.getCuriosHelper.getEquippedCurios(player.underlying.asInstanceOf[Entity.Living])
       .resolve()
       .toScala

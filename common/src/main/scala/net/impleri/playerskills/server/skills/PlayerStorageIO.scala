@@ -22,7 +22,7 @@ case class PlayerStorageIO private[skills] (
   private val skillTypeOps: SkillTypeOps,
   private val logger: Logger,
 ) {
-  def read(playerId: UUID): List[Skill[_]] = {
+  def read(playerId: UUID): List[Skill[_]] =
     skillFile
       .getPlayerFile(playerId)
       .tap(logger.debugP(file => s"Reading from file ${file.getPath}"))
@@ -35,7 +35,6 @@ case class PlayerStorageIO private[skills] (
       .map(skillTypeOps.deserializeAll)
       .toList
       .flatten
-  }
 
   def write(playerId: UUID, skills: List[Skill[_]]): Boolean = {
     val skillsAsString = skills.flatMap(skillTypeOps.serialize(_))
@@ -58,17 +57,15 @@ object PlayerStorageIO {
     storage: SkillNbtStorage,
     skillTypeOps: SkillTypeOps,
     logger: Logger,
-  ): PlayerStorageIO = {
+  ): PlayerStorageIO =
     new PlayerStorageIO(storage, resourceFile, skillTypeOps, logger)
-  }
 
   protected[server] def apply(
     server: Server,
     skillTypeOps: SkillTypeOps = SkillType(),
     storage: SkillNbtStorage = SkillNbtStorage(),
-    logger: Logger = PlayerSkillsLogger.SKILLS,
-  ): PlayerStorageIO = {
+    logger: Logger = PlayerSkillsLogger.STORAGE,
+  ): PlayerStorageIO =
     SkillResourceFile(server)
       .pipe(apply(_, storage, skillTypeOps, logger))
-  }
 }

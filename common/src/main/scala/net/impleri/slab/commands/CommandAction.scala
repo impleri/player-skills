@@ -41,18 +41,17 @@ case class CommandAction(
 
   def silent(): CommandAction = copy(responseType = ResponseType.NONE)
 
-  def message(includeAdmins: Boolean = false): CommandAction = {
+  def message(includeAdmins: Boolean = false): CommandAction =
     copy(responseType =
       if (includeAdmins) ResponseType.MESSAGE_ADMIN else ResponseType.MESSAGE,
     )
-  }
 }
 
 object CommandAction {
   private type Executor = McCommand[Command.Source]
   type Callback = Command.Context => Either[Message.Any, Message.Any]
 
-  def getCurrentPlayer(context: Command.Context): Option[Player.Server] = {
+  def getCurrentPlayer(context: Command.Context): Option[Player] = {
     Option(context)
       .map(_.getSource)
       .map(_.getPlayer)
@@ -62,7 +61,7 @@ object CommandAction {
   def getPlayer(
     context: Command.Context,
     skipArgument: Boolean = false,
-  ): Option[Player.Server] = {
+  ): Option[Player] = {
     val p = if (skipArgument) None else PlayerArgument.getValue(context)
 
     p.orElse(getCurrentPlayer(context))

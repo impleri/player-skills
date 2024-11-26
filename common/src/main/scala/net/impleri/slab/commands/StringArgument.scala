@@ -13,7 +13,6 @@ object StringArgument {
     Commands.argument(name, StringArgumentType.string()),
   )
 
-  def getValue(name: String, context: Command.Context): Option[String] = {
+  def getValue(name: String, context: Command.Context): Option[String] =
     Try(StringArgumentType.getString(context, name)).toOption
-  }
 }

@@ -13,20 +13,18 @@ trait CommandUtils {
     getSkillName(skillName),
   )
 
-  protected def getSkillName(skillName: Option[ResourceLocation]): String = {
+  private def getSkillName(skillName: Option[ResourceLocation]): String =
     skillName
       .fold("[Unknown skill]")(_.toString)
-  }
 
   protected[commands] def formatMessage(
     message: String,
     skillName: Option[ResourceLocation],
-    player: Option[Player.Any],
-  ): TranslatableText = {
+    player: Option[Player],
+  ): TranslatableText =
     TranslatableText(
       message,
       StaticText(getSkillName(skillName)).darkAqua(),
       StaticText(player.fold("")(_.handle)).bold().green(),
     )
-  }
 }

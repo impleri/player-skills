@@ -50,7 +50,6 @@ class ServerEventBindingsSpec extends BaseSpec {
     mockBlock,
     mockPlayer,
     mockTick,
-    mockLogger,
   )
 
   "LifecycleEvents.registerEvents" should "bind events" in {

@@ -7,9 +7,9 @@ import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.PlayerSkills
 import net.impleri.playerskills.api.skills.SkillTypeOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestState
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestStateOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.StringQuest
+import net.impleri.playerskills.integrations.ftbquests.quests.QuestState
+import net.impleri.playerskills.integrations.ftbquests.quests.QuestStateOps
+import net.impleri.playerskills.integrations.ftbquests.quests.StringQuest
 import net.impleri.playerskills.skills.tiered.TieredSkillType
 
 case class TieredSkillReward(
@@ -25,19 +25,18 @@ case class TieredSkillReward(
 }
 
 object TieredSkillReward {
-  val REWARD_TYPE: RewardType = QuestStateOps
+  final val REWARD_TYPE: RewardType = QuestStateOps
     .createRewardType(
       QuestStateOps.TIERED_SKILL,
       "minecraft:item/golden_hoe",
       apply,
     )
 
-  def apply(quest: Quest): TieredSkillReward = {
+  def apply(quest: Quest): TieredSkillReward =
     new TieredSkillReward(
       quest,
       PlayerSkillsServer.STATE.PLAYER_OPS,
       PlayerSkills.STATE.SKILL_OPS,
       PlayerSkills.STATE.SKILL_TYPE_OPS,
     )
-  }
 }

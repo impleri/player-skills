@@ -10,6 +10,8 @@ import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.resources.ResourceWrapper
 
+import scala.util.chaining.scalaUtilChainingOps
+
 trait RestrictionBuilder[T <: ResourceWrapper[
   U,
 ], U, C <: RestrictionConditionsBuilder] {
@@ -21,9 +23,8 @@ trait RestrictionBuilder[T <: ResourceWrapper[
 
   protected def singleAsString: Boolean = false
 
-  def add(restrictionName: String, builder: C): Unit = {
+  def add(restrictionName: String, builder: C): Unit =
     restrictions += restrictionName -> builder
-  }
 
   def commit(): Unit = {
     restrictions.foreach(restrict)
@@ -63,33 +64,29 @@ trait RestrictionBuilder[T <: ResourceWrapper[
   private def restrictNamespace(
     namespace: String,
     builder: C,
-  ): Unit = {
-    logger.info(s"Creating restriction for $namespace namespace")
-
-    registry.foreach(
-      _.matchingNamespace(namespace)
-        .foreach(restrictOne(_, builder)),
-    )
-  }
+  ): Unit =
+    for {
+      reg <- registry.toList
+      _ = logger.info(s"Creating restriction for $namespace namespace")
+      value <- reg.matchingNamespace(namespace)
+    } yield restrictOne(value, builder)
 
   private def restrictTag(
     tag: Tag[T, U],
     builder: C,
-  ): Unit = {
-    logger.info(s"Creating restriction for ${tag.location} tag")
-
-    registry.foreach(
-      _.matchingTag(tag)
-        .foreach(restrictOne(_, builder)),
-    )
-  }
+  ): Unit =
+    for {
+      reg <- registry.toList
+      _ = logger.info(s"Creating restriction for ${tag.location} namespace")
+      value <- reg.matchingTag(tag)
+    } yield restrictOne(value, builder)
 
   protected[restrictions] def logRestriction(
     name: String,
     restriction: Restriction[_, _],
     settings: Option[String] = None,
-  ): Unit = {
-    val details = List(
+  ): Unit =
+    List(
       s"in biomes ${restriction.includeBiomes.mkString(",")}",
       s"not in biomes ${restriction.excludeBiomes.mkString(",")}",
       s"in dimensions ${restriction.includeDimensions.mkString(",")}",
@@ -97,7 +94,5 @@ trait RestrictionBuilder[T <: ResourceWrapper[
       settings.getOrElse(""),
     ).filterNot(_.isBlank)
       .mkString("; ")
-
-    logger.info(s"Created restriction for $name $details")
-  }
+      .tap(logger.infoP(details => s"Created restriction for $name $details"))
 }

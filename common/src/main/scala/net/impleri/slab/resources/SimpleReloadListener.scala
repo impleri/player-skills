@@ -12,9 +12,8 @@ trait SimpleReloadListener
 
   override def onResourceManagerReload(
     resourceManager: McResourceManager,
-  ): Unit = {
+  ): Unit =
     Option(resourceManager)
       .map(ResourceManager)
       .pipe(onReload)
-  }
 }

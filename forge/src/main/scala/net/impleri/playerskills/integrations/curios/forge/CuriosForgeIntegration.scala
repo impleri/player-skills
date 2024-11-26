@@ -12,11 +12,11 @@ case class CuriosForgeIntegration(
   private val curios: Curios = Curios(),
   private val tickEvents: TickEvents = TickEvents(),
 ) {
-  private def handle: TickEvents.OnPlayerTick = (player: Player.Any) => {
+  private def handle: TickEvents.OnPlayerTick = (player: Player) => {
     curios.getCuriosFor(player).foreach(handleCurios(player))
   }
 
-  private def handleCurios(player: Player.Any)(curio: Curio): Unit = {
+  private def handleCurios(player: Player)(curio: Curio): Unit = {
     curio.inventoryMap
       .toSeq
       .filterNot(t => itemRestrictions.isWearable(player, t._2))
@@ -24,5 +24,5 @@ case class CuriosForgeIntegration(
       .foreach(player.putInInventory)
   }
 
-  tickEvents.onPlayerStart(handle, PlayerTickType.Server())
+  tickEvents.onPlayerStart(handle, PlayerTickType.Server)
 }

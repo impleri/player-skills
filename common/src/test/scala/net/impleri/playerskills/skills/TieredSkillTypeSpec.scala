@@ -15,6 +15,8 @@ class TieredSkillTypeSpec extends BaseSpec {
   private val skillName = ResourceLocation("test_skill").get
   private val skillOptions = List("wood", "stone", "iron", "gold", "diamond", "netherite")
   private val skillValue = "iron"
+  private val nextValue = "gold"
+  private val prevValue = "stone"
 
   private val dumbSkill = TieredSkill(skillName)
   private val valuedSkill = TieredSkill(skillName, value = Option(skillValue), options = skillOptions)
@@ -55,7 +57,7 @@ class TieredSkillTypeSpec extends BaseSpec {
   }
 
   it should "fail if value is below the index of the threshold" in {
-    testUnit.can(valuedSkill, Option("gold")) should be(false)
+    testUnit.can(valuedSkill, Option(nextValue)) should be(false)
   }
 
   it should "fail if there is no value" in {
@@ -67,27 +69,27 @@ class TieredSkillTypeSpec extends BaseSpec {
   }
 
   "TieredSkillType.getNextValue" should "return the next tier from the current value" in {
-    testUnit.getNextValue(valuedSkill).value should be("gold")
+    testUnit.getNextValue(valuedSkill).value should be(nextValue)
   }
 
-  it should "start from the min value if the current value is lesser" in {
-    testUnit.getNextValue(woodSkill, min = Option("gold")).value should be("diamond")
+  it should "return the min value if the current value is lesser" in {
+    testUnit.getNextValue(woodSkill, min = Option(skillValue)).value should be(skillValue)
   }
 
-  it should "return the max value if the next value is greater" in {
-    testUnit.getNextValue(valuedSkill, max = Option("iron")).value should be("iron")
+  it should "return the max value if the next value would be greater" in {
+    testUnit.getNextValue(valuedSkill, max = Option(skillValue)).value should be(skillValue)
   }
 
   "TieredSkillType.getPrevValue" should "return the previous tier current value" in {
-    testUnit.getPrevValue(valuedSkill).value should be("stone")
+    testUnit.getPrevValue(valuedSkill).value should be(prevValue)
   }
 
-  it should "start from the max value if the current value is greater" in {
-    testUnit.getPrevValue(netheriteSkill, max = Option("gold")).value should be("iron")
+  it should "return the max value if the current value is greater" in {
+    testUnit.getPrevValue(netheriteSkill, max = Option(nextValue)).value should be(nextValue)
   }
 
   it should "return the min value if the next value is lesser" in {
-    testUnit.getPrevValue(valuedSkill, min = Option("gold")).value should be("gold")
+    testUnit.getPrevValue(valuedSkill, min = Option(skillValue)).value should be(skillValue)
   }
 
   "TieredSkill.mutate" should "return a clone of the existing skill with new value and changed changes allowed" in {

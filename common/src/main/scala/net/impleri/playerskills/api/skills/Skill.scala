@@ -5,9 +5,9 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.chat.StaticText
 import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.resources.ResourceLocation
+import net.impleri.slab.resources.{Named, ResourceLocation}
 
-sealed trait SkillData[T] {
+sealed trait SkillData[T] extends Named {
   val name: ResourceLocation = ResourceLocation("empty").get
   val skillType: ResourceLocation = ResourceLocation("empty").get
   val value: Option[T] = None
@@ -22,10 +22,9 @@ sealed trait ChangeableSkill[T] extends SkillData[T] {
 
   def areChangesAllowed(): Boolean = changesAllowed != 0
 
-  def isAllowedValue(nextValue: Option[T]): Boolean = {
-    options.isEmpty || nextValue
-      .fold(nextValue.isEmpty)(options.contains(_))
-  }
+  def isAllowedValue(nextValue: Option[T]): Boolean =
+    options.isEmpty ||
+      nextValue.fold(nextValue.isEmpty)(options.contains(_))
 }
 
 // This is separated from ChangeableSkill above in order to get mutate's return type to be the resolved skill rather
@@ -44,37 +43,41 @@ sealed trait TranslatableSkill[T] extends SkillData[T] {
   def notifyKey: Option[String] = None
 
   protected[playerskills] def getMessageKey: String =
-    "playerskills.notify.skill_change"
+    TranslatableSkill.DEFAULT_NOTIFICATION_MESSAGE
 
-  private def formatSkillName(): StaticText = {
-    StaticText(name.path.replace("_", " ")).darkAqua().bold()
-  }
+  private def formatSkillName(): StaticText =
+    StaticText(name.path.replace("_", " "))
+      .darkAqua()
+      .bold()
 
-  private def formatSkillValue(value: Option[T] = this.value): StaticText = {
-    StaticText(value.fold("")(v => s"$v")).gold()
-  }
+  private def formatSkillValue(value: Option[T] = this.value): StaticText =
+    StaticText(value.fold("")(v => s"$v"))
+      .gold()
 
   private def formatNotificationMessage(
     messageKey: String,
     oldValue: Option[T] = None,
-  ): TranslatableText = {
+  ): TranslatableText =
     TranslatableText(
       messageKey,
       formatSkillName(),
       formatSkillValue(),
       formatSkillValue(oldValue),
     )
-  }
 
   private def formatNotification(
     oldValue: Option[T] = None,
-  ): TranslatableText = {
+  ): TranslatableText =
     formatNotificationMessage(notifyKey.getOrElse(getMessageKey), oldValue)
-  }
 
-  def getNotification(oldValue: Option[T] = None): Option[TranslatableText] = {
-    if (!announceChange) None else value.map(_ => formatNotification(oldValue))
-  }
+  def getNotification(oldValue: Option[T] = None): Option[TranslatableText] =
+    value
+      .filter(_ => announceChange)
+      .map(_ => formatNotification(oldValue))
+}
+
+object TranslatableSkill {
+  final val DEFAULT_NOTIFICATION_MESSAGE: String = "playerskills.notify.skill_change"
 }
 
 trait Skill[T]
@@ -92,7 +95,9 @@ trait SkillRegistryFacade {
   def all(): List[Skill[_]] = state.entries
 
   def get[T](name: ResourceLocation): Option[Skill[T]] =
-    state.find(name).asInstanceOf[Option[Skill[T]]]
+    state
+      .find(name)
+      .asInstanceOf[Option[Skill[T]]]
 
   def upsert[T](skill: Skill[T]): Unit = {
     logger.info(s"Saving skill ${skill.name}")
@@ -111,34 +116,34 @@ class SkillOps(
     skill: Skill[T],
     min: Option[T] = None,
     max: Option[T] = None,
-  ): Option[T] = {
+  ): Option[T] =
     skillType
       .get(skill)
       .flatMap(_.getPrevValue(skill, min, max))
-  }
 
   def calculateNext[T](
     skill: Skill[T],
     min: Option[T] = None,
     max: Option[T] = None,
-  ): Option[T] = {
+  ): Option[T] =
     skillType
       .get(skill)
       .flatMap(_.getNextValue(skill, min, max))
-  }
 
-  def sortHelper[T](x: Skill[T], y: Skill[T]): Int = {
-    val skillTypeOpt = skillType.get(x)
-    val xGreater = skillTypeOpt.map(_.can(x, y.value))
-    val yGreater = skillTypeOpt.map(_.can(y, x.value))
-
-    (xGreater, yGreater) match {
-      case (Some(true), Some(true)) => 0
-      case (Some(true), _)          => -1
-      case (_, Some(true))          => 1
-      case _                        => 0
+  private def calculateSort[T](x: Skill[T], y: Skill[T]): Option[Int] =
+    for {
+      skillType <- skillType.get(x)
+      xGreater = skillType.can(x, y.value)
+      yGreater = skillType.can(y, x.value)
+    } yield (xGreater, yGreater) match {
+      case (true, true) => 0
+      case (true, _) => -1
+      case (_, true) => 1
+      case _ => 0
     }
-  }
+
+  def sortHelper[T](x: Skill[T], y: Skill[T]): Int =
+    calculateSort(x, y).getOrElse(0)
 }
 
 object Skill {
@@ -150,7 +155,6 @@ object Skill {
     skillType: SkillTypeOps = SkillType(),
     state: SkillRegistry = SkillRegistry(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
-  ): SkillOps = {
+  ): SkillOps =
     new SkillOps(skillType, state, logger)
-  }
 }

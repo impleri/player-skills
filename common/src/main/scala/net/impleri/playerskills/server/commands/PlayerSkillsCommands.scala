@@ -62,7 +62,7 @@ object PlayerSkillsCommands {
     fluidLogger: Logger = PlayerSkillsLogger.FLUIDS,
     itemLogger: Logger = PlayerSkillsLogger.ITEMS,
     mobLogger: Logger = PlayerSkillsLogger.MOBS,
-  ): PlayerSkillsCommands = {
+  ): PlayerSkillsCommands =
     new PlayerSkillsCommands(
       skillOps,
       skillTypeOps,
@@ -74,5 +74,4 @@ object PlayerSkillsCommands {
       itemLogger,
       mobLogger,
     )
-  }
 }

@@ -8,7 +8,6 @@ import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.bindings.player.OnJoin
 import net.impleri.playerskills.server.bindings.player.OnPlayerTick
 import net.impleri.playerskills.server.bindings.player.OnQuit
-import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.server.bindings.lifecycle.OnSetup
@@ -19,7 +18,6 @@ import net.impleri.slab.events.EntityEvents
 import net.impleri.slab.events.PlayerEvents
 import net.impleri.slab.events.ServerLifecycleEvents
 import net.impleri.slab.events.TickEvents
-import net.impleri.slab.logging.Logger
 import net.impleri.slab.server.Server
 
 case class ServerEventBindings(
@@ -35,8 +33,6 @@ case class ServerEventBindings(
   blocks: BlockEvents = BlockEvents(),
   players: PlayerEvents = PlayerEvents(),
   ticks: TickEvents = TickEvents(),
-  logger: Logger = PlayerSkillsLogger.ITEMS,
-  skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) {
   private[server] def registerEvents(): Unit = {
     OnSetup(globalState, serverState, commonLifecycle)
@@ -48,11 +44,11 @@ case class ServerEventBindings(
     OnJoin(() => serverState.PLAYERS, netHandler, players)
     OnQuit(() => serverState.PLAYERS, netHandler, players)
 
-    OnBreak(globalState.ITEM_RESTRICTIONS, blocks, logger, skipLogger)
+    OnBreak(globalState.ITEM_RESTRICTIONS, blocks)
 
-    OnHurt(globalState.ITEM_RESTRICTIONS, entities, logger, skipLogger)
+    OnHurt(globalState.ITEM_RESTRICTIONS, entities)
 
-    OnPlayerTick(globalState.ITEM_RESTRICTIONS, ticks, logger)
+    OnPlayerTick(globalState.ITEM_RESTRICTIONS, ticks)
 
     commands.register(getCommand())
   }

@@ -14,10 +14,9 @@ case class EventHandler(
     SKILL_CHANGED.register(listener)
 
   def emitSkillChanged[T](
-    player: Player[_],
+    player: Player,
     newSkill: Skill[T],
     oldSkill: Option[Skill[T]],
-  ): Unit = {
+  ): Unit =
     SKILL_CHANGED.emit(SkillChangedEvent[T](player, Option(newSkill), oldSkill))
-  }
 }

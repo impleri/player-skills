@@ -38,21 +38,17 @@ case class Item(
 
   def isEnchanted: Boolean = getStack.isEnchanted
 
-  def isNamespaced(namespace: String): Boolean = {
+  def isNamespaced(namespace: String): Boolean =
     name.forall(_.namespace == namespace)
-  }
 
-  def is(that: Item): Boolean = {
+  def is(that: Item): Boolean =
     (name == that.name) && ItemStack.isSameItemSameTags(getStack, that.getStack)
-  }
 
-  def matches(that: IsIngredient): Boolean = {
+  def matches(that: IsIngredient): Boolean =
     that.inList(Seq(this))
-  }
 
-  override def inList(ingredients: Seq[Item]): Boolean = {
+  override def inList(ingredients: Seq[Item]): Boolean =
     ingredients.exists(is)
-  }
 }
 
 object Item {
@@ -72,9 +68,8 @@ object Item {
 
   def apply(entity: ItemEntity): Item = apply(entity.getItem)
 
-  def apply(name: ResourceLocation): Option[Item] = {
+  def apply(name: ResourceLocation): Option[Item] =
     Registry.Items.get(name)
-  }
 
   def apply(item: MCItem, tag: CompoundTag): Item = {
     val stack = new ItemStack(item)
@@ -88,14 +83,16 @@ object Item {
     * Creates an Item facade using a string representation of item plus nbt if
     * parsing is successful
     */
-  def parse(identifier: String): Option[Item] = {
-    Try(
-      ItemParser.parseForItem(
+  def parse(identifier: String): Option[Item] =
+    for {
+      holder <- Try(ItemParser.parseForItem(
         Registry.Items.getHolder,
         new StringReader(identifier),
-      ),
-    ).toOption
-      .map(r => (r.item().value(), Option(r.nbt())))
-      .map(t => if (t._2.nonEmpty) Item(t._1, t._2.get) else Item(t._1))
-  }
+      )
+      ).toOption
+      item = holder.item().value()
+      tag = Option(holder.nbt())
+    } yield {
+      if (tag.nonEmpty) Item(item, tag.get) else Item(item)
+    }
 }

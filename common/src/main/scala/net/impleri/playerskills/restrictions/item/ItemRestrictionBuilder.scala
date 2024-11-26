@@ -30,18 +30,16 @@ case class ItemRestrictionBuilder(
   override protected[item] def restrictOne(
     targetName: ResourceLocation,
     builder: ItemConditions,
-  ): Unit = {
+  ): Unit =
     registry.get
       .get(targetName)
       .foreach(restrictItem(_, builder, targetName.toString))
-  }
 
   override def restrictString(
     targetName: String,
     builder: ItemConditions,
-  ): Unit = {
+  ): Unit =
     Item
       .parse(targetName)
       .foreach(restrictItem(_, builder, targetName))
-  }
 }

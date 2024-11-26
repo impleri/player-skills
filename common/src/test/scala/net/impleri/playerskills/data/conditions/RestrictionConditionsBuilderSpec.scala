@@ -1,10 +1,6 @@
 package net.impleri.playerskills.data.conditions
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonNull
-import com.google.gson.JsonObject
-import com.google.gson.JsonPrimitive
+import com.google.gson.{JsonObject, JsonParser}
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
@@ -15,7 +11,6 @@ import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 
-import java.util.{List => JavaList}
 import java.util.UUID
 
 class RestrictionConditionsBuilderSpec extends BaseSpec {
@@ -46,43 +41,21 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   private val testUnit = TestConditionsBuilder()
 
-  private val mockJson = mock[JsonObject]
-
   "RestrictionConditionsBuilder.parse" should "parses the condition" in {
     val expectedSkillName = "skillstest:condition"
     val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = "value"
-
-    val conditionSkillJson = mock[JsonPrimitive]
-    conditionSkillJson.isJsonPrimitive returns true
-    conditionSkillJson.isString returns true
-    conditionSkillJson.getAsString returns expectedSkillName
-
-    val actionJson = mock[JsonPrimitive]
-    actionJson.isJsonPrimitive returns true
-    actionJson.isString returns true
-    actionJson.getAsString returns "cannot"
-
-    val valueJson = mock[JsonElement]
-    valueJson.isJsonPrimitive returns true
-    valueJson.getAsString returns expectedValue
-
-    val conditionFnJson = mock[JsonObject]
-    conditionFnJson.get("action") returns actionJson
-    conditionFnJson.get("skill") returns conditionSkillJson
-    conditionFnJson.get("value") returns valueJson
-
-    val conditionJson = mock[JsonElement]
-    conditionJson.getAsJsonObject returns conditionFnJson
-
-    val arrayJson = mock[JsonArray]
-    arrayJson.iterator returns JavaList.of(conditionJson).iterator
-
-    val conditionsJson = mock[JsonElement]
-    conditionsJson.isJsonArray returns true
-    conditionsJson.getAsJsonArray returns arrayJson
-
-    mockJson.get(*) answers ((el: String) => if (el == "if") conditionsJson else JsonNull.INSTANCE)
+    val jsonString =
+      s"""
+        | {
+        |   "if": {
+        |     "action": "cannot",
+        |     "skill": "$expectedSkillName",
+        |     "value": "$expectedValue"
+        |   }
+        | }
+        |""".stripMargin
+    val json = JsonParser.parseString(jsonString).getAsJsonObject
 
     val mockSkill = mock[Skill[String]]
     mockSkill.name returns expectedSkill
@@ -93,9 +66,9 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
     mockSkillTypeOps.get(mockSkill) returns Option(mockType)
 
-    testUnit.parse(mockJson)
+    testUnit.parse(json)
 
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockUuid = UUID.randomUUID()
     mockPlayer.uuid returns mockUuid
 
@@ -108,37 +81,17 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     val expectedSkillName = "skillstest:condition"
     val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = "value"
-
-    val conditionSkillJson = mock[JsonPrimitive]
-    conditionSkillJson.isJsonPrimitive returns true
-    conditionSkillJson.isString returns true
-    conditionSkillJson.getAsString returns expectedSkillName
-
-    val actionJson = mock[JsonPrimitive]
-    actionJson.isJsonPrimitive returns true
-    actionJson.isString returns true
-    actionJson.getAsString returns "can"
-
-    val valueJson = mock[JsonElement]
-    valueJson.isJsonPrimitive returns true
-    valueJson.getAsString returns expectedValue
-
-    val conditionFnJson = mock[JsonObject]
-    conditionFnJson.get("action") returns actionJson
-    conditionFnJson.get("skill") returns conditionSkillJson
-    conditionFnJson.get("value") returns valueJson
-
-    val conditionJson = mock[JsonElement]
-    conditionJson.getAsJsonObject returns conditionFnJson
-
-    val arrayJson = mock[JsonArray]
-    arrayJson.iterator returns JavaList.of(conditionJson).iterator
-
-    val conditionsJson = mock[JsonElement]
-    conditionsJson.isJsonArray returns true
-    conditionsJson.getAsJsonArray returns arrayJson
-
-    mockJson.get(*) answers ((el: String) => if (el == "unless") conditionsJson else JsonNull.INSTANCE)
+    val jsonString =
+      s"""
+        | {
+        |   "unless": {
+        |     "action": "can",
+        |     "skill": "$expectedSkillName",
+        |     "value": "$expectedValue"
+        |   }
+        | }
+        |""".stripMargin
+    val json = JsonParser.parseString(jsonString).getAsJsonObject
 
     val mockSkill = mock[Skill[String]]
     mockSkill.name returns expectedSkill
@@ -149,9 +102,9 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
     mockSkillTypeOps.get(mockSkill) returns Option(mockType)
 
-    testUnit.parse(mockJson)
+    testUnit.parse(json)
 
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockUuid = UUID.randomUUID()
     mockPlayer.uuid returns mockUuid
 
@@ -164,37 +117,17 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     val expectedSkillName = "skillstest:condition"
     val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = ""
-
-    val conditionSkillJson = mock[JsonPrimitive]
-    conditionSkillJson.isJsonPrimitive returns true
-    conditionSkillJson.isString returns true
-    conditionSkillJson.getAsString returns expectedSkillName
-
-    val actionJson = mock[JsonPrimitive]
-    actionJson.isJsonPrimitive returns true
-    actionJson.isString returns true
-    actionJson.getAsString returns "can"
-
-    val valueJson = mock[JsonElement]
-    valueJson.isJsonPrimitive returns true
-    valueJson.getAsString returns expectedValue
-
-    val conditionFnJson = mock[JsonObject]
-    conditionFnJson.get("action") returns actionJson
-    conditionFnJson.get("skill") returns conditionSkillJson
-    conditionFnJson.get("value") returns valueJson
-
-    val conditionJson = mock[JsonElement]
-    conditionJson.getAsJsonObject returns conditionFnJson
-
-    val arrayJson = mock[JsonArray]
-    arrayJson.iterator returns JavaList.of(conditionJson).iterator
-
-    val conditionsJson = mock[JsonElement]
-    conditionsJson.isJsonArray returns true
-    conditionsJson.getAsJsonArray returns arrayJson
-
-    mockJson.get(*) answers ((el: String) => if (el == "if") conditionsJson else JsonNull.INSTANCE)
+    val jsonString =
+      s"""
+        | {
+        |   "if": [{
+        |     "action": "can",
+        |     "skill": "$expectedSkillName",
+        |     "value": "$expectedValue"
+        |   }]
+        | }
+        |""".stripMargin
+    val json = JsonParser.parseString(jsonString).getAsJsonObject
 
     val mockSkill = mock[Skill[String]]
     mockSkill.name returns expectedSkill
@@ -202,9 +135,9 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
     mockSkillTypeOps.get(mockSkill) returns None
 
-    testUnit.parse(mockJson)
+    testUnit.parse(json)
 
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockUuid = UUID.randomUUID()
     mockPlayer.uuid returns mockUuid
 
@@ -217,43 +150,23 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     val expectedSkillName = "skillstest:condition"
     val expectedSkill = ResourceLocation(expectedSkillName).get
     val expectedValue = ""
-
-    val conditionSkillJson = mock[JsonPrimitive]
-    conditionSkillJson.isJsonPrimitive returns true
-    conditionSkillJson.isString returns true
-    conditionSkillJson.getAsString returns expectedSkillName
-
-    val actionJson = mock[JsonPrimitive]
-    actionJson.isJsonPrimitive returns true
-    actionJson.isString returns true
-    actionJson.getAsString returns "can"
-
-    val valueJson = mock[JsonElement]
-    valueJson.isJsonPrimitive returns true
-    valueJson.getAsString returns expectedValue
-
-    val conditionFnJson = mock[JsonObject]
-    conditionFnJson.get("action") returns actionJson
-    conditionFnJson.get("skill") returns conditionSkillJson
-    conditionFnJson.get("value") returns valueJson
-
-    val conditionJson = mock[JsonElement]
-    conditionJson.getAsJsonObject returns conditionFnJson
-
-    val arrayJson = mock[JsonArray]
-    arrayJson.iterator returns JavaList.of(conditionJson).iterator
-
-    val conditionsJson = mock[JsonElement]
-    conditionsJson.isJsonArray returns true
-    conditionsJson.getAsJsonArray returns arrayJson
-
-    mockJson.get(*) answers ((el: String) => if (el == "unless") conditionsJson else JsonNull.INSTANCE)
+    val jsonString =
+      s"""
+        | {
+        |   "if": [{
+        |     "action": "can",
+        |     "skill": "$expectedSkillName",
+        |     "value": "$expectedValue"
+        |   }]
+        | }
+        |""".stripMargin
+    val json = JsonParser.parseString(jsonString).getAsJsonObject
 
     mockSkillOps.get[String](expectedSkill) returns None
 
-    testUnit.parse(mockJson)
+    testUnit.parse(json)
 
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockUuid = UUID.randomUUID()
     mockPlayer.uuid returns mockUuid
 
@@ -265,27 +178,29 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
   }
 
   it should "toggle everything" in {
-    val toggleJson = mock[JsonPrimitive]
-    toggleJson.isJsonPrimitive returns true
-    toggleJson.isBoolean returns true
-    toggleJson.getAsBoolean returns true
+    val jsonString =
+      s"""
+        | {
+        |   "everything": true
+        | }
+        |""".stripMargin
+    val json = JsonParser.parseString(jsonString).getAsJsonObject
 
-    mockJson.get(*) answers ((el: String) => if (el == "everything") toggleJson else JsonNull.INSTANCE)
-
-    testUnit.parse(mockJson)
+    testUnit.parse(json)
 
     mockToggle() wasCalled once
   }
 
   it should "toggle nothing" in {
-    val toggleJson = mock[JsonPrimitive]
-    toggleJson.isJsonPrimitive returns true
-    toggleJson.isBoolean returns true
-    toggleJson.getAsBoolean returns true
+    val jsonString =
+      s"""
+        | {
+        |   "nothing": true
+        | }
+        |""".stripMargin
+    val json = JsonParser.parseString(jsonString).getAsJsonObject
 
-    mockJson.get(*) answers ((el: String) => if (el == "nothing") toggleJson else JsonNull.INSTANCE)
-
-    testUnit.parse(mockJson)
+    testUnit.parse(json)
 
     mockToggle() wasCalled once
   }

@@ -24,15 +24,10 @@ object SkillRegistryState {
       remove(skill.name).skills :+ skill,
     )
 
-    def add(skill: Skill[_]): Either[SkillAlreadyExistsException, Skills] = {
-      if (has(skill.name)) {
-        Left(
-          SkillAlreadyExistsException(skill),
-        )
-      } else {
-        Right(upsert(skill))
-      }
-    }
+    def add(skill: Skill[_]): Either[SkillAlreadyExistsException, Skills] =
+      Right(skill)
+        .filterOrElse(s => !has(s.name), SkillAlreadyExistsException(skill))
+        .map(upsert)
 
     def remove(key: ResourceLocation): Skills = Skills(
       skills.filter(_.name != key),

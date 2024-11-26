@@ -9,23 +9,21 @@ import java.io.File
 /** Save data in NBT format
   */
 case class SkillNbtStorage private[skills] () {
-  def read(file: File): Either[NbtFileReadError, List[String]] = {
+  def read(file: File): Either[NbtFileReadError, List[String]] =
     NbtContents
       .fromFile(file)
       .map(_.getStrings(SkillNbtStorage.SKILLS_TAG))
-  }
 
   def write(
     file: File,
     skills: List[String],
-  ): Either[NbtFileWriteError, Boolean] = {
+  ): Either[NbtFileWriteError, Boolean] =
     NbtContents
       .fromFile(file)
       .getOrElse(NbtContents())
       .putStrings(SkillNbtStorage.SKILLS_TAG, skills)
       .writeToFile(file)
       .map(_ => true)
-  }
 }
 
 object SkillNbtStorage {

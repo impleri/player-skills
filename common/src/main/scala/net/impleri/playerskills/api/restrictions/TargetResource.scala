@@ -25,7 +25,7 @@ object TargetResource {
     value: String,
     registryKey: Option[ResourceKey.Registry[U]] = None,
     singleAsString: Boolean = false,
-  ): Option[TargetResource] = {
+  ): Option[TargetResource] =
     value.trim match {
       case s"@$namespace"  => Option(Namespace(namespace))
       case s"$namespace:*" => Option(Namespace(namespace))
@@ -39,5 +39,4 @@ object TargetResource {
       case s if singleAsString  => Option(SingleString(s))
       case _                    => None
     }
-  }
 }

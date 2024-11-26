@@ -12,23 +12,19 @@ import net.impleri.slab.entity.{Player => MinecraftPlayer}
 trait ListAcquiredCommand {
   protected def playerOps: Player
 
-  protected def registerMineCommand[T <: CommandSegment.Any](builder: T): T = {
+  protected def registerMineCommand[T <: CommandSegment.Any](builder: T): T =
     builder
       .option(CommandString("mine").executes(CommandAction(handler).message()))
       .asInstanceOf[T]
-  }
 
-  private val handler: CommandAction.Callback = { context =>
-    {
+  private val handler: CommandAction.Callback = context =>
       CommandAction
         .getCurrentPlayer(context)
         .map(getPlayerSkills)
         .toRight(StaticText(""))
-    }
-  }
 
   protected[commands] def getPlayerSkills(
-    player: MinecraftPlayer.Any,
+    player: MinecraftPlayer,
   ): ListMessage = {
     val acquiredSkills =
       playerOps.get(player).filter(s => playerOps.can(player.uuid, s.name))

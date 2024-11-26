@@ -5,15 +5,13 @@ import net.minecraft.commands.Commands
 
 class CommandString(override val underlying: CommandString.Vanilla)
     extends CommandSegment[CommandString.Vanilla, CommandString](underlying) {
-  def asRoot: CommandString.Root = {
+  def asRoot: CommandString.Root =
     underlying.asInstanceOf[CommandString.Root]
-  }
 
-  override def copyAs(nextUnderlying: CommandString.Vanilla): CommandString = {
+  override def copyAs(nextUnderlying: CommandString.Vanilla): CommandString =
     new CommandString(
       nextUnderlying,
     )
-  }
 }
 
 object CommandString {

@@ -1,0 +1,44 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "tiered"
+	group: "77DD7DB1E0C5E281"
+	id: "2A0CAAB6A4D3B26B"
+	order_index: 0
+	quest_links: [ ]
+	quests: [{
+		id: "45B49D98CC1CDA0C"
+		rewards: [{
+			downgrade: 1b
+			icon: {
+				Count: 1b
+				id: "minecraft:golden_shovel"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "61667340CEF17000"
+			ignore_reward_blocking: true
+			skill: "playerskills:ten_reward"
+			title: "Got a Tiered Skill"
+			type: "minecraft:tiered_skill_reward"
+		}]
+		tasks: [{
+			icon: {
+				Count: 1b
+				id: "minecraft:golden_sword"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "5423A934D937E37D"
+			skill: "playerskills:ten_test"
+			title: "Gained a Tiered Skill"
+			type: "minecraft:tiered_skill_task"
+			value: "beta"
+		}]
+		x: 2.5d
+		y: 0.0d
+	}]
+	title: "Tiered Skill and Reward"
+}

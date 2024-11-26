@@ -1,6 +1,7 @@
 package net.impleri.playerskills.restrictions.recipe
 
 import net.impleri.playerskills.api.restrictions.TargetResource
+import net.impleri.playerskills.utils.SeqExtensions.EveryFn
 import net.impleri.slab.item.Item
 import net.impleri.slab.item.crafting.Recipe
 import net.impleri.slab.registry.IsIngredient
@@ -16,27 +17,34 @@ case class RecipeTarget(
   private[recipe] def castRecipeContents(
     input: Seq[String],
   ): Seq[IsIngredient] = {
-    input
-      .flatMap(TargetResource(_, singleAsString = true))
-      .flatMap {
-        case ns: TargetResource.Namespace =>
-          Option(ResourceNamespace(ns.target))
-        case s: TargetResource.Single       => Item.parse(s.target.toString)
-        case s: TargetResource.SingleString => Item.parse(s.target)
-        case t: TargetResource.Tag[_, _]    => Option(ItemTag(t.target))
-        case _                              => None
-      }
+    for {
+      resource <- input
+      target <- TargetResource(resource, singleAsString = true)
+      ingredient <- RecipeTarget.castTargetResource(target)
+    } yield ingredient
   }
 
   private[recipe] lazy val getOutputItem: Option[IsIngredient] =
-    castRecipeContents(output.toList).headOption
+    castRecipeContents(output.toList)
+      .headOption
 
   private[recipe] lazy val getIngredients: Seq[IsIngredient] =
     castRecipeContents(ingredients)
 
   def matches(recipe: Recipe.Any): Boolean = {
-    (getOutputItem.nonEmpty || getIngredients.nonEmpty) &&
-    getOutputItem.forall(recipe.getResultItem.matches) &&
-    getIngredients.forall(_.inList(recipe.getIngredientItems))
+    getOutputItem.exists(recipe.getResultItem.matches) &&
+    getIngredients.every(_.inList(recipe.getIngredientItems))
   }
+}
+
+object RecipeTarget {
+  private def castTargetResource(targetResource: TargetResource): Option[IsIngredient] =
+    targetResource match {
+      case ns: TargetResource.Namespace =>
+        Option(ResourceNamespace(ns.target))
+      case s: TargetResource.Single => Item.parse(s.target.toString)
+      case s: TargetResource.SingleString => Item.parse(s.target)
+      case t: TargetResource.Tag[_, _] => Option(ItemTag(t.target))
+      case _ => None
+    }
 }

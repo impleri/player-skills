@@ -1,0 +1,9 @@
+{
+  "type": "tiered",
+  "options": [
+    "alpha",
+    "beta",
+    "delta",
+    "gamma"
+  ]
+}

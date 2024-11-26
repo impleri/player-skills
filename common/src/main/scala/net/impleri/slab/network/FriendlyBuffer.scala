@@ -5,77 +5,99 @@ import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.network.FriendlyByteBuf
 
 import java.util.UUID
+import scala.util.Try
+import scala.util.chaining.scalaUtilChainingOps
 
-case class FriendlyBuffer(private var underlying: FriendlyBuffer.Vanilla) {
-  def output: FriendlyBuffer.Vanilla = underlying
+trait FriendlyBufferBase {
+  protected def underlying: FriendlyBuffer.Vanilla
 
-  private def chain(f: => FriendlyBuffer.VanillaBase): FriendlyBuffer = {
-    val next = new FriendlyBuffer.Vanilla(f)
-    copy(underlying = next)
-  }
+  protected def upsert(buffer: FriendlyBuffer.VanillaBase): FriendlyBuffer = ???
+}
 
-  def readBoolean(): Option[Boolean] = Option(underlying.readBoolean())
+trait FriendlyBoolean extends FriendlyBufferBase {
+  def readBoolean(): Option[Boolean] = Try(underlying.readBoolean())
+    .toOption
 
-  def writeBoolean(value: Boolean): FriendlyBuffer = chain(
+  def writeBoolean(value: Boolean): FriendlyBuffer = upsert(
     underlying.writeBoolean(value),
   )
+}
 
-  def readInt(): Option[Int] = Option(underlying.readInt())
+trait FriendlyNumber extends FriendlyBufferBase {
+  def readInt(): Option[Int] = Try(underlying.readInt()).toOption
 
-  def writeInt(value: Int): FriendlyBuffer = chain(underlying.writeInt(value))
+  def writeInt(value: Int): FriendlyBuffer = upsert(underlying.writeInt(value))
 
-  def readDouble(): Option[Double] = Option(underlying.readDouble())
+  def readDouble(): Option[Double] = Try(underlying.readDouble()).toOption
 
-  def writeDouble(value: Double): FriendlyBuffer = chain(
+  def writeDouble(value: Double): FriendlyBuffer = upsert(
     underlying.writeDouble(value),
   )
+}
 
-  def readUUID(): Option[UUID] = Option(underlying.readUUID())
-
-  def writeUUID(value: UUID): FriendlyBuffer = chain(
-    underlying.writeUUID(value),
-  )
-
-  def readString(): Option[String] = {
-    Option(underlying.readInt())
-      .map(underlying.readUtf(_))
-      .flatMap(Option(_))
-  }
-
-  def writeResourceLocation(value: ResourceLocation): FriendlyBuffer = {
-    writeString(value.asString)
-  }
-
-  def readResourceLocation(): Option[ResourceLocation] = {
-    readString()
-      .flatMap(ResourceLocation(_))
-  }
+trait FriendlyString extends FriendlyNumber {
+  def readString(): Option[String] =
+    Try(underlying.readInt())
+      .filter(_ >= 0)
+      .flatMap(l => Try(underlying.readUtf(l)))
+      .toOption
 
   private def writeStringInternal(value: String): ByteBuf = {
     underlying.writeInt(value.length)
     underlying.writeUtf(value, value.length)
   }
 
-  def writeString(value: String): FriendlyBuffer = {
-    chain(writeStringInternal(value))
-  }
+  def writeString(value: String): FriendlyBuffer =
+    upsert(writeStringInternal(value))
 
-  def readStrings(): Seq[String] = {
-    val size = readInt().getOrElse(0)
-
-    (1 to size).toList
+  private def readStringsInternal(size: Int = 0): Seq[String] =
+    (0 until size)
+      .toList
       .flatMap(_ => readString())
-  }
+
+  def readStrings(): Seq[String] =
+    readInt()
+      .filter(_ > 0)
+      .map(readStringsInternal)
+      .getOrElse(Seq.empty)
 
   def writeStrings(value: Seq[String]): FriendlyBuffer = {
-    val next = underlying.writeInt(value.size)
-    chain(
-      value
-        .map(writeStringInternal)
-        .lastOption
-        .getOrElse(next),
-    )
+    val trimmed = value.filter(_.nonEmpty)
+    val next = underlying.writeInt(trimmed.size)
+
+    trimmed
+      .map(writeStringInternal)
+      .lastOption
+      .getOrElse(next)
+      .pipe(upsert)
   }
+}
+
+trait FriendlyIdentifier extends FriendlyString {
+  def readUUID(): Option[UUID] = Try(underlying.readUUID()).toOption
+
+  def writeUUID(value: UUID): FriendlyBuffer = upsert(
+    underlying.writeUUID(value),
+  )
+
+  def readResourceLocation(): Option[ResourceLocation] =
+    readString()
+      .flatMap(ResourceLocation(_))
+
+  def writeResourceLocation(value: ResourceLocation): FriendlyBuffer =
+    writeString(value.asString)
+}
+
+case class FriendlyBuffer(override val underlying: FriendlyBuffer.Vanilla)
+  extends FriendlyBufferBase with FriendlyBoolean with FriendlyNumber with FriendlyString with FriendlyIdentifier {
+  def output: FriendlyBuffer.Vanilla = underlying
+
+  def nonEmpty: Boolean = underlying.isReadable
+
+  override def upsert(bb: FriendlyBuffer.VanillaBase): FriendlyBuffer =
+    bb
+      .pipe(new FriendlyBuffer.Vanilla(_))
+      .pipe(b => copy(underlying = b))
 }
 
 object FriendlyBuffer {

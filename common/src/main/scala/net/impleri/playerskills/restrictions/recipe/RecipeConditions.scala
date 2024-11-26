@@ -8,19 +8,15 @@ trait RecipeConditions
     with MultiTargetRestriction[RecipeTarget] {
   var isProducible: Option[Boolean] = None
 
-  def producible(): Unit = {
+  def producible(): Unit =
     isProducible = Option(true)
-  }
 
-  def unproducible(): Unit = {
+  def unproducible(): Unit =
     isProducible = Option(false)
-  }
 
-  def nothing(): Unit = {
+  def nothing(): Unit =
     producible()
-  }
 
-  def everything(): Unit = {
+  def everything(): Unit =
     unproducible()
-  }
 }

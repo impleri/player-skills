@@ -8,10 +8,9 @@ import java.util.UUID
 case class FtbTeamApi(ftbTeamApi: FtbTeamsApi = FtbTeamsApi()) extends Team {
   override protected[playerskills] def getTeamMembersFor(
     player: UUID,
-  ): List[UUID] = {
+  ): List[UUID] =
     ftbTeamApi
       .getTeamOf(player)
       .toList
       .flatMap(_.getAllMembers)
-  }
 }

@@ -13,22 +13,20 @@ class RecipeRestrictionOps(
   protected val registry: RestrictionRegistry,
   protected val logger: Logger,
 ) extends RestrictionsOps[Recipe.Any, Recipe.AnyVanilla, RecipeRestriction] {
-  override val restrictionType: RestrictionType = RestrictionType.Recipe()
+  override val restrictionType: RestrictionType = RestrictionType.Recipe
 
   def isProducible(
-    player: Player.Any,
+    player: Player,
     recipe: Recipe.Any,
     pos: Option[Position] = None,
-  ): Boolean = {
+  ): Boolean =
     canPlayer(player, recipe, _.producible, "producible", pos)
-  }
 }
 
 object RecipeRestrictionOps {
   def apply(
     registry: RestrictionRegistry = RestrictionRegistry(),
-    logger: Logger = PlayerSkillsLogger.ITEMS,
-  ): RecipeRestrictionOps = {
+    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
+  ): RecipeRestrictionOps =
     new RecipeRestrictionOps(registry, logger)
-  }
 }

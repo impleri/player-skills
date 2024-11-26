@@ -11,7 +11,7 @@ trait JsonCollectionParser extends JsonValueParser {
     raw: JsonElement,
     key: String,
     parser: JsonElement => Option[T],
-  ): List[T] = {
+  ): List[T] =
     parseValue(
       raw.getAsJsonObject,
       key,
@@ -19,13 +19,12 @@ trait JsonCollectionParser extends JsonValueParser {
         .flatMap(parser)
         .pipe(Option(_)),
     ).toList.flatten
-  }
 
   protected[utils] def parseArrayEach(
     raw: JsonElement,
     key: String,
     callback: JsonElement => Unit,
-  ): Unit = {
+  ): Unit =
     parseValue(
       raw.getAsJsonObject,
       key,
@@ -33,16 +32,14 @@ trait JsonCollectionParser extends JsonValueParser {
         .foreach(callback)
         .pipe(_ => None),
     )
-  }
 
   protected def parseObjectOrArray(
     raw: JsonObject,
     key: String,
-  ): List[JsonElement] = {
+  ): List[JsonElement] =
     getElement(raw, key) match {
       case Some(list) if list.isJsonArray => list.getAsJsonArray.asScala.toList
       case Some(obj) if obj.isJsonObject  => List(obj.getAsJsonObject)
       case _                              => List.empty
     }
-  }
 }

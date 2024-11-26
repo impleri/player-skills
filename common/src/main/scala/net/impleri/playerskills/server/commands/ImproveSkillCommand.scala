@@ -24,7 +24,7 @@ trait ImproveSkillCommand {
 
   protected def registerImproveCommand[T <: CommandSegment.Any](
     builder: T,
-  ): T = {
+  ): T =
     builder
       .option(
         CommandString("improve")
@@ -43,14 +43,12 @@ trait ImproveSkillCommand {
           ),
       )
       .asInstanceOf[T]
-  }
 
   private def successMessage: String = "commands.playerskills.skill_improved"
 
   private def failureMessage: String =
     "commands.playerskills.skill_improve_failed"
 
-  private def action(player: Player.Any, skill: Skill[_]): Option[Boolean] = {
+  private def action(player: Player, skill: Skill[_]): Option[Boolean] =
     teamOps.improve(player, skill, None, None)
-  }
 }

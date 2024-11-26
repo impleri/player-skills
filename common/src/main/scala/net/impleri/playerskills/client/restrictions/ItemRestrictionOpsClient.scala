@@ -14,23 +14,18 @@ case class ItemRestrictionOpsClient(
   l: Logger = PlayerSkillsLogger.ITEMS,
 ) extends ItemRestrictionOps(r, l)
     with RestrictionOpsClient {
-  def isIdentifiable(item: Item, pos: Option[Position]): Boolean = {
+  def isIdentifiable(item: Item, pos: Option[Position]): Boolean =
     maybeCan(isIdentifiable(_, item, pos))
-  }
 
-  def isHoldable(item: Item, pos: Option[Position]): Boolean = {
+  def isHoldable(item: Item, pos: Option[Position]): Boolean =
     maybeCan(isHoldable(_, item, pos))
-  }
 
-  def isWearable(item: Item, pos: Option[Position]): Boolean = {
+  def isWearable(item: Item, pos: Option[Position]): Boolean =
     maybeCan(isWearable(_, item, pos))
-  }
 
-  def isUsable(item: Item, pos: Option[Position]): Boolean = {
+  def isUsable(item: Item, pos: Option[Position]): Boolean =
     maybeCan(isUsable(_, item, pos))
-  }
 
-  def isHarmful(item: Item, pos: Option[Position]): Boolean = {
+  def isHarmful(item: Item, pos: Option[Position]): Boolean =
     maybeCan(isHarmful(_, item, pos))
-  }
 }

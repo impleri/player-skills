@@ -35,107 +35,91 @@ case class InteractionEvents(
     InteractionEvent.INTERACT_ENTITY,
   private val onFarmlandTrampleEvent: Event[FarmlandTrample] =
     InteractionEvent.FARMLAND_TRAMPLE,
-) {
-  private def handleEvent[Result](
-    player: McPlayer,
-    fallbackResult: Result = EventResult.pass(),
-  )(f: Player[_] => Result): Result = {
-    Option(player)
-      .map(Player(_))
-      .fold(fallbackResult)(f)
-  }
+) extends ResultHandler {
+  private def onBlockClick(
+        rawPlayer: McPlayer,
+        rawHand: InteractionHand,
+        pos: BlockPos,
+        d: McDirection,
+        handler: InteractionEvents.OnClickBlock,
+      ) =
+        ensureResult {
+          for {
+            player <- Option(rawPlayer).map(Player(_))
+            location = Option(pos).map(Position(_))
+            hand = Hand.fromVanilla(rawHand)
+            direction = Direction.fromVanilla(d)
+          } yield handler(player, location, hand, direction)
+        }
 
-  def onLeftClickBlock(handler: InteractionEvents.OnClickBlock): Unit = {
+  def onLeftClickBlock(handler: InteractionEvents.OnClickBlock): Unit =
     onLeftClickBlockEvent.register {
       (
-        player: McPlayer,
-        hand: InteractionHand,
+        rawPlayer: McPlayer,
+        rawHand: InteractionHand,
         pos: BlockPos,
         d: McDirection,
-      ) =>
-        handleEvent(player)(
-          handler(
-            _,
-            Option(pos).map(Position(_)),
-            Hand.fromVanilla(hand),
-            Direction.fromVanilla(d),
-          ),
-        )
+      ) => onBlockClick(rawPlayer, rawHand, pos, d, handler)
     }
-  }
 
-  def onRightClickBlock(handler: InteractionEvents.OnClickBlock): Unit = {
+  def onRightClickBlock(handler: InteractionEvents.OnClickBlock): Unit =
     onRightClickBlockEvent.register {
       (
-        player: McPlayer,
-        hand: InteractionHand,
+        rawPlayer: McPlayer,
+        rawHand: InteractionHand,
         pos: BlockPos,
         d: McDirection,
-      ) =>
-        handleEvent(player)(
-          handler(
-            _,
-            Option(pos).map(Position(_)),
-            Hand.fromVanilla(hand),
-            Direction.fromVanilla(d),
-          ),
-        )
+      ) => onBlockClick(rawPlayer, rawHand, pos, d, handler)
     }
-  }
 
-  def onRightClickItem(handler: InteractionEvents.OnUseItem): Unit = {
+  def onRightClickItem(handler: InteractionEvents.OnUseItem): Unit =
     onRightClickItemEvent.register {
-      (player: McPlayer, hand: InteractionHand) =>
-        handleEvent(player, CompoundEventResult.pass[ItemStack]())(
-          handler(
-            _,
-            Hand.fromVanilla(hand),
-          ),
-        )
+      (rawPlayer: McPlayer, rawHand: InteractionHand) =>
+        ensureCompoundResult[ItemStack] {
+          for {
+            player <- Option(rawPlayer).map(Player(_))
+            hand = Hand.fromVanilla(rawHand)
+          } yield handler(player, hand)
+        }
     }
-  }
 
-  def onRightClickEntity(handler: InteractionEvents.OnClickEntity): Unit = {
+  def onRightClickEntity(handler: InteractionEvents.OnClickEntity): Unit =
     onInteractEntityEvent.register {
-      (player: McPlayer, entity: McEntity, hand: InteractionHand) =>
-        handleEvent(player)(
-          handler(
-            _,
-            Option(entity).map(Entity(_)),
-            Hand.fromVanilla(hand),
-          ),
-        )
+      (rawPlayer: McPlayer, entity: McEntity, rawHand: InteractionHand) =>
+        ensureResult {
+          for {
+            player <- Option(rawPlayer).map(Player(_))
+            target = Option(entity).map(Entity(_))
+            hand = Hand.fromVanilla(rawHand)
+          } yield handler(player, target, hand)
+        }
     }
-  }
 
-  def onTrample(handler: InteractionEvents.OnTrampleBlock): Unit = {
+  def onTrample(handler: InteractionEvents.OnTrampleBlock): Unit =
     onFarmlandTrampleEvent.register {
       (
         level: Level,
         pos: BlockPos,
         state: BlockState,
-        distance: Float,
+        rawDistance: Float,
         entity: McEntity,
       ) =>
-        Option(entity)
-          .map(Entity(_))
-          .fold(EventResult.pass())(
-            handler(
-              _,
-              Option(pos).map(Position(_)),
-              Option(state).map(Block(_)),
-              Option(distance).getOrElse(0.0f),
-            ),
-          )
+        ensureResult {
+          for {
+            actor <- Option(entity).map(Entity(_))
+            location = Option(pos).map(Position(_))
+            block = Option(state).map(Block(_))
+            distance = Option(rawDistance).getOrElse(0.0f)
+          } yield handler(actor, location, block, distance)
+        }
     }
-  }
 }
 
 object InteractionEvents {
   type OnClickBlock =
-    (Player[_], Option[Position], Hand.Hand, Direction.Direction) => EventResult
-  type OnClickEntity = (Player[_], Option[Entity[_]], Hand.Hand) => EventResult
+    (Player, Option[Position], Hand.Hand, Direction.Direction) => EventResult
+  type OnClickEntity = (Player, Option[Entity[_]], Hand.Hand) => EventResult
   type OnTrampleBlock =
     (Entity[_], Option[Position], Option[Block], Float) => EventResult
-  type OnUseItem = (Player[_], Hand.Hand) => CompoundEventResult[ItemStack]
+  type OnUseItem = (Player, Hand.Hand) => CompoundEventResult[ItemStack]
 }

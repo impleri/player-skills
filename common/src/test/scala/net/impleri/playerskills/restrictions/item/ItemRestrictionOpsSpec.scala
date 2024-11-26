@@ -14,14 +14,14 @@ class ItemRestrictionOpsSpec extends BaseSpec {
 
   private val testUnit = ItemRestrictionOps(mockRegistry, mockLogger)
 
-  private val mockPlayer = mock[Player.Server]
-  private val mockEntity = mock[Entity[Player.VanillaServer]]
+  private val mockPlayer = mock[Player]
+  private val mockEntity = mock[Entity[Player.Vanilla]]
   private val mockTargetName = mock[ResourceLocation]
   private val mockTarget = mock[Item]
 
   private val testRestriction = ItemRestriction(mockTarget)
 
-  mockEntity.asPlayer[Player.VanillaServer] returns mockPlayer
+  mockEntity.asPlayer returns mockPlayer
 
   mockPlayer.asOption returns Option(mockEntity)
   mockPlayer.dimension returns None

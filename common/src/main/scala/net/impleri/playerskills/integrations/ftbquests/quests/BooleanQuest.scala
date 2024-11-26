@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.helpers
+package net.impleri.playerskills.integrations.ftbquests.quests
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import dev.ftb.mods.ftblibrary.config.ConfigValue
@@ -19,9 +19,8 @@ trait BooleanQuest extends QuestStateOps[Boolean] {
     nbt: NbtContents,
     key: String,
     value: Option[Boolean],
-  ): NbtContents = {
+  ): NbtContents =
     nbt.putBoolean(key, value.getOrElse(noneValue))
-  }
 
   override def readValueFromTag(
     nbt: NbtContents,
@@ -31,9 +30,8 @@ trait BooleanQuest extends QuestStateOps[Boolean] {
   override def writeValueToBuffer(
     buffer: FriendlyBuffer,
     value: Option[Boolean],
-  ): FriendlyBuffer = {
+  ): FriendlyBuffer =
     buffer.writeBoolean(value.getOrElse(noneValue))
-  }
 
   override def readValueFromBuffer(buffer: FriendlyBuffer): Option[Boolean] =
     buffer.readBoolean()
@@ -44,12 +42,11 @@ trait BooleanQuest extends QuestStateOps[Boolean] {
     value: Boolean,
     options: NameMap[Boolean],
     defaultValue: Boolean,
-  ): ConfigValue[_] = {
+  ): ConfigValue[_] =
     config.addBool(
       key,
       value,
       v => data.copy(value = Try(v.booleanValue()).toOption).pipe(upsert),
       defaultValue,
     )
-  }
 }
