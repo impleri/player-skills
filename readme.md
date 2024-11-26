@@ -87,6 +87,9 @@ remove recipes related to the `unconsumable` flag. It does hide the recipes from
 However, it does not remove the recipe itself -- only `unproducible` does that. That is, a crafty player could view a
 recipe that produces the item, then right click on the produced item to see what recipes with which it can be consumed.
 
+Client-side restrictions (e.g. JEI, REI) must be loaded client-side in order to work. Data packs are only loaded 
+server-side, so they will not work for client-side.
+
 ## Data Packs
 
 You can create skills using data packs! Just use the `skills` grouping. The file name will be used as the skill name.
