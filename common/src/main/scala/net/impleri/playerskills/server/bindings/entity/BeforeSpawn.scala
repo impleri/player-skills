@@ -10,7 +10,6 @@ case class BeforeSpawn(
   itemRestrictionOps: ItemRestrictionOps,
   upstream: EntityEvents = EntityEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
-  skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {
   private[bindings] val handler: EntityEvents.CanSpawn =
     (entity, levelOpt, positionOpt, spawnTypeOpt, spawnerOpt) => {
@@ -24,5 +23,5 @@ case class BeforeSpawn(
       //      }
     }
 
-  upstream.canSpawn(handler)
+  upstream.shouldSpawn(handler)
 }

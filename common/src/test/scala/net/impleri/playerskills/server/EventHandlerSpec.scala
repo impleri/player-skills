@@ -12,7 +12,7 @@ class EventHandlerSpec extends BaseSpec {
   private val eventEmitterMock = mock[EventEmitter[SkillChangedEvent[_]]]
   private val testUnit: EventHandler = EventHandler(eventEmitterMock)
 
-  private val playerMock: Player[_] = mock[Player[_]]
+  private val playerMock: Player = mock[Player]
   private val skillMock: Skill[_] = mock[Skill[_]]
 
   "EventHandler.onSkillChanged" should "proxies register method" in {

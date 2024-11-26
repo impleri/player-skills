@@ -44,11 +44,9 @@ case class RecipeRestrictionConditionBuilder(
     isProducible = parseBoolean(jsonElement, "producible", isProducible)
   }
 
-  override def toggleEverything(): Unit = {
+  override def toggleEverything(): Unit =
     isProducible = Option(true)
-  }
 
-  override def toggleNothing(): Unit = {
+  override def toggleNothing(): Unit =
     isProducible = Option(false)
-  }
 }

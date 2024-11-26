@@ -3,7 +3,7 @@ package net.impleri.playerskills.api.restrictions
 sealed trait RestrictionType
 
 object RestrictionType {
-  case class Item() extends RestrictionType
+  final case object Item extends RestrictionType
 
-  case class Recipe() extends RestrictionType
+  final case object Recipe extends RestrictionType
 }

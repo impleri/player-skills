@@ -1,0 +1,45 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "basic"
+	group: "77DD7DB1E0C5E281"
+	id: "1A3D24A1CFAB8DC8"
+	order_index: 0
+	quest_links: [ ]
+	quests: [{
+		id: "68A5ED21E57CD477"
+		rewards: [{
+			downgrade: 0b
+			icon: {
+				Count: 1b
+				id: "minecraft:wooden_shovel"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "3E6F43E496542D9A"
+			ignore_reward_blocking: true
+			skill: "playerskills:eight_reward"
+			title: "Got a Basic Skill"
+			type: "minecraft:basic_skill_reward"
+			value: 1b
+		}]
+		tasks: [{
+			icon: {
+				Count: 1b
+				id: "minecraft:wooden_sword"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "781A7A21A51FAA93"
+			skill: "playerskills:eight_test"
+			title: "Gained a Basic Skill"
+			type: "minecraft:basic_skill_task"
+			value: 1b
+		}]
+		x: -5.0d
+		y: 0.0d
+	}]
+	title: "Basic Skill and Reward"
+}

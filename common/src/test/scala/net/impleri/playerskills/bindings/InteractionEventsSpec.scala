@@ -22,7 +22,6 @@ class InteractionEventsSpec extends BaseSpec {
     mockInteraction,
     mockPlayer,
     mockLogger,
-    mockLogger,
   )
 
   "InteractionEvents.registerEvents" should "bind interaction events" in {

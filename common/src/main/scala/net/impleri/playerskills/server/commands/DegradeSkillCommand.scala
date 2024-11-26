@@ -24,8 +24,7 @@ trait DegradeSkillCommand {
 
   protected def registerDegradeCommand[T <: CommandSegment.Any](
     builder: T,
-  ): T = {
-
+  ): T =
     builder
       .option(
         CommandString("degrade")
@@ -44,14 +43,12 @@ trait DegradeSkillCommand {
           ),
       )
       .asInstanceOf[T]
-  }
 
   private def successMessage: String = "commands.playerskills.skill_degraded"
 
   private def failureMessage: String =
     "commands.playerskills.skill_degrade_failed"
 
-  private def action(player: Player.Any, skill: Skill[_]): Option[Boolean] = {
+  private def action(player: Player, skill: Skill[_]): Option[Boolean] =
     teamOps.degrade(player, skill, None, None)
-  }
 }

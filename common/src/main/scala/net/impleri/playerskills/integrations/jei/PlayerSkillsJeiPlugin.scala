@@ -13,14 +13,13 @@ import scala.util.chaining.scalaUtilChainingOps
 @REIPluginCompatIgnore
 @JeiPlugin
 class PlayerSkillsJeiPlugin extends IModPlugin {
-  lazy val helper: JeiHelper = JeiHelper()
+  private lazy val helper: JeiHelper = JeiHelper()
 
   override def getPluginUid: ResourceLocation.Vanilla =
     ResourceLocation(PlayerSkills.MOD_ID, "jei_plugin").get.value
 
-  override def onRuntimeAvailable(jeiRuntime: IJeiRuntime): Unit = {
+  override def onRuntimeAvailable(jeiRuntime: IJeiRuntime): Unit =
     Option(jeiRuntime)
       .map(JeiRuntime)
       .tap(helper.updateRuntime)
-  }
 }

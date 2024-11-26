@@ -13,13 +13,12 @@ case class SpecializedSkillType(override val skillOps: SkillOps = Skill())
 
   override def castFromString(value: String): Option[String] = Option(value)
 
-  override def can(skill: Skill[String], threshold: Option[String]): Boolean = {
+  override def can(skill: Skill[String], threshold: Option[String]): Boolean =
     (skill.value, threshold) match {
       case (Some(v), Some(t)) => v == t
       case (Some(_), None)    => true
       case _                  => false
     }
-  }
 
   override def getPrevValue(
     skill: Skill[String],

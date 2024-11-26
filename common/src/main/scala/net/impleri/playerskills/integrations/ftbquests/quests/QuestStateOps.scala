@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.helpers
+package net.impleri.playerskills.integrations.ftbquests.quests
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import dev.ftb.mods.ftblibrary.config.ConfigValue
@@ -17,6 +17,7 @@ import net.impleri.playerskills.PlayerSkills
 import net.impleri.slab.chat.Message
 import net.impleri.slab.chat.StaticText
 import net.impleri.slab.chat.TranslatableText
+import net.impleri.slab.logging.Logger
 import net.impleri.slab.nbt.NbtContents
 import net.impleri.slab.network.FriendlyBuffer
 import net.impleri.slab.resources.ResourceLocation
@@ -35,20 +36,22 @@ trait QuestStateOps[T] {
 
   protected def playerOps: PlayerOps
 
+  protected def logger: Logger
+
   protected def upsert(next: QuestState[T]): Unit = {
     data = next
   }
 
   // NBT Handling
 
-  protected def writeSkillTag(nbt: NbtContents): NbtContents = {
+  protected def writeSkillTag(nbt: NbtContents): NbtContents =
     nbt.putString(QuestStateOps.SKILL_TAG_KEY, data.skillAsString)
-  }
 
-  protected def readSkillTag(nbt: NbtContents): Unit = {
-    val skill = nbt.getResourceLocation(QuestStateOps.SKILL_TAG_KEY)
-    upsert(data.copy(skill = skill))
-  }
+  protected def readSkillTag(nbt: NbtContents): Unit =
+    nbt
+      .getResourceLocation(QuestStateOps.SKILL_TAG_KEY)
+      .pipe(s => data.copy(skill = s))
+      .pipe(upsert)
 
   // Implemented by type-specific traits
   protected def writeValueToTag(
@@ -57,28 +60,27 @@ trait QuestStateOps[T] {
     value: Option[T],
   ): NbtContents
 
-  protected def writeValueTag(nbt: NbtContents): NbtContents = {
+  protected def writeValueTag(nbt: NbtContents): NbtContents =
     writeValueToTag(nbt, QuestStateOps.VALUE_TAG_KEY, data.value)
-  }
 
   // Implemented by type-specific traits
   protected def readValueFromTag(nbt: NbtContents, key: String): Option[T]
 
-  protected def readValueTag(nbt: NbtContents): Unit = {
-    val next = readValueFromTag(nbt, QuestStateOps.VALUE_TAG_KEY)
-    upsert(data.copy(value = next))
-  }
+  protected def readValueTag(nbt: NbtContents): Unit =
+    readValueFromTag(nbt, QuestStateOps.VALUE_TAG_KEY)
+      .pipe(v => data.copy(value = v))
+      .pipe(upsert)
 
   // Buffer handling
 
-  protected def writeSkillBuffer(buffer: FriendlyBuffer): FriendlyBuffer = {
+  protected def writeSkillBuffer(buffer: FriendlyBuffer): FriendlyBuffer =
     buffer.writeString(data.skillAsString)
-  }
 
-  protected def readSkillBuffer(buffer: FriendlyBuffer): Unit = {
-    val skill = buffer.readResourceLocation()
-    upsert(data.copy(skill = skill))
-  }
+  protected def readSkillBuffer(buffer: FriendlyBuffer): Unit =
+    buffer
+      .readResourceLocation()
+      .pipe(s => data.copy(skill = s))
+      .pipe(upsert)
 
   // Implemented by type-specific traits
   protected def writeValueToBuffer(
@@ -86,17 +88,16 @@ trait QuestStateOps[T] {
     value: Option[T],
   ): FriendlyBuffer
 
-  protected def writeValueBuffer(buffer: FriendlyBuffer): FriendlyBuffer = {
+  protected def writeValueBuffer(buffer: FriendlyBuffer): FriendlyBuffer =
     writeValueToBuffer(buffer, data.value)
-  }
 
   // Implemented by type-specific traits
   protected def readValueFromBuffer(buffer: FriendlyBuffer): Option[T]
 
-  protected def readValueBuffer(buffer: FriendlyBuffer): Unit = {
-    val next = readValueFromBuffer(buffer)
-    upsert(data.copy(value = next))
-  }
+  protected def readValueBuffer(buffer: FriendlyBuffer): Unit =
+    readValueFromBuffer(buffer)
+      .pipe(v => data.copy(value = v))
+      .pipe(upsert)
 
   // Config handling
 
@@ -106,13 +107,12 @@ trait QuestStateOps[T] {
       .filter(_.skillType == data.skillType)
       .map(_.name)
 
-    val firstOption = skills.headOption
-    val skill = data.skill.orElse(firstOption)
+    val firstOption = skills.headOption.fold("")(_.toString)
 
     config
       .addEnum(
         QuestStateOps.SKILL_TAG_KEY,
-        skill.fold("")(_.asString),
+        data.skillAsString,
         (s: String) =>
           Option(s)
             .filter(_.nonEmpty)
@@ -120,9 +120,9 @@ trait QuestStateOps[T] {
             .pipe(v => data.copy(skill = v))
             .pipe(upsert),
         NameMap
-          .of(firstOption.fold("")(_.toString), skills.map(_.toString).asJava)
+          .of(firstOption, skills.map(_.toString).asJava)
           .create(),
-        firstOption.fold("")(_.toString),
+        firstOption,
       )
       .setNameKey(QuestStateOps.uiKey(QuestStateOps.SKILL_TAG_KEY))
   }
@@ -202,7 +202,7 @@ object QuestStateOps {
     (ConfigGroup, String, T, NameMap[T], T) => ConfigValue[_]
   private final val VALUE_TAG_KEY = "value"
 
-  def localeKey(name: String): String = s"playerskills.quests.$name"
+  private def localeKey(name: String): String = s"playerskills.quests.$name"
 
   def uiKey(name: String): String = localeKey(s"ui.$name")
 

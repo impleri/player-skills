@@ -19,6 +19,7 @@ import net.minecraft.world.item.crafting.{Recipe => RawRecipe}
 
 import scala.collection.SeqView
 import scala.collection.View
+import scala.util.chaining.scalaUtilChainingOps
 
 case class SkillsDisplayVisibility(
   displayRegistry: DisplayRegistry,
@@ -32,34 +33,31 @@ case class SkillsDisplayVisibility(
   override def handleDisplay(
     category: DisplayCategory[_],
     display: Display,
-  ) = {
-    val isRestricted =
-      castDisplayToRecipe(display).fold(false)(hasMatchingRestriction)
+  ) =
+    failOn {
+      castDisplayToRecipe(display)
+        .fold(false)(hasMatchingRestriction)
+        .pipe(Option(_))
+    }
 
-    failOn(Option(isRestricted))
-  }
-
-  private def getRestrictedRecipes: View[Recipe[_]] = {
+  private def getRestrictedRecipes: View[Recipe[_]] =
     restrictionRegistry.entries.view
-      .filter(_.isType(RestrictionType.Recipe()))
+      .filter(_.isType(RestrictionType.Recipe))
       .asInstanceOf[SeqView[RecipeRestriction]]
       .map(_.target)
       .filter(recipeOpsClient.isProducible(_, None))
-  }
 
-  private def hasMatchingRestriction(recipe: IsRecipe): Boolean = {
+  private def hasMatchingRestriction(recipe: IsRecipe): Boolean =
     recipe match {
       case r: Recipe[_] => getRestrictedRecipes.exists(_ == r)
       // TODO: Handle brewing
       case _ => false
     }
-  }
 
-  private def castDisplayToRecipe(value: Display): Option[IsRecipe] = {
+  private def castDisplayToRecipe(value: Display): Option[IsRecipe] =
     Option(displayRegistry.getDisplayOrigin(value)) flatMap {
       case r: RawRecipe[_] => Option(Recipe(r))
       case b: RawBrewing   => Option(BrewingRecipe(b))
       case _               => None
     }
-  }
 }

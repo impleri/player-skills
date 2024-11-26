@@ -16,20 +16,18 @@ class Tag[T <: ResourceWrapper[U], U](protected val underlying: TagKey[U])
 
   override val name: Option[ResourceLocation] = location
 
-  override def equals(obj: Any): Boolean = {
+  override def equals(obj: Any): Boolean =
     obj match {
       case t: Tag[_, _] => t.asString == asString
       case _            => false
     }
-  }
 }
 
 case class ItemTag(tag: TagKey[McItem])
     extends Tag[Item, McItem](tag)
     with IsIngredient {
-  override def inList(ingredients: Seq[Item]): Boolean = {
+  override def inList(ingredients: Seq[Item]): Boolean =
     ingredients.exists(_.getStack.is(tag))
-  }
 }
 
 object ItemTag {

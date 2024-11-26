@@ -16,117 +16,89 @@ trait Message[T <: Message[_]] {
 
   def copyAs(newVal: Message.Vanilla): T
 
-  def sendSuccess(context: Command.Context): Unit = {
+  def sendSuccess(context: Command.Context): Unit =
     context.getSource.sendSuccess(output, false)
-  }
 
-  def sendSuccessWithAdmins(context: Command.Context): Unit = {
+  def sendSuccessWithAdmins(context: Command.Context): Unit =
     context.getSource.sendSuccess(output, true)
-  }
 
-  def sendGeneric(context: Command.Context): Unit = {
+  def sendGeneric(context: Command.Context): Unit =
     context.getSource.sendSystemMessage(output)
-  }
 
-  def sendFailure(context: Command.Context): Unit = {
+  def sendFailure(context: Command.Context): Unit =
     context.getSource.sendFailure(output)
-  }
 
-  def append(value: Message.Any): T = {
+  def append(value: Message.Any): T =
     copyAs(underlying.append(value.underlying))
-  }
 
-  def append(value: String): T = {
+  def append(value: String): T =
     copyAs(underlying.append(value))
-  }
 
-  def black(): T = {
+  def black(): T =
     copyAs(underlying.withStyle(ChatFormatting.BLACK))
-  }
 
-  def darkBlue(): T = {
+  def darkBlue(): T =
     copyAs(underlying.withStyle(ChatFormatting.DARK_BLUE))
-  }
 
-  def darkGreen(): T = {
+  def darkGreen(): T =
     copyAs(underlying.withStyle(ChatFormatting.DARK_GREEN))
-  }
 
-  def darkAqua(): T = {
+  def darkAqua(): T =
     copyAs(underlying.withStyle(ChatFormatting.DARK_AQUA))
-  }
 
-  def darkRed(): T = {
+  def darkRed(): T =
     copyAs(underlying.withStyle(ChatFormatting.DARK_RED))
-  }
 
-  def darkPurple(): T = {
+  def darkPurple(): T =
     copyAs(underlying.withStyle(ChatFormatting.DARK_PURPLE))
-  }
 
-  def gold(): T = {
+  def gold(): T =
     copyAs(underlying.withStyle(ChatFormatting.GOLD))
-  }
 
-  def gray(): T = {
+  def gray(): T =
     copyAs(underlying.withStyle(ChatFormatting.GRAY))
-  }
 
-  def darkGray(): T = {
+  def darkGray(): T =
     copyAs(underlying.withStyle(ChatFormatting.DARK_GRAY))
-  }
 
-  def blue(): T = {
+  def blue(): T =
     copyAs(underlying.withStyle(ChatFormatting.BLUE))
-  }
 
-  def green(): T = {
+  def green(): T =
     copyAs(underlying.withStyle(ChatFormatting.GREEN))
-  }
 
-  def aqua(): T = {
+  def aqua(): T =
     copyAs(underlying.withStyle(ChatFormatting.AQUA))
-  }
 
-  def red(): T = {
+  def red(): T =
     copyAs(underlying.withStyle(ChatFormatting.RED))
-  }
 
-  def lightPurple(): T = {
+  def lightPurple(): T =
     copyAs(underlying.withStyle(ChatFormatting.LIGHT_PURPLE))
-  }
 
-  def yellow(): T = {
+  def yellow(): T =
     copyAs(underlying.withStyle(ChatFormatting.YELLOW))
-  }
 
-  def white(): T = {
+  def white(): T =
     copyAs(underlying.withStyle(ChatFormatting.WHITE))
-  }
 
-  def obfuscated(): T = {
+  def obfuscated(): T =
     copyAs(underlying.withStyle(ChatFormatting.OBFUSCATED))
-  }
 
-  def bold(): T = {
+  def bold(): T =
     copyAs(underlying.withStyle(ChatFormatting.BOLD))
-  }
 
-  def strikethrough(): T = {
+  def strikethrough(): T =
     copyAs(underlying.withStyle(ChatFormatting.STRIKETHROUGH))
-  }
 
-  def underline(): T = {
+  def underline(): T =
     copyAs(underlying.withStyle(ChatFormatting.UNDERLINE))
-  }
 
-  def italic(): T = {
+  def italic(): T =
     copyAs(underlying.withStyle(ChatFormatting.ITALIC))
-  }
 
-  def reset(): T = {
+  def reset(): T =
     copyAs(underlying.withStyle(ChatFormatting.RESET))
-  }
 }
 
 object Message {

@@ -16,11 +16,10 @@ object CommandPermission extends Enumeration {
 class CommandSegment[B <: CommandSegment.Vanilla[_], T <: CommandSegment[B, T]](
   protected val underlying: B,
 ) {
-  protected def copyAs(nextUnderlying: B): CommandSegment[B, T] = {
+  protected def copyAs(nextUnderlying: B): CommandSegment[B, T] =
     new CommandSegment[B, T](
       nextUnderlying,
     )
-  }
 
   def executes(action: CommandAction): CommandSegment[B, T] = copyAs(
     underlying.executes(action).asInstanceOf[B],
@@ -28,23 +27,21 @@ class CommandSegment[B <: CommandSegment.Vanilla[_], T <: CommandSegment[B, T]](
 
   def option[N <: CommandSegment.Vanilla[_], S <: CommandSegment[N, S]](
     subtree: CommandSegment[N, S],
-  ): CommandSegment[B, T] = {
+  ): CommandSegment[B, T] =
     copyAs(
       underlying
         .`then`(subtree.underlying)
         .asInstanceOf[B],
     )
-  }
 
   def requires(
     permission: CommandPermission.CommandPermission = CommandPermission.MOD,
-  ): CommandSegment[B, T] = {
+  ): CommandSegment[B, T] =
     copyAs(
       underlying
         .requires(checkPermission(permission).asJavaPredicate)
         .asInstanceOf[B],
     )
-  }
 
   def requireMod(): CommandSegment[B, T] = requires(CommandPermission.MOD)
 

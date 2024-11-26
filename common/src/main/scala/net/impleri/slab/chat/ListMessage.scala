@@ -29,13 +29,11 @@ case class ListMessage(
     sendChildren(context)
   }
 
-  private def sendChildren(context: Command.Context): Unit = {
+  private def sendChildren(context: Command.Context): Unit =
     children.foreach(_.sendGeneric(context))
-  }
 }
 
 object ListMessage {
-  def apply(from: Message[_], children: Seq[Message[_]]): ListMessage = {
+  def apply(from: Message[_], children: Seq[Message[_]]): ListMessage =
     ListMessage(from.mutableOutput, children)
-  }
 }

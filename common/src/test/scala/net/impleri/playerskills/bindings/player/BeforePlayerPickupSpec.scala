@@ -18,11 +18,10 @@ class BeforePlayerPickupSpec extends BaseSpec {
     mockOps,
     mockUpstream,
     mockLogger,
-    mockLogger,
   )
 
   "BeforePlayerPickup.handler" should "interrupts the event if restricted" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockItem = mock[Item]
     val mockItemEntity = mock[Entity.Any]
 
@@ -35,7 +34,7 @@ class BeforePlayerPickupSpec extends BaseSpec {
   }
 
   it should "does nothing to the event if not restricted" in {
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
     val mockItem = mock[Item]
     val mockItemEntity = mock[Entity.Any]
 

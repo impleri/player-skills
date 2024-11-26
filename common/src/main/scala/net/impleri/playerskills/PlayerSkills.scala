@@ -8,6 +8,7 @@ import net.impleri.playerskills.skills.numeric.NumericSkillType
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 import net.impleri.playerskills.skills.tiered.TieredSkillType
 import net.impleri.playerskills.skills.SkillRegistry
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.registry.DeferredRegistry
 import net.impleri.slab.registry.RegistrarFactory
 import net.impleri.slab.resources.ResourceKey
@@ -28,11 +29,15 @@ object PlayerSkills {
   // We create the server-side handling here in case we are running in an integrated server/single-player instance
   PlayerSkillsServer.create()
 
-  def init(): Unit = {
+  def init(): Unit =
     registerTypes()
+
+  private def devDebug() = {
+    PlayerSkillsLogger.NETWORK.toggleDebug(true)
   }
 
   private def registerTypes(): Unit = {
+    devDebug()
     SKILL_TYPES.register(BasicSkillType.NAME, BasicSkillType(STATE.SKILL_OPS))
     SKILL_TYPES.register(
       NumericSkillType.NAME,

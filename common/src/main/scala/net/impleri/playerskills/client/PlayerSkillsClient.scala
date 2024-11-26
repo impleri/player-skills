@@ -13,17 +13,16 @@ object PlayerSkillsClient {
   val STATE: ClientStateContainer =
     ClientStateContainer(PlayerSkills.STATE, EVENTS)
 
-  private val EVENT_BINDINGS: ClientEventBindings = ClientEventBindings(
-    onReload,
-  )
+  private val EVENT_BINDINGS: ClientEventBindings =
+    ClientEventBindings(onReload)
 
-  def init(): Unit = {
+  def init(): Unit =
     EVENT_BINDINGS.registerEvents()
-  }
 
   private def onReload(
     @unused resourceManager: Option[ResourceManager],
-  ): Unit = {
-    Client().getPlayer.foreach(STATE.getNetHandler.resyncPlayer)
-  }
+  ): Unit =
+    Client()
+      .getPlayer
+      .foreach(STATE.getNetHandler.resyncPlayer)
 }

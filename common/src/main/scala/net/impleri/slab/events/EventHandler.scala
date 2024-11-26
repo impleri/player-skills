@@ -13,13 +13,18 @@ trait EventHandler {
 
   protected def fail: EventResult = EventResult.interruptFalse()
 
-  protected def failOn(
+  protected def failUnless(expected: Boolean = false)(
+    received: Option[Boolean],
+  ): EventResult =
+    received match {
+      case Some(value) if value == expected => EventResult.interruptFalse()
+      case _ => EventResult.pass()
+    }
+
+    protected def failOn(
     received: Option[Boolean],
     expected: Boolean = false,
-  ): EventResult = {
-    if (received.contains(expected)) EventResult.interruptFalse()
-    else EventResult.pass()
-  }
+  ): EventResult = failUnless(expected)(received)
 }
 
 trait CompoundEventHandler[T] {
@@ -36,14 +41,13 @@ trait CompoundEventHandler[T] {
 
   protected def failOn(
     received: Option[Boolean],
-    value: Option[T] = None,
+    response: Option[T] = None,
     expected: Boolean = false,
-  ): CompoundEventResult[T] = {
-    if (received.contains(expected))
-      CompoundEventResult
-        .interruptFalse(value.getOrElse(null.asInstanceOf[T]))
-    else CompoundEventResult.pass()
-  }
+  ): CompoundEventResult[T] =
+    received match {
+      case Some(value) if value == expected => CompoundEventResult.interruptFalse(response.getOrElse(null.asInstanceOf[T]))
+      case _ => CompoundEventResult.pass()
+    }
 }
 
 trait ItemEventHandler extends CompoundEventHandler[ItemStack]

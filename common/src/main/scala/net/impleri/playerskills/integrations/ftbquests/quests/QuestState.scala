@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.helpers
+package net.impleri.playerskills.integrations.ftbquests.quests
 
 import net.impleri.slab.resources.ResourceLocation
 
@@ -11,4 +11,6 @@ case class QuestState[T](
   max: Option[T] = None,
 ) {
   def skillAsString: String = skill.fold("")(_.asString)
+
+  def isValid: Boolean = skill.nonEmpty && value.nonEmpty
 }

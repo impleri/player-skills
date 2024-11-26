@@ -26,8 +26,7 @@ object EntityArgument {
   def getValue(
     context: Command.Context,
     name: String = DEFAULT_ARGUMENT,
-  ): Option[Entity.Any] = {
+  ): Option[Entity.Any] =
     Try(McEntityArgument.getEntity(context, name)).toOption
       .map(Entity(_))
-  }
 }

@@ -6,9 +6,9 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.PlayerSkills
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestState
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestStateOps
-import net.impleri.playerskills.integrations.ftbquests.helpers.StringQuest
+import net.impleri.playerskills.integrations.ftbquests.quests.QuestState
+import net.impleri.playerskills.integrations.ftbquests.quests.QuestStateOps
+import net.impleri.playerskills.integrations.ftbquests.quests.StringQuest
 import net.impleri.playerskills.skills.specialized.SpecializedSkillType
 
 case class SpecializedSkillTask(
@@ -23,18 +23,17 @@ case class SpecializedSkillTask(
 }
 
 object SpecializedSkillTask {
-  val TASK_TYPE: TaskType = QuestStateOps
+  final val TASK_TYPE: TaskType = QuestStateOps
     .createTaskType(
       QuestStateOps.SPECIALIZED_SKILL,
       "minecraft:item/diamond_shovel",
       apply,
     )
 
-  def apply(quest: Quest): SpecializedSkillTask = {
+  def apply(quest: Quest): SpecializedSkillTask =
     new SpecializedSkillTask(
       quest,
       PlayerSkillsServer.STATE.PLAYER_OPS,
       PlayerSkills.STATE.SKILL_OPS,
     )
-  }
 }

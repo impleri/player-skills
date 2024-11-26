@@ -120,6 +120,6 @@ class RestrictionBuilderSpec extends BaseSpec {
     restriction.excludeDimensions returns Seq.empty
     testUnit.logRestriction(restrictionName, restriction)
 
-    mockLogger.info(*) wasCalled once
+    mockLogger.infoP(*)(*) wasCalled once
   }
 }

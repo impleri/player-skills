@@ -27,7 +27,7 @@ class Registry[T <: ResourceWrapper[U], U](
 
   def isValid(key: ResourceLocation): Boolean = get(key).nonEmpty
 
-  def entries: Map[ResourceLocation, T] = {
+  def entries: Map[ResourceLocation, T] =
     underlying
       .entrySet()
       .asScala
@@ -35,14 +35,13 @@ class Registry[T <: ResourceWrapper[U], U](
         ResourceLocation(e.getKey.location()).map(_ -> f(e.getValue)),
       )
       .toMap
-  }
 
   def keys: Seq[ResourceLocation] = entries.keys.toList
 
   def matchingNamespace(ns: String): Seq[ResourceLocation] =
     keys.filter(_.namespace == ns)
 
-  def matchingTag(key: Tag[T, U]): Seq[ResourceLocation] = {
+  def matchingTag(key: Tag[T, U]): Seq[ResourceLocation] =
     underlying
       .getTag(key.value)
       .toScala
@@ -51,7 +50,6 @@ class Registry[T <: ResourceWrapper[U], U](
       .flatMap(_.unwrapKey.toScala)
       .map(_.location())
       .flatMap(ResourceLocation(_))
-  }
 
   def getHolder: HolderLookup[U] = HolderLookup.forRegistry(underlying)
 }

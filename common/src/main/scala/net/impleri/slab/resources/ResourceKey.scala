@@ -23,19 +23,17 @@ object ResourceKey {
 
   def forRegistry[T <: Registerable](
     resource: ResourceLocation,
-  ): Registry[T] = {
+  ): Registry[T] =
     McResourceKey
       .createRegistryKey[T](resource.value)
       .pipe(new ResourceKey(_))
-  }
 
   def forVanillaRegistry[T <: ResourceWrapper[U], U](
     resource: ResourceLocation,
-  ): Registry[U] = {
+  ): Registry[U] =
     McResourceKey
       .createRegistryKey[U](resource.value)
       .pipe(new ResourceKey(_))
-  }
 
   lazy val BIOME_REGISTRY: Registry[Biome.Vanilla] = ResourceKey(
     Registry.BIOME_REGISTRY,

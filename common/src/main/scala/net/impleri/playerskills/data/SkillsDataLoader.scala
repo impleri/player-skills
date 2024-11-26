@@ -34,11 +34,10 @@ case class SkillsDataLoader(
     with JsonDataParser {
   override def parse(
     data: Map[ResourceLocation, JsonElement],
-  ): Unit = {
+  ): Unit =
     data
       .flatMap(t => parseSkill(t._1, t._2))
       .foreach(skillOps.upsert(_))
-  }
 
   private def parseSkill(
     name: ResourceLocation,
@@ -103,7 +102,7 @@ case class SkillsDataLoader(
     changesAllowed: Int,
     announceChange: Boolean,
     notifyString: Option[String],
-  ): Option[BasicSkill] = {
+  ): Option[BasicSkill] =
     Option(
       BasicSkill(
         value = parseBoolean(raw, "initialValue"),
@@ -116,7 +115,6 @@ case class SkillsDataLoader(
         notifyKey = notifyString,
       ),
     )
-  }
 
   private def createNumericSkill(
     raw: JsonObject,
@@ -125,7 +123,7 @@ case class SkillsDataLoader(
     changesAllowed: Int,
     announceChange: Boolean,
     notifyString: Option[String],
-  ): Option[NumericSkill] = {
+  ): Option[NumericSkill] =
     Option(
       NumericSkill(
         value = parseDouble(raw, "initialValue"),
@@ -139,7 +137,6 @@ case class SkillsDataLoader(
         notifyKey = notifyString,
       ),
     )
-  }
 
   private def createTieredSkill(
     raw: JsonObject,
@@ -148,7 +145,7 @@ case class SkillsDataLoader(
     changesAllowed: Int,
     announceChange: Boolean,
     notifyString: Option[String],
-  ): Option[TieredSkill] = {
+  ): Option[TieredSkill] =
     Option(
       TieredSkill(
         value = parseString(raw, "initialValue"),
@@ -161,7 +158,6 @@ case class SkillsDataLoader(
         notifyKey = notifyString,
       ),
     )
-  }
 
   private def createSpecializedSkill(
     raw: JsonObject,
@@ -170,7 +166,7 @@ case class SkillsDataLoader(
     changesAllowed: Int,
     announceChange: Boolean,
     notifyString: Option[String],
-  ): Option[SpecializedSkill] = {
+  ): Option[SpecializedSkill] =
     Option(
       SpecializedSkill(
         value = parseString(raw, "initialValue"),
@@ -183,12 +179,11 @@ case class SkillsDataLoader(
         notifyKey = notifyString,
       ),
     )
-  }
 
   private def createTeamMode(
     mode: String,
     rate: Option[Double],
-  ): Either[Exception, TeamMode] = {
+  ): Either[Exception, TeamMode] =
     mode match {
       case "shared"      => Right(TeamMode.Shared())
       case "splitEvenly" => Right(TeamMode.SplitEvenly())
@@ -205,11 +200,10 @@ case class SkillsDataLoader(
           .toRight(ProportionRequiredForTeamMode())
       case _ => Right(TeamMode.Off())
     }
-  }
 
   private def restrictTeamMode(
     allowed: Option[TeamMode],
-  )(mode: TeamMode): TeamMode = {
+  )(mode: TeamMode): TeamMode =
     mode match {
       case _: TeamMode.Pyramid if !allowed.contains(TeamMode.Pyramid()) =>
         TeamMode.Off()
@@ -218,14 +212,12 @@ case class SkillsDataLoader(
         TeamMode.Off()
       case _ => mode
     }
-  }
 
-  private def parseSkillType(raw: JsonObject): Option[String] = {
+  private def parseSkillType(raw: JsonObject): Option[String] =
     parseString(raw, "type").tap {
       case None => logger.warn("Tried to parse undefined skill type")
       case _    => ()
     }
-  }
 
   private def parseTeamMode(
     raw: JsonObject,
@@ -239,7 +231,7 @@ case class SkillsDataLoader(
           val mode = parseString(m.getAsJsonObject, "mode")
           val rate = parseDouble(m.getAsJsonObject, "rate")
           mode.flatMap(createTeamMode(_, rate).toOption)
-        case s if isPrimitiveType(s, _.isString) =>
+        case s if isPrimitiveType(_.isString)(s) =>
           createTeamMode(s.getAsString, None).toOption
         case _ => None
       },

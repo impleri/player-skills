@@ -18,19 +18,20 @@ case class PlayerRegistry(
   private val skillsRegistry: SkillRegistry,
   private val logger: Logger,
 ) extends StatefulRegistry[PlayerRegistryState.CachedPlayers] {
-  def changeStorage(next: Option[PlayerStorageIO]): Unit = {
+  def changeStorage(next: Option[PlayerStorageIO]): Unit =
     storage = next
-  }
 
   def entries: List[(UUID, List[Skill[_]])] =
     PlayerRegistryState.entries().pipe(maintainState)
 
   private def save(playerId: UUID)(skills: List[Skill[_]]): Boolean = {
-    PlayerRegistryState.upsert(playerId, skills).pipe(maintainState)
+    PlayerRegistryState
+      .upsert(playerId, skills)
+      .pipe(maintainState)
     storage.forall(_.write(playerId, skills))
   }
 
-  private def openFor(playerId: UUID) = {
+  private def openFor(playerId: UUID) =
     storage
       .map(_.read(playerId))
       .map(PlayerRegistry.filterRegisteredSkills(skillsRegistry.entries))
@@ -39,9 +40,8 @@ case class PlayerRegistry(
       .tap(_.foreach(save(playerId)))
       .toList
       .flatten
-  }
 
-  def open(playerIds: List[UUID]): List[UUID] = {
+  def open(playerIds: List[UUID]): List[UUID] =
     playerIds
       .filter(_ => storage.nonEmpty)
       .filterNot(PlayerRegistryState.has(_).pipe(maintainState))
@@ -50,28 +50,32 @@ case class PlayerRegistry(
       .tap(PlayerRegistryState.upsertMany(_).pipe(maintainState))
       .keys
       .toList
-  }
 
   def open(playerId: UUID): List[Skill[_]] = {
-    open(List(playerId)).headOption
-      .foreach(PlayerRegistryState.get(_).pipe(maintainState))
+    playerId
+      .pipe(List(_))
+      .pipe(open)
+      .headOption
+      .foreach(
+        PlayerRegistryState
+          .get(_)
+          .pipe(maintainState)
+      )
 
     get(playerId)
   }
 
-  def get(playerId: UUID): List[Skill[_]] = {
+  def get(playerId: UUID): List[Skill[_]] =
     PlayerRegistryState
       .get(playerId)
       .pipe(maintainState)
-  }
 
-  def has(playerId: UUID): Boolean = {
+  def has(playerId: UUID): Boolean =
     PlayerRegistryState
       .has(playerId)
       .pipe(maintainState)
-  }
 
-  def upsert(playerId: UUID, skill: Skill[_]): List[Skill[_]] = {
+  def upsert(playerId: UUID, skill: Skill[_]): List[Skill[_]] =
     get(playerId)
       .filterNot(_.name == skill.name)
       .tap(ss =>
@@ -79,30 +83,27 @@ case class PlayerRegistry(
       )
       .pipe(_ ++ List(skill))
       .tap(save(playerId))
-  }
 
-  def addSkill(playerId: UUID, skill: Skill[_]): List[Skill[_]] = {
+  def addSkill(playerId: UUID, skill: Skill[_]): List[Skill[_]] =
     get(playerId)
       .pipe(PlayerRegistry.safeAdd(skill))
       .tap(save(playerId))
-  }
 
-  def removeSkill(playerId: UUID, name: ResourceLocation): List[Skill[_]] = {
+  def removeSkill(playerId: UUID, name: ResourceLocation): List[Skill[_]] =
     get(playerId)
       .pipe(_.filterNot(_.name == name))
       .tap(save(playerId))
-  }
 
   def removeSkill(playerId: UUID, skill: Skill[_]): List[Skill[_]] =
     removeSkill(playerId, skill.name)
 
-  private def closeFor(playerId: UUID) = {
-    logger.info(s"Closing player $playerId, ensuring skills are saved")
-    get(playerId)
+  private def closeFor(playerId: UUID) =
+    playerId
+      .tap(logger.infoP(p => s"Closing player $p, ensuring skills are saved"))
+      .pipe(get)
       .pipe(s => storage.map(_.write(playerId, s)))
-  }
 
-  def close(playerIds: List[UUID]): List[UUID] = {
+  def close(playerIds: List[UUID]): List[UUID] =
     playerIds
       .map(p => (p, closeFor(p)))
       .toMap
@@ -117,53 +118,46 @@ case class PlayerRegistry(
       .keys
       .toList
       .tap(PlayerRegistryState.removeMany(_).pipe(maintainState))
-  }
 
-  def close(playerId: UUID): Boolean = {
+  def close(playerId: UUID): Boolean =
     close(List(playerId))
       .contains(playerId)
-  }
 
-  def close(): List[UUID] = {
+  def close(): List[UUID] =
     PlayerRegistryState
       .entries()
       .pipe(maintainState)
       .map(_._1)
       .pipe(close)
       .tap(_ => state = PlayerRegistryState.empty)
-  }
 }
 
 object PlayerRegistry {
   private def filterRegisteredSkills(source: List[Skill[_]])(
     target: List[Skill[_]],
-  ) = {
+  ) =
     source
       .map(_.name)
       .pipe(s => target.filter(t => s.contains(t.name)))
-  }
 
   private def ensureRegisteredSkills(source: List[Skill[_]])(
     target: List[Skill[_]],
-  ) = {
+  ) =
     target
       .map(_.name)
       .pipe(t => source.filterNot(s => t.contains(s.name)))
       .pipe(target ++ _)
-  }
 
   private def safeAdd(
     skill: Skill[_],
-  )(skills: List[Skill[_]]): List[Skill[_]] = {
+  )(skills: List[Skill[_]]): List[Skill[_]] =
     if (skills.exists(_.name == skill.name)) skills else skills ++ List(skill)
-  }
 
   def apply(
     storage: Option[PlayerStorageIO] = None,
     state: PlayerRegistryState.CachedPlayers = PlayerRegistryState.empty,
     skillsRegistry: SkillRegistry = SkillRegistry(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
-  ): PlayerRegistry = {
+  ): PlayerRegistry =
     new PlayerRegistry(state, storage, skillsRegistry, logger)
-  }
 }

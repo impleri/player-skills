@@ -14,10 +14,9 @@ case class BeforeUseItemBlock(
   itemRestrictionOps: ItemRestrictionOps,
   upstream: InteractionEvents = InteractionEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
-  skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) extends EventHandler {
   private[bindings] val handler: InteractionEvents.OnClickBlock =
-    (player: Player[_], pos: Option[Position], hand: Hand, _: Direction) => {
+    (player: Player, pos: Option[Position], hand: Hand, _: Direction) =>
       //    val blockState = BlockRestrictions.getBlockState(pos, player.getLevel())
       //    val replacement = BlockRestrictions.getReplacement(player, blockState, pos)
       //    val blockName = BlockRestrictions.getName(replacement)
@@ -27,25 +26,24 @@ case class BeforeUseItemBlock(
       //      return EventResult.interruptFalse()
       //    }
 
-      val result = for {
-        item <- player.getItemInHand(hand).filterNot(_.isDefault)
-        usable = itemRestrictionOps.isUsable(player, item, pos)
-      } yield {
-        if (!usable) {
-          logger.debug(
-            s"${player.handle} cannot interact with block using ${item.name}",
-          )
-        } else {
-          skipLogger.debug(
-            s"${player.handle} is going to interact with block using ${item.name}",
-          )
+      failOn {
+        for {
+          item <- player.getItemInHand(hand).filterNot(_.isDefault)
+          usable = itemRestrictionOps.isUsable(player, item, pos)
+        } yield {
+          if (!usable) {
+            logger.debug(
+              s"${player.handle} cannot interact with block using ${item.name}",
+            )
+          } else {
+            logger.trace(
+              s"${player.handle} is going to interact with block using ${item.name}",
+            )
+          }
+
+          usable
         }
-
-        usable
       }
-
-      failOn(result)
-    }
 
   upstream.onLeftClickBlock(handler)
   upstream.onRightClickBlock(handler)

@@ -23,37 +23,31 @@ case class ServerLifecycleEvents(
   private def handleEvent(
     server: MinecraftServer,
     f: ServerLifecycleEvents.OnServerLifecycle,
-  ): Unit = {
+  ): Unit =
     Option(server).map(Server(_)).pipe(f)
-  }
 
   def beforeServerStart(
     handler: ServerLifecycleEvents.OnServerLifecycle,
-  ): Unit = {
+  ): Unit =
     beforeServerStartEvent.register(handleEvent(_, handler))
-  }
 
-  def onServerStart(handler: ServerLifecycleEvents.OnServerLifecycle): Unit = {
+  def onServerStart(handler: ServerLifecycleEvents.OnServerLifecycle): Unit =
     onServerStartEvent.register(handleEvent(_, handler))
-  }
 
   def afterServerStarted(
     handler: ServerLifecycleEvents.OnServerLifecycle,
-  ): Unit = {
+  ): Unit =
     afterServerStartedEvent.register(handleEvent(_, handler))
-  }
 
   def beforeServerStop(
     handler: ServerLifecycleEvents.OnServerLifecycle,
-  ): Unit = {
+  ): Unit =
     beforeServerStopEvent.register(handleEvent(_, handler))
-  }
 
   def afterServerStopped(
     handler: ServerLifecycleEvents.OnServerLifecycle,
-  ): Unit = {
+  ): Unit =
     afterServerStoppedEvent.register(handleEvent(_, handler))
-  }
 }
 
 object ServerLifecycleEvents {

@@ -12,14 +12,14 @@ class RestrictionRegistryStateSpec extends BaseSpec {
 
   private case class TestRestriction(
     override val target: Item = mockItem,
-    override val condition: Player[_] => Boolean = _ => true,
+    override val condition: Player => Boolean = _ => true,
     override val includeDimensions: Seq[String] = Seq.empty,
     override val excludeDimensions: Seq[String] = Seq.empty,
     override val includeBiomes: Seq[String] = Seq.empty,
     override val excludeBiomes: Seq[String] = Seq.empty,
     override val replacement: Option[Item] = None,
   ) extends Restriction[Item, Item.Vanilla] {
-    override def restrictionType: RestrictionType = RestrictionType.Item()
+    override def restrictionType: RestrictionType = RestrictionType.Item
   }
 
   "RestrictionRegistryStateSpec.empty" should "create an empty state" in {
@@ -49,7 +49,7 @@ class RestrictionRegistryStateSpec extends BaseSpec {
 
     val (nextState, _) = RestrictionRegistryState.add(testRestriction).run(initialState).value
 
-    RestrictionRegistryState.has(RestrictionType.Item(), testName).run(nextState).value._2 shouldBe true
+    RestrictionRegistryState.has(RestrictionType.Item, testName).run(nextState).value._2 shouldBe true
   }
 
   "RestrictionRegistryStateSpec.get" should "return a new state with a view of matching restrictions" in {
@@ -61,6 +61,6 @@ class RestrictionRegistryStateSpec extends BaseSpec {
 
     val (nextState, _) = RestrictionRegistryState.add(testRestriction).run(initialState).value
 
-    RestrictionRegistryState.get(RestrictionType.Item(), testName).run(nextState).value._2.head shouldBe testRestriction
+    RestrictionRegistryState.get(RestrictionType.Item, testName).run(nextState).value._2.head shouldBe testRestriction
   }
 }

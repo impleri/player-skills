@@ -13,6 +13,8 @@ import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 
+import scala.util.chaining.scalaUtilChainingOps
+
 case class ItemRestrictionDataLoader(
   protected val itemRestrictionBuilder: ItemRestrictionBuilder,
   override val skillOps: SkillOps = Skill(),
@@ -23,13 +25,10 @@ case class ItemRestrictionDataLoader(
   override protected def parseRestriction(
     name: ResourceLocation,
     jsonElement: JsonObject,
-  ): Unit = {
-    val builder =
-      ItemRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
-    builder.parse(jsonElement)
-
-    if (builder.isValid) {
-      itemRestrictionBuilder.add(builder.target.get, builder)
-    }
-  }
+  ): Unit =
+    ItemRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
+      .tap(_.parse(jsonElement))
+      .pipe(Option(_))
+      .filter(_.isValid)
+      .foreach(builder => itemRestrictionBuilder.add(builder.target.get, builder))
 }

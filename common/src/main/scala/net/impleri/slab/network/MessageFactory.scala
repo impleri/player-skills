@@ -1,28 +1,45 @@
 package net.impleri.slab.network
 
-trait MessageFactory[T <: NetworkMessage] {
-  def name: String
+import net.impleri.slab.logging.Logger
 
-  protected def onReceive: MessageFactory.ReceiveFn[T]
+trait MessageTypeState[T <: NetworkMessage] {
+  protected def logger: Logger
 
-  private var messageType: Option[MessageType] = None
+  protected var messageType: Option[MessageType] = None
 
-  def setMessageType(newType: MessageType.Vanilla): Unit = {
+  protected def messageName: String = messageType.fold("[None]")(_.toString)
+
+  def setMessageType(newType: MessageType.Vanilla): Unit =
     messageType = Option(newType).map(MessageType(_))
-  }
 
-  def receive(buffer: FriendlyBuffer.Vanilla): T = {
-    Option(buffer)
-      .map(FriendlyBuffer(_))
-      .flatMap(b => messageType.map((b, _)))
-      .fold(null.asInstanceOf[T])(t => onReceive(t._1, t._2))
-  }
+  def createForSend(f: MessageType => T): Option[T] =
+    for {
+      m <- messageType
+    } yield {
+      logger.debug(s"Sending $messageName message")
 
-  def createForSend(f: MessageFactory.FactoryFn[T]): Option[T] =
-    messageType.map(f)
+      f(m)
+    }
 }
 
-object MessageFactory {
-  type FactoryFn[T <: NetworkMessage] = MessageType => T
-  type ReceiveFn[T <: NetworkMessage] = (FriendlyBuffer, MessageType) => T
+trait MessageFactory[T <: NetworkMessage] extends MessageTypeState[T] {
+  def name: String
+
+  protected def logger: Logger
+
+  // abstract method to implement message parsing
+  protected def parse(buffer: FriendlyBuffer, messageType: MessageType): Option[T]
+
+  // Reconstructs message from buffer once set across the network
+  def receive(buffer: FriendlyBuffer): Option[T] =
+    for {
+      t <- messageType
+      _ = logger.debug(s"Received $messageName message")
+      if buffer.nonEmpty
+      m <- parse(buffer, t)
+    } yield {
+      logger.debug(s"Parsed $messageName message successfully")
+
+      m
+    }
 }

@@ -5,32 +5,28 @@ import net.impleri.slab.entity.Hand.Hand
 import net.impleri.slab.item.Item
 import net.impleri.slab.menu.ContainerMenu
 import net.impleri.slab.network.ClientboundMessage
-import net.impleri.slab.network.ServerboundMessage
 import net.impleri.slab.server.Server
-import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.NonNullList
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.server.network.ServerPlayerConnection
 import net.minecraft.world.entity.player.{Player => McPlayer}
 
 import java.util.UUID
 import scala.jdk.CollectionConverters._
 
-case class Player[T <: Player.Vanilla](override val underlying: T)
-    extends Entity[T](underlying) {
+class Player(override val underlying: Player.Vanilla)
+    extends Entity[Player.Vanilla](underlying) {
   val handle: String = underlying.getName.getString
 
-  val isClient: Boolean = underlying.isInstanceOf[Player.VanillaLocal]
+  val isClient: Boolean = underlying.getLevel.isClientSide
 
-  val isClientSide: Boolean = underlying.getLevel.isClientSide
-
-  val isServer: Boolean = underlying.isInstanceOf[Player.VanillaServer]
+  val isServer: Boolean = !isClient && underlying.isInstanceOf[ServerPlayer]
 
   lazy val uuid: UUID = underlying.getUUID
 
-  val server: Server = Server(underlying.getServer)
+  val server: Option[Server] = Option(underlying.getServer).map(Server(_))
 
   private def toItemMap(
     values: NonNullList[Item.VanillaStack],
@@ -58,55 +54,41 @@ case class Player[T <: Player.Vanilla](override val underlying: T)
   def emptyOffHand(slot: Int): Unit =
     underlying.getInventory.offhand.set(slot, Item.DEFAULT_ITEM.getStack)
 
-  private def getServerConnection: Option[ServerGamePacketListenerImpl] = {
-    if (isServer) {
-      Option(
-        underlying
-          .asInstanceOf[ServerPlayer]
-          .connection,
-      )
-    } else {
-      None
-    }
-  }
+  private def getServerConnection: Option[ServerPlayerConnection] =
+    Option(underlying)
+      .filter(_ => isServer)
+      .map(_.asInstanceOf[ServerPlayer])
+      .map(_.connection)
 
-  def getItemInHand(hand: Hand): Option[Item] = {
+  def getItemInHand(hand: Hand): Option[Item] =
     Option(underlying.getItemInHand(hand.underlying))
       .map(Item(_))
       .filterNot(_.isDefault)
-  }
 
-  def getItemInMainHand: Option[Item] = {
-    Option(underlying.getMainHandItem).map(Item(_)).filterNot(_.isDefault)
-  }
+  def getItemInMainHand: Option[Item] =
+    Option(underlying.getMainHandItem)
+      .map(Item(_))
+      .filterNot(_.isDefault)
 
   def putInInventory(item: Item): Unit =
     underlying.getInventory.placeItemBackInInventory(item.getStack)
 
-  def sendMessage(message: Message[_], notifyPlayer: Boolean = true): Unit = {
+  def sendMessage(message: Message[_], notifyPlayer: Boolean = true): Unit =
     if (isServer && !isEmpty) {
       underlying
         .asInstanceOf[ServerPlayer]
         .sendSystemMessage(message.output, notifyPlayer)
     }
-  }
 
-  def sendMessage(message: ClientboundMessage): Unit = {
+  def sendMessage(message: ClientboundMessage): Unit =
     if (isServer && !isEmpty) {
       message.sendTo(underlying.asInstanceOf[ServerPlayer])
     }
-  }
-
-  def sendMessage(message: ServerboundMessage): Unit = {
-    if (isClient) {
-      message.sendToServer()
-    }
-  }
 
   private def sendPacket(packet: Packet[_]): Unit =
     getServerConnection.foreach(_.send(packet))
 
-  def sendEmptyContainerSlot(menu: ContainerMenu.Any): Unit = {
+  def sendEmptyContainerSlot(menu: ContainerMenu.Any): Unit =
     sendPacket(
       new ClientboundContainerSetSlotPacket(
         menu.getId,
@@ -115,18 +97,13 @@ case class Player[T <: Player.Vanilla](override val underlying: T)
         Item.EMPTY_STACK,
       ),
     )
-  }
 }
 
 object Player {
   type Vanilla = McPlayer
-  type VanillaLocal = LocalPlayer
-  type VanillaServer = ServerPlayer
 
-  type Any = Player[_]
-  type Local = Player[VanillaLocal]
-  type Server = Player[VanillaServer]
+  def apply(underlying: Vanilla): Player = new Player(underlying)
 
-  def fromVanilla(underlying: McPlayer): Option[Player.Any] =
-    Option(underlying).map(Player(_))
+  def fromVanilla(underlying: McPlayer): Option[Player] =
+    Option(underlying).map(new Player(_))
 }

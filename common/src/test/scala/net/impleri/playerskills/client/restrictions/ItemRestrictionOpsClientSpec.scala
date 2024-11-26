@@ -4,8 +4,8 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.restrictions.item.ItemRestriction
 import net.impleri.slab.client.Client
-import net.impleri.slab.entity.{Player => PlayerFacade}
-import net.impleri.slab.entity.Entity
+import net.impleri.slab.client.{Player => PlayerFacade}
+import net.impleri.slab.entity.{Entity, Player}
 import net.impleri.slab.item.Item
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
@@ -18,8 +18,8 @@ class ItemRestrictionOpsClientSpec extends BaseSpec {
 
   private val testUnit = ItemRestrictionOpsClient(mockRegistry, mockClient, mockLogger)
 
-  private val mockPlayer = mock[PlayerFacade[LocalPlayer]]
-  private val mockEntity = mock[Entity[LocalPlayer]]
+  private val mockPlayer = mock[PlayerFacade]
+  private val mockEntity = mock[Entity[Player.Vanilla]]
   private val mockTargetName = mock[ResourceLocation]
   private val mockTarget = mock[Item]
 
@@ -27,7 +27,7 @@ class ItemRestrictionOpsClientSpec extends BaseSpec {
 
   mockClient.getPlayer returns Option(mockPlayer)
 
-  mockEntity.asPlayer[LocalPlayer] returns mockPlayer
+  mockEntity.asPlayer returns mockPlayer
 
   mockPlayer.asOption returns Option(mockEntity)
   mockPlayer.dimension returns None

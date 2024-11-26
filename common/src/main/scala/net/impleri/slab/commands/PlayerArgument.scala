@@ -24,8 +24,7 @@ object PlayerArgument {
   def getValue(
     context: Command.Context,
     name: String = DEFAULT_ARGUMENT,
-  ): Option[Player.Server] = {
+  ): Option[Player] =
     Try(McEntityArgument.getPlayer(context, name)).toOption
       .map(Player(_))
-  }
 }

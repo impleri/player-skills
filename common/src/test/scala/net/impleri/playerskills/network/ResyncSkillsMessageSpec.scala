@@ -5,14 +5,11 @@ import dev.architectury.networking.simple.{MessageType => ArchMessageType}
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.slab.chat.StaticText
 import net.impleri.slab.entity.Player
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.network.MessageType
-import net.impleri.slab.server.Server
+import net.impleri.slab.network.{FriendlyBuffer, MessageType}
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.server.level.ServerPlayer
-
-import java.util.UUID
 
 class ResyncSkillsMessageSpec extends BaseSpec {
   private val messageTypeMock = mock[MessageType]
@@ -20,14 +17,13 @@ class ResyncSkillsMessageSpec extends BaseSpec {
   private val serverStateMock = mock[ServerStateContainer]
   private val loggerMock = mock[Logger]
 
-  private val testUuid = UUID.randomUUID()
-
-  private val testMessage = ResyncSkillsMessage(testUuid, Option(serverStateMock), messageTypeMock)
+  private val testMessage = ResyncSkillsMessage(Option(serverStateMock), messageTypeMock, loggerMock)
   private val testFactory = ResyncSkillsMessageFactory(Option(serverStateMock), loggerMock)
 
   private val packetContextMock = mock[NetworkManager.PacketContext]
-  private val playerMock = mock[Player[ServerPlayer]]
-  private val bufferMock = mock[FriendlyByteBuf]
+  private val playerMock = mock[Player]
+  private val rawBufferMock = mock[FriendlyByteBuf]
+  private val bufferMock = mock[FriendlyBuffer]
 
   private val underlyingMessageType = mock[ArchMessageType]
   messageTypeMock.value returns underlyingMessageType
@@ -37,33 +33,15 @@ class ResyncSkillsMessageSpec extends BaseSpec {
   }
 
   "ResyncSkillsMessage.write" should "create the right buffer" in {
-    testMessage.write(bufferMock)
-
-    bufferMock.writeUUID(testUuid) wasCalled once
+    testMessage.write(rawBufferMock)
   }
 
-  "ResyncSkillsMessage.handle" should "does nothing if there is no server" in {
-    serverStateMock.SERVER returns None
-
+  "ResyncSkillsMessage.handle" should "triggers player resync if there is a server" in {
     val netHandlerMock = mock[NetHandler]
 
     serverStateMock.getNetHandler returns netHandlerMock
 
-    testMessage.handle(packetContextMock)
-
-    netHandlerMock.syncPlayer(*) wasNever called
-  }
-
-  it should "triggers player resync if there is a server" in {
-    val serverMock = mock[Server]
-    val netHandlerMock = mock[NetHandler]
-
-    serverStateMock.SERVER returns Option(serverMock)
-    serverStateMock.getNetHandler returns netHandlerMock
-
-    serverMock.getPlayer(testUuid) returns Option(playerMock)
-
-    testMessage.handle(packetContextMock)
+    testMessage.onReceive(Option(playerMock))
 
     serverStateMock.getNetHandler wasCalled once
 
@@ -71,17 +49,13 @@ class ResyncSkillsMessageSpec extends BaseSpec {
   }
 
   "ResyncSkillsMessageFactory.receive" should "throw an error if sending without a message type" in {
-    val givenUuid = UUID.randomUUID()
+    bufferMock.nonEmpty returns false
 
-    bufferMock.readUUID() returns givenUuid
-
-    testFactory.receive(bufferMock) shouldBe null
+    testFactory.receive(bufferMock).isEmpty shouldBe true
   }
 
   it should "returns a new message if there is a message type" in {
-    val givenUuid = UUID.randomUUID()
-
-    bufferMock.readUUID() returns givenUuid
+    bufferMock.nonEmpty returns true
 
     testFactory.setMessageType(messageTypeMock.value)
 
@@ -89,25 +63,17 @@ class ResyncSkillsMessageSpec extends BaseSpec {
 
     loggerMock.error(*) wasNever called
 
-    response.isInstanceOf[ResyncSkillsMessage] should be(true)
+    response.value.isInstanceOf[ResyncSkillsMessage] should be(true)
   }
 
   "ResyncSkillsMessageFactory.send" should "throw an error if sending without a message type" in {
-    val givenUuid = UUID.randomUUID()
-
-    playerMock.uuid returns givenUuid
-
-    testFactory.send(playerMock) shouldBe None
+    testFactory.send() shouldBe None
   }
 
   it should "returns a new message if there is a message type" in {
-    val givenUuid = UUID.randomUUID()
-
-    playerMock.uuid returns givenUuid
-
     testFactory.setMessageType(messageTypeMock.value)
 
-    val response = testFactory.send(playerMock)
+    val response = testFactory.send()
 
     loggerMock.error(*) wasNever called
 

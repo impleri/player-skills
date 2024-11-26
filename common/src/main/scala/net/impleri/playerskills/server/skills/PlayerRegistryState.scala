@@ -20,21 +20,18 @@ object PlayerRegistryState {
     def upsert(
       playerId: UUID,
       skills: List[Skill[_]],
-    ): CachedPlayers = {
+    ): CachedPlayers =
       CachedPlayers(remove(playerId).state + (playerId -> skills))
-    }
 
-    def upsertMany(values: Map[UUID, List[Skill[_]]]): CachedPlayers = {
+    def upsertMany(values: Map[UUID, List[Skill[_]]]): CachedPlayers =
       CachedPlayers(removeMany(values.keys.toList).state ++ values)
-    }
 
     def remove(playerId: UUID): CachedPlayers = CachedPlayers(
       state.filterNot(_._1 == playerId),
     )
 
-    def removeMany(playerIds: List[UUID]): CachedPlayers = {
+    def removeMany(playerIds: List[UUID]): CachedPlayers =
       CachedPlayers(state.filterNot(e => playerIds.contains(e._1)))
-    }
   }
 
   private def readOp[T](f: CachedPlayers => T): State[CachedPlayers, T] =

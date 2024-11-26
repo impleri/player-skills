@@ -7,7 +7,7 @@ object SpawnType extends Enumeration {
     JOCKEY, EVENT, CONVERSION, REINFORCEMENT, TRIGGERED, BUCKET, SPAWN_EGG,
     COMMAND, DISPENSER, PATROL = Value
 
-  def fromVanilla(spawnType: MobSpawnType): Value = {
+  def fromVanilla(spawnType: MobSpawnType): Value =
     spawnType match {
       case MobSpawnType.NATURAL          => NATURAL
       case MobSpawnType.CHUNK_GENERATION => CHUNK_GENERATION
@@ -26,5 +26,4 @@ object SpawnType extends Enumeration {
       case MobSpawnType.DISPENSER        => DISPENSER
       case MobSpawnType.PATROL           => PATROL
     }
-  }
 }

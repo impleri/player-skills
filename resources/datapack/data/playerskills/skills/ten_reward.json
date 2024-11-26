@@ -1,0 +1,10 @@
+{
+  "type": "tiered",
+  "initialValue": "delta",
+  "options": [
+    "alpha",
+    "beta",
+    "delta",
+    "gamma"
+  ]
+}

@@ -14,7 +14,7 @@ class NetHandler(
   private val messageFactory: SyncSkillsMessageFactory,
   private val logger: Logger,
 ) {
-  def syncPlayer(player: MinecraftPlayer[_], force: Boolean = true): Unit = {
+  def syncPlayer(player: MinecraftPlayer, force: Boolean = true): Unit =
     playerOps
       .get(player)
       .tap(
@@ -22,17 +22,15 @@ class NetHandler(
           s"Syncing ${s.size} player skills to ${player.handle}",
         ),
       )
-      .pipe(messageFactory.send(player, _, force))
+      .pipe(messageFactory.send(_, force))
       .foreach(player.sendMessage)
-  }
 
-  def syncPlayer(event: SkillChangedEvent[_]): Unit = {
+  def syncPlayer(event: SkillChangedEvent[_]): Unit =
     if (!event.player.isServer) {
       logger.warn("Attempted to sync skill changes from clientside")
     } else {
       syncPlayer(event.player, force = false)
     }
-  }
 }
 
 object NetHandler {
@@ -40,11 +38,10 @@ object NetHandler {
     playerOps: => Player = Player(),
     messageFactory: SyncSkillsMessageFactory = SyncSkillsMessageFactory(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
-  ): NetHandler = {
+  ): NetHandler =
     new NetHandler(
       playerOps,
       messageFactory,
       logger,
     )
-  }
 }

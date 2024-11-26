@@ -16,45 +16,28 @@ case class JeiRuntime(private val runtime: IJeiRuntime) {
     runtime.getRecipeManager
   }
 
-  def getType(value: String): Option[RecipeType[_]] = {
-    ResourceLocation(value).flatMap(t =>
-      recipeManager.getRecipeType(t.value).toScala,
-    )
-  }
+  def getType(value: String): Option[RecipeType[_]] =
+    ResourceLocation(value)
+      .map(_.value)
+      .map(recipeManager.getRecipeType(_))
+      .flatMap(_.toScala)
+
+  private def processRecipes[C <: Container, T <: Recipe.Vanilla[C]](
+    recipesByType: Map[String, Seq[Recipe.Any]],
+    f: (RecipeType[T], util.Collection[T]) => Unit
+  ): Unit =
+    for {
+      (typeName, recipes) <- recipesByType
+      recipeType <- getType(typeName)
+      recipeValues = recipes.map(_.value).asJavaCollection
+    } yield f(recipeType.asInstanceOf[RecipeType[T]], recipeValues.asInstanceOf[util.Collection[T]])
+
 
   def hideRecipes[C <: Container, T <: Recipe.Vanilla[C]](
     recipesByType: Map[String, Seq[Recipe.Any]],
-  ): Unit = {
-    recipesByType
-      .foreach(v =>
-        getType(v._1)
-          .foreach(t =>
-            recipeManager.hideRecipes[T](
-              t.asInstanceOf[RecipeType[T]],
-              v._2
-                .map(_.value)
-                .asJavaCollection
-                .asInstanceOf[util.Collection[T]],
-            ),
-          ),
-      )
-  }
+  ): Unit = processRecipes[C, T](recipesByType, recipeManager.hideRecipes[T])
 
   def showRecipes[C <: Container, T <: Recipe.Vanilla[C]](
     recipesByType: Map[String, Seq[Recipe.Any]],
-  ): Unit = {
-    recipesByType
-      .foreach(v =>
-        getType(v._1)
-          .foreach(t =>
-            recipeManager.unhideRecipes[T](
-              t.asInstanceOf[RecipeType[T]],
-              v._2
-                .map(_.value)
-                .asJavaCollection
-                .asInstanceOf[util.Collection[T]],
-            ),
-          ),
-      )
-  }
+  ): Unit = processRecipes[C, T](recipesByType, recipeManager.unhideRecipes[T])
 }

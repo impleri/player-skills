@@ -18,15 +18,14 @@ case class EventBindings(
   interaction: InteractionEvents = InteractionEvents(),
   player: PlayerEvents = PlayerEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
-  skipLogger: Logger = PlayerSkillsLogger.SKIPS,
 ) {
   def registerEvents(): Unit = {
     commonLifecycle.onSetup(onSetup)
 
-    BeforeUseItem(itemRestrictionOps, interaction, logger, skipLogger)
-    BeforeUseItemBlock(itemRestrictionOps, interaction, logger, skipLogger)
-    BeforeInteractEntity(itemRestrictionOps, interaction, logger, skipLogger)
+    BeforeUseItem(itemRestrictionOps, interaction, logger)
+    BeforeUseItemBlock(itemRestrictionOps, interaction, logger)
+    BeforeInteractEntity(itemRestrictionOps, interaction, logger)
 
-    BeforePlayerPickup(itemRestrictionOps, player, logger, skipLogger)
+    BeforePlayerPickup(itemRestrictionOps, player, logger)
   }
 }

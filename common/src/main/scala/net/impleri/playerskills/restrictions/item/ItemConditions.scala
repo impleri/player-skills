@@ -12,9 +12,8 @@ trait ItemConditions
   var isUsable: Option[Boolean] = None
   var isHarmful: Option[Boolean] = None
 
-  def holdable(): Unit = {
+  def holdable(): Unit =
     isHoldable = Option(true)
-  }
 
   def unholdable(): Unit = {
     isHoldable = Option(false)
@@ -23,40 +22,35 @@ trait ItemConditions
     unusable()
   }
 
-  def identifiable(): Unit = {
+  def identifiable(): Unit =
     isIdentifiable = Option(true)
-  }
 
-  def unidentifiable(): Unit = {
+  def unidentifiable(): Unit =
     isIdentifiable = Option(false)
-  }
 
   def harmful(): Unit = {
     isHarmful = Option(true)
     holdable()
   }
 
-  def harmless(): Unit = {
+  def harmless(): Unit =
     isHarmful = Option(false)
-  }
 
   def wearable(): Unit = {
     isWearable = Option(true)
     holdable()
   }
 
-  def unwearable(): Unit = {
+  def unwearable(): Unit =
     isWearable = Option(false)
-  }
 
   def usable(): Unit = {
     isUsable = Option(true)
     holdable()
   }
 
-  def unusable(): Unit = {
+  def unusable(): Unit =
     isUsable = Option(false)
-  }
 
   def nothing(): Unit = {
     wearable()

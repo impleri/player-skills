@@ -22,7 +22,7 @@ trait ResetSkillCommand {
     failureMessage,
   )
 
-  protected def registerResetCommand[T <: CommandSegment.Any](builder: T): T = {
+  protected def registerResetCommand[T <: CommandSegment.Any](builder: T): T =
     builder
       .option(
         CommandString("reset")
@@ -41,14 +41,12 @@ trait ResetSkillCommand {
           ),
       )
       .asInstanceOf[T]
-  }
 
   private def successMessage: String = "commands.playerskills.skill_changed"
 
   private def failureMessage: String =
     "commands.playerskills.skill_change_failed"
 
-  private def action(player: Player.Any, skill: Skill[_]): Option[Boolean] = {
+  private def action(player: Player, skill: Skill[_]): Option[Boolean] =
     teamOps.reset(player, skill)
-  }
 }

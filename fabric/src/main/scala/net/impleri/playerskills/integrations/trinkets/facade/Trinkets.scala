@@ -7,7 +7,7 @@ import net.impleri.slab.entity.Player
 import scala.jdk.OptionConverters._
 
 case class Trinkets() {
-  def getTrinketsFor(player: Player.Any): Option[Trinket] = {
+  def getTrinketsFor(player: Player): Option[Trinket] = {
     TrinketsApi.getTrinketComponent(player.value.asInstanceOf[Entity.Living])
       .toScala
       .map(Trinket)

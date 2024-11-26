@@ -5,17 +5,15 @@ import net.impleri.slab.resources.ResourceLocation
 trait SingleTargetRestriction[T] {
   var target: Option[T] = None
 
-  def isValid: Boolean = {
+  def isValid: Boolean =
     target.nonEmpty
-  }
 }
 
 trait MultiTargetRestriction[T] {
   var targets: Seq[T] = Seq.empty
 
-  def isValid: Boolean = {
+  def isValid: Boolean =
     targets.nonEmpty
-  }
 }
 
 trait RestrictionConditionsBuilder

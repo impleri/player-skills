@@ -34,104 +34,79 @@ case class EntityEvents(
     EntityEvent.ENTER_SECTION,
   private val onTameEvent: Event[EntityEvent.AnimalTame] =
     EntityEvent.ANIMAL_TAME,
-) {
-  def onDeath(f: EntityEvents.OnDeath): Unit = {
-    onDeathEvent.register { (entity: LivingEntity, source: DamageSource) =>
-      Option(entity)
-        .map(Entity(_))
-        .fold(EventResult.pass)(
-          f(
-            _,
-            Option(source).map(DamageType(_)),
-          ),
-        )
+) extends ResultHandler {
+  def onDeath(handler: EntityEvents.OnDeath): Unit =
+    onDeathEvent.register { (rawEntity: LivingEntity, rawSource: DamageSource) =>
+      ensureResult {
+        for {
+          entity <- Option(rawEntity).map(Entity(_))
+          damageType = Option(rawSource).map(DamageType(_))
+        } yield handler(entity, damageType)
+      }
     }
-  }
 
-  def onHurt(f: EntityEvents.OnHurt): Unit = {
+  def onHurt(handler: EntityEvents.OnHurt): Unit =
     onHurtEvent.register {
-      (entity: LivingEntity, source: DamageSource, damage: Float) =>
-        Option(entity)
-          .map(Entity(_))
-          .fold(EventResult.pass)(
-            f(
-              _,
-              Option(source).map(DamageType(_)),
-              damage,
-            ),
-          )
+      (rawEntity: LivingEntity, rawSource: DamageSource, damage: Float) =>
+        ensureResult {
+          for {
+            entity <- Option(rawEntity).map(Entity(_))
+            damageType = Option(rawSource).map(DamageType(_))
+          } yield handler(entity, damageType, damage)
+        }
     }
-  }
 
-  def canSpawn(f: EntityEvents.CanSpawn): Unit = {
-    canSpawnEvent
-      .register {
+  def shouldSpawn(handler: EntityEvents.CanSpawn): Unit =
+    canSpawnEvent.register {
         (
-          entity: LivingEntity,
-          world: LevelAccessor,
+          rawEntity: LivingEntity,
+          rawWorld: LevelAccessor,
           x: Double,
           y: Double,
           z: Double,
-          spawnType: MobSpawnType,
-          spawner: BaseSpawner,
+          rawSpawnType: MobSpawnType,
+          rawSpawner: BaseSpawner,
         ) =>
-          Option(entity)
-            .map(Entity(_))
-            .fold(EventResult.pass)(
-              f(
-                _,
-                Option(world).map(Level(_)),
-                Coordinates(x, y, z).map(_.toPosition),
-                Option(spawnType).map(SpawnType.fromVanilla),
-                Option(spawner).map(Spawner(_)),
-              ),
-            )
+          ensureResult {
+            for {
+              entity <- Option(rawEntity).map(Entity(_))
+              level = Option(rawWorld).map(Level(_))
+              position = Coordinates(x, y, z).map(_.toPosition)
+              spawnType = Option(rawSpawnType).map(SpawnType.fromVanilla)
+              spawner = Option(rawSpawner).map(Spawner(_))
+            } yield handler(entity, level, position, spawnType, spawner)
+          }
       }
-  }
 
-  def onSpawn(f: EntityEvents.OnSpawn): Unit = {
-    onSpawnEvent
-      .register { (entity: McEntity, world: McLevel) =>
-        Option(entity)
-          .map(Entity(_))
-          .fold(EventResult.pass)(
-            f(
-              _,
-              Option(world).map(Level(_)),
-            ),
-          )
+  def onSpawn(handler: EntityEvents.OnSpawn): Unit =
+    onSpawnEvent.register { (rawEntity: McEntity, rawWorld: McLevel) =>
+      ensureResult {
+        for {
+          entity <- Option(rawEntity).map(Entity(_))
+          level = Option(rawWorld).map(Level(_))
+        } yield handler(entity, level)
       }
-  }
+    }
 
-  def onEnterChunk(f: EntityEvents.OnEnterChunk): Unit = {
+  def onEnterChunk(handler: EntityEvents.OnEnterChunk): Unit =
     onEnterChunkEvent.register {
-      (entity: McEntity, x: Int, y: Int, z: Int, px: Int, py: Int, pz: Int) =>
-        Option(entity)
-          .map(Entity(_))
-          .foreach(
-            f(
-              _,
-              Coordinates(x, y, z),
-              Coordinates(px, py, pz),
-            ),
-          )
-
+      (rawEntity: McEntity, x: Int, y: Int, z: Int, px: Int, py: Int, pz: Int) =>
+        for {
+          entity <- Option(rawEntity).map(Entity(_))
+          position = Coordinates(x, y, z)
+          previous = Coordinates(px, py, pz)
+        } yield handler(entity, position, previous)
     }
-  }
 
-  def onTame(f: EntityEvents.OnTame): Unit = {
-    onTameEvent.register { (animal: McAnimal, player: McPlayer) =>
-      Option(player)
-        .map(Player(_))
-        .fold(EventResult.pass)(
-          f(
-            _,
-            Option(animal).map(Animal(_)),
-          ),
-        )
-
+  def onTame(handler: EntityEvents.OnTame): Unit =
+    onTameEvent.register { (rawAnimal: McAnimal, rawPlayer: McPlayer) =>
+      ensureResult {
+        for {
+          player <- Option(rawPlayer).map(Player(_))
+          animal = Option(rawAnimal).map(Animal(_))
+        } yield handler(player, animal)
+      }
     }
-  }
 }
 
 object EntityEvents {
@@ -147,5 +122,5 @@ object EntityEvents {
   type OnSpawn = (Entity.Any, Option[Level.Any]) => EventResult
   type OnEnterChunk =
     (Entity.Any, Option[Coordinates], Option[Coordinates]) => Unit
-  type OnTame = (Player.Any, Option[Animal.Any]) => EventResult
+  type OnTame = (Player, Option[Animal.Any]) => EventResult
 }

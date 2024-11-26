@@ -6,9 +6,9 @@ import java.util.UUID
 import scala.util.Try
 
 case class FtbTeamsApi() {
-  def getTeamOf(player: UUID): Option[Team] = {
-    Try(FTBTeamsAPI.getPlayerTeam(player)).toOption
+  def getTeamOf(player: UUID): Option[Team] =
+    Try(FTBTeamsAPI.getPlayerTeam(player))
+      .toOption
       .flatMap(t => Option(t))
       .map(Team.apply)
-  }
 }

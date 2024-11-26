@@ -3,7 +3,6 @@ package net.impleri.playerskills.skills.tiered
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
-import net.impleri.playerskills.utils.MinMaxCalculator
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
@@ -21,90 +20,70 @@ case class TieredSkillType(
 
   override def castFromString(value: String): Option[String] = Option(value)
 
-  private def index(skill: Skill[String])(
-    target: Option[String] = skill.value,
-    fallback: Int = TieredSkillType.SKILL_NOT_FOUND,
-  ): Int = {
+  private def indexOf(
+    skill: Skill[String],
+    target: Option[String] = None,
+  ): Option[Int] =
     target
-      .map(skill.options.indexOf(_))
+      .map(skill.options.indexOf)
       .filter(_ >= 0)
-      .getOrElse(fallback)
-  }
+      .filter(_ < skill.options.size)
+
+  private def compare(
+    skill: Skill[String],
+    threshold: Option[String],
+  ): Boolean =
+    (indexOf(skill, skill.value), indexOf(skill, threshold)) match {
+      case (Some(v), Some(t)) => v >= t
+      case (Some(_), _)       => true
+      case _                  => false
+    }
 
   override def can(
     skill: Skill[String],
     threshold: Option[String] = None,
-  ): Boolean = {
-    (index(skill)() >= index(skill)(threshold, 0))
+  ): Boolean =
+    compare(skill, threshold)
       .tap(
         logger.debugP(c =>
           s"Checking if player can ${skill.name} (is $threshold above ${skill.value}? $c)",
         ),
       )
-  }
 
-  private def getMinValue(skill: Skill[String], min: Option[String]) =
-    index(skill)(min, 0)
+  private def floor(
+    skill: Skill[String],
+    value: Int,
+    min: Option[String],
+  ): Int = indexOf(skill, min).fold(value)(value max _)
 
-  private def getMaxValue(skill: Skill[String], max: Option[String]) =
-    index(skill)(max, skill.options.size)
-
-  private def getCurrentValue(skill: Skill[String]) = index(skill)()
-
-  private def getValue(options: Seq[String])(index: Double): Option[String] =
-    Try(options.apply(index.toInt)).toOption
+  private def ceil(skill: Skill[String], value: Int, max: Option[String]): Int =
+    indexOf(skill, max).fold(value)(value min _)
 
   override def getPrevValue(
     skill: Skill[String],
     min: Option[String],
     max: Option[String],
-  ): Option[String] = {
-    getCurrentValue(skill)
-      .pipe(v =>
-        MinMaxCalculator.calculate(
-          Option(v),
-          Option(getMaxValue(skill, max)),
-          MinMaxCalculator.isLessThan,
-        ),
-      )
-      .map(_ - 1)
-      .pipe(
-        MinMaxCalculator.calculate(
-          _,
-          Option(getMinValue(skill, min)),
-          MinMaxCalculator.isGreaterThan,
-        ),
-      )
-      .flatMap(getValue(skill.options))
-  }
+  ): Option[String] =
+    for {
+      next <- indexOf(skill, skill.value).map(_ - 1)
+      floored = floor(skill, next, min)
+      ceiling = ceil(skill, floored, max)
+      nextString <- Try(skill.options.apply(ceiling)).toOption
+    } yield nextString
 
   override def getNextValue(
     skill: Skill[String],
     min: Option[String],
     max: Option[String],
-  ): Option[String] = {
-    getCurrentValue(skill)
-      .pipe(v =>
-        MinMaxCalculator.calculate(
-          Option(v),
-          Option(getMinValue(skill, min)),
-          MinMaxCalculator.isGreaterThan,
-        ),
-      )
-      .map(_ + 1)
-      .pipe(
-        MinMaxCalculator.calculate(
-          _,
-          Option(getMaxValue(skill, max)),
-          MinMaxCalculator.isLessThan,
-        ),
-      )
-      .flatMap(getValue(skill.options))
-  }
+  ): Option[String] =
+    for {
+      next <- indexOf(skill, skill.value).map(_ + 1)
+      floored = floor(skill, next, min)
+      ceiling = ceil(skill, floored, max)
+      nextString <- Try(skill.options.apply(ceiling)).toOption
+    } yield nextString
 }
 
 object TieredSkillType {
   val NAME: ResourceLocation = ResourceLocation("tiered").get
-
-  val SKILL_NOT_FOUND: Int = -1
 }

@@ -47,17 +47,17 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
   }
 
   "PlayerConditions.predicate" should "change the condition" in {
-    val testValue = mock[Player[_] => Boolean]
+    val testValue = mock[Player => Boolean]
 
     testUnit.predicate(testValue)
     testUnit.condition shouldBe testValue
   }
 
   "PlayerConditions.unless" should "change the condition to a negative" in {
-    val testValue = mock[Player[_] => Boolean]
+    val testValue = mock[Player => Boolean]
     testValue(*) returns true
 
-    val mockPlayer = mock[Player[_]]
+    val mockPlayer = mock[Player]
 
     testUnit.unless(testValue)
     testUnit.condition(mockPlayer) shouldBe false

@@ -78,7 +78,6 @@ case class InternalEvents(
 
   override protected[bindings] def onReload(
     manager: Option[ResourceManager],
-  ): Unit = {
+  ): Unit =
     onReloadFn(manager)
-  }
 }

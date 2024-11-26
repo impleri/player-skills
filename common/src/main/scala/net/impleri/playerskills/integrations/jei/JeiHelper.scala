@@ -31,12 +31,11 @@ case class JeiHelper(
 
   private def upsert(next: JeiPluginState): Unit = state = next
 
-  private[jei] def updateRuntime(runtime: Option[JeiRuntime]): Unit = {
+  private[jei] def updateRuntime(runtime: Option[JeiRuntime]): Unit =
     state
       .copy(runtime = runtime)
       .pipe(upsert)
       .tap(_ => refresh(true))
-  }
 
   private def refreshHiddenRecipes(
     nextHidden: Seq[Recipe.Any],
@@ -51,15 +50,14 @@ case class JeiHelper(
     toHide.groupBy(_.getType.toString).pipe(jeiRuntime.hideRecipes)
   }
 
-  def refresh(forced: Boolean = false): Unit = {
+  def refresh(forced: Boolean = false): Unit =
     restrictionRegistry.entries
-      .filter(_.isType(RestrictionType.Recipe()))
+      .filter(_.isType(RestrictionType.Recipe))
       .asInstanceOf[List[RecipeRestriction]]
       .map(_.target)
       .tap(n => state.execute(refreshHiddenRecipes(n, forced)))
       .pipe(n => state.copy(hiddenRecipes = n))
       .pipe(upsert)
-  }
 
   clientEventHandler.onSkillsUpdate { event => refresh(event.forced) }
   recipeEvents.onUpdate { _ => refresh() }

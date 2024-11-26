@@ -13,54 +13,48 @@ class ItemRestrictionOps(
   protected val registry: RestrictionRegistry,
   protected val logger: Logger,
 ) extends RestrictionsOps[Item, Item.Vanilla, ItemRestriction] {
-  override val restrictionType: RestrictionType = RestrictionType.Item()
+  override val restrictionType: RestrictionType = RestrictionType.Item
 
   def isIdentifiable(
-    player: Player[_],
+    player: Player,
     item: Item,
     pos: Option[Position] = None,
-  ): Boolean = {
+  ): Boolean =
     canPlayer(player, item, _.identifiable, "identifiable", pos)
-  }
 
   def isHoldable(
-    player: Player[_],
+    player: Player,
     item: Item,
     pos: Option[Position] = None,
-  ): Boolean = {
+  ): Boolean =
     canPlayer(player, item, _.holdable, "holdable", pos)
-  }
 
   def isWearable(
-    player: Player[_],
+    player: Player,
     item: Item,
     pos: Option[Position] = None,
-  ): Boolean = {
+  ): Boolean =
     canPlayer(player, item, _.wearable, "wearable", pos)
-  }
 
   def isUsable(
-    player: Player[_],
+    player: Player,
     item: Item,
     pos: Option[Position] = None,
-  ): Boolean = {
+  ): Boolean =
     canPlayer(player, item, _.usable, "usable", pos)
-  }
 
   def isHarmful(
-    player: Player[_],
+    player: Player,
     item: Item,
     pos: Option[Position] = None,
-  ): Boolean = {
+  ): Boolean =
     canPlayer(player, item, _.harmful, "harmful", pos)
-  }
 }
 
 object ItemRestrictionOps {
   def apply(
     registry: RestrictionRegistry = RestrictionRegistry(),
-    logger: Logger = PlayerSkillsLogger.ITEMS,
-  ): ItemRestrictionOps = {
+    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
+  ): ItemRestrictionOps =
     new ItemRestrictionOps(registry, logger)
-  }
 }

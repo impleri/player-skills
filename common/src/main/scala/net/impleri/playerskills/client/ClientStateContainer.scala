@@ -26,5 +26,5 @@ case class ClientStateContainer(
     Manager(globalState, clientStateContainer = Option(this))
 
   def getNetHandler: NetHandler =
-    NetHandler(client, SKILLS, MANAGER.RESYNC_SKILLS)
+    NetHandler(SKILLS, MANAGER.RESYNC_SKILLS)
 }

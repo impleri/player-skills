@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.helpers
+package net.impleri.playerskills.integrations.ftbquests.quests
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import dev.ftb.mods.ftblibrary.config.ConfigValue
@@ -20,9 +20,8 @@ trait DoubleQuest extends RestrictableValue[Double] {
     nbt: NbtContents,
     key: String,
     value: Option[Double],
-  ): NbtContents = {
+  ): NbtContents =
     nbt.putDouble(key, value.getOrElse(noneValue))
-  }
 
   override def readValueFromTag(nbt: NbtContents, key: String): Option[Double] =
     nbt.getDouble(key)
@@ -31,20 +30,17 @@ trait DoubleQuest extends RestrictableValue[Double] {
     nbt: NbtContents,
     key: String,
     value: Option[Double],
-  ): NbtContents = {
+  ): NbtContents =
     nbt.putDouble(key, value.getOrElse(noneValue))
-  }
 
-  override def readMinMaxTag(nbt: NbtContents, key: String): Option[Double] = {
+  override def readMinMaxTag(nbt: NbtContents, key: String): Option[Double] =
     nbt.getDouble(key)
-  }
 
   override def writeValueToBuffer(
     buffer: FriendlyBuffer,
     value: Option[Double],
-  ): FriendlyBuffer = {
+  ): FriendlyBuffer =
     buffer.writeDouble(value.getOrElse(noneValue))
-  }
 
   override def readValueFromBuffer(buffer: FriendlyBuffer): Option[Double] =
     buffer.readDouble()
@@ -52,13 +48,11 @@ trait DoubleQuest extends RestrictableValue[Double] {
   override def writeMinMaxBuffer(
     buffer: FriendlyBuffer,
     value: Option[Double],
-  ): FriendlyBuffer = {
+  ): FriendlyBuffer =
     buffer.writeDouble(value.getOrElse(noneValue))
-  }
 
-  override def readMinMaxBuffer(buffer: FriendlyBuffer): Option[Double] = {
+  override def readMinMaxBuffer(buffer: FriendlyBuffer): Option[Double] =
     buffer.readDouble()
-  }
 
   override def addValueConfig(
     config: ConfigGroup,
@@ -66,7 +60,7 @@ trait DoubleQuest extends RestrictableValue[Double] {
     value: Double,
     options: NameMap[Double],
     defaultValue: Double,
-  ): ConfigValue[_] = {
+  ): ConfigValue[_] =
     config
       .addDouble(
         key,
@@ -77,14 +71,13 @@ trait DoubleQuest extends RestrictableValue[Double] {
         data.min.getOrElse(noneValue),
         data.max.getOrElse(maxValue),
       )
-  }
 
   override protected def addMinMaxConfig(
     config: ConfigGroup,
     name: String,
     value: Double,
     f: Option[Double] => Unit,
-  ): Option[ConfigValue[_]] = {
+  ): Option[ConfigValue[_]] =
     Option(
       config.addDouble(
         name,
@@ -99,5 +92,4 @@ trait DoubleQuest extends RestrictableValue[Double] {
         Double.MaxValue,
       ),
     )
-  }
 }

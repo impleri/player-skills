@@ -16,30 +16,23 @@ case class ServerLevelLifecycleEvents(
   private val onLevelSaveEvent: Event[ServerLevelState] =
     LifecycleEvent.SERVER_LEVEL_SAVE,
 ) {
-  private def handleEvent(
-    server: ServerLevel,
-    f: ServerLevelLifecycleEvents.OnLevelLifecycle,
-  ): Unit = {
+  private def handleEvent(server: ServerLevel, f: ServerLevelLifecycleEvents.OnLevelLifecycle): Unit =
     Option(server).map(Level(_)).pipe(f)
-  }
 
   def onLevelLoad(
     handler: ServerLevelLifecycleEvents.OnLevelLifecycle,
-  ): Unit = {
+  ): Unit =
     onLevelLoadEvent.register(handleEvent(_, handler))
-  }
 
   def onLevelUnload(
     handler: ServerLevelLifecycleEvents.OnLevelLifecycle,
-  ): Unit = {
+  ): Unit =
     onLevelUnloadEvent.register(handleEvent(_, handler))
-  }
 
   def onLevelSave(
     handler: ServerLevelLifecycleEvents.OnLevelLifecycle,
-  ): Unit = {
+  ): Unit =
     onLevelSaveEvent.register(handleEvent(_, handler))
-  }
 }
 
 object ServerLevelLifecycleEvents {

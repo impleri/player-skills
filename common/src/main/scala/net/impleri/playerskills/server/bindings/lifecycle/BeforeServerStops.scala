@@ -10,9 +10,8 @@ case class BeforeServerStops(
   playerRegistry: () => PlayerRegistry = () => PlayerRegistry(),
   upstream: ServerLifecycleEvents = ServerLifecycleEvents(),
 ) {
-  private[bindings] def handler(@unused server: Option[Server]): Unit = {
+  private[bindings] def handler(@unused server: Option[Server]): Unit =
     playerRegistry().close()
-  }
 
   upstream.beforeServerStop(handler)
 }

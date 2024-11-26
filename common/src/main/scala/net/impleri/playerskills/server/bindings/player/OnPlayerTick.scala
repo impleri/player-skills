@@ -17,25 +17,24 @@ case class OnPlayerTick(
   private def filterItemsNot(
     items: Map[Int, Item],
     f: Item => Boolean,
-  ): Map[Int, Item] = {
-    items.filterNot(_._2.isEmpty).filterNot(t => f(t._2))
-  }
+  ): Map[Int, Item] =
+    items
+      .filterNot(_._2.isEmpty)
+      .filterNot(t => f(t._2))
 
   private def filterWearable(
-    player: Player[_],
+    player: Player,
     items: Map[Int, Item],
-  ): Map[Int, Item] = {
+  ): Map[Int, Item] =
     filterItemsNot(items, itemRestrictionOps.isWearable(player, _))
-  }
 
   private def filterHoldable(
-    player: Player[_],
+    player: Player,
     items: Map[Int, Item],
-  ): Map[Int, Item] = {
+  ): Map[Int, Item] =
     filterItemsNot(items, itemRestrictionOps.isHoldable(player, _))
-  }
 
-  private def moveToInventory(player: Player[_], f: Int => Unit)(
+  private def moveToInventory(player: Player, f: Int => Unit)(
     tuple: (Int, Item),
   ): Unit = {
     val (index, item) = tuple
@@ -44,8 +43,8 @@ case class OnPlayerTick(
     f(index)
   }
 
-  private[bindings] val handler: TickEvents.OnPlayerTick = player => {
-    if (!player.isClientSide) {
+  private[bindings] val handler: TickEvents.OnPlayerTick = player =>
+    if (!player.isClient) {
       // Move unwearable items from armor into normal inventory
       filterWearable(player, player.armor).foreach(
         moveToInventory(player, player.emptyArmor),
@@ -65,7 +64,6 @@ case class OnPlayerTick(
         )
         .foreach(player.toss)
     }
-  }
 
   upstream.onPlayerEnd(handler)
 }

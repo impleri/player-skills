@@ -11,22 +11,25 @@ import scala.util.chaining.scalaUtilChainingOps
 
 class RestrictionRegistry(var state: RestrictionRegistryState.Restrictions)
     extends StatefulRegistry[RestrictionRegistryState.Restrictions] {
-  def entries: List[Restriction[_, _]] = {
-    RestrictionRegistryState.entries().pipe(maintainState)
-  }
+  def entries: List[Restriction[_, _]] =
+    RestrictionRegistryState
+      .entries()
+      .pipe(maintainState)
 
   def get[T <: ResourceWrapper[U], U](
     kind: RestrictionType,
     key: ResourceLocation,
-  ): View[Restriction[T, U]] = {
-    RestrictionRegistryState.get[T, U](kind, key).pipe(maintainState)
-  }
+  ): View[Restriction[T, U]] =
+    RestrictionRegistryState
+      .get[T, U](kind, key)
+      .pipe(maintainState)
 
-  def has(kind: RestrictionType, key: ResourceLocation): Boolean = {
-    RestrictionRegistryState.has(kind, key).pipe(maintainState)
-  }
+  def has(kind: RestrictionType, key: ResourceLocation): Boolean =
+    RestrictionRegistryState
+      .has(kind, key)
+      .pipe(maintainState)
 
-  def add(restriction: Restriction[_, _]): Boolean = {
+  def add(restriction: Restriction[_, _]): Boolean =
     RestrictionRegistryState
       .add(restriction)
       .run(state)
@@ -35,14 +38,12 @@ class RestrictionRegistry(var state: RestrictionRegistryState.Restrictions)
         true
       })
       .value
-  }
 }
 
 object RestrictionRegistry {
   def apply(
     state: RestrictionRegistryState.Restrictions =
       RestrictionRegistryState.empty,
-  ): RestrictionRegistry = {
+  ): RestrictionRegistry =
     new RestrictionRegistry(state)
-  }
 }

@@ -10,15 +10,13 @@ case class EventHandler(
   private val CLIENT_SKILLS_UPDATED: EventEmitter[ClientSkillsUpdatedEvent] =
     EventEmitter(),
 ) {
-  def onSkillsUpdate(listener: Consumer[ClientSkillsUpdatedEvent]): Unit = {
+  def onSkillsUpdate(listener: Consumer[ClientSkillsUpdatedEvent]): Unit =
     CLIENT_SKILLS_UPDATED.register(listener)
-  }
 
   def emitSkillsUpdated(
     next: List[Skill[_]],
     prev: List[Skill[_]],
     force: Boolean,
-  ): Unit = {
+  ): Unit =
     CLIENT_SKILLS_UPDATED.emit(ClientSkillsUpdatedEvent(next, prev, force))
-  }
 }

@@ -13,18 +13,16 @@ class ResourceLocationArgument(
     ], ResourceLocationArgument](underlying)
 
 object ResourceLocationArgument {
-  def apply(name: String): ResourceLocationArgument = {
+  def apply(name: String): ResourceLocationArgument =
     new ResourceLocationArgument(
       Commands
         .argument(name, McResourceLocationArgument.id()),
     )
-  }
 
   def getValue(
     name: String,
     context: Command.Context,
-  ): Option[ResourceLocation] = {
+  ): Option[ResourceLocation] =
     Try(McResourceLocationArgument.getId(context, name)).toOption
       .flatMap(ResourceLocation(_))
-  }
 }

@@ -29,11 +29,12 @@ class Entity[T <: Entity.Vanilla](override val underlying: T)
 
   lazy val biome: Option[Biome] = biomeAt()
 
-  def biomeAt(pos: Option[Position] = None): Option[Biome] = {
-    pos
-      .orElse(position)
-      .flatMap(p => level.flatMap(_.getBiome(p)))
-  }
+  def biomeAt(pos: Option[Position] = None): Option[Biome] =
+    for {
+      at <- pos.orElse(position)
+      lvl <- level
+      biome <- lvl.getBiome(at)
+    } yield biome
 
   def isEmpty: Boolean = Option(underlying).isEmpty
 
@@ -41,7 +42,7 @@ class Entity[T <: Entity.Vanilla](override val underlying: T)
 
   def isPlayer: Boolean = underlying.isInstanceOf[Player.Vanilla]
 
-  def asPlayer[P <: Player.Vanilla]: Player[P] = Player(
+  def asPlayer[P <: Player.Vanilla]: Player = Player(
     underlying.asInstanceOf[P],
   )
 }

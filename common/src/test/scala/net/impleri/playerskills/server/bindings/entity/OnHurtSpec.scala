@@ -9,26 +9,24 @@ import net.impleri.slab.entity.Player
 import net.impleri.slab.events.EntityEvents
 import net.impleri.slab.item.Item
 import net.impleri.slab.logging.Logger
-import net.minecraft.world.entity.player.{Player => MinecraftPlayer}
 
 class OnHurtSpec extends BaseSpec {
   private val mockOps = mock[ItemRestrictionOps]
   private val mockUpstream = mock[EntityEvents]
   private val mockLogger = mock[Logger]
 
-  private val testUnit = OnHurt(mockOps, mockUpstream, mockLogger, mockLogger)
+  private val testUnit = OnHurt(mockOps, mockUpstream, mockLogger)
 
   private val mockEntity = mock[Entity[_]]
   private val mockAttacker = mock[Entity[_]]
-  private val mockPlayer = mock[Player[MinecraftPlayer]]
-  mockAttacker.asPlayer[MinecraftPlayer] returns mockPlayer
+  private val mockPlayer = mock[Player]
+  mockAttacker.asPlayer returns mockPlayer
   private val mockItem = mock[Item]
   mockPlayer.getItemInMainHand returns Option(mockItem)
   private val mockDamange = 13F
 
   "OnHurt.handler" should "interrupt the event if the player's item is unusable" in {
     val mockSource = mock[HasSource]
-    mockSource.isPlayer returns true
     mockSource.source returns Option(mockAttacker)
     mockAttacker.isPlayer returns true
 
@@ -42,7 +40,6 @@ class OnHurtSpec extends BaseSpec {
 
   it should "do nothing to the event if item is usable" in {
     val mockSource = mock[HasSource]
-    mockSource.isPlayer returns true
     mockSource.source returns Option(mockAttacker)
     mockAttacker.isPlayer returns true
 
@@ -53,7 +50,8 @@ class OnHurtSpec extends BaseSpec {
 
   it should "do nothing to the event if attacker is not a player" in {
     val mockSource = mock[HasSource]
-    mockSource.isPlayer returns false
+    mockSource.source returns Option(mockAttacker)
+    mockAttacker.isPlayer returns false
 
     testUnit.handler(mockEntity, Option(mockSource), mockDamange) shouldBe EventResult.pass()
 

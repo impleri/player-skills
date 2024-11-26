@@ -8,7 +8,6 @@ trait BiomeFacetParser extends JsonDataParser {
     raw: JsonObject,
     onInclude: JsonElement => Unit,
     onExclude: JsonElement => Unit,
-  ): Unit = {
+  ): Unit =
     parseFacet(raw, "biomes", onInclude, onExclude)
-  }
 }

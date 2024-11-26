@@ -92,12 +92,13 @@ class SkillSpec extends BaseSpec {
     received shouldBe None
   }
 
-  it should "returns a component for rendering" in {
+  it should "return a component for rendering" in {
+    valued.announceChange shouldBe true
+
     val received = valued.getNotification()
 
-    valued.announceChange shouldBe true
-    received.value.output.getString shouldBe "playerskills.notify.skill_change"
-    received.value.output.getContents.isInstanceOf[TranslatableContents] should be(true)
+    received.value.output.getString shouldBe TranslatableSkill.DEFAULT_NOTIFICATION_MESSAGE
+    received.value.output.getContents.isInstanceOf[TranslatableContents] shouldBe true
     received
       .value
       .output

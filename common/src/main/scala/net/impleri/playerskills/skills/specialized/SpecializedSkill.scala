@@ -21,18 +21,16 @@ case class SpecializedSkill(
   override protected[playerskills] def mutate(
     value: Option[String],
     changesAllowed: Int,
-  ): SpecializedSkill = {
+  ): SpecializedSkill =
     copy(
       value = value,
       changesAllowed = changesAllowed,
     )
-  }
 
-  override def getMessageKey: String = {
+  override def getMessageKey: String =
     if (value.nonEmpty) {
       "playerskills.notify.specialized_skill_selected"
     } else {
       "playerskills.notify.specialized_skill_empty"
     }
-  }
 }

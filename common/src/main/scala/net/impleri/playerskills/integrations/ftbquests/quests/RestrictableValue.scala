@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.helpers
+package net.impleri.playerskills.integrations.ftbquests.quests
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import dev.ftb.mods.ftblibrary.config.ConfigValue
@@ -16,10 +16,10 @@ trait RestrictableValue[T] extends QuestStateOps[T] {
     value: Option[T],
   ): NbtContents
 
-  protected def writeMinMaxToTag(nbt: NbtContents): NbtContents = {
-    writeMinMaxTag(nbt, RestrictableValue.MIN_TAG_NAME, data.min)
-    writeMinMaxTag(nbt, RestrictableValue.MAX_TAG_NAME, data.max)
-  }
+  protected def writeMinMaxToTag(nbt: NbtContents): NbtContents =
+    nbt
+      .pipe(writeMinMaxTag(_, RestrictableValue.MIN_TAG_NAME, data.min))
+      .pipe(writeMinMaxTag(_, RestrictableValue.MAX_TAG_NAME, data.max))
 
   protected def readMinMaxTag(nbt: NbtContents, key: String): Option[T]
 
@@ -35,10 +35,10 @@ trait RestrictableValue[T] extends QuestStateOps[T] {
     value: Option[T],
   ): FriendlyBuffer
 
-  protected def writeMinMaxToBuffer(buffer: FriendlyBuffer): FriendlyBuffer = {
-    writeMinMaxBuffer(buffer, data.min)
-    writeMinMaxBuffer(buffer, data.max)
-  }
+  protected def writeMinMaxToBuffer(buffer: FriendlyBuffer): FriendlyBuffer =
+    buffer
+      .pipe(writeMinMaxBuffer(_, data.min))
+      .pipe(writeMinMaxBuffer(_, data.max))
 
   protected def readMinMaxBuffer(buffer: FriendlyBuffer): Option[T]
 

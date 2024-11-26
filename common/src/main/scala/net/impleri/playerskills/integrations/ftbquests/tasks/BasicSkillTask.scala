@@ -6,8 +6,8 @@ import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.PlayerSkillsServer
 import net.impleri.playerskills.PlayerSkills
-import net.impleri.playerskills.integrations.ftbquests.helpers.BooleanQuest
-import net.impleri.playerskills.integrations.ftbquests.helpers.QuestStateOps
+import net.impleri.playerskills.integrations.ftbquests.quests.{BooleanQuest, QuestState, QuestStateOps}
+import net.impleri.playerskills.skills.basic.BasicSkillType
 
 case class BasicSkillTask(
   q: Quest,
@@ -15,22 +15,23 @@ case class BasicSkillTask(
   override val skillOps: SkillOps,
 ) extends SkillTask[Boolean](q, playerOps, skillOps)
     with BooleanQuest {
+  data = QuestState(BasicSkillType.NAME)
+
   override def getType: TaskType = BasicSkillTask.TASK_TYPE
 }
 
 object BasicSkillTask {
-  val TASK_TYPE: TaskType = QuestStateOps
+  final val TASK_TYPE: TaskType = QuestStateOps
     .createTaskType(
       QuestStateOps.BASIC_SKILL,
       "minecraft:item/wooden_shovel",
       apply,
     )
 
-  def apply(quest: Quest): BasicSkillTask = {
+  def apply(quest: Quest): BasicSkillTask =
     new BasicSkillTask(
       quest,
       PlayerSkillsServer.STATE.PLAYER_OPS,
       PlayerSkills.STATE.SKILL_OPS,
     )
-  }
 }

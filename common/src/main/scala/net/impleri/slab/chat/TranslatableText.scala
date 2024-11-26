@@ -12,7 +12,6 @@ object TranslatableText {
     Component.translatable(value),
   )
 
-  def apply(value: String, params: Any*): TranslatableText = {
+  def apply(value: String, params: Any*): TranslatableText =
     TranslatableText(Component.translatable(value, params: _*))
-  }
 }

@@ -10,17 +10,15 @@ case class SkillTypeRegistry(
 ) {
   private[skills] var state: List[SkillType[_]] = List.empty
 
-  def resync(): Unit = {
+  def resync(): Unit =
     state = gameRegistrar.entries().values.toList
-  }
 
   def entries: List[SkillType[_]] = state
 
-  def find[T](key: ResourceLocation): Option[SkillType[T]] = {
+  def find[T](key: ResourceLocation): Option[SkillType[T]] =
     state
       .find(_.name == key)
       .asInstanceOf[Option[SkillType[T]]]
-  }
 }
 
 object SkillTypeRegistry {
@@ -33,7 +31,6 @@ object SkillTypeRegistry {
 
   def apply(
     gameRegistrar: Registrar[SkillType[_]] = Registrar(None),
-  ): SkillTypeRegistry = {
+  ): SkillTypeRegistry =
     new SkillTypeRegistry(gameRegistrar)
-  }
 }

@@ -12,12 +12,12 @@ case class TrinketsFabricIntegration(
   private val trinkets: Trinkets = Trinkets(),
   private val tickEvents: TickEvents = TickEvents(),
 ) {
-  private def handle: TickEvents.OnPlayerTick = (player: Player.Any) => {
+  private def handle: TickEvents.OnPlayerTick = (player: Player) => {
     trinkets.getTrinketsFor(player)
       .foreach(handleTrinket(player))
   }
 
-  private def handleTrinket(player: Player.Any)(trinket: Trinket): Unit = {
+  private def handleTrinket(player: Player)(trinket: Trinket): Unit = {
     trinket.inventoryMap
       .toSeq
       .filterNot(t => itemRestrictions.isWearable(player, t._2))
@@ -29,5 +29,5 @@ case class TrinketsFabricIntegration(
       )
   }
 
-  tickEvents.onPlayerStart(handle, PlayerTickType.Server())
+  tickEvents.onPlayerStart(handle, PlayerTickType.Server)
 }

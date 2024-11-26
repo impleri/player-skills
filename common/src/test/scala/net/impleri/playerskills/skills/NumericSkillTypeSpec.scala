@@ -109,12 +109,10 @@ class NumericSkillTypeSpec extends BaseSpec {
     testUnit.getNextValue(simpleSkill).value should be(simpleValue + NumericSkill.DefaultStep)
   }
 
-  it should "start with the min value if current value is lesser" in {
+  it should "return the min value if current value is lesser" in {
     val testUnit = NumericSkillType(skillOpsMock, loggerMock)
 
-    testUnit.getNextValue(simpleSkill, min = Option(simpleValue * 2)).value should be((simpleValue * 2) + NumericSkill
-      .DefaultStep,
-    )
+    testUnit.getNextValue(simpleSkill, min = Option(simpleValue * 2)).value should be(simpleValue * 2)
   }
 
   it should "return the max value if current value + step would be greater" in {
@@ -142,10 +140,10 @@ class NumericSkillTypeSpec extends BaseSpec {
     testUnit.getPrevValue(stepSkill).value should be(stepValue - stepStep)
   }
 
-  it should "start with the max value if current value is higher" in {
+  it should "return the max value if current value is higher" in {
     val testUnit = NumericSkillType(skillOpsMock, loggerMock)
 
-    testUnit.getPrevValue(stepSkill, max = Option(stepValue / 2)).value should be((stepValue / 2) - stepStep)
+    testUnit.getPrevValue(stepSkill, max = Option(stepValue / 2)).value should be(stepValue / 2)
   }
 
   it should "return the min value if current value - step would be lower" in {

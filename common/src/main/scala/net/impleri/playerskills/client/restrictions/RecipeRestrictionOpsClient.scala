@@ -14,7 +14,6 @@ case class RecipeRestrictionOpsClient(
   l: Logger = PlayerSkillsLogger.ITEMS,
 ) extends RecipeRestrictionOps(r, l)
     with RestrictionOpsClient {
-  def isProducible(recipe: Recipe.Any, pos: Option[Position]): Boolean = {
+  def isProducible(recipe: Recipe.Any, pos: Option[Position]): Boolean =
     maybeCan(isProducible(_, recipe, pos))
-  }
 }

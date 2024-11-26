@@ -14,7 +14,7 @@ class RestrictionOpsSpec extends BaseSpec {
   private val mockRegistry = mock[RestrictionRegistry]
   private val mockLogger = mock[Logger]
 
-  private val testType: RestrictionType = RestrictionType.Recipe()
+  private val testType: RestrictionType = RestrictionType.Recipe
 
   private case class TestOps()
     extends RestrictionsOps[Recipe.Any, Recipe.AnyVanilla, Restriction[Recipe.Any, Recipe.AnyVanilla]] {
@@ -25,7 +25,7 @@ class RestrictionOpsSpec extends BaseSpec {
     override def logger: Logger = mockLogger
   }
 
-  private val mockPlayer = mock[Player[MinecraftPlayer]]
+  private val mockPlayer = mock[Player]
   private val mockTargetName = mock[ResourceLocation]
   private val mockRestriction = mock[Restriction[Recipe.Any, Recipe.AnyVanilla]]
   private val mockTarget = mock[Recipe.Any]
@@ -33,7 +33,7 @@ class RestrictionOpsSpec extends BaseSpec {
   private val testUnit = TestOps()
 
   "Restriction.matchesPlayer" should "return true if the condition passes" in {
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
     mockRestriction.condition returns mockCondition
     testUnit.matchesPlayer(mockPlayer)(mockRestriction) should be(true)
@@ -58,7 +58,7 @@ class RestrictionOpsSpec extends BaseSpec {
   }
 
   "Restriction.getRestrictionsFor" should "return only restrictions that match the parameters" in {
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
     mockRestriction.condition returns mockCondition
 
@@ -79,7 +79,7 @@ class RestrictionOpsSpec extends BaseSpec {
   }
 
   it should "return restrictions even if the biome and dimension are empty" in {
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
     mockRestriction.condition returns mockCondition
 
@@ -98,7 +98,7 @@ class RestrictionOpsSpec extends BaseSpec {
   }
 
   it should "return an empty list if the condition does not match" in {
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns false
     mockRestriction.condition returns mockCondition
 
@@ -118,7 +118,7 @@ class RestrictionOpsSpec extends BaseSpec {
   }
 
   it should "return an empty list if the target does not match" in {
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
     mockRestriction.condition returns mockCondition
 
@@ -138,7 +138,7 @@ class RestrictionOpsSpec extends BaseSpec {
   }
 
   it should "return an empty list if the dimension does not match" in {
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
     mockRestriction.condition returns mockCondition
 
@@ -159,7 +159,7 @@ class RestrictionOpsSpec extends BaseSpec {
   }
 
   it should "return an empty list if the biome does not match" in {
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
     mockRestriction.condition returns mockCondition
 
@@ -191,7 +191,7 @@ class RestrictionOpsSpec extends BaseSpec {
     val fieldGetter = mock[Restriction[Recipe.Any, Recipe.AnyVanilla] => Boolean]
     fieldGetter(*) returns true
 
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
 
     mockRestriction.condition returns mockCondition
@@ -221,7 +221,7 @@ class RestrictionOpsSpec extends BaseSpec {
     val fieldGetter = mock[Restriction[Recipe.Any, Recipe.AnyVanilla] => Boolean]
     fieldGetter(*) returns false
 
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
 
     mockRestriction.condition returns mockCondition
@@ -281,7 +281,7 @@ class RestrictionOpsSpec extends BaseSpec {
     mockPlayer.dimension returns None
     mockPlayer.biomeAt(None) returns None
 
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
 
     val mockReplacement = mock[Recipe.Any]
@@ -299,7 +299,7 @@ class RestrictionOpsSpec extends BaseSpec {
 
     replacement.value shouldBe mockReplacement
 
-    mockLogger.debug(*) wasCalled once
+    mockLogger.debugP(*)(*) wasCalled once
   }
 
   it should "return None if no replacement found" in {
@@ -309,7 +309,7 @@ class RestrictionOpsSpec extends BaseSpec {
     mockPlayer.dimension returns None
     mockPlayer.biomeAt(None) returns None
 
-    val mockCondition = mock[Player[_] => Boolean]
+    val mockCondition = mock[Player => Boolean]
     mockCondition(*) returns true
 
     val mockReplacement = mock[Recipe.Any]
@@ -326,6 +326,6 @@ class RestrictionOpsSpec extends BaseSpec {
 
     replacement shouldBe None
 
-    mockLogger.debug(*) wasCalled once
+    mockLogger.debugP(*)(*) wasCalled once
   }
 }

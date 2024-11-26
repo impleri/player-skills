@@ -16,22 +16,20 @@ case class RecipeManager(override val underlying: RecipeManager.Vanilla)
     recipeType: RecipeType.Any,
     container: C,
     server: Server,
-  ): Option[Recipe[T]] = {
+  ): Option[Recipe[T]] =
     server.getLevel
       .map(underlying.getRecipeFor[C, T](recipeType.asType[T], container, _))
       .flatMap(_.toScala)
       .map(Recipe(_))
-  }
 
   def getAllFor[T <: Recipe.BaseVanilla](
     recipeType: RecipeType.Any,
-  ): Seq[Recipe.Any] = {
+  ): Seq[Recipe.Any] =
     underlying
       .getAllRecipesFor[Recipe.BaseContainer, T](recipeType.asType[T])
       .asScala
       .toList
       .map(Recipe(_))
-  }
 }
 
 object RecipeManager {

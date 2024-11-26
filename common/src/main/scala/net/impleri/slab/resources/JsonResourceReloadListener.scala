@@ -24,12 +24,12 @@ abstract class JsonResourceReloadListener(
     values: util.Map[McResourceLocation, JsonElement],
     resourceManager: McResourceManager,
     profilerFiller: ProfilerFiller,
-  ): Unit = {
-    values.asScala
+  ): Unit =
+    values
+      .asScala
       .flatMap(t => ResourceLocation(t._1).map((_, t._2)))
       .toMap
       .pipe(parse)
-  }
 }
 
 object JsonResourceReloadListener {

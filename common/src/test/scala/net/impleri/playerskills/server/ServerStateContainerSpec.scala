@@ -110,7 +110,7 @@ private class ServerStateContainerSpec extends BaseSpec {
   "ServerStateContainer.onReload" should "resync all players" in {
     val givenUuid = UUID.randomUUID()
 
-    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+    val playerMock = mock[MinecraftPlayer]
     playerMock.uuid returns givenUuid
     val currentUsers = List(givenUuid)
 

@@ -2,6 +2,7 @@ package net.impleri.playerskills.data.utils
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
@@ -15,60 +16,59 @@ trait ConditionDataParser extends JsonDataParser {
 
   protected def playerOps: PlayerOps
 
-  private def parseSkill[T](raw: JsonObject) = {
-    parseString(raw, "skill")
+  private def parseSkill[T](raw: JsonObject) =
+    parseString(raw, ConditionDataParser.SKILL_PROPERTY)
       .flatMap(ResourceLocation(_))
       .flatMap(skillOps.get[T])
-  }
 
-  private val ALLOWED_ACTIONS = Seq("can", "cannot")
+  private def parseAction(raw: JsonObject) =
+    parseString(raw, ConditionDataParser.ACTION_PROPERTY)
+      .filter(ConditionDataParser.ALLOWED_ACTIONS.contains)
+      .getOrElse(ConditionDataParser.CAN)
 
-  private def parseAction(raw: JsonObject) = {
-    parseString(raw, "action")
-      .filter(ALLOWED_ACTIONS.contains)
-      .getOrElse("can")
-  }
+  private def parseCondition[T](negate: Boolean = false)(
+    rawElement: JsonElement,
+  ): Player => Boolean = {
+    val raw = rawElement.getAsJsonObject
+    val skillOpt = parseSkill[T](raw)
 
-  private def parseCondition[T](
-    raw: JsonObject,
-    negate: Boolean = false,
-  ): Player[_] => Boolean = {
-    val skill = parseSkill[T](raw)
-    val skillType = skill.flatMap(skillTypeOps.get[T])
+    val value = for {
+      skillType <- skillOpt.flatMap(skillTypeOps.get[T])
+      rawValue <- getElement(raw, ConditionDataParser.VALUE_PROPERTY).filter(_.isJsonPrimitive)
+      valueString <- Option(rawValue.getAsString).filterNot(_.isBlank)
+      castValue <- skillType.castFromString(valueString)
+    } yield castValue
 
-    val action = parseAction(raw)
-    val isCannot = action == "cannot"
+    val isCannot = parseAction(raw) == ConditionDataParser.CANNOT
 
-    val rawValue = getElement(raw, "value").flatMap {
-      case null => None
-      case v: JsonElement if v.isJsonPrimitive =>
-        Option(v.getAsString).filterNot(_.isBlank)
-    }
+    (player: Player) => {
+      val can = skillOpt.fold(Restriction.DEFAULT_CONDITION_RESPONSE)(
+        s => playerOps.can(player.uuid, s.name, value)
+      )
 
-    val value = (skillType, rawValue) match {
-      case (Some(t), Some(v)) => t.castFromString(v)
-      case _                  => None
-    }
-
-    (player: Player[_]) => {
-      // TODO: Lift out playerOps from here
-      val can =
-        skill.map(s => playerOps.can(player.uuid, s.name, value)) match {
-          case Some(v) => if (negate) !v else v
-          case _       => false
-        }
-
-      if (isCannot) !can else can
+      (negate, isCannot) match {
+        case (false, false) => can  // No negation
+        case (true, true)   => can  // Double negation
+        case _              => !can // Single negation
+      }
     }
   }
 
-  protected def parseIf(raw: JsonObject): Seq[Player[_] => Boolean] = {
-    parseObjectOrArray(raw, "if").map(e => parseCondition(e.getAsJsonObject))
-  }
+  protected def parseIf(raw: JsonObject): Seq[Player => Boolean] =
+    parseObjectOrArray(raw, ConditionDataParser.IF_PROPERTY).map(parseCondition())
 
-  protected def parseUnless(raw: JsonObject): Seq[Player[_] => Boolean] = {
-    parseObjectOrArray(raw, "unless").map(e =>
-      parseCondition(e.getAsJsonObject, negate = true),
-    )
-  }
+  protected def parseUnless(raw: JsonObject): Seq[Player => Boolean] =
+    parseObjectOrArray(raw, ConditionDataParser.UNLESS_PROPERTY).map(parseCondition(negate = true))
+}
+
+object ConditionDataParser {
+  private val CAN = "can"
+  private val CANNOT = "cannot"
+  private val ALLOWED_ACTIONS = Seq(CAN, CANNOT)
+
+  private val ACTION_PROPERTY = "action"
+  private val SKILL_PROPERTY = "skill"
+  private val VALUE_PROPERTY = "value"
+  private val IF_PROPERTY = "if"
+  private val UNLESS_PROPERTY = "unless"
 }

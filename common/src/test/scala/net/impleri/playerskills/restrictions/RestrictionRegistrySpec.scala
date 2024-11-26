@@ -12,14 +12,14 @@ class RestrictionRegistrySpec extends BaseSpec {
 
   private case class TestRestriction(
     override val target: Item = mockItem,
-    override val condition: Player[_] => Boolean = _ => true,
+    override val condition: Player => Boolean = _ => true,
     override val includeDimensions: Seq[String] = Seq.empty,
     override val excludeDimensions: Seq[String] = Seq.empty,
     override val includeBiomes: Seq[String] = Seq.empty,
     override val excludeBiomes: Seq[String] = Seq.empty,
     override val replacement: Option[Item] = None,
   ) extends Restriction[Item, Item.Vanilla] {
-    override def restrictionType: RestrictionType = RestrictionType.Item()
+    override def restrictionType: RestrictionType = RestrictionType.Item
   }
 
   "RestrictionRegistry.apply" should "return the correct class" in {
@@ -37,7 +37,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
     val target = RestrictionRegistry(state)
 
-    target.has(RestrictionType.Item(), testName) shouldBe true
+    target.has(RestrictionType.Item, testName) shouldBe true
   }
 
   it should "return false if there is no restriction with the given name" in {
@@ -49,7 +49,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
     val target = RestrictionRegistry(state)
 
-    target.has(RestrictionType.Item(), ResourceLocation("skillstest", "other").get) shouldBe false
+    target.has(RestrictionType.Item, ResourceLocation("skillstest", "other").get) shouldBe false
   }
 
   "RestrictionRegistry.get" should "return a view if there is a restriction with the given name" in {
@@ -61,7 +61,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
     val target = RestrictionRegistry(state)
 
-    target.get(RestrictionType.Item(), testName).head shouldBe testRestriction
+    target.get(RestrictionType.Item, testName).head shouldBe testRestriction
   }
 
   it should "return an empty view if there is no restriction with the given name" in {
@@ -73,7 +73,7 @@ class RestrictionRegistrySpec extends BaseSpec {
 
     val target = RestrictionRegistry(state)
 
-    target.get(RestrictionType.Item(), ResourceLocation("skillstest", "other").get).isEmpty shouldBe true
+    target.get(RestrictionType.Item, ResourceLocation("skillstest", "other").get).isEmpty shouldBe true
   }
 
   "RestrictionRegistry.add" should "adds a restriction to the state" in {

@@ -8,7 +8,6 @@ trait DimensionFacetParser extends JsonDataParser {
     raw: JsonObject,
     onInclude: JsonElement => Unit,
     onExclude: JsonElement => Unit,
-  ): Unit = {
+  ): Unit =
     parseFacet(raw, "dimensions", onInclude, onExclude)
-  }
 }

@@ -8,6 +8,7 @@ import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.slab.entity.{Player => MinecraftPlayer}
+import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 
 import java.util.UUID
@@ -16,9 +17,10 @@ class PlayerSpec extends BaseSpec {
   private val registryMock = mock[PlayerRegistry]
   private val skillTypeOpsMock = mock[SkillTypeOps]
   private val skillOpsMock = mock[SkillOps]
-  private val playerMock = mock[MinecraftPlayer[_]]
+  private val loggerMock = mock[Logger]
+  private val playerMock = mock[MinecraftPlayer]
 
-  private val testUnit = new Player(registryMock, skillTypeOpsMock, skillOpsMock)
+  private val testUnit = new Player(registryMock, skillTypeOpsMock, skillOpsMock, loggerMock)
 
   "PlayerRegistryFacade.get" should "proxy PlayerRegistry.get" in {
     val givenUuid = UUID.randomUUID()
@@ -153,15 +155,20 @@ class PlayerSpec extends BaseSpec {
     val skillName = ResourceLocation("skillstest", "test_skill").get
     val givenThreshold = Option("test-value")
 
+    val givenSkillTypeName = ResourceLocation("skillstest", "test_type").get
     val givenSkillType = mock[SkillType[String]]
-    skillTypeOpsMock.get[String](skillName) returns Option(givenSkillType)
 
     val otherSkill = mock[Skill[String]]
     otherSkill.name returns ResourceLocation("skillstest", "other_skill").get
     val foundSkill = mock[Skill[String]]
     foundSkill.name returns skillName
+    foundSkill.skillType returns givenSkillTypeName
     val foundSkills = List(otherSkill, foundSkill)
     registryMock.get(givenUuid) returns foundSkills
+
+    givenSkillType.name returns givenSkillTypeName
+    skillTypeOpsMock.get[String](foundSkill) returns Option(givenSkillType)
+
 
     val expected = false
     givenSkillType.can(foundSkill, givenThreshold) returns expected
@@ -176,14 +183,14 @@ class PlayerSpec extends BaseSpec {
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
 
-    skillTypeOpsMock.get(givenSkill) returns None
-
     val otherSkill = mock[Skill[String]]
     otherSkill.name returns ResourceLocation("skillstest", "other_skill").get
     val foundSkill = mock[Skill[String]]
     foundSkill.name returns skillName
     val foundSkills = List(otherSkill, foundSkill)
     registryMock.get(givenUuid) returns foundSkills
+
+    skillTypeOpsMock.get(foundSkill) returns None
 
     testUnit.can(givenUuid, skillName) should be(Player.DEFAULT_SKILL_RESPONSE)
   }
@@ -195,9 +202,6 @@ class PlayerSpec extends BaseSpec {
     val givenSkill = mock[Skill[String]]
     givenSkill.name returns skillName
 
-    val givenSkillType = mock[SkillType[String]]
-    skillTypeOpsMock.get(givenSkill) returns Option(givenSkillType)
-
     val otherSkill = mock[Skill[String]]
     otherSkill.name returns ResourceLocation("skillstest", "other_skill").get
 
@@ -206,7 +210,7 @@ class PlayerSpec extends BaseSpec {
 
     testUnit.can(givenUuid, skillName) should be(Player.DEFAULT_SKILL_RESPONSE)
 
-    givenSkillType.can(*, None) wasNever called
+    skillTypeOpsMock.get(*[Skill[String]]) wasNever called
   }
 
   "Player.reset" should "upsert player with the default skill value" in {

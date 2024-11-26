@@ -1,0 +1,45 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "specialized"
+	group: "77DD7DB1E0C5E281"
+	id: "1C1A7E92EE51265E"
+	order_index: 0
+	quest_links: [ ]
+	quests: [{
+		id: "29DD699A67C6662F"
+		rewards: [{
+			downgrade: 0b
+			icon: {
+				Count: 1b
+				id: "minecraft:diamond_shovel"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "5403726572412439"
+			ignore_reward_blocking: true
+			skill: "playerskills:eleven_reward"
+			title: "Got a Specialized Skill"
+			type: "minecraft:specialized_skill_reward"
+			value: "navy"
+		}]
+		tasks: [{
+			icon: {
+				Count: 1b
+				id: "minecraft:diamond_sword"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "458E8DAAB5345325"
+			skill: "playerskills:eleven_test"
+			title: "Gained a Specialized Skill"
+			type: "minecraft:specialized_skill_task"
+			value: "cerulean"
+		}]
+		x: 5.0d
+		y: 0.0d
+	}]
+	title: "Specialized Skill and Reward"
+}

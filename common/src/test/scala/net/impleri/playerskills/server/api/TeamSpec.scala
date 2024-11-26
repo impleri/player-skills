@@ -9,7 +9,6 @@ import net.impleri.slab.entity.{Player => MinecraftPlayer}
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.server.Server
-import net.minecraft.server.level.ServerPlayer
 
 import java.util.UUID
 
@@ -27,7 +26,7 @@ class TeamSpec extends BaseSpec {
   private val loggerMock = mock[Logger]
 
   private val givenUuid = UUID.randomUUID()
-  private val testUnit = new TeamOps(playerOpsMock, skillOpsMock, teamMock, eventHandlerMock, loggerMock)
+  private val testUnit = TeamOps(playerOpsMock, skillOpsMock, teamMock, eventHandlerMock, loggerMock)
 
   "StubTeam" should "always return just the given user ID" in {
     StubTeam().getTeamMembersFor(givenUuid) should be(List(givenUuid))
@@ -167,7 +166,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamUpdater.notifyPlayers" should "trigger notifications" in {
     val serverMock = mock[Server]
-    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+    val playerMock = mock[MinecraftPlayer]
 
     val skillName = ResourceLocation("testskills", "alpha").get
     val oldSkill = TestSkill(skillName, teamMode = TeamMode.Shared())
@@ -178,7 +177,7 @@ class TeamSpec extends BaseSpec {
     playerOpsMock.isOnline(givenUuid) returns true
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
 
-    testUnit.notifyPlayers(serverMock, newSkill)(updates)
+    testUnit.notifyPlayers(Option(serverMock), newSkill)(updates)
 
     eventHandlerMock.emitSkillChanged(playerMock, newSkill, Option(oldSkill)) wasCalled once
   }
@@ -192,7 +191,7 @@ class TeamSpec extends BaseSpec {
 
     val updates = List((givenUuid, Option(oldSkill)))
 
-    testUnit.notifyPlayers(serverMock, newSkill, emit = false)(updates)
+    testUnit.notifyPlayers(Option(serverMock), newSkill, emit = false)(updates)
 
     serverMock.getPlayer(*) wasNever called
 
@@ -295,7 +294,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamOps.degrade" should "updates shared skill to a lower value" in {
     val serverMock = mock[Server]
-    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+    val playerMock = mock[MinecraftPlayer]
 
     val secondUuid = UUID.randomUUID()
     val skillName = ResourceLocation("testskills", "alpha").get
@@ -308,7 +307,7 @@ class TeamSpec extends BaseSpec {
     val offline = List(secondUuid)
 
     playerMock.uuid returns givenUuid
-    playerMock.server returns serverMock
+    playerMock.server returns Option(serverMock)
 
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
     playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
@@ -334,7 +333,7 @@ class TeamSpec extends BaseSpec {
 
   "TeamOps.improve" should "updates shared skill to a higher value" in {
     val serverMock = mock[Server]
-    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+    val playerMock = mock[MinecraftPlayer]
 
     val secondUuid = UUID.randomUUID()
     val skillName = ResourceLocation("testskills", "alpha").get
@@ -347,7 +346,7 @@ class TeamSpec extends BaseSpec {
     val offline = List(secondUuid)
 
     playerMock.uuid returns givenUuid
-    playerMock.server returns serverMock
+    playerMock.server returns Option(serverMock)
 
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
     playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
@@ -372,7 +371,7 @@ class TeamSpec extends BaseSpec {
 
   it should "does nothing if there is no update" in {
     val serverMock = mock[Server]
-    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+    val playerMock = mock[MinecraftPlayer]
 
     val secondUuid = UUID.randomUUID()
     val skillName = ResourceLocation("testskills", "alpha").get
@@ -384,7 +383,7 @@ class TeamSpec extends BaseSpec {
     val offline = List(secondUuid)
 
     playerMock.uuid returns givenUuid
-    playerMock.server returns serverMock
+    playerMock.server returns Option(serverMock)
 
     serverMock.getPlayer(givenUuid) returns Option(playerMock)
     playerOpsMock.get[String](givenUuid, skillName) returns Option(oldSkill)
@@ -407,7 +406,7 @@ class TeamSpec extends BaseSpec {
     val secondUuid = UUID.randomUUID()
 
     val serverMock = mock[Server]
-    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+    val playerMock = mock[MinecraftPlayer]
 
     val skill1Name = ResourceLocation("testskills", "alpha").get
     val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
@@ -466,7 +465,7 @@ class TeamSpec extends BaseSpec {
     val secondUuid = UUID.randomUUID()
 
     val serverMock = mock[Server]
-    val playerMock = mock[MinecraftPlayer[ServerPlayer]]
+    val playerMock = mock[MinecraftPlayer]
 
     val skill1Name = ResourceLocation("testskills", "alpha").get
     val skill1 = TestSkill(skill1Name, teamMode = TeamMode.Shared())
@@ -483,7 +482,7 @@ class TeamSpec extends BaseSpec {
     val offline = List(secondUuid)
 
     playerMock.uuid returns givenUuid
-    playerMock.server returns serverMock
+    playerMock.server returns Option(serverMock)
 
     skillOpsMock.sortHelper(*, *) answers ((a: Skill[String], b: Skill[String]) => (a.value, b.value) match {
       case (Some(_), None) => 1

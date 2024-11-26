@@ -9,9 +9,9 @@ case class OnQuit(
   netHandler: NetHandler = NetHandler(),
   upstream: PlayerEvents = PlayerEvents(),
 ) {
-  private[bindings] val handler: PlayerEvents.OnJoinOrQuit = player => {
-    playerRegistry().close(player.uuid)
-  }
+  private[bindings] val handler: PlayerEvents.OnJoinOrQuit = player =>
+    playerRegistry()
+      .close(player.uuid)
 
   upstream.onQuit(handler)
 }

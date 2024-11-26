@@ -19,8 +19,7 @@ trait SetSkillCommand extends CommandUtils {
 
   protected def skillTypeOps: SkillTypeOps
 
-  protected def registerSetCommand[T <: CommandSegment.Any](builder: T): T = {
-
+  protected def registerSetCommand[T <: CommandSegment.Any](builder: T): T =
     builder
       .option(
         CommandString("set")
@@ -41,27 +40,25 @@ trait SetSkillCommand extends CommandUtils {
           ),
       )
       .asInstanceOf[T]
-  }
 
   private def successMessage: String = "commands.playerskills.skill_changed"
 
   private def failureMessage: String =
     "commands.playerskills.skill_change_failed"
 
-  protected def grantFoundSkillTo[T](
-    player: Player.Any,
+  private def grantFoundSkillTo[T](
+    player: Player,
     skill: Skill[T],
     value: String,
-  ) = {
+  ) =
     skillTypeOps
       .get(skill)
       .map(_.castFromString(value))
       .map(v => skill.asInstanceOf[ChangeableSkillOps[T, Skill[T]]].mutate(v))
       .map(s => teamOps.change(player, s))
       .forall(_.nonEmpty)
-  }
 
-  private def handler(useCurrentUser: Boolean): CommandAction.Callback = {
+  private def handler(useCurrentUser: Boolean): CommandAction.Callback =
     context =>
       {
         val player = CommandAction.getPlayer(context, useCurrentUser)
@@ -80,5 +77,4 @@ trait SetSkillCommand extends CommandUtils {
           )
           .map(_ => formatMessage(successMessage, skillName, player))
       }
-  }
 }

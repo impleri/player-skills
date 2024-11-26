@@ -1,4 +1,4 @@
-package net.impleri.playerskills.integrations.ftbquests.helpers
+package net.impleri.playerskills.integrations.ftbquests.quests
 
 import dev.ftb.mods.ftblibrary.config.ConfigGroup
 import dev.ftb.mods.ftblibrary.config.ConfigValue
@@ -32,9 +32,8 @@ trait StringQuest extends RestrictableValue[String] {
     nbt.putString(key, value.getOrElse(noneValue))
   }
 
-  override def readMinMaxTag(nbt: NbtContents, key: String): Option[String] = {
+  override def readMinMaxTag(nbt: NbtContents, key: String): Option[String] =
     nbt.getString(key).filterNot(_.isBlank)
-  }
 
   override def writeValueToBuffer(
     buffer: FriendlyBuffer,
@@ -43,9 +42,8 @@ trait StringQuest extends RestrictableValue[String] {
     buffer.writeString(value.getOrElse(noneValue))
   }
 
-  override def readValueFromBuffer(buffer: FriendlyBuffer): Option[String] = {
+  override def readValueFromBuffer(buffer: FriendlyBuffer): Option[String] =
     buffer.readString()
-  }
 
   override def writeMinMaxBuffer(
     buffer: FriendlyBuffer,
@@ -54,9 +52,8 @@ trait StringQuest extends RestrictableValue[String] {
     buffer.writeString(value.getOrElse(noneValue))
   }
 
-  override def readMinMaxBuffer(buffer: FriendlyBuffer): Option[String] = {
+  override def readMinMaxBuffer(buffer: FriendlyBuffer): Option[String] =
     buffer.readString().filterNot(_.isBlank)
-  }
 
   override def addValueConfig(
     config: ConfigGroup,
@@ -64,7 +61,7 @@ trait StringQuest extends RestrictableValue[String] {
     value: String,
     options: NameMap[String],
     defaultValue: String,
-  ): ConfigValue[_] = {
+  ): ConfigValue[_] =
     config
       .addString(
         key,
@@ -76,7 +73,6 @@ trait StringQuest extends RestrictableValue[String] {
             .pipe(upsert),
         defaultValue,
       )
-  }
 
   override protected def addMinMaxConfig(
     config: ConfigGroup,

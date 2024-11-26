@@ -22,7 +22,6 @@ abstract class RestrictionDataLoader(group: String)
 
   override def parse(
     data: Map[ResourceLocation, JsonElement],
-  ): Unit = {
+  ): Unit =
     data.foreach(t => parseRestriction(t._1, t._2.getAsJsonObject))
-  }
 }

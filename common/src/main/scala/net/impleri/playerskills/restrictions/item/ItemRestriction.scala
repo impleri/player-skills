@@ -7,7 +7,7 @@ import net.impleri.slab.item.Item
 
 case class ItemRestriction(
   target: Item,
-  condition: Player[_] => Boolean = Restriction.DEFAULT_CONDITION,
+  condition: Player => Boolean = Restriction.DEFAULT_CONDITION,
   replacement: Option[Item] = None,
   includeDimensions: Seq[String] = List.empty,
   excludeDimensions: Seq[String] = List.empty,
@@ -19,14 +19,14 @@ case class ItemRestriction(
   usable: Boolean = Restriction.DEFAULT_RESPONSE,
   identifiable: Boolean = Restriction.DEFAULT_RESPONSE,
 ) extends Restriction[Item, Item.Vanilla] {
-  override val restrictionType: RestrictionType = RestrictionType.Item()
+  override val restrictionType: RestrictionType = RestrictionType.Item
 }
 
 object ItemRestriction {
   def apply(
     target: Item,
     builder: ItemConditions,
-  ): ItemRestriction = {
+  ): ItemRestriction =
     new ItemRestriction(
       target,
       builder.condition,
@@ -41,5 +41,4 @@ object ItemRestriction {
       builder.isUsable.getOrElse(Restriction.DEFAULT_RESPONSE),
       builder.isIdentifiable.getOrElse(Restriction.DEFAULT_RESPONSE),
     )
-  }
 }

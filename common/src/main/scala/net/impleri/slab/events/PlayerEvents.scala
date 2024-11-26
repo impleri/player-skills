@@ -52,167 +52,175 @@ case class PlayerEvents(
     PlayerEvent.FILL_BUCKET,
   private val onAttackEvent: Event[PlayerEvent.AttackEntity] =
     PlayerEvent.ATTACK_ENTITY,
-) {
-  private def withServerPlayer(p: ServerPlayer): Option[Player.Server] =
+) extends ResultHandler {
+  private def withServerPlayer(p: ServerPlayer): Option[Player] =
     Option(p).map(Player(_))
 
-  private def withPlayer(p: McPlayer): Option[Player.Any] =
+  private def withPlayer(p: McPlayer): Option[Player] =
     Option(p).map(Player(_))
 
-  def onJoin(handler: PlayerEvents.OnJoinOrQuit): Unit = {
-    onJoinEvent.register((player: ServerPlayer) =>
-      withServerPlayer(player).foreach(handler),
+  def onJoin(handler: PlayerEvents.OnJoinOrQuit): Unit =
+    onJoinEvent.register((rawPlayer: ServerPlayer) =>
+      for {
+        player <- Option(rawPlayer).map(Player(_))
+      } yield handler(player)
     )
-  }
 
-  def onQuit(handler: PlayerEvents.OnJoinOrQuit): Unit = {
-    onQuitEvent.register((player: ServerPlayer) =>
-      withServerPlayer(player).foreach(handler),
+  def onQuit(handler: PlayerEvents.OnJoinOrQuit): Unit =
+    onQuitEvent.register((rawPlayer: ServerPlayer) =>
+      for {
+        player <- Option(rawPlayer).map(Player(_))
+      } yield handler(player)
     )
-  }
 
-  def onRespawn(handler: PlayerEvents.OnRespawn): Unit = {
+  def onRespawn(handler: PlayerEvents.OnRespawn): Unit =
     onRespawnEvent
-      .register((player: ServerPlayer, wonGame: Boolean) =>
-        withServerPlayer(player).foreach(handler(_, wonGame)),
+      .register((rawPlayer: ServerPlayer, wonGame: Boolean) =>
+        for {
+        player <- Option(rawPlayer).map(Player(_))
+      } yield handler(player, wonGame)
       )
-  }
 
-  def onClone(handler: PlayerEvents.OnClone): Unit = {
+  def onClone(handler: PlayerEvents.OnClone): Unit =
     onCloneEvent.register {
-      (oldPlayer: ServerPlayer, player: ServerPlayer, wonGame: Boolean) =>
-        withServerPlayer(player).foreach(
-          handler(_, Option(oldPlayer).map(Player(_)), wonGame),
-        )
+      (original: ServerPlayer, player: ServerPlayer, wonGame: Boolean) =>
+        for {
+        oldPlayer <- Option(original).map(Player(_))
+        newPlayer = Option(player).map(Player(_))
+      } yield handler(oldPlayer, newPlayer, wonGame)
     }
-  }
 
-  def onAward(handler: PlayerEvents.OnAward): Unit = {
-    onAwardEvent.register { (player: ServerPlayer, advancement: Advancement) =>
-      withServerPlayer(player).foreach(
-        handler(_, Option(advancement).map(Award(_))),
-      )
+  def onAward(handler: PlayerEvents.OnAward): Unit =
+    onAwardEvent.register { (rawPlayer: ServerPlayer, advancement: Advancement) =>
+      for {
+        player <- Option(rawPlayer).map(Player(_))
+        award = Option(advancement).map(Award(_))
+      } yield handler(player, award)
     }
-  }
 
-  def afterCraft(handler: PlayerEvents.AfterCraft): Unit = {
+  def afterCraft(handler: PlayerEvents.AfterCraft): Unit =
     // TODO: Wrap Container and pass it into handler
     afterCraftEvent.register {
-      (player: McPlayer, item: ItemStack, _: Container) =>
-        withPlayer(player).foreach(handler(_, Option(item).map(Item(_))))
+      (rawPlayer: McPlayer, rawItem: ItemStack, _: Container) =>
+        for {
+        player <- Option(rawPlayer).map(Player(_))
+        item = Option(rawItem).map(Item(_))
+      } yield handler(player, item)
     }
-  }
 
-  def afterSmelt(handler: PlayerEvents.AfterSmelt): Unit = {
-    afterSmeltEvent.register { (player: McPlayer, item: ItemStack) =>
-      withPlayer(player).foreach(handler(_, Option(item).map(Item(_))))
+  def afterSmelt(handler: PlayerEvents.AfterSmelt): Unit =
+    afterSmeltEvent.register { (rawPlayer: McPlayer, rawItem: ItemStack) =>
+      for {
+        player <- Option(rawPlayer).map(Player(_))
+        item = Option(rawItem).map(Item(_))
+      } yield handler(player, item)
     }
-  }
 
-  def canPickup(handler: PlayerEvents.CanPickup): Unit = {
+  def canPickup(handler: PlayerEvents.CanPickup): Unit =
     canPickupEvent.register {
-      (player: McPlayer, entity: ItemEntity, item: ItemStack) =>
-        withPlayer(player).fold(EventResult.pass())(
-          handler(_, Option(item).map(Item(_)), Option(entity).map(Entity(_))),
-        )
+      (rawPlayer: McPlayer, entity: ItemEntity, rawItem: ItemStack) =>
+        ensureResult {
+          for {
+            player <- Option(rawPlayer).map(Player(_))
+            item = Option(rawItem).map(Item(_))
+            itemEntity = Option(entity).map(Entity(_))
+          } yield handler(player, item, itemEntity)
+        }
     }
-  }
 
-  def onPickup(handler: PlayerEvents.OnPickup): Unit = {
+  def onPickup(handler: PlayerEvents.OnPickup): Unit =
     onPickupEvent.register {
-      (player: McPlayer, entity: ItemEntity, item: ItemStack) =>
-        withPlayer(player).foreach(
-          handler(_, Option(item).map(Item(_)), Option(entity).map(Entity(_))),
-        )
+      (rawPlayer: McPlayer, entity: ItemEntity, rawItem: ItemStack) =>
+        for {
+            player <- Option(rawPlayer).map(Player(_))
+            item = Option(rawItem).map(Item(_))
+            itemEntity = Option(entity).map(Entity(_))
+          } yield handler(player, item, itemEntity)
     }
-  }
 
-  def onChangeDimension(handler: PlayerEvents.OnChangeDimension): Unit = {
+  def onChangeDimension(handler: PlayerEvents.OnChangeDimension): Unit =
     onChangeDimensionEvent
       .register {
         (
-          player: ServerPlayer,
+          rawPlayer: ServerPlayer,
           oldLevel: ResourceKey[McLevel],
           newLevel: ResourceKey[McLevel],
         ) =>
-          withPlayer(player).foreach(
-            handler(
-              _,
-              Option(newLevel).map(_.location()).flatMap(ResourceLocation(_)),
-              Option(oldLevel).map(_.location()).flatMap(ResourceLocation(_)),
-            ),
-          )
+          for {
+            player <- Option(rawPlayer).map(Player(_))
+            origin = Option(oldLevel).map(_.location()).flatMap(ResourceLocation(_))
+            destination = Option(newLevel).map(_.location()).flatMap(ResourceLocation(_))
+          } yield handler(player, destination, origin)
       }
-  }
 
-  def onDrop(handler: PlayerEvents.OnDrop): Unit = {
-    onDropEvent.register { (player: McPlayer, item: ItemEntity) =>
-      withPlayer(player).fold(EventResult.pass())(
-        handler(_, Option(item).map(Entity(_))),
-      )
+  def onDrop(handler: PlayerEvents.OnDrop): Unit =
+    onDropEvent.register { (rawPlayer: McPlayer, item: ItemEntity) =>
+      ensureResult {
+        for {
+          player <- Option(rawPlayer).map(Player(_))
+          itemEntity = Option(item).map(Entity(_))
+        } yield handler(player, itemEntity)
+      }
     }
-  }
 
   //  def onOpenMenu(): Unit = ???
 
   //  def onCloseMenu(): Unit = ???
 
-  def onFillBucket(handler: PlayerEvents.OnFillBucket): Unit = {
+  def onFillBucket(handler: PlayerEvents.OnFillBucket): Unit =
     // TODO: Incorporate HitResult into callback
     onFillBucketEvent.register {
-      (player: McPlayer, level: McLevel, item: ItemStack, _: HitResult) =>
-        withPlayer(player).fold(CompoundEventResult.pass[ItemStack]())(
-          handler(
-            _,
-            Option(level).map(Level(_)),
-            Option(item).map(Item(_)),
-          ),
-        )
+      (rawPlayer: McPlayer, rawLevel: McLevel, rawItem: ItemStack, _: HitResult) =>
+        ensureCompoundResult[ItemStack] {
+          for {
+            player <- Option(rawPlayer).map(Player(_))
+            level = Option(rawLevel).map(Level(_))
+            item = Option(rawItem).map(Item(_))
+          } yield handler(player, level, item)
+        }
     }
-  }
 
-  def onAttack(handler: PlayerEvents.OnAttack): Unit = {
+  def onAttack(handler: PlayerEvents.OnAttack): Unit =
     // TODO: Incorporate EntityHitResult into callback
     onAttackEvent
       .register {
         (
-          player: McPlayer,
-          level: McLevel,
-          entity: McEntity,
-          hand: InteractionHand,
+          rawPlayer: McPlayer,
+          rawLevel: McLevel,
+          rawEntity: McEntity,
+          rawHand: InteractionHand,
           _: EntityHitResult,
         ) =>
-          withPlayer(player).fold(EventResult.pass())(
-            handler(
-              _,
-              Option(entity).map(Entity(_)),
-              Option(level).map(Level(_)),
-              Hand.fromVanilla(hand),
-            ),
-          )
+          ensureResult {
+            for {
+              player <- Option(rawPlayer).map(Player(_))
+              level = Option(rawLevel).map(Level(_))
+              entity = Option(rawEntity).map(Entity(_))
+              hand = Hand.fromVanilla(rawHand)
+            } yield handler(player, entity, level, hand)
+          }
       }
-  }
 }
 
 object PlayerEvents {
-  type OnJoinOrQuit = Player.Any => Unit
-  type OnRespawn = (Player.Any, Boolean) => Unit
-  type OnClone = (Player.Any, Option[Player.Any], Boolean) => Unit
-  type OnAward = (Player.Any, Option[Award]) => Unit
-  type AfterCraft = (Player.Any, Option[Item]) => Unit
-  type AfterSmelt = (Player.Any, Option[Item]) => Unit
-  type CanPickup = (Player.Any, Option[Item], Option[Entity.Any]) => EventResult
-  type OnPickup = (Player.Any, Option[Item], Option[Entity.Any]) => Unit
+  type OnJoinOrQuit = Player => Unit
+  type OnRespawn = (Player, Boolean) => Unit
+  type OnClone = (Player, Option[Player], Boolean) => Unit
+  type OnAward = (Player, Option[Award]) => Unit
+  type AfterCraft = (Player, Option[Item]) => Unit
+  type AfterSmelt = (Player, Option[Item]) => Unit
+  type CanPickup = (Player, Option[Item], Option[Entity.Any]) => EventResult
+  type OnPickup = (Player, Option[Item], Option[Entity.Any]) => Unit
   type OnChangeDimension =
-    (Player.Any, Option[ResourceLocation], Option[ResourceLocation]) => Unit
-  type OnDrop = (Player.Any, Option[Entity.Any]) => EventResult
+    (Player, Option[ResourceLocation], Option[ResourceLocation]) => Unit
+  type OnDrop = (Player, Option[Entity.Any]) => EventResult
   type OnFillBucket = (
-    Player.Any,
+    Player,
     Option[Level.Any],
     Option[Item],
   ) => CompoundEventResult[ItemStack]
   type OnAttack = (
-    Player.Any,
+    Player,
     Option[Entity.Any],
     Option[Level.Any],
     Hand.Hand,
