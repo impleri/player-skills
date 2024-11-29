@@ -53,7 +53,7 @@ abstract class RestrictableReward[T](
       skill <- playerOps.get[T](player, skillName)
       skillType <- skillTypeOps.get[T](skill)
       regradeValue = if (data.downgrade) skillType.getPrevValue(skill, data.min, data.max) else skillType.getNextValue(skill, data.min, data.max)
-      desiredValue = data.value.orElse(regradeValue)
+      desiredValue = data.value.filterNot(_ == noneValue).orElse(regradeValue)
       nextValue <- playerOps.calculateValue(player, skill, desiredValue)
     } yield nextValue
 }

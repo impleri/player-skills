@@ -4,7 +4,7 @@
 	filename: "tiered"
 	group: "77DD7DB1E0C5E281"
 	id: "2A0CAAB6A4D3B26B"
-	order_index: 0
+	order_index: 3
 	quest_links: [ ]
 	quests: [{
 		id: "45B49D98CC1CDA0C"

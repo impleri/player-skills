@@ -70,7 +70,7 @@ class Player(
       skill <- get[T](playerId, skillName)
       skillType <- skillTypeOps.get[T](skill)
     } yield skillType.can(skill, expectedValue)
-      .tap(logger.infoP(c => s"Checked that $playerId can $skill as $expectedValue: $c"))
+      .tap(logger.debugP(c => s"Checked that $playerId can ${skill.name} as $expectedValue: $c"))
 
   def can[T](
     playerId: UUID,
@@ -79,7 +79,7 @@ class Player(
   ): Boolean =
     canHelper(playerId, skillName, expectedValue)
       .getOrElse {
-        logger.debug(s"Could not find a valid skill for $skillName or an associated type")
+        logger.warn(s"Could not find a valid skill for $skillName or an associated type")
         Player.DEFAULT_SKILL_RESPONSE
       }
 
@@ -126,7 +126,7 @@ object Player {
     registry: PlayerRegistry = PlayerRegistry(),
     skillTypeOps: SkillTypeOps = SkillType(),
     skillOps: SkillOps = Skill(),
-    logger: Logger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
   ): Player =
     new Player(registry, skillTypeOps, skillOps, logger)
 }

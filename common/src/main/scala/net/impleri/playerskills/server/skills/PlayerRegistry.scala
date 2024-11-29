@@ -65,10 +65,15 @@ case class PlayerRegistry(
     get(playerId)
   }
 
-  def get(playerId: UUID): List[Skill[_]] =
+  def get(playerId: UUID): List[Skill[_]] = {
+    if (!has(playerId)) {
+      open(playerId)
+    }
+
     PlayerRegistryState
       .get(playerId)
       .pipe(maintainState)
+  }
 
   def has(playerId: UUID): Boolean =
     PlayerRegistryState

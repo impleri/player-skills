@@ -85,7 +85,7 @@ class PlayerRegistrarSpec extends BaseSpec {
     target.get(playerOne) should be(List(testSkill, otherSkill))
   }
 
-  it should "return an empty list if the player is not in memory" in {
+  it should "attempt to load the player's information if the player is not in memory" in {
     val (state, _) = PlayerRegistryState
       .upsert(playerOne, List(testSkill, otherSkill))
       .run(PlayerRegistryState.empty)
@@ -93,7 +93,10 @@ class PlayerRegistrarSpec extends BaseSpec {
 
     val target = PlayerRegistry(Option(storageMock), state, skillRegistryMock, loggerMock)
 
-    target.get(playerTwo) should be(List.empty)
+    skillRegistryMock.entries returns List(testSkill, otherSkill)
+    storageMock.read(playerTwo) returns List(testSkill)
+
+    target.get(playerTwo) should be(List(testSkill, otherSkill))
   }
 
   "PlayerRegistry.upsert" should "replace a skill in state" in {

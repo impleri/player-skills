@@ -122,7 +122,7 @@ abstract class SkillReward[T](
       player <- Option(p).map(Player(_))
       notify = Option(n).getOrElse(false)
       nextValue <- getNextValue(player)
-      _ = logger.debug(s"Changing ${nextValue.name} to ${nextValue.value} for $player")
+      _ = logger.debug(s"Changing ${nextValue.name} to ${nextValue.value} for $player based on $data")
       updatedSkills = playerOps.upsert(player, nextValue)
       updated <- updatedSkills.find(s => s.name == nextValue.name && s.value == nextValue.value)
     } yield maybeNotify(player, notify, updated.value.toString)

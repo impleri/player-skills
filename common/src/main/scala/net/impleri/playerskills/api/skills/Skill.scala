@@ -13,6 +13,8 @@ sealed trait SkillData[T] extends Named {
   val value: Option[T] = None
   val description: Option[String] = None
   val teamMode: TeamMode = TeamMode.Off()
+
+  override def toString: String = s"$name[$skillType]"
 }
 
 sealed trait ChangeableSkill[T] extends SkillData[T] {

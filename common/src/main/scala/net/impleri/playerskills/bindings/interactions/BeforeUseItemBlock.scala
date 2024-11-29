@@ -1,7 +1,7 @@
 package net.impleri.playerskills.bindings.interactions
 
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.playerskills.utils.{EventLogging, PlayerSkillsLogger}
 import net.impleri.slab.entity.Hand.Hand
 import net.impleri.slab.entity.Player
 import net.impleri.slab.events.EventHandler
@@ -14,7 +14,7 @@ case class BeforeUseItemBlock(
   itemRestrictionOps: ItemRestrictionOps,
   upstream: InteractionEvents = InteractionEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
-) extends EventHandler {
+) extends EventHandler with EventLogging {
   private[bindings] val handler: InteractionEvents.OnClickBlock =
     (player: Player, pos: Option[Position], hand: Hand, _: Direction) =>
       //    val blockState = BlockRestrictions.getBlockState(pos, player.getLevel())
@@ -30,19 +30,7 @@ case class BeforeUseItemBlock(
         for {
           item <- player.getItemInHand(hand).filterNot(_.isDefault)
           usable = itemRestrictionOps.isUsable(player, item, pos)
-        } yield {
-          if (!usable) {
-            logger.debug(
-              s"${player.handle} cannot interact with block using ${item.name}",
-            )
-          } else {
-            logger.trace(
-              s"${player.handle} is going to interact with block using ${item.name}",
-            )
-          }
-
-          usable
-        }
+        } yield logEvent(player, s"interact with block using ${item.name}")(usable)
       }
 
   upstream.onLeftClickBlock(handler)

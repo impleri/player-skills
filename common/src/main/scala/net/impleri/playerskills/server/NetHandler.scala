@@ -37,7 +37,7 @@ object NetHandler {
   def apply(
     playerOps: => Player = Player(),
     messageFactory: SyncSkillsMessageFactory = SyncSkillsMessageFactory(),
-    logger: Logger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.NETWORK,
   ): NetHandler =
     new NetHandler(
       playerOps,

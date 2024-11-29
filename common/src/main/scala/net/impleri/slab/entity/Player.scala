@@ -28,6 +28,8 @@ class Player(override val underlying: Player.Vanilla)
 
   val server: Option[Server] = Option(underlying.getServer).map(Server(_))
 
+  override def toString: String = handle
+
   private def toItemMap(
     values: NonNullList[Item.VanillaStack],
   ): Map[Int, Item] = {

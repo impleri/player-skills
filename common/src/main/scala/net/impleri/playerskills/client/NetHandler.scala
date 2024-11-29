@@ -9,7 +9,7 @@ import net.impleri.slab.logging.Logger
 case class NetHandler(
   clientSkillsRegistry: ClientSkillsRegistry = ClientSkillsRegistry(),
   messageFactory: ResyncSkillsMessageFactory,
-  logger: Logger = PlayerSkillsLogger.SKILLS,
+  logger: Logger = PlayerSkillsLogger.NETWORK,
 ) {
   def onSyncPlayer(skills: List[Skill[_]], force: Boolean): Unit = {
     logger.info(

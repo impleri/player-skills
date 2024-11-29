@@ -42,5 +42,5 @@ execute at @e[tag=setup,limit=1] run setblock ~-1 ~ ~-1 oak_sign[rotation=14]{ T
 
 execute as @e[tag=test_10,limit=1] at @s run function playerskills:reset/10
 
-execute at @e[tag=setup,limit=1] run teleport @e[tag=setup,limit=1] ~10 ~ ~
+execute at @e[tag=setup,limit=1] run teleport @e[tag=setup,limit=1] 4 ~ ~10
 scoreboard players add something test 1
