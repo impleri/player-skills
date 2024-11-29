@@ -1,7 +1,7 @@
 package net.impleri.playerskills.server.bindings.block
 
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
-import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.playerskills.utils.{EventLogging, PlayerSkillsLogger}
 import net.impleri.slab.events.BlockEvents
 import net.impleri.slab.events.EventHandler
 import net.impleri.slab.logging.Logger
@@ -10,7 +10,7 @@ case class OnBreak(
   itemRestrictionOps: ItemRestrictionOps,
   upstream: BlockEvents = BlockEvents(),
   logger: Logger = PlayerSkillsLogger.ITEMS,
-) extends EventHandler {
+) extends EventHandler with EventLogging {
   private[bindings] val handler: BlockEvents.OnBreak =
     (player, blockOpt, position, _, _) =>
       //    val replacedBlock = BlockRestrictions.getReplacement(player, originalBlockState, pos)
@@ -28,19 +28,7 @@ case class OnBreak(
           block <- blockOpt
           tool <- player.getItemInMainHand
           usable = itemRestrictionOps.isUsable(player, tool, position)
-        } yield {
-          if (!usable) {
-            logger.debug(
-              s"${player.handle} cannot mine block ${block.name} using ${tool.name}",
-            )
-          } else {
-            logger.trace(
-              s"${player.handle} is going to mine block ${block.name} using ${tool.name}",
-            )
-          }
-
-          usable
-        }
+        } yield logEvent(player, s"mine block ${block.name} using ${tool.name}")(usable)
       }
 
   upstream.onBreak(handler)

@@ -14,7 +14,7 @@ trait DoubleQuest extends RestrictableValue[Double] {
 
   override val noneValue = 0.0
 
-  override protected val maxValue: Double = Double.MaxValue
+  override val maxValue: Double = Double.MaxValue
 
   override def writeValueToTag(
     nbt: NbtContents,
@@ -45,6 +45,7 @@ trait DoubleQuest extends RestrictableValue[Double] {
   override def readValueFromBuffer(buffer: FriendlyBuffer): Option[Double] =
     buffer.readDouble()
 
+
   override def writeMinMaxBuffer(
     buffer: FriendlyBuffer,
     value: Option[Double],
@@ -66,7 +67,10 @@ trait DoubleQuest extends RestrictableValue[Double] {
         key,
         value,
         v =>
-          Option(v.doubleValue()).pipe(n => data.copy(value = n)).pipe(upsert),
+          Option(v.doubleValue())
+            .filterNot(_ == noneValue)
+            .pipe(n => data.copy(value = n))
+            .pipe(upsert),
         defaultValue,
         data.min.getOrElse(noneValue),
         data.max.getOrElse(maxValue),

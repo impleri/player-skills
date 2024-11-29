@@ -29,6 +29,8 @@ class Entity[T <: Entity.Vanilla](override val underlying: T)
 
   lazy val biome: Option[Biome] = biomeAt()
 
+  override def toString: String = s"$mobTypeName[${name.fold("entity")(_.toString)}]"
+
   def biomeAt(pos: Option[Position] = None): Option[Biome] =
     for {
       at <- pos.orElse(position)

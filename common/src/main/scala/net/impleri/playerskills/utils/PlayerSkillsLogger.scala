@@ -18,6 +18,8 @@ object LoggerType {
 
   final case object NETWORK extends LoggerType
 
+  final case object PARSER extends LoggerType
+
   final case object RESTRICTIONS extends LoggerType
 
   final case object SKILLS extends LoggerType
@@ -35,6 +37,7 @@ object PlayerSkillsLogger {
   val ITEMS: Logger = factory("ITEMS")
   val MOBS: Logger = factory("MOBS")
   val NETWORK: Logger = factory("NET")
+  val PARSE: Logger = factory("PARSE")
   val RESTRICTIONS: Logger = factory("CAN")
   val SKILLS: Logger = factory("CORE")
   val STORAGE: Logger = factory("FILE")
@@ -47,6 +50,7 @@ object PlayerSkillsLogger {
       case Some(LoggerType.ITEMS)        => ITEMS.toggleDebug()
       case Some(LoggerType.MOBS)         => MOBS.toggleDebug()
       case Some(LoggerType.NETWORK)      => NETWORK.toggleDebug()
+      case Some(LoggerType.PARSER)       => PARSE.toggleDebug()
       case Some(LoggerType.RESTRICTIONS) => RESTRICTIONS.toggleDebug()
       case Some(LoggerType.STORAGE)      => STORAGE.toggleDebug()
       case _                             => SKILLS.toggleDebug()

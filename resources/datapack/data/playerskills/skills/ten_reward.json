@@ -1,6 +1,6 @@
 {
   "type": "tiered",
-  "initialValue": "delta",
+  "initialValue": "gamma",
   "options": [
     "alpha",
     "beta",

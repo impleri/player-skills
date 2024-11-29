@@ -9,7 +9,6 @@
 	quests: [{
 		id: "29DD699A67C6662F"
 		rewards: [{
-			downgrade: 0b
 			icon: {
 				Count: 1b
 				id: "minecraft:diamond_shovel"

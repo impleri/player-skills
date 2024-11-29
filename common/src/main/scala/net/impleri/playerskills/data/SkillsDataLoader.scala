@@ -29,7 +29,7 @@ case class ProportionRequiredForTeamMode() extends Exception
 
 case class SkillsDataLoader(
   protected val skillOps: SkillOps = Skill(),
-  override val logger: Logger = PlayerSkillsLogger.SKILLS,
+  override val logger: Logger = PlayerSkillsLogger.PARSE,
 ) extends JsonResourceReloadListener("skills")
     with JsonDataParser {
   override def parse(

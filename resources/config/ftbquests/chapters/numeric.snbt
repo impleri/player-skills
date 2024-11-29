@@ -4,12 +4,11 @@
 	filename: "numeric"
 	group: "77DD7DB1E0C5E281"
 	id: "46A8BF196A8476B3"
-	order_index: 0
+	order_index: 1
 	quest_links: [ ]
 	quests: [{
 		id: "61D719551C35FE6F"
 		rewards: [{
-			downgrade: 0b
 			icon: {
 				Count: 1b
 				id: "minecraft:iron_shovel"
@@ -17,7 +16,7 @@
 					Damage: 0
 				}
 			}
-			id: "DE0F7E3A8699039"
+			id: "0DE0F7E3A8699039"
 			ignore_reward_blocking: true
 			skill: "playerskills:nine_reward"
 			title: "Got a Numeric Skill"
@@ -32,11 +31,11 @@
 					Damage: 0
 				}
 			}
-			id: "EF9B766754C7F9F"
+			id: "0EF9B766754C7F9F"
 			skill: "playerskills:nine_test"
 			title: "Gained a Numeric Skill"
 			type: "minecraft:numeric_skill_task"
-			value: 1.0
+			value: 1.0d
 		}]
 		x: -2.5d
 		y: 0.0d

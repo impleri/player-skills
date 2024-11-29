@@ -75,7 +75,7 @@ trait TeamUpdater {
     playerOps
       .get[T](playerId, skill.name)
       .tap(
-        logger.infoP(o =>
+        logger.debugP(o =>
           s"Updating ${skill.name} from ${o.flatMap(_.value)} to ${skill.value} for $playerId",
         ),
       )
@@ -138,7 +138,7 @@ trait TeamLimit {
       limit <- getTeamLimit(players, skill)
       count = countWith(players, skill)
     } yield {
-      logger.info(s"Does the team allow updating skill? ($count < $limit)")
+      logger.debug(s"Does the team allow updating skill? ($count < $limit)")
       count < limit
     }
 
@@ -166,7 +166,7 @@ case class TeamOps(
     value: Option[T],
     team: Seq[UUID],
   ): Option[Skill[T]] = {
-    logger.info(
+    logger.debug(
       s"Changing skill ${skill.name} from ${skill.value} to $value for $player.handle",
     )
     playerOps
@@ -262,7 +262,7 @@ case class TeamOps(
     }
 
   def syncFromPlayer(player: MinecraftPlayer): Boolean = {
-    logger.debug(s"Syncing skills from ${player.handle}")
+    logger.info(s"Syncing skills from ${player.handle} to team")
     withFullTeam(player.uuid) { team =>
       getSharedSkills(player.uuid)
         .pipe(syncSkills(team))
@@ -273,7 +273,7 @@ case class TeamOps(
   }
 
   def syncEntireTeam(player: MinecraftPlayer): Boolean = {
-    logger.debug(s"Syncing entire team connected to ${player.handle}")
+    logger.info(s"Syncing entire team connected to ${player.handle}")
 
     val updates = withFullTeam(player.uuid) { team =>
       getSharedSkills(player.uuid)
@@ -295,7 +295,7 @@ object Team {
     playerOps: Player = Player(),
     skillOps: SkillOps = Skill(),
     eventHandler: EventHandler = EventHandler(),
-    logger: Logger = PlayerSkillsLogger.SKILLS,
+    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
   ): TeamOps =
     TeamOps(playerOps, skillOps, instance, eventHandler, logger)
 }
