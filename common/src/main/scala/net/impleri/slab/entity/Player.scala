@@ -28,6 +28,8 @@ class Player(override val underlying: Player.Vanilla)
 
   val server: Option[Server] = Option(underlying.getServer).map(Server(_))
 
+  val currentTick: Int = Option(underlying.tickCount).getOrElse(1)
+
   override def toString: String = handle
 
   private def toItemMap(
@@ -49,7 +51,10 @@ class Player(override val underlying: Player.Vanilla)
 
   val inventory: Map[Int, Item] = toItemMap(underlying.getInventory.items)
 
-  def toss(item: Item): Unit = underlying.drop(item.getStack, true)
+  def toss(item: Item): Unit = {
+    underlying.drop(item.getStack, true)
+    underlying.getInventory.removeItem(item.getStack)
+  }
 
   val offHand: Map[Int, Item] = toItemMap(underlying.getInventory.offhand)
 

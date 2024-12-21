@@ -1,0 +1,8 @@
+{
+  "item": "minecraft:netherite_shovel",
+  "usable": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

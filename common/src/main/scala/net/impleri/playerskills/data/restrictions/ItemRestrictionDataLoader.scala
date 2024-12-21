@@ -27,8 +27,12 @@ case class ItemRestrictionDataLoader(
     jsonElement: JsonObject,
   ): Unit =
     ItemRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
+      .tap(_ => logger.debug(s"Parsing JSON for $name"))
       .tap(_.parse(jsonElement))
+      .tap(logger.debugP(b => s"Created item builder for ${b.target} as $name (is valid? ${b.isValid})"))
       .pipe(Option(_))
       .filter(_.isValid)
-      .foreach(builder => itemRestrictionBuilder.add(builder.target.get, builder))
+      .foreach(builder => itemRestrictionBuilder.add(name.toString, builder))
+
+  override def save(): Unit = itemRestrictionBuilder.commit()
 }

@@ -10,6 +10,8 @@ import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.resources.ResourceLocation
 
+import scala.util.chaining.scalaUtilChainingOps
+
 case class RecipeRestrictionBuilder(
   protected val serverState: ServerStateContainer = ServerStateContainer(),
   protected val restrictionRegistry: RestrictionRegistry =
@@ -22,15 +24,13 @@ case class RecipeRestrictionBuilder(
   private def restrictRecipe(
     recipe: Recipe.Any,
     builder: RecipeConditions,
-  ): Unit = {
-    val restriction = RecipeRestriction(recipe, builder)
-
-    restrictionRegistry.add(restriction)
-    logRestriction(
+  ): Unit =
+    RecipeRestriction(recipe, builder)
+      .tap(restrictionRegistry.add)
+      .tap(logRestriction(
       recipe.name.fold(s"${recipe.getResultItem.name}")(_.asString),
-      restriction,
-    )
-  }
+        _,
+    ))
 
   private def restrictRecipes[R <: Recipe.BaseVanilla](
     recipeType: RecipeType.Any,

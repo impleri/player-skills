@@ -126,7 +126,7 @@ object Player {
     registry: PlayerRegistry = PlayerRegistry(),
     skillTypeOps: SkillTypeOps = SkillType(),
     skillOps: SkillOps = Skill(),
-    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
   ): Player =
     new Player(registry, skillTypeOps, skillOps, logger)
 }

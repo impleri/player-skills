@@ -21,6 +21,12 @@ class RestrictionSpec extends BaseSpec {
     override def restrictionType: RestrictionType = RestrictionType.Item
   }
 
+  private val testDimension = "skillstest:nether"
+  private val otherDimension = "skillstest:tne_end"
+
+  private val testBiome = "skillstest:plains"
+  private val otherBiome = "skillstest:ocean"
+
   "Restriction.isType" should "return true if the type matches" in {
     TestRestriction().isType(RestrictionType.Item) should be(true)
   }
@@ -48,58 +54,115 @@ class RestrictionSpec extends BaseSpec {
 
 
   "Restriction.isAllowedDimension" should "return true if the given parameter is in the include list and not in the exclude list" in {
-    val testDimension = "skillstest:nether"
     val givenDimension = ResourceLocation(testDimension)
-    val includeDimensions = Seq("skillstest:overworld", testDimension, "skillsTest:badValue")
-    TestRestriction(includeDimensions = includeDimensions).isAllowedDimension(givenDimension.get) should be(true)
+    val includeDimensions = Seq(testDimension)
+    val excludeDimensions = Seq(otherDimension)
+
+    TestRestriction(includeDimensions = includeDimensions, excludeDimensions = excludeDimensions)
+      .isAllowedDimension(givenDimension.get) should be(true)
+  }
+
+  it should "return true if the given parameter is in the include list and the exclude list is empty" in {
+    val givenDimension = ResourceLocation(testDimension)
+    val includeDimensions = Seq(testDimension)
+
+    TestRestriction(includeDimensions = includeDimensions)
+      .isAllowedDimension(givenDimension.get) should be(true)
+  }
+
+  it should "return true if the given parameter is not in the exclude list and the include list is empty" in {
+    val givenDimension = ResourceLocation(testDimension)
+    val excludeDimensions = Seq(otherDimension)
+
+    TestRestriction(excludeDimensions = excludeDimensions)
+      .isAllowedDimension(givenDimension.get) should be(true)
+  }
+
+  it should "return true if the both the include list and the exclude list are empty" in {
+    val givenDimension = ResourceLocation(testDimension)
+
+    TestRestriction()
+      .isAllowedDimension(givenDimension.get) should be(true)
   }
 
   it should "return false if the given parameter is in the include list and in the exclude list" in {
-    val testDimension = "skillstest:nether"
     val givenDimension = ResourceLocation(testDimension)
-    val includeDimensions = Seq("skillstest:*")
+    val includeDimensions = Seq(testDimension)
     val excludeDimensions = Seq(testDimension)
     TestRestriction(includeDimensions = includeDimensions, excludeDimensions = excludeDimensions)
       .isAllowedDimension(givenDimension.get) should be(false)
   }
 
   it should "return false if the given parameter is not in the include list" in {
-    val testDimension = "skillstest:nether"
+    val includeDimensions = Seq(otherDimension)
+    val excludeDimensions = Seq("skillstest:overworld")
     val givenDimension = ResourceLocation(testDimension)
-    TestRestriction().isAllowedDimension(givenDimension.get) should be(false)
+    TestRestriction(includeDimensions = includeDimensions, excludeDimensions = excludeDimensions)
+      .isAllowedDimension(givenDimension.get) should be(false)
   }
 
   "Restriction.isAllowedBiome" should "return true if the given parameter is in the include list and not in the exclude list" in {
-    val testBiome = "skillstest:plains"
     val givenBiome = mock[Biome]
+    val includeBiomes = Seq(testBiome)
+    val excludeBiomes = Seq(otherBiome)
+
     givenBiome.name returns ResourceLocation(testBiome)
     givenBiome.isNamed(ResourceLocation(testBiome).get) returns true
 
-    val includeBiomes = Seq("skillstest:desert", testBiome, "skillsTest:badValue")
-    TestRestriction(includeBiomes = includeBiomes).isAllowedBiome(givenBiome) should be(true)
+    TestRestriction(includeBiomes = includeBiomes, excludeBiomes = excludeBiomes)
+      .isAllowedBiome(givenBiome) should be(true)
+  }
+
+  it should "return true if the given parameter is in the include list and the exclude list is empty" in {
+    val givenBiome = mock[Biome]
+    val includeBiomes = Seq(testBiome)
+
+    givenBiome.name returns ResourceLocation(testBiome)
+    givenBiome.isNamed(ResourceLocation(testBiome).get) returns true
+
+    TestRestriction(includeBiomes = includeBiomes)
+      .isAllowedBiome(givenBiome) should be(true)
+  }
+
+  it should "return true if the given parameter is not in the exclude list and the include list is empty" in {
+    val givenBiome = mock[Biome]
+    val excludeBiomes = Seq(otherBiome)
+
+    givenBiome.name returns ResourceLocation(testBiome)
+    givenBiome.isNamed(ResourceLocation(otherBiome).get) returns false
+
+    TestRestriction(excludeBiomes = excludeBiomes)
+      .isAllowedBiome(givenBiome) should be(true)
+  }
+
+  it should "return true if the both the include list and the exclude list are empty" in {
+    val givenBiome = mock[Biome]
+    givenBiome.name returns ResourceLocation(testBiome)
+
+    TestRestriction()
+      .isAllowedBiome(givenBiome) should be(true)
   }
 
   it should "return false if the given parameter is in the include list and in the exclude list" in {
-    val testBiome = "skillstest:nether"
     val givenBiome = mock[Biome]
     givenBiome.name returns ResourceLocation(testBiome)
 
-    givenBiome.isNamespaced("skillstest") returns true
     givenBiome.isNamed(ResourceLocation(testBiome).get) returns true
 
-    val includeBiomes = Seq("@skillstest")
+    val includeBiomes = Seq(testBiome)
     val excludeBiomes = Seq(testBiome)
     TestRestriction(includeBiomes = includeBiomes, excludeBiomes = excludeBiomes)
       .isAllowedBiome(givenBiome) should be(false)
   }
 
   it should "return false if the given parameter is not in the include list" in {
-    val testBiome = "skillstest:nether"
     val givenBiome = mock[Biome]
     givenBiome.name returns ResourceLocation(testBiome)
 
     givenBiome.isNamed(*) returns false
 
-    TestRestriction().isAllowedBiome(givenBiome) should be(false)
+    val includeBiomes = Seq(otherBiome)
+
+    TestRestriction(includeBiomes = includeBiomes).isAllowedBiome(givenBiome) should be(false)
   }
 }

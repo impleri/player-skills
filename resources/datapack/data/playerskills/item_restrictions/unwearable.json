@@ -1,0 +1,8 @@
+{
+  "item": "minecraft:elytra",
+  "wearable": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

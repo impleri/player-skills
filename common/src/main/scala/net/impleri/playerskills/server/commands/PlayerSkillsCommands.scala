@@ -4,6 +4,7 @@ import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillType
 import net.impleri.playerskills.api.skills.SkillTypeOps
+import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.server.api.Player
 import net.impleri.playerskills.server.api.Team
 import net.impleri.playerskills.server.api.TeamOps
@@ -18,6 +19,7 @@ case class PlayerSkillsCommands(
   override val skillTypeOps: SkillTypeOps,
   override val playerOps: Player,
   override val teamOps: TeamOps,
+  override val restrictions: RestrictionRegistry,
   override val logger: Logger = PlayerSkillsLogger.SKILLS,
   override val blockLogger: Logger = PlayerSkillsLogger.BLOCKS,
   override val fluidLogger: Logger = PlayerSkillsLogger.FLUIDS,
@@ -33,7 +35,8 @@ case class PlayerSkillsCommands(
     with SetSkillCommand
     with ImproveSkillCommand
     with DegradeSkillCommand
-    with ResetSkillCommand {
+    with ResetSkillCommand
+    with ListRestrictionsCommand {
   protected def builders[T <: CommandSegment.Any]: List[T => T] =
     List(
       registerTypesCommand,
@@ -41,6 +44,7 @@ case class PlayerSkillsCommands(
       registerMineCommand,
       registerValueCommand,
       registerTeamCommands,
+      registerRestrictionsCommand,
       registerSetCommand,
       registerImproveCommand,
       registerDegradeCommand,
@@ -57,6 +61,7 @@ object PlayerSkillsCommands {
     skillTypeOps: SkillTypeOps = SkillType(),
     playerOps: Player = Player(),
     teamOps: TeamOps = Team(),
+    restrictions: RestrictionRegistry = RestrictionRegistry(),
     logger: Logger = PlayerSkillsLogger.SKILLS,
     blockLogger: Logger = PlayerSkillsLogger.BLOCKS,
     fluidLogger: Logger = PlayerSkillsLogger.FLUIDS,
@@ -68,6 +73,7 @@ object PlayerSkillsCommands {
       skillTypeOps,
       playerOps,
       teamOps,
+      restrictions,
       logger,
       blockLogger,
       fluidLogger,

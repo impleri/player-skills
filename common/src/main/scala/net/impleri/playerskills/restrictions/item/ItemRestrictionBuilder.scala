@@ -8,6 +8,8 @@ import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.resources.ResourceLocation
 
+import scala.util.chaining.scalaUtilChainingOps
+
 case class ItemRestrictionBuilder(
   override val registry: Option[Registry.ITEM],
   protected val restrictionRegistry: RestrictionRegistry =
@@ -20,26 +22,25 @@ case class ItemRestrictionBuilder(
     item: Item,
     builder: ItemConditions,
     targetName: String,
-  ): Unit = {
-    val restriction = ItemRestriction(item, builder)
-
-    restrictionRegistry.add(restriction)
-    logRestriction(targetName, restriction)
-  }
+  ): Unit =
+    ItemRestriction(item, builder)
+      .tap(restrictionRegistry.add)
+      .tap(logRestriction(targetName, _))
 
   override protected[item] def restrictOne(
     targetName: ResourceLocation,
     builder: ItemConditions,
   ): Unit =
-    registry.get
-      .get(targetName)
-      .foreach(restrictItem(_, builder, targetName.toString))
+    for {
+      reg <- registry
+      target <- reg.get(targetName)
+    } yield restrictItem(target, builder, targetName.toString)
 
   override def restrictString(
     targetName: String,
     builder: ItemConditions,
   ): Unit =
-    Item
-      .parse(targetName)
-      .foreach(restrictItem(_, builder, targetName))
+    for {
+      target <- Item.parse(targetName)
+    } yield restrictItem(target, builder, targetName)
 }

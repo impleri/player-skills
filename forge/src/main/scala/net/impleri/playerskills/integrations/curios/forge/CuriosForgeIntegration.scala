@@ -4,6 +4,7 @@ import net.impleri.playerskills.integrations.curios.facade.Curio
 import net.impleri.playerskills.integrations.curios.facade.Curios
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.slab.entity.Player
+import net.impleri.slab.events.PlayerTickTiming.OneSecond
 import net.impleri.slab.events.PlayerTickType
 import net.impleri.slab.events.TickEvents
 
@@ -24,5 +25,5 @@ case class CuriosForgeIntegration(
       .foreach(player.putInInventory)
   }
 
-  tickEvents.onPlayerStart(handle, PlayerTickType.Server)
+  tickEvents.onPlayerStart(handle, side = PlayerTickType.Server, time = OneSecond)
 }

@@ -5,6 +5,7 @@ import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.skills.Skill
 import net.impleri.playerskills.api.skills.SkillOps
 import net.impleri.playerskills.api.skills.SkillTypeOps
+import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.api.TeamOps
 import net.impleri.slab.entity.Player
@@ -19,6 +20,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   private val skillTypeOpsMock: SkillTypeOps = mock[SkillTypeOps]
   private val playerOpsMock: PlayerOps = mock[PlayerOps]
   private val teamOpsMock: TeamOps = mock[TeamOps]
+  private val restrictionsMock: RestrictionRegistry = mock[RestrictionRegistry]
   private val loggerMock: Logger = mock[Logger]
 
   private val testUnit: PlayerSkillsCommands = new PlayerSkillsCommands(
@@ -26,6 +28,7 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     skillTypeOpsMock,
     playerOpsMock,
     teamOpsMock,
+    restrictionsMock,
     loggerMock,
     loggerMock,
     loggerMock,

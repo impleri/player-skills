@@ -295,7 +295,7 @@ object Team {
     playerOps: Player = Player(),
     skillOps: SkillOps = Skill(),
     eventHandler: EventHandler = EventHandler(),
-    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
+    logger: Logger = PlayerSkillsLogger.SKILLS,
   ): TeamOps =
     TeamOps(playerOps, skillOps, instance, eventHandler, logger)
 }

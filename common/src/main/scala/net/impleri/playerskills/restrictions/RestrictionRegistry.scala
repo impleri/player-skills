@@ -32,12 +32,8 @@ class RestrictionRegistry(var state: RestrictionRegistryState.Restrictions)
   def add(restriction: Restriction[_, _]): Boolean =
     RestrictionRegistryState
       .add(restriction)
-      .run(state)
-      .map(r => {
-        state = r._1
-        true
-      })
-      .value
+      .pipe(maintainState)
+      .pipe(_ => true)
 }
 
 object RestrictionRegistry {

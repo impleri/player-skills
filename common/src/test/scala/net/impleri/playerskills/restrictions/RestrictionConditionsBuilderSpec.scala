@@ -10,7 +10,11 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   private case class TestConditionBuilder(
     override val name: ResourceLocation = testName,
-  ) extends RestrictionConditionsBuilder {}
+  ) extends RestrictionConditionsBuilder {
+    override def isValid: Boolean = true
+
+    override def getTarget: String = "target"
+  }
 
   private val testUnit = TestConditionBuilder()
 

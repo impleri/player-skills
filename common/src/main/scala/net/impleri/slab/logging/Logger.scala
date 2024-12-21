@@ -66,7 +66,7 @@ class Logger(modId: String, private val prefix: String) {
   def trace(message: String): Unit = if (traceEnabled) info(s"[TRACE] $message")
   else instance.debug(addPrefix(message))
 
-  def traceP[T](f: T => String)(value: T): Unit = debug(f(value))
+  def traceP[T](f: T => String)(value: T): Unit = trace(f(value))
 }
 
 object Logger {
@@ -91,10 +91,14 @@ object Logger {
     )
   }
 
-  def forMod(modId: String)(prefix: String): Logger = {
-    new Logger(
+  def forMod(modId: String, debug: Boolean = false)(prefix: String): Logger = {
+    val logger = new Logger(
       modId,
       prefix,
     )
+
+    if (debug) logger.enableDebug()
+
+    logger
   }
 }

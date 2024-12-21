@@ -1,0 +1,8 @@
+{
+  "item": "minecraft:netherite_sword",
+  "harnful": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

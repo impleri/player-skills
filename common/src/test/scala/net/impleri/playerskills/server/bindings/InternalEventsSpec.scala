@@ -6,8 +6,8 @@ import net.impleri.playerskills.server.EventHandler
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.StateContainer
-import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
-import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
+import net.impleri.playerskills.data.restrictions.ItemRestrictionDataLoader
+import net.impleri.playerskills.data.restrictions.RecipeRestrictionDataLoader
 import net.impleri.slab.resources.ReloadListeners
 import net.impleri.slab.resources.ResourceManager
 
@@ -17,8 +17,8 @@ class InternalEventsSpec extends BaseSpec {
   private val serverStateMock = mock[ServerStateContainer]
   private val reloadMock = mock[ReloadListeners]
   private val reload = mock[Option[ResourceManager] => Unit]
-  private val itemBuilderMock = mock[ItemRestrictionBuilder]
-  private val recipeBuilderMock = mock[RecipeRestrictionBuilder]
+  private val itemBuilderMock = mock[ItemRestrictionDataLoader]
+  private val recipeBuilderMock = mock[RecipeRestrictionDataLoader]
 
   private val testUnit = InternalEvents(
     itemBuilderMock,

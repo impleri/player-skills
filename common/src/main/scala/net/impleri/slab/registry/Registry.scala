@@ -17,7 +17,7 @@ class Registry[T <: ResourceWrapper[U], U](
   protected val underlying: Registry.Vanilla[U],
   protected val f: U => T,
 ) {
-  def name: ResourceKey.VanillaRegistry[U] = underlying.key().asInstanceOf
+  def name: ResourceKey.VanillaRegistry[U] = underlying.key().asInstanceOf[ResourceKey.VanillaRegistry[U]]
 
   def get(key: ResourceLocation): Option[T] =
     Option(underlying.get(key.value)).map(f)

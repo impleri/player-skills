@@ -38,8 +38,8 @@ import net.impleri.slab.resources.SimpleReloadListener
 //}
 
 case class InternalEvents(
-  itemRestrictionBuilder: ItemRestrictionBuilder,
-  recipeRestrictionBuilder: RecipeRestrictionBuilder,
+  itemRestrictionBuilder: ItemRestrictionDataLoader,
+  recipeRestrictionBuilder: RecipeRestrictionDataLoader,
   eventHandler: EventHandler = EventHandler(),
   globalState: StateContainer = StateContainer(),
   serverStateContainer: ServerStateContainer = ServerStateContainer(),
@@ -53,22 +53,8 @@ case class InternalEvents(
     // Vanilla Events
     reloadListeners.registerServer(this)
     reloadListeners.registerServer(SkillsDataLoader(globalState.SKILL_OPS))
-    reloadListeners.registerServer(
-      ItemRestrictionDataLoader(
-        itemRestrictionBuilder,
-        globalState.SKILL_OPS,
-        globalState.SKILL_TYPE_OPS,
-        serverStateContainer.PLAYER_OPS,
-      ),
-    )
-    reloadListeners.registerServer(
-      RecipeRestrictionDataLoader(
-        recipeRestrictionBuilder,
-        globalState.SKILL_OPS,
-        globalState.SKILL_TYPE_OPS,
-        serverStateContainer.PLAYER_OPS,
-      ),
-    )
+    reloadListeners.registerServer(itemRestrictionBuilder)
+    reloadListeners.registerServer(recipeRestrictionBuilder)
   }
 
   private[bindings] def onSkillChanged(event: SkillChangedEvent[_]): Unit = {

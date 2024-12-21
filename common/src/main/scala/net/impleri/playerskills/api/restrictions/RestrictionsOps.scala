@@ -38,11 +38,15 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
     biome: Option[Biome],
   ): View[R] =
     registry.entries.view
-      .filter(matchesPlayer(player))
       .filter(matchesTarget(target))
+      .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target"))
       .filter(r => dimension.forall(r.isAllowedDimension))
+      .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target in dimension $dimension"))
       .filter(r => biome.forall(r.isAllowedBiome))
+      .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target in biome $biome"))
+      .filter(matchesPlayer(player))
       .asInstanceOf[View[R]]
+      .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target affecting $player"))
 
   private def canHelper(
     player: Player,
@@ -66,7 +70,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
 
     logger
       .debug(
-        s"Does ${player.handle} have $fieldName restrictions with $target in  $dimension/$biome? $hasRestrictions",
+        s"Does ${player.handle} have $fieldName restrictions with $target in $dimension/$biome? $hasRestrictions",
       )
 
     !hasRestrictions

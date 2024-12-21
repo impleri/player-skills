@@ -12,14 +12,20 @@ import net.impleri.slab.resources.ResourceLocation
 class RestrictionBuilderSpec extends BaseSpec {
   private val mockRegistry = mock[Registry.BLOCK]
   private val mockLogger = mock[Logger]
+  private val restrictionId = "skillstest:something"
   private val mockRestrictString = mock[(String, TestConditionBuilder) => Unit]
   private val mockRestrictOne = mock[(ResourceLocation, TestConditionBuilder) => Unit]
   private val testName: ResourceLocation = ResourceLocation("skillstest", "test").get
   private val mockRegistryKey = mock[ResourceKey.VanillaRegistry[Block.Vanilla]]
 
   private case class TestConditionBuilder(
+      target: String = "target",
     override val name: ResourceLocation = testName,
-  ) extends RestrictionConditionsBuilder {}
+  ) extends RestrictionConditionsBuilder {
+    override def isValid: Boolean = true
+
+    override def getTarget: String = target
+  }
 
   private case class TestRestrictionBuilder(override val singleAsString: Boolean = false)
     extends RestrictionBuilder[Block, Block.Vanilla, TestConditionBuilder] {
@@ -48,16 +54,16 @@ class RestrictionBuilderSpec extends BaseSpec {
   "RestrictionBuilder.add" should "produce restrictions for a namespace" in {
     val restrictionName = "skillstest"
     val namespace = s"@$restrictionName"
-    val conditionBuilder = TestConditionBuilder()
+    val conditionBuilder = TestConditionBuilder(namespace)
     val targetName = ResourceLocation("skillstest", "item").get
 
     mockRegistry.matchingNamespace(restrictionName) returns List(targetName)
-    testUnit.add(namespace, conditionBuilder)
+    testUnit.add(restrictionId, conditionBuilder)
 
-    testUnit.restrictions(namespace) shouldBe conditionBuilder
+    testUnit.restrictions(restrictionId) shouldBe conditionBuilder
+
     testUnit.commit()
 
-    mockLogger.info(*) wasCalled once
     mockRegistry.matchingNamespace(restrictionName) wasCalled once
     mockRestrictOne(targetName, conditionBuilder) wasCalled once
   }
@@ -71,28 +77,27 @@ class RestrictionBuilderSpec extends BaseSpec {
 
     val restrictionName = "skillstest:tag"
     val tag = s"#$restrictionName"
-    val conditionBuilder = TestConditionBuilder()
+    val conditionBuilder = TestConditionBuilder(tag)
     val targetName = ResourceLocation("skillstest", "item").get
 
     mockRegistry.matchingTag(*) returns List(targetName)
-    testUnit.add(tag, conditionBuilder)
+    testUnit.add(restrictionId, conditionBuilder)
 
-    testUnit.restrictions(tag) shouldBe conditionBuilder
+    testUnit.restrictions(restrictionId) shouldBe conditionBuilder
     testUnit.commit()
 
-    mockLogger.info(*) wasCalled once
     mockRegistry.matchingTag(*) wasCalled once
     mockRestrictOne(targetName, conditionBuilder) wasCalled once
   }
 
   it should "produce restrictions for a single resource" in {
     val restrictionName = "skillstest:item"
-    val conditionBuilder = TestConditionBuilder()
+    val conditionBuilder = TestConditionBuilder(restrictionName)
     val targetName = ResourceLocation("skillstest", "item").get
 
-    testUnit.add(restrictionName, conditionBuilder)
+    testUnit.add(restrictionId, conditionBuilder)
 
-    testUnit.restrictions(restrictionName) shouldBe conditionBuilder
+    testUnit.restrictions(restrictionId) shouldBe conditionBuilder
     testUnit.commit()
 
     mockRestrictOne(targetName, conditionBuilder) wasCalled once
@@ -101,11 +106,11 @@ class RestrictionBuilderSpec extends BaseSpec {
   it should "produce restrictions for a single string" in {
     val testUnit = TestRestrictionBuilder(true)
     val restrictionName = "skillstest:item"
-    val conditionBuilder = TestConditionBuilder()
+    val conditionBuilder = TestConditionBuilder(restrictionName)
 
-    testUnit.add(restrictionName, conditionBuilder)
+    testUnit.add(restrictionId, conditionBuilder)
 
-    testUnit.restrictions(restrictionName) shouldBe conditionBuilder
+    testUnit.restrictions(restrictionId) shouldBe conditionBuilder
     testUnit.commit()
 
     mockRestrictString(restrictionName, conditionBuilder) wasCalled once
@@ -120,6 +125,6 @@ class RestrictionBuilderSpec extends BaseSpec {
     restriction.excludeDimensions returns Seq.empty
     testUnit.logRestriction(restrictionName, restriction)
 
-    mockLogger.infoP(*)(*) wasCalled once
+    mockLogger.infoP(*)(*) wasCalled atLeastOnce
   }
 }

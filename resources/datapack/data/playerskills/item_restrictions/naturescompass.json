@@ -1,0 +1,8 @@
+{
+  "item": "@naturescompass",
+  "usable": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}
