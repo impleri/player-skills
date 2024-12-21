@@ -7,15 +7,15 @@ import net.impleri.slab.resources.ResourceLocation
 
 class TargetResourceSpec extends BaseSpec {
   "TargetResource.apply" should "return a Namespace target if starts with @" in {
-    TargetResource("@test_namespace").value shouldBe TargetResource.Namespace("test_namespace")
+    TargetResource.create("@test_namespace").value shouldBe TargetResource.Namespace("test_namespace")
   }
 
   it should "return a Namespace target if ends with :*" in {
-    TargetResource("test_namespace:*").value shouldBe TargetResource.Namespace("test_namespace")
+    TargetResource.create("test_namespace:*").value shouldBe TargetResource.Namespace("test_namespace")
   }
 
   it should "return None if starts with # and there is no registry key provided" in {
-    TargetResource("#skillstest:tag") shouldBe None
+    TargetResource.create("#skillstest:tag") shouldBe None
   }
 
   it should "return Tag target if starts with # and there is a provided registry key" in {
@@ -23,21 +23,21 @@ class TargetResourceSpec extends BaseSpec {
     val mockRegistryKey = ResourceKey.forVanillaRegistry[Item, Item.Vanilla](registryKeyName)
     val tagName = ResourceLocation("skillstest:tag").get
 
-    TargetResource("#skillstest:tag", Option(mockRegistryKey)).value shouldBe TargetResource
+    TargetResource.create("#skillstest:tag", Option(mockRegistryKey)).value shouldBe TargetResource
       .Tag(tagName.getTagKey[Item, Item.Vanilla](mockRegistryKey))
   }
 
   it should "return a Single target if it is a valid ResourceLocation" in {
-    TargetResource("skillstest:target").value shouldBe TargetResource
+    TargetResource.create("skillstest:target").value shouldBe TargetResource
       .Single(ResourceLocation("skillstest:target").get)
   }
 
   it should "return None if it is not a valid ResourceLocation" in {
-    TargetResource("skillsTest:target") shouldBe None
+    TargetResource.create("skillsTest:target") shouldBe None
   }
 
   it should "return a SingleString target if it is not a namespace or tag" in {
-    TargetResource("skillsTest:target", singleAsString = true).value shouldBe TargetResource
+    TargetResource.create("skillsTest:target", singleAsString = true).value shouldBe TargetResource
       .SingleString("skillsTest:target")
   }
 }

@@ -3,7 +3,7 @@ package net.impleri.playerskills.server.bindings.player
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.entity.Player
-import net.impleri.slab.events.TickEvents
+import net.impleri.slab.events.{PlayerTickTiming, PlayerTickType, TickEvents}
 import net.impleri.slab.item.Item
 import net.impleri.slab.logging.Logger
 
@@ -43,10 +43,14 @@ case class OnPlayerTick(
     f(index)
   }
 
-  private[bindings] val handler: TickEvents.OnPlayerTick = player =>
-    if (!player.isClient) {
+  // TODO: This is duplicating the unholdable item
+  private[bindings] def handler(player: Player): Unit = {
       // Move unwearable items from armor into normal inventory
       filterWearable(player, player.armor).foreach(
+        moveToInventory(player, player.emptyArmor),
+      )
+
+      filterHoldable(player, player.armor).foreach(
         moveToInventory(player, player.emptyArmor),
       )
 
@@ -65,5 +69,5 @@ case class OnPlayerTick(
         .foreach(player.toss)
     }
 
-  upstream.onPlayerEnd(handler)
+  upstream.onPlayerEnd(handler, side = PlayerTickType.Server, time = PlayerTickTiming.OneSecond)
 }

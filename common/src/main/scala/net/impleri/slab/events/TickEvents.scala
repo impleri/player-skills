@@ -19,6 +19,16 @@ object PlayerTickType {
   final case object Client extends PlayerTickType
 }
 
+sealed trait PlayerTickTiming
+
+object PlayerTickTiming {
+  final case object OneTick extends PlayerTickTiming
+
+  final case object OneSecond extends PlayerTickTiming
+
+  final case object FiveSeconds extends PlayerTickTiming
+}
+
 case class TickEvents(
   onServerStartEvent: Event[TickEvent.Server] = TickEvent.SERVER_PRE,
   onServerEndEvent: Event[TickEvent.Server] = TickEvent.SERVER_POST,
@@ -49,22 +59,39 @@ case class TickEvents(
       Option(level).map(Level(_)).foreach(f),
     )
 
+  private def isRightTick(tick: Int, time: PlayerTickTiming): Boolean =
+    time match {
+      case PlayerTickTiming.OneTick => true
+      case PlayerTickTiming.OneSecond if TickEvents.isSeconds(1, tick) => true
+      case PlayerTickTiming.FiveSeconds if TickEvents.isSeconds(5, tick) => true
+      case _ => false
+    }
+
+  private def handleTick(
+    rawPlayer: McPlayer,
+    time: PlayerTickTiming,
+    side: PlayerTickType,
+    f: TickEvents.OnPlayerTick,
+  ): Unit =
+    (Option(rawPlayer).map(Player(_)), side) match {
+      case (Some(player: Player), PlayerTickType.Client) if player.isClient && isRightTick(player.currentTick, time) => f(player)
+      case (Some(player: Player), PlayerTickType.Server) if player.isServer && isRightTick(player.currentTick, time) => f(player)
+      case _ => ()
+    }
+
   def onPlayerStart(
     f: TickEvents.OnPlayerTick,
+    time: PlayerTickTiming = PlayerTickTiming.OneTick,
     side: PlayerTickType = PlayerTickType.Any,
   ): Unit =
-    onPlayerStartEvent.register((rawPlayer: McPlayer) =>
-        (Option(rawPlayer).map(Player(_)), side) match {
-          case (Some(player: Player), PlayerTickType.Client) if player.isClient => f(player)
-          case (Some(player: Player), PlayerTickType.Server) if player.isServer => f(player)
-          case _ => ()
-        }
-    )
+    onPlayerStartEvent.register((rawPlayer: McPlayer) => handleTick(rawPlayer, time, side, f))
 
-  def onPlayerEnd(f: TickEvents.OnPlayerTick): Unit = {
-    onPlayerEndEvent.register((player: McPlayer) =>
-      Option(player).map(Player(_)).foreach(f),
-    )
+  def onPlayerEnd(
+    f: TickEvents.OnPlayerTick,
+    time: PlayerTickTiming = PlayerTickTiming.OneTick,
+    side: PlayerTickType = PlayerTickType.Any,
+  ): Unit = {
+    onPlayerEndEvent.register((rawPlayer: McPlayer) => handleTick(rawPlayer, time, side, f))
   }
 }
 
@@ -72,4 +99,8 @@ object TickEvents {
   type OnServerTick = Server => Unit
   type OnLevelTick = Level.Any => Unit
   type OnPlayerTick = Player => Unit
+
+  final val TICKS_PER_SECOND = 20
+
+  private def isSeconds(sec: Int, tick: Int): Boolean = (tick % (sec * TickEvents.TICKS_PER_SECOND)) == 0
 }

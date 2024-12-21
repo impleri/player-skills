@@ -31,36 +31,27 @@ trait Restriction[T <: ResourceWrapper[U], U] {
   def hasReplacement: Boolean = replacement.nonEmpty
 
   def isAllowedDimension(dimension: ResourceLocation): Boolean =
-    dimensionListIncludes(includeDimensions, dimension) &&
-      !dimensionListIncludes(excludeDimensions, dimension)
+    (includeDimensions.isEmpty || includeDimensions.exists(matchDimension(dimension))) &&
+      !excludeDimensions.exists(matchDimension(dimension))
 
   def isAllowedBiome(biome: Biome): Boolean =
-    biomeListIncludes(includeBiomes, biome) &&
-      !biomeListIncludes(excludeBiomes, biome)
+    (includeBiomes.isEmpty || includeBiomes.exists(matchBiome(biome))) &&
+      !excludeBiomes.exists(matchBiome(biome))
 
   private def matchDimension(dimension: ResourceLocation)(target: String): Boolean =
-    TargetResource(target, None) match {
+    TargetResource.create(target, None) match {
       case Some(n: TargetResource.Namespace) => dimension.namespace == n.target
       case Some(n: TargetResource.Single) => dimension == n.target
       case _ => Restriction.DEFAULT_CONDITION_RESPONSE
     }
 
-  private def dimensionListIncludes(
-    list: Seq[String],
-    dimension: ResourceLocation,
-  ): Boolean =
-    list.exists(matchDimension(dimension))
-
   private def matchBiome(biome: Biome)(target: String): Boolean =
-      TargetResource(target, Option(ResourceKey.BIOME_REGISTRY)) match {
+      TargetResource.create(target, Option(ResourceKey.BIOME_REGISTRY)) match {
         case Some(n: TargetResource.Namespace) => biome.isNamespaced(n.target)
         case Some(n: TargetResource.Tag[_, _]) => biome.isTagged(n.target.asInstanceOf)
         case Some(n: TargetResource.Single) => biome.isNamed(n.target)
         case _ => Restriction.DEFAULT_CONDITION_RESPONSE
       }
-
-  private def biomeListIncludes(list: Seq[String], biome: Biome): Boolean =
-    list.exists(matchBiome(biome))
 }
 
 object Restriction {

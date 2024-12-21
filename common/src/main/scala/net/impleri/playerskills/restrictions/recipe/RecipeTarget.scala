@@ -19,7 +19,7 @@ case class RecipeTarget(
   ): Seq[IsIngredient] = {
     for {
       resource <- input
-      target <- TargetResource(resource, singleAsString = true)
+      target <- TargetResource.create(resource, singleAsString = true)
       ingredient <- RecipeTarget.castTargetResource(target)
     } yield ingredient
   }

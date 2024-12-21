@@ -4,6 +4,7 @@ import net.impleri.playerskills.integrations.trinkets.facade.Trinket
 import net.impleri.playerskills.integrations.trinkets.facade.Trinkets
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.slab.entity.Player
+import net.impleri.slab.events.PlayerTickTiming.OneSecond
 import net.impleri.slab.events.PlayerTickType
 import net.impleri.slab.events.TickEvents
 
@@ -29,5 +30,5 @@ case class TrinketsFabricIntegration(
       )
   }
 
-  tickEvents.onPlayerStart(handle, PlayerTickType.Server)
+  tickEvents.onPlayerStart(handle, side = PlayerTickType.Server, time = OneSecond)
 }

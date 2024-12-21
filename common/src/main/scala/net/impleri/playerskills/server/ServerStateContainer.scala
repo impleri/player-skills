@@ -1,6 +1,7 @@
 package net.impleri.playerskills.server
 
 import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.data.restrictions.{ItemRestrictionDataLoader, RecipeRestrictionDataLoader}
 import net.impleri.playerskills.network.Manager
 import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
 import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
@@ -46,6 +47,20 @@ case class ServerStateContainer(
   private lazy val MANAGER =
     Manager(globalState, serverStateContainer = Option(this))
 
+  private lazy val itemRestrictions = ItemRestrictionDataLoader(
+    ItemRestrictionBuilder(Option(itemRegistry), globalState.RESTRICTIONS),
+    globalState.SKILL_OPS,
+    globalState.SKILL_TYPE_OPS,
+    PLAYER_OPS,
+  )
+
+  private lazy val recipeRestrictions = RecipeRestrictionDataLoader(
+    RecipeRestrictionBuilder(this, globalState.RESTRICTIONS),
+    globalState.SKILL_OPS,
+    globalState.SKILL_TYPE_OPS,
+    PLAYER_OPS,
+  )
+
   private val EVENT_BINDINGS = ServerEventBindings(
     globalState,
     this,
@@ -56,13 +71,14 @@ case class ServerStateContainer(
         globalState.SKILL_TYPE_OPS,
         PLAYER_OPS,
         TEAM_OPS,
+        globalState.RESTRICTIONS,
       ),
     getNetHandler,
   )
 
   private val INTERNAL = InternalEvents(
-    ItemRestrictionBuilder(Option(itemRegistry), globalState.RESTRICTIONS),
-    RecipeRestrictionBuilder(this, globalState.RESTRICTIONS),
+    itemRestrictions,
+    recipeRestrictions,
     eventHandler,
     globalState,
     this,

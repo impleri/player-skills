@@ -14,7 +14,6 @@ import net.impleri.slab.events.EntityEvents
 import net.impleri.slab.events.PlayerEvents
 import net.impleri.slab.events.ServerLifecycleEvents
 import net.impleri.slab.events.TickEvents
-import net.impleri.slab.logging.Logger
 import net.impleri.slab.server.Server
 
 class ServerEventBindingsSpec extends BaseSpec {
@@ -32,7 +31,6 @@ class ServerEventBindingsSpec extends BaseSpec {
   private val mockBlock = mock[BlockEvents]
   private val mockPlayer = mock[PlayerEvents]
   private val mockTick = mock[TickEvents]
-  private val mockLogger = mock[Logger]
 
   mockStateContainer.ITEM_RESTRICTIONS returns mockOps
   mockServerStateContainer.PLAYERS returns mockPlayerRegistry
@@ -56,7 +54,7 @@ class ServerEventBindingsSpec extends BaseSpec {
     testUnit.registerEvents()
 
     mockCommonLifecycle.onSetup(*) wasCalled once
-    mockServerLifecycle.beforeServerStart(mockOnChange) wasCalled once
+    mockServerLifecycle.beforeServerStart(*) wasCalled once
     mockServerLifecycle.beforeServerStop(*) wasCalled twice
 
     mockPlayer.onJoin(*) wasCalled once
@@ -66,7 +64,7 @@ class ServerEventBindingsSpec extends BaseSpec {
 
     mockEntity.onHurt(*) wasCalled once
 
-    mockTick.onPlayerEnd(*) wasCalled once
+    mockTick.onPlayerEnd(*, *, *) wasCalled once
 
     mockCommand.register(mockCommands) wasCalled once
 

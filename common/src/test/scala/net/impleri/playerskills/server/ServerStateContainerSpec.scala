@@ -1,24 +1,19 @@
 package net.impleri.playerskills.server
 
 import dev.architectury.networking.simple.MessageType
-import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.server.api.Team
-import net.impleri.playerskills.server.skills.PlayerRegistry
-import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.{BaseSpec, StateContainer}
 import net.impleri.playerskills.api.skills.SkillTypeOps
 import net.impleri.playerskills.network.SyncSkillsMessage
-import net.impleri.playerskills.server.api.StubTeam
-import net.impleri.playerskills.server.skills.PlayerRegistryState
+import net.impleri.playerskills.server.api.{StubTeam, Team}
+import net.impleri.playerskills.server.skills.{PlayerRegistry, PlayerRegistryState}
 import net.impleri.playerskills.skills.SkillRegistry
 import net.impleri.slab.entity.{Player => MinecraftPlayer}
+import net.impleri.slab.item.Item
 import net.impleri.slab.logging.Logger
-import net.impleri.slab.network.ClientboundMessage
-import net.impleri.slab.network.Network
+import net.impleri.slab.network.{ClientboundMessage, Network}
 import net.impleri.slab.registry.Registry
-import net.impleri.slab.resources.ReloadListeners
-import net.impleri.slab.resources.ResourceManager
+import net.impleri.slab.resources.{ReloadListeners, ResourceKey, ResourceLocation, ResourceManager}
 import net.impleri.slab.server.Server
-import net.minecraft.server.level.ServerPlayer
 
 import java.util.UUID
 
@@ -34,6 +29,10 @@ private class ServerStateContainerSpec extends BaseSpec {
   private val skillTypeOpsMock = mock[SkillTypeOps]
   private val networkMock = mock[Network]
   private val registryMock = mock[Registry.ITEM]
+  private val registryKeyMock = mock[ResourceKey.Vanilla[Registry.Vanilla[Item.Vanilla]]]
+
+  registryMock.name returns registryKeyMock
+  registryKeyMock.location returns ResourceLocation("skills:test_registry").get.value
 
   lazy private val testUnit = ServerStateContainer(
     globalStateMock,
@@ -88,7 +87,7 @@ private class ServerStateContainerSpec extends BaseSpec {
     globalStateMock.SKILL_TYPE_OPS wasCalled sixTimes
   }
 
-  it should "change the team instance" in {
+  "ServerStateContainer.onServerChange" should "change the team instance" in {
     val playerRegistryState = PlayerRegistryState.empty
 
     globalStateMock.NETWORK returns networkMock

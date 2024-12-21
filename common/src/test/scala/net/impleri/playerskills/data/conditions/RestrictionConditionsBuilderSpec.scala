@@ -30,8 +30,13 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     override val playerOps: PlayerOps = mockPlayerOps,
     override val logger: Logger = mockLogger,
   ) extends RestrictionConditionsBuilder {
+    override def isValid: Boolean = true
+
+    override def getTarget: String = "target"
+
     override def parseRestriction(jsonElement: JsonObject): Unit = {
       mockParse(jsonElement)
+
     }
 
     override def toggleEverything(): Unit = mockToggle()

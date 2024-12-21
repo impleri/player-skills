@@ -1,0 +1,5 @@
+{
+  "type": "numeric",
+  "description": "Item numeric skill",
+  "initialValue": 0.0
+}

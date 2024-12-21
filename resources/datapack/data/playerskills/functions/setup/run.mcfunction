@@ -23,6 +23,7 @@ function playerskills:setup/08
 function playerskills:setup/09
 function playerskills:setup/10
 function playerskills:setup/11
+function playerskills:setup/12
 
 say Done Testaforming process
 

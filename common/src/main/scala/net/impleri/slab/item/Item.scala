@@ -32,9 +32,9 @@ case class Item(
 
   def isDefault: Boolean = name == Item.DEFAULT_ITEM.name
 
-  def isEmptyStack: Boolean = stack.fold(quantity == 0)(_.isEmpty)
+  def isEmptyStack: Boolean = getStack.isEmpty
 
-  def isEmpty: Boolean = !(isDefault || isEmptyStack)
+  def isEmpty: Boolean = isDefault || isEmptyStack
 
   def isEnchanted: Boolean = getStack.isEnchanted
 

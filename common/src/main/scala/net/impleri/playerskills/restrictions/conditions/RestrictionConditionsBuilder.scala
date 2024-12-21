@@ -7,6 +7,8 @@ trait SingleTargetRestriction[T] {
 
   def isValid: Boolean =
     target.nonEmpty
+
+  def getTarget: String = target.fold("")(_.toString)
 }
 
 trait MultiTargetRestriction[T] {
@@ -14,6 +16,8 @@ trait MultiTargetRestriction[T] {
 
   def isValid: Boolean =
     targets.nonEmpty
+
+  def getTarget: String = targets.map(_.toString).mkString(", ")
 }
 
 trait RestrictionConditionsBuilder
@@ -21,4 +25,8 @@ trait RestrictionConditionsBuilder
     with DimensionConditions
     with PlayerConditions {
   def name: ResourceLocation
+
+  def isValid: Boolean
+
+  def getTarget: String
 }

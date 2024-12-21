@@ -18,6 +18,8 @@ case class Biome(private val holder: Holder[Biome.Vanilla])
     .map(_.location())
     .flatMap(ResourceLocation(_))
 
+  override def toString: String = name.fold("None")(n => s"Some(${n.toString})")
+
   def isTagged(tag: Tag[Biome, Biome.Vanilla]): Boolean = holder.is(tag.value)
 
   def isNamed(n: ResourceLocation): Boolean = name.contains(n)

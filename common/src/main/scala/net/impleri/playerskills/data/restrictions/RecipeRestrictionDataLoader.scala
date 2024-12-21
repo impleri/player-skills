@@ -31,4 +31,6 @@ case class RecipeRestrictionDataLoader(
       .pipe(Option(_))
       .filter(_.isValid)
       .foreach(recipeRestrictionBuilder.add)
+
+  override def save(): Unit = recipeRestrictionBuilder.commit()
 }

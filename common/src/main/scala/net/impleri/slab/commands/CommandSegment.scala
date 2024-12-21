@@ -34,6 +34,13 @@ class CommandSegment[B <: CommandSegment.Vanilla[_], T <: CommandSegment[B, T]](
         .asInstanceOf[B],
     )
 
+  def options[N <: CommandSegment.Vanilla[_], S <: CommandSegment[N, S]](
+    subtrees: Seq[CommandSegment[N, S]],
+  ): CommandSegment[B, T] =
+    copyAs(
+      subtrees.foldLeft(underlying)((parent, subtree) => parent.`then`(subtree.underlying).asInstanceOf[B]),
+    )
+
   def requires(
     permission: CommandPermission.CommandPermission = CommandPermission.MOD,
   ): CommandSegment[B, T] =

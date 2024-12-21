@@ -12,9 +12,7 @@ import net.impleri.slab.resources.ResourceWrapper
 
 import scala.util.chaining.scalaUtilChainingOps
 
-trait RestrictionBuilder[T <: ResourceWrapper[
-  U,
-], U, C <: RestrictionConditionsBuilder] {
+trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsBuilder] {
   protected def registry: Option[Registry[T, U]] = None
 
   protected def logger: Logger
@@ -23,31 +21,39 @@ trait RestrictionBuilder[T <: ResourceWrapper[
 
   protected def singleAsString: Boolean = false
 
+  private def registryKey: Option[ResourceKey[Registry.Vanilla[U]]] = registry.map { r =>
+    ResourceKey(r.name)
+  }
+
   def add(restrictionName: String, builder: C): Unit =
     restrictions += restrictionName -> builder
 
   def commit(): Unit = {
     restrictions.foreach(restrict)
-
     restrictions = Map.empty
   }
 
   protected def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    TargetResource(
-      resourceName,
-      registry.map(r => ResourceKey(r.name)),
+    logger.info(s"Saving restriction ${builder.name} for ${builder.getTarget}")
+
+    TargetResource.create(
+      builder.getTarget,
+      registryKey,
       singleAsString,
     ) match {
       case Some(ns: TargetResource.Namespace) =>
         restrictNamespace(ns.target, builder)
-      case Some(s: TargetResource.Single) => restrictOne(s.target, builder)
+      case Some(s: TargetResource.Single) =>
+        restrictOne(s.target, builder)
       case Some(s: TargetResource.SingleString) =>
         restrictString(s.target, builder)
       case Some(t: TargetResource.Tag[_, _]) =>
         restrictTag(t.target.asInstanceOf[Tag[T, U]], builder)
-      case _ =>
+      case e =>
+        logger.warn(s"Could not identify resource type for $resourceName: $e")
+        ()
     }
   }
 
@@ -81,16 +87,19 @@ trait RestrictionBuilder[T <: ResourceWrapper[
       value <- reg.matchingTag(tag)
     } yield restrictOne(value, builder)
 
+  private def createLogPiece(prefix: String, values: String): String =
+    if (values.isBlank) values else s"$prefix $values"
+
   protected[restrictions] def logRestriction(
     name: String,
     restriction: Restriction[_, _],
     settings: Option[String] = None,
   ): Unit =
     List(
-      s"in biomes ${restriction.includeBiomes.mkString(",")}",
-      s"not in biomes ${restriction.excludeBiomes.mkString(",")}",
-      s"in dimensions ${restriction.includeDimensions.mkString(",")}",
-      s"not in dimensions ${restriction.excludeDimensions.mkString(",")}",
+      createLogPiece("in biomes", restriction.includeBiomes.mkString(",")),
+      createLogPiece("not in biomes", restriction.excludeBiomes.mkString(",")),
+      createLogPiece("in dimensions", restriction.includeDimensions.mkString(",")),
+      createLogPiece("not in dimensions", restriction.excludeDimensions.mkString(",")),
       settings.getOrElse(""),
     ).filterNot(_.isBlank)
       .mkString("; ")

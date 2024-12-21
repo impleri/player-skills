@@ -24,16 +24,7 @@ class OnPlayerTickSpec extends BaseSpec {
   private val otherItem = mock[Item]
 
   mockPlayer.isClient returns false
-
-  "OnPlayerTick.handler" should "do nothing clientside" in {
-    mockPlayer.isClient returns true
-    mockPlayer.armor returns Map.empty
-
-    testUnit.handler(mockPlayer)
-
-    mockOps.isWearable(mockPlayer, *) wasNever called
-    mockOps.isHoldable(mockPlayer, *) wasNever called
-  }
+  mockPlayer.currentTick returns TickEvents.TICKS_PER_SECOND
 
   it should "filter unwearable armor" in {
     mockOps.isWearable(mockPlayer, restrictedItem) returns false
