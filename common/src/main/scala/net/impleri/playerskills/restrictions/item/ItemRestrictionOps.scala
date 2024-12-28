@@ -54,7 +54,7 @@ class ItemRestrictionOps(
 object ItemRestrictionOps {
   def apply(
     registry: RestrictionRegistry = RestrictionRegistry(),
-    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
+    logger: Logger = PlayerSkillsLogger.ITEMS,
   ): ItemRestrictionOps =
     new ItemRestrictionOps(registry, logger)
 }

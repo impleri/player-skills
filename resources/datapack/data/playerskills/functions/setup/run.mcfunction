@@ -24,6 +24,7 @@ function playerskills:setup/09
 function playerskills:setup/10
 function playerskills:setup/11
 function playerskills:setup/12
+function playerskills:setup/13
 
 say Done Testaforming process
 
@@ -40,3 +41,5 @@ scoreboard players set 6_moment test_time 1200
 scoreboard players set 7_moment test_time 1400
 scoreboard players set 8_moment test_time 1600
 scoreboard players set 9_moment test_time 1800
+
+execute as @p[limit=1] in minecraft:the_nether run tp 4 128 4

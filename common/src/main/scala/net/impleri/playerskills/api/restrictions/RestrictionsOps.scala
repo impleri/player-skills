@@ -48,7 +48,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
       .asInstanceOf[View[R]]
       .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target affecting $player"))
 
-  private def canHelper(
+  private def IsAllowedTo(
     player: Player,
     target: ResourceLocation,
     getFieldValue: R => Boolean,
@@ -58,21 +58,24 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
     biome: Option[Biome],
     f: R => Boolean,
   ): Boolean = {
+    val actualDimension = dimension.orElse(player.dimension)
+    val actualBiome = biome.orElse(player.biomeAt(pos))
+
     val hasRestrictions = getRestrictionsFor(
       player,
       target,
-      dimension.orElse(player.dimension),
-      biome.orElse(player.biomeAt(pos)),
+      actualDimension,
+      actualBiome,
     )
       .filter(f)
       .map(getFieldValue)
-      .exists(!_)
+      .exists(!_) // We only care if there's a $value = false
 
-    logger
-      .debug(
-        s"Does ${player.handle} have $fieldName restrictions with $target in $dimension/$biome? $hasRestrictions",
-      )
+    // We purposely change the log level to reduce noise in the logs
+    val logMessage = s"Does ${player.handle} have $fieldName restrictions with $target in $actualDimension/$actualBiome? $hasRestrictions"
+    if (hasRestrictions) logger.debug(logMessage) else logger.trace(logMessage)
 
+    // Invert the value so that true = player can
     !hasRestrictions
   }
 
@@ -88,7 +91,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
   ): Boolean =
     (player.asOption, target.name) match {
       case (Some(p), Some(t)) =>
-        canHelper(
+        IsAllowedTo(
           p.asPlayer,
           t,
           getFieldValue,

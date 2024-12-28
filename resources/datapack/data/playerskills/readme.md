@@ -62,21 +62,20 @@ incrementing along the z-axis.
 5. Skill cannot be given an invalid type of value.
 6. Skill cannot be given a value not in its allowed options.
 7. Skill cannot be changed more than allowed.
-8. Quest basic skill task can be completed and rewards a basic skill.
-9. Quest numeric skill task can be completed and rewards an improvement to a numeric skill.
-10. Quest tiered skill task can be completed and rewards a degradation to a tiered skill.
-11. Quest specialized skill task can be completed and rewards a specialized skill.
-12. Skill gained when on a team syncs to the online and offline team members.
-13. Syncing a single player's skills to a team works.
-14. Syncing skills for a whole team works.
-15. Cannot hold item in a given dimension.
-16. Cannot wear item.
-17. Cannot cause damage with item in a given biome.
-18. Cannot use item.
-19. Cannot wear item (Curios/Trinkets).
-20. Cannot identify item in a chest.
-21. Cannot identify in-world item (TheOneProbe/WTHIT/Jade).
-22. Cannot craft a blocked recipe in a given dimension.
+8. [FTB Quest] Quest basic skill task can be completed and rewards a basic skill.
+9. [FTB Quest] Quest numeric skill task can be completed and rewards an improvement to a numeric skill.
+10. [FTB Quest] Quest tiered skill task can be completed and rewards a degradation to a tiered skill.
+11. [FTB Quest] Quest specialized skill task can be completed and rewards a specialized skill.
+12. Cannot hold item.
+13. Cannot wear item in Dimension.
+14. Cannot cause damage in Biome.
+15. Cannot use item.
+16. [Curios/Trinkets] Cannot wear item.
+17. Cannot identify item in a chest.
+18. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item.
+
+
+24. Cannot craft a blocked recipe in a given dimension.
 23. Cannot craft a blocked recipe in a given biome with a crafting table.
 24. Cannot craft a blocked recipe in a smelter.
 25. Cannot view a blocked recipe (JEI/REI).
