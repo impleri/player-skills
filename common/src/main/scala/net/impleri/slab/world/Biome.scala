@@ -8,17 +8,17 @@ import net.minecraft.world.level.biome.{Biome => McBiome}
 
 import scala.jdk.OptionConverters._
 
-case class Biome(private val holder: Holder[Biome.Vanilla])
-    extends ResourceWrapper[Biome.Vanilla] {
+case class Biome(private val holder: Holder[Biome.Vanilla]) extends ResourceWrapper[Biome.Vanilla] {
   override protected val underlying: Biome.Vanilla = holder.value()
 
-  override val name: Option[ResourceLocation] = holder
-    .unwrapKey()
-    .toScala
-    .map(_.location())
-    .flatMap(ResourceLocation(_))
+  override val name: Option[ResourceLocation] =
+    for {
+      key <- holder.unwrapKey().toScala
+      location = key.location()
+      name <- ResourceLocation(location)
+    } yield name
 
-  override def toString: String = name.fold("None")(n => s"Some(${n.toString})")
+  override def toString: String = name.fold("None")(_.toString)
 
   def isTagged(tag: Tag[Biome, Biome.Vanilla]): Boolean = holder.is(tag.value)
 

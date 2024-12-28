@@ -19,7 +19,9 @@ case class Level[T <: Level.BasVanilla](private val underlying: T) {
   def getDimensionName: Option[ResourceLocation] = getDimension.flatMap(_.name)
 
   def getBiome(pos: Position): Option[Biome] =
-    Try(underlying.getBiome(pos.value)).toOption.map(Biome(_))
+    Try(underlying.getBiome(pos.value))
+      .toOption
+      .map(Biome(_))
 }
 
 object Level {
