@@ -1,11 +1,12 @@
 package net.impleri.slab.world
 
 import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
 
 case class Coordinates(
-  private val x: Double,
-  private val y: Double,
-  private val z: Double,
+  x: Double,
+  y: Double,
+  z: Double,
 ) {
   private def asBlockPos = new BlockPos(x, y, z)
 
@@ -24,4 +25,8 @@ object Coordinates {
       vy <- Option(y)
       vz <- Option(z)
     } yield new Coordinates(vx, vy, vz)
+
+  def apply(blockPos: BlockPos) = new Coordinates(blockPos.getX, blockPos.getY, blockPos.getZ)
+
+  def apply(vec: Vec3) = new Coordinates(vec.x, vec.y, vec.z)
 }

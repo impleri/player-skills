@@ -7,6 +7,7 @@ import net.impleri.slab.item.crafting.RecipeType
 import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.resources.ResourceWrapper
+import net.impleri.slab.world.Biome
 import net.minecraft.core.{Registry => McRegistry}
 import net.minecraft.core.HolderLookup
 

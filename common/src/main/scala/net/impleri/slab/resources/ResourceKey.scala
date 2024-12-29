@@ -21,6 +21,14 @@ object ResourceKey {
   type VanillaRegistry[T] = Vanilla[Registry.Vanilla[T]]
   type AnyVanilla = Vanilla[_]
 
+  def forResource[T, R <: Registry.Vanilla[T]](
+    resource: ResourceLocation,
+    registry: ResourceKey[R]
+  ): ResourceKey[T] =
+    McResourceKey
+      .create(registry.value, resource.value)
+      .pipe(ResourceKey(_))
+
   def forRegistry[T <: Registerable](
     resource: ResourceLocation,
   ): Registry[T] =
