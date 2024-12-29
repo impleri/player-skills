@@ -205,7 +205,7 @@ class RestrictionOpsSpec extends BaseSpec {
 
     playerCan shouldBe true
 
-    mockLogger.debug(*) wasCalled once
+    mockLogger.trace(*) wasCalled once
     mockLogger.warn(*) wasNever called
   }
 
