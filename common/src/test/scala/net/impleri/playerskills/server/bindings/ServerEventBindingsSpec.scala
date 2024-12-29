@@ -7,6 +7,7 @@ import net.impleri.playerskills.server.skills.PlayerRegistry
 import net.impleri.playerskills.server.NetHandler
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.server.ServerStateContainer
+import net.impleri.slab.commands.backport.FillBiomeCommand
 import net.impleri.slab.events.BlockEvents
 import net.impleri.slab.events.CommandEvents
 import net.impleri.slab.events.CommonLifecycleEvents
@@ -24,6 +25,7 @@ class ServerEventBindingsSpec extends BaseSpec {
   private val mockOnChange = mock[Option[Server] => Unit]
   private val mockCommands = mock[PlayerSkillsCommands]
   private val mockNetHandler = mock[NetHandler]
+  private val mockFillBiome = mock[FillBiomeCommand]
   private val mockCommonLifecycle = mock[CommonLifecycleEvents]
   private val mockServerLifecycle = mock[ServerLifecycleEvents]
   private val mockCommand = mock[CommandEvents]
@@ -41,6 +43,7 @@ class ServerEventBindingsSpec extends BaseSpec {
     mockOnChange,
     () => mockCommands,
     mockNetHandler,
+    mockFillBiome,
     mockCommonLifecycle,
     mockServerLifecycle,
     mockCommand,
@@ -67,6 +70,7 @@ class ServerEventBindingsSpec extends BaseSpec {
     mockTick.onPlayerEnd(*, *, *) wasCalled once
 
     mockCommand.register(mockCommands) wasCalled once
+    mockCommand.register(mockFillBiome) wasCalled once
 
   }
 }

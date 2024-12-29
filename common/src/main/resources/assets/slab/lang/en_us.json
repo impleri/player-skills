@@ -1,0 +1,4 @@
+{
+  "commands.slab.fill_biomes": "Biomes have been changed",
+  "commands.slab.fill_biomes_failed": "Failed to change biomes"
+}
