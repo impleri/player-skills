@@ -68,15 +68,19 @@ incrementing along the z-axis.
 11. [FTB Quest] Quest specialized skill task can be completed and rewards a specialized skill.
 12. Cannot hold item.
 13. Cannot wear item in Dimension.
-14. Cannot cause damage in Biome.
-15. Cannot use item.
-16. [Curios/Trinkets] Cannot wear item.
-17. Cannot identify item in a chest.
+14. Cannot use any item from a mod namespace in Biome.
+15. Cannot cause damage with an item from a tag.
+16. Cannot identify item in a chest.
+17. [Curios/Trinkets] Cannot wear item.
 18. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item.
-
-
-24. Cannot craft a blocked recipe in a given dimension.
-23. Cannot craft a blocked recipe in a given biome with a crafting table.
-24. Cannot craft a blocked recipe in a smelter.
-25. Cannot view a blocked recipe (JEI/REI).
-26. Item does not show up in JEI/REI if all recipes for it are blocked.
+19. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
+20. Cannot craft a blocked recipe using a crafting table.
+21. Cannot craft a blocked recipe using a furnace.
+22. Cannot craft a blocked recipe using a smoker.
+23. Cannot craft a blocked recipe using a blast furnace.
+24. Cannot craft a blocked recipe using a smithing table.
+25. Cannot craft a blocked recipe using a stonecutter.
+26. Cannot craft a blocked recipe using an anvil.
+27. Cannot craft a blocked recipe using a brewing stand.
+28. [JEI/REI] Cannot view a blocked recipe for an item.
+29. [JEI/REI] Item does not show up in JEI/REI if all recipes for it are blocked.

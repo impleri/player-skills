@@ -1,4 +1,4 @@
-# Reset Test
+# Cannot wear item in Dimension
 
 skills reset @p[limit=1] playerskills:item_test
 

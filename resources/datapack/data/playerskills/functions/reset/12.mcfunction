@@ -1,4 +1,4 @@
-# Reset Test
+# Cannot hold item
 
 skills reset @p[limit=1] playerskills:item_test
 
