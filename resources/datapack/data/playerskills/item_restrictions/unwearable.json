@@ -1,6 +1,7 @@
 {
   "item": "minecraft:elytra",
   "wearable": false,
+  "dimensions": ["minecraft:the_nether"],
   "unless": {
     "skill": "playerskills:item_test",
     "value": 1

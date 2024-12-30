@@ -164,13 +164,15 @@ registered via Data Pack will not have the
 - `biomes`: Add biome facets to the restriction
 
 Both facets can either be an array of string values that will be parsed as IDs (see above) or an object with `include`
-and/or `exclude` properties that are array of string values.
+and/or `exclude` properties that are array of string values. Dimensions/biomes in the `include` list (default) will
+indicate that the restriction applies in that dimension/biome while `exclude` means it won't apply. If no dimension or
+biome is included, it will be assumed to be global.
 
 ```json
 {
   "dimensions": [
     "overworld",
-    "minecraft:nether",
+    "minecraft:the_nether",
     "@ad_astra"
   ],
   "biomes": {

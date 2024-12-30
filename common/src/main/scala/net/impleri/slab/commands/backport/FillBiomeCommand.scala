@@ -6,6 +6,8 @@ import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.commands.{BaseCommand, Command, CommandAction, CommandSegment, CommandString, CoordinatesArgument, ResourceLocationArgument}
 import net.impleri.slab.registry.BuiltinRegistry
 
+import scala.util.chaining.scalaUtilChainingOps
+
 case class FillBiomeCommand() extends BaseCommand {
   override def register(
     dispatcher: CommandDispatcher[Command.Source],
@@ -36,7 +38,10 @@ case class FillBiomeCommand() extends BaseCommand {
         climateSampler <- level.getClimateSampler
         chunks = level.getChunksBetween(fromCoords, toCoords)
       } yield {
-        chunks.foreach(_.setBiome(biome, climateSampler))
+        chunks.foreach {
+          _.setBiome(biome, climateSampler)
+            .pipe(level.updateChunk)
+        }
 
         TranslatableText("commands.slab.fill_biomes")
       }

@@ -70,7 +70,7 @@ incrementing along the z-axis.
 13. Cannot wear item in Dimension.
 14. Cannot use any item from a mod namespace in Biome.
 15. Cannot cause damage with an item from a tag.
-16. Cannot identify item in a chest.
+16. Cannot identify item in a chest/inventory.
 17. [Curios/Trinkets] Cannot wear item.
 18. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item.
 19. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.

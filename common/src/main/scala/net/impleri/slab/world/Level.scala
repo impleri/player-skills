@@ -27,6 +27,7 @@ case class Level[T <: Level.BaseVanilla](private val underlying: T) {
     }
 
   def getChunksBetween(from: Coordinates, to: Coordinates): Seq[Chunk.Any] = {
+    val firstChunk = getChunk(from.toPosition)
     val chunks = for {
       x <- from.x.toLong to to.x.toLong
       if x % 16 == 0
@@ -38,12 +39,15 @@ case class Level[T <: Level.BaseVanilla](private val underlying: T) {
         .flatMap(getChunk)
     }
 
-    (Seq(getChunk(from.toPosition)) ++ chunks).flatten
+    (Seq(firstChunk) ++ chunks.filterNot(_ == firstChunk)).flatten
   }
 
   def getChunk(pos: Position): Option[Chunk.Any] = {
     Try(underlying.getChunk(pos.value)).toOption.map(Chunk(_))
   }
+
+  def updateChunk(chunk: Chunk[_]): Unit =
+    underlying.getChunkSource.updateChunkForced(chunk.pos, true)
 
   def getBiome(pos: Position): Option[Biome] =
     Try(underlying.getBiome(pos.value))
