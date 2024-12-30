@@ -1,6 +1,6 @@
 {
-  "item": "@naturescompass",
-  "usable": false,
+  "item": "#forge:tools/swords",
+  "harnful": false,
   "unless": {
     "skill": "playerskills:item_test",
     "value": 1

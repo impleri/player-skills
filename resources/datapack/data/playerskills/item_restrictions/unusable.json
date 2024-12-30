@@ -1,6 +1,14 @@
 {
-  "item": "minecraft:netherite_shovel",
+  "item": "@naturescompass",
   "usable": false,
+  "biomes": {
+    "include": [
+      "#minecraft:is_ocean"
+    ],
+    "exclude": [
+      "minecraft:frozen_ocean"
+    ]
+  },
   "unless": {
     "skill": "playerskills:item_test",
     "value": 1

@@ -1,5 +1,5 @@
 {
-  "item": "minecraft:netherite_sword",
+  "item": "#minecraft:swords",
   "harnful": false,
   "unless": {
     "skill": "playerskills:item_test",
