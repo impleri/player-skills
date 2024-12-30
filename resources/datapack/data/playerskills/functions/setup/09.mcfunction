@@ -1,4 +1,4 @@
-# Setup for test
+# [FTB Quest] Quest numeric skill task can be completed and rewards an improvement to a numeric skill.
 
 execute at @e[tag=setup,limit=1] run fill ~-4 ~-1 ~-4 ~4 ~-1 ~4 minecraft:quartz_block replace
 execute at @e[tag=setup,limit=1] run fill ~-3 ~-1 ~-3 ~3 ~-1 ~3 minecraft:grass_block replace

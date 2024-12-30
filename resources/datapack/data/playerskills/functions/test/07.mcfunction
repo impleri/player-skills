@@ -1,4 +1,4 @@
-# Max Changes Test
+# Skill cannot be changed more than allowed
 
 skills set @p[limit=1] playerskills:seven green
 skills set @p[limit=1] playerskills:seven blue
