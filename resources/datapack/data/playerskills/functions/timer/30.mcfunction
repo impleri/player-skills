@@ -1,5 +1,5 @@
 # Test Watcher/Timeout
 # Runs every tick until test completes. Repeating commmand block triggered by redstone block.
 
-scoreboard players add test_16 test_time 1
-execute if score test_16 test_time >= 3_moment test_time run function playerskills:action/fail
+scoreboard players add test_30 test_time 1
+execute if score test_30 test_time >= 2_moment test_time run function playerskills:action/fail
