@@ -40,9 +40,9 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
     registry.entries.view
       .filter(matchesTarget(target))
       .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target"))
-      .filter(r => dimension.forall(r.isAllowedDimension))
+      .filter(r => dimension.forall(r.isApplicableDimension))
       .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target in dimension $dimension"))
-      .filter(r => biome.forall(r.isAllowedBiome))
+      .filter(r => biome.forall(r.isApplicableBiome))
       .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target in biome $biome"))
       .filter(matchesPlayer(player))
       .asInstanceOf[View[R]]

@@ -3,4 +3,4 @@
 # function playerskills:timer/08
 
 scoreboard players add test_08 test_time 1
-execute as @e[tag=test_08,limit=1] at @s if score test_08 test_time >= 2_moment test_time run function playerskills:action/fail
+execute if score test_08 test_time >= 2_moment test_time run function playerskills:action/fail

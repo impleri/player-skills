@@ -1,4 +1,4 @@
-# [FTB Quest] Quest tiered skill task can be completed and rewards a degradation to a tiered skill
+# [FTB Quest] Quest basic skill task can be completed and rewards a basic skill
 
-skills set @p[limit=1] playerskills:ten_test beta
-say You should have the tiered reward downgraded to delta
+skills set @p[limit=1] playerskills:eight_test true
+say You should receive the basic reward

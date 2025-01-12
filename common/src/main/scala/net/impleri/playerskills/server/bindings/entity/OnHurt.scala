@@ -26,7 +26,7 @@ case class OnHurt(
         player = damageSource.asPlayer
         tool <- player.getItemInMainHand
         usable = itemRestrictionOps.isHarmful(player, tool)
-      } yield logEvent(player, s"attack ${entity.mobTypeName} with ${tool.name}")(usable)
+      } yield logEvent(player, s"attack $entity with $tool")(usable)
     }
 
   upstream.onHurt(handler)

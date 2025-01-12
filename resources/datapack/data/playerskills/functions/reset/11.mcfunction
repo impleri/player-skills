@@ -1,4 +1,5 @@
-# [FTB Quest] Quest specialized skill task can be completed and rewards a specialized skill
+# [FTB Quest] Quest numeric skill task can be completed and rewards an improvement to a numeric skill
 
-skills reset @p[limit=1] playerskills:eleven_test
-skills reset @p[limit=1] playerskills:eleven_reward
+skills reset @p[limit=1] playerskills:nine_test
+skills reset @p[limit=1] playerskills:nine_reward
+skills set @p[limit=1] playerskills:nine_reward 3.0

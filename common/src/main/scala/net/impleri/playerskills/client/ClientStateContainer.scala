@@ -1,6 +1,7 @@
 package net.impleri.playerskills.client
 
 import net.impleri.playerskills.StateContainer
+import net.impleri.playerskills.client.bindings.OnTooltipItem
 import net.impleri.playerskills.client.restrictions.ItemRestrictionOpsClient
 import net.impleri.playerskills.client.restrictions.RecipeRestrictionOpsClient
 import net.impleri.playerskills.network.Manager
@@ -21,6 +22,8 @@ case class ClientStateContainer(
 
   lazy val RECIPE_RESTRICTIONS: RecipeRestrictionOpsClient =
     RecipeRestrictionOpsClient(globalState.RESTRICTIONS)
+
+  private val ON_TOOLTIP: OnTooltipItem = OnTooltipItem(client, ITEM_RESTRICTIONS)
 
   lazy private val MANAGER =
     Manager(globalState, clientStateContainer = Option(this))

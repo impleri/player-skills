@@ -3,10 +3,9 @@ package net.impleri.slab.server
 import net.impleri.slab.entity.Player
 import net.impleri.slab.item.crafting.RecipeManager
 import net.impleri.slab.registry.Registry
-import net.impleri.slab.resources.ResourceWrapper
+import net.impleri.slab.resources.{ResourceLocation, ResourceWrapper}
 import net.minecraft.core.{Registry => McRegistry}
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.storage.LevelResource
 import net.minecraft.world.level.Level
@@ -47,6 +46,7 @@ class Server(
       .levelKeys()
       .asScala
       .map(_.location())
+      .flatMap(ResourceLocation(_))
       .toList
 
   def getRecipeManager: RecipeManager =
@@ -60,7 +60,7 @@ class Server(
       .registryAccess()
       .registry[U](key)
       .toScala
-      .map(r => new Registry(r, f))
+      .map(r => new Registry(r, (_: ResourceLocation, u: U) => f(u)))
 }
 
 object Server {

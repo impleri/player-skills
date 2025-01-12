@@ -25,7 +25,7 @@ case class ItemRestrictionBuilder(
   ): Unit =
     ItemRestriction(item, builder)
       .tap(restrictionRegistry.add)
-      .tap(logRestriction(targetName, _))
+      .tap(logRestriction(item.asString, _))
 
   override protected[item] def restrictOne(
     targetName: ResourceLocation,
@@ -33,7 +33,7 @@ case class ItemRestrictionBuilder(
   ): Unit =
     for {
       reg <- registry
-      target <- reg.get(targetName)
+      target <- reg.find(targetName)
     } yield restrictItem(target, builder, targetName.toString)
 
   override def restrictString(

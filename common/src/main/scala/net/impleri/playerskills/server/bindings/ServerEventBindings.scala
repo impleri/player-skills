@@ -11,6 +11,7 @@ import net.impleri.playerskills.server.bindings.player.OnQuit
 import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.server.ServerStateContainer
 import net.impleri.playerskills.server.bindings.lifecycle.OnSetup
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.commands.backport.FillBiomeCommand
 import net.impleri.slab.events.BlockEvents
 import net.impleri.slab.events.CommandEvents
@@ -27,7 +28,7 @@ case class ServerEventBindings(
   onServerChange: Option[Server] => Unit = _ => {},
   getCommand: () => PlayerSkillsCommands,
   netHandler: NetHandler = NetHandler(),
-  fillBiomeCommand: FillBiomeCommand = FillBiomeCommand(),
+  fillBiomeCommand: FillBiomeCommand = FillBiomeCommand(Option(PlayerSkillsLogger.ITEMS)),
   commonLifecycle: CommonLifecycleEvents = CommonLifecycleEvents(),
   serverLifecycle: ServerLifecycleEvents = ServerLifecycleEvents(),
   commands: CommandEvents = CommandEvents(),

@@ -1,6 +1,8 @@
 package net.impleri.playerskills.api.restrictions
 
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.impleri.slab.entity.Player
+import net.impleri.slab.registry.Tag
 import net.impleri.slab.resources.ResourceKey
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.resources.ResourceWrapper
@@ -30,11 +32,11 @@ trait Restriction[T <: ResourceWrapper[U], U] {
 
   def hasReplacement: Boolean = replacement.nonEmpty
 
-  def isAllowedDimension(dimension: ResourceLocation): Boolean =
+  def isApplicableDimension(dimension: ResourceLocation): Boolean =
     (includeDimensions.isEmpty || includeDimensions.exists(matchDimension(dimension))) &&
       !excludeDimensions.exists(matchDimension(dimension))
 
-  def isAllowedBiome(biome: Biome): Boolean =
+  def isApplicableBiome(biome: Biome): Boolean =
     (includeBiomes.isEmpty || includeBiomes.exists(matchBiome(biome))) &&
       !excludeBiomes.exists(matchBiome(biome))
 
@@ -48,7 +50,7 @@ trait Restriction[T <: ResourceWrapper[U], U] {
   private def matchBiome(biome: Biome)(target: String): Boolean =
       TargetResource.create(target, Option(ResourceKey.BIOME_REGISTRY)) match {
         case Some(n: TargetResource.Namespace) => biome.isNamespaced(n.target)
-        case Some(n: TargetResource.Tag[_, _]) => biome.isTagged(n.target.asInstanceOf)
+        case Some(n: TargetResource.Tag[_, _]) => biome.isTagged(n.target.asInstanceOf[Tag[Biome, Biome.Vanilla]])
         case Some(n: TargetResource.Single) => biome.isNamed(n.target)
         case _ => Restriction.DEFAULT_CONDITION_RESPONSE
       }

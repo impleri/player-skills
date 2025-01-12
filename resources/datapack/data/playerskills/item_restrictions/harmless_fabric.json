@@ -1,6 +1,6 @@
 {
-  "item": "#minecraft:swords",
-  "harnful": false,
+  "item": "minecraft:netherite_sword",
+  "harmful": false,
   "unless": {
     "skill": "playerskills:item_test",
     "value": 1

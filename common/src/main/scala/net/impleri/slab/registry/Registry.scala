@@ -10,30 +10,32 @@ import net.impleri.slab.resources.ResourceWrapper
 import net.impleri.slab.world.Biome
 import net.minecraft.core.{Registry => McRegistry}
 import net.minecraft.core.HolderLookup
+import net.minecraft.data.BuiltinRegistries
 
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
 class Registry[T <: ResourceWrapper[U], U](
   protected val underlying: Registry.Vanilla[U],
-  protected val f: U => T,
+  protected val f: (ResourceLocation, U) => T,
 ) {
   def name: ResourceKey.VanillaRegistry[U] = underlying.key().asInstanceOf[ResourceKey.VanillaRegistry[U]]
 
-  def get(key: ResourceLocation): Option[T] =
-    Option(underlying.get(key.value)).map(f)
+  def find(key: ResourceLocation): Option[T] =
+    Option(underlying.get(key.value)).map(f(key, _))
 
   def getKey(value: T): Option[ResourceLocation] =
     Option(underlying.getKey(value.value)).flatMap(ResourceLocation(_))
 
-  def isValid(key: ResourceLocation): Boolean = get(key).nonEmpty
+  def isValid(key: ResourceLocation): Boolean = find(key).nonEmpty
 
   def entries: Map[ResourceLocation, T] =
     underlying
       .entrySet()
       .asScala
       .flatMap(e =>
-        ResourceLocation(e.getKey.location()).map(_ -> f(e.getValue)),
+        ResourceLocation(e.getKey.location())
+          .map(n => (n, f(n, e.getValue))),
       )
       .toMap
 
@@ -61,21 +63,17 @@ object Registry {
 
   type Any = Registry[_, _]
 
-  private[slab] val BIOME_REGISTRY = McRegistry.BIOME_REGISTRY
+  type BIOME = Registry[Biome, Biome.Vanilla]
 
-  type ENTITY_TYPE =
-    Registry[EntityType[EntityType.AnyVanilla], EntityType.AnyVanilla]
-  lazy val Entities: ENTITY_TYPE =
-    new Registry(McRegistry.ENTITY_TYPE, EntityType(_))
+  type ENTITY_TYPE = Registry[EntityType.Any, EntityType.AnyVanilla]
+  lazy val Entities: ENTITY_TYPE = new Registry(McRegistry.ENTITY_TYPE, (_: ResourceLocation, v: EntityType.AnyVanilla) => EntityType(v))
 
   type ITEM = Registry[Item, Item.Vanilla]
-  lazy val Items: ITEM = new Registry(McRegistry.ITEM, Item(_))
+  lazy val Items: ITEM = new Registry(McRegistry.ITEM, (_: ResourceLocation, v: Item.Vanilla) => Item(v))
 
   type BLOCK = Registry[Block, Block.Vanilla]
-  lazy val Blocks: BLOCK = new Registry(McRegistry.BLOCK, Block(_))
+  lazy val Blocks: BLOCK = new Registry(McRegistry.BLOCK, (_: ResourceLocation, v: Block.Vanilla) => Block(v))
 
-  type RECIPE_TYPE =
-    Registry[RecipeType[RecipeType.AnyVanilla], RecipeType.AnyVanilla]
-  lazy val RecipeTypes: RECIPE_TYPE =
-    new Registry(McRegistry.RECIPE_TYPE, RecipeType(_))
+  type RECIPE_TYPE = Registry[RecipeType.Any, RecipeType.AnyVanilla]
+  lazy val RecipeTypes: RECIPE_TYPE = new Registry(McRegistry.RECIPE_TYPE, (_: ResourceLocation, v: RecipeType.AnyVanilla) => RecipeType(v))
 }

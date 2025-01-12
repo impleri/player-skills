@@ -4,15 +4,13 @@ import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.{ResourceLocationArgument => McResourceLocationArgument}
 
-import scala.util.Try
-
 class ResourceLocationArgument(
   override val underlying: Command.Argument[ResourceLocation.Vanilla],
 ) extends CommandSegment[Command.Argument[
       ResourceLocation.Vanilla,
     ], ResourceLocationArgument](underlying)
 
-object ResourceLocationArgument {
+object ResourceLocationArgument extends ArgumentUtils {
   def apply(name: String): ResourceLocationArgument =
     new ResourceLocationArgument(
       Commands
@@ -23,6 +21,7 @@ object ResourceLocationArgument {
     name: String,
     context: Command.Context,
   ): Option[ResourceLocation] =
-    Try(McResourceLocationArgument.getId(context, name)).toOption
-      .flatMap(ResourceLocation(_))
+    wrapParser[ResourceLocation.Vanilla, Option[ResourceLocation]]("resource", name, ResourceLocation(_)) {
+      McResourceLocationArgument.getId(context, name)
+    }.flatten
 }

@@ -16,6 +16,7 @@ case class Block(
 
   def asString: String = name.fold("unknown block")(_.asString)
 
+  override def toString: String = asString
 }
 
 object Block {

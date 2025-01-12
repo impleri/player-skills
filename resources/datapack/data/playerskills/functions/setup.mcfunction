@@ -1,5 +1,7 @@
 # Global Setup Script
 
+function playerskills:setup/reset
+
 gamerule commandBlockOutput false
 scoreboard objectives add test_time dummy
 scoreboard objectives add test dummy
@@ -7,8 +9,11 @@ scoreboard objectives add test dummy
 # scoreboard objectives add created dummy
 # scoreboard objectives setdisplay sidebar created
 
+execute positioned -8 ~ 0 run function playerskills:biome/frozen_ocean
+execute positioned 0 ~ -8 run function playerskills:biome/ocean
+
 # Set up test dummy
-summon minecraft:armor_stand 4 -53 4 { Tags: ["setup"], Invisible: 1b, Invulnerable: 1b }
+summon minecraft:armor_stand 8 -53 8 { Tags: ["setup"], Invisible: 1b, Invulnerable: 1b }
 
 say Starting Testaforming process
 
@@ -19,14 +24,17 @@ function playerskills:setup/04
 function playerskills:setup/05
 function playerskills:setup/06
 function playerskills:setup/07
-function playerskills:setup/08
-function playerskills:setup/09
 function playerskills:setup/10
 function playerskills:setup/11
 function playerskills:setup/12
 function playerskills:setup/13
+function playerskills:setup/20
+function playerskills:setup/21
+function playerskills:setup/22
+function playerskills:setup/23
+function playerskills:setup/24
 
-say Done Testaforming process
+say Done Testaforming Overworld process
 
 # Clean up test dummy
 kill @e[tag=setup,limit=1]
@@ -42,4 +50,6 @@ scoreboard players set 7_moment test_time 1400
 scoreboard players set 8_moment test_time 1600
 scoreboard players set 9_moment test_time 1800
 
-execute as @p[limit=1] in minecraft:the_nether run tp 4 128 4
+execute as @p[limit=1] in minecraft:the_nether run tp 8 128 8
+
+say Execute "/function playerskills:nether_run"

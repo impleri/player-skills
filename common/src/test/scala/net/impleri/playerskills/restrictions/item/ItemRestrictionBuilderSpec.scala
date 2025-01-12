@@ -26,7 +26,7 @@ class ItemRestrictionBuilderSpec extends BaseSpec {
   "ItemRestrictionBuilder.restrictOne" should "restrict a simple item" in {
     val targetName = ResourceLocation("skillstest", "restriction").get
 
-    mockRegistry.get(targetName) returns Option(mockItem)
+    mockRegistry.find(targetName) returns Option(mockItem)
     testUnit.restrictOne(targetName, testBuilder)
 
     mockRestrictions.add(any[ItemRestriction]) wasCalled once

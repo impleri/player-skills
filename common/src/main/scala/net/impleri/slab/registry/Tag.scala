@@ -3,12 +3,15 @@ package net.impleri.slab.registry
 import net.impleri.slab.item.Item
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.resources.ResourceWrapper
+import net.impleri.slab.world.Biome
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.{Item => McItem}
 
 class Tag[T <: ResourceWrapper[U], U](protected val underlying: TagKey[U])
     extends ResourceWrapper[TagKey[U]] {
   def asString: String = underlying.toString
+
+  override def toString: String = asString
 
   def location: Option[ResourceLocation] = ResourceLocation(
     underlying.location(),
@@ -33,5 +36,14 @@ case class ItemTag(tag: TagKey[McItem])
 object ItemTag {
   def apply(tag: Tag[_, _]): ItemTag = new ItemTag(
     tag.value.asInstanceOf[TagKey[McItem]],
+  )
+}
+
+case class BiomeTag(tag: TagKey[Biome.Vanilla])
+    extends Tag[Biome, Biome.Vanilla](tag)
+
+object BiomeTag {
+  def apply(tag: Tag[_, _]): BiomeTag = new BiomeTag(
+    tag.value.asInstanceOf[TagKey[Biome.Vanilla]],
   )
 }

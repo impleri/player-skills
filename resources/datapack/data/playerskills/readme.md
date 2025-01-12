@@ -29,19 +29,22 @@ When a test enters the running state, a timer starts ticking and will automatica
 player should be notified in chat of what command or action to perform in order to validate the test, then trigger the
 correct state. Hopefully, a future iteration of this world will automate at least some tests.
 
-Occasionally, a feature may require a specific modloader. This can be identified by the outermost ring of blocks:
+Some tests may require a mod to validate functionality. The second outermost ring of blocks:
+
+- Grass: Testable without another mod present
+- Coarse Dirt: Testable only with another mod active
+
+Note: All mod integration tests will fall in the latter category
+
+Occasionally, a feature may require a specific modloader. Such a scenario would occur if there is no established mod
+equivalence between modloaders (example: Curios in Forge and Trinkets in Fabric are interchangeable enough that a test
+for one would work for the other). This can be identified by the outermost ring of blocks:
 
 - Quartz: all modloaders
 - Lapis: Forge
 - Amethyst: Neo-Forge
 - Emerald: Fabric
 
-Finally, some tests may require a mod to validate functionality. The second outermost ring of blocks:
-
-- Grass: Testable without another mod present
-- Coarse Dirt: Testable only with another mod active
-
-Note: All mod integration tests will fall in the latter category
 
 ### Actions
 
@@ -50,10 +53,18 @@ Note: All mod integration tests will fall in the latter category
 - `Fail`: Transitions to the failure state.
 - `Reset`: Transitions to ready state and removes conditions created by the `Start` action.
 
+## Environments
+
+In order to establish reproducibility, I am currently testing in the following environments:
+
+1. Standalone 1.19.2
+2. Client/Server 1.19.2 (excluding client-only interactions related to item identifiability)
+3. Client/Server 1.18.2 (excluding client-only interactions related to item identifiability)
+
 ## Tests
 
 Just a master list of all of the in-game tests. Tests begin at (0,y,0) and ten are placed along the x-axis before
-incrementing along the z-axis.
+incrementing along the z-axis. Each test occupies a single chunk.
 
 1. Basic skill can be acquired.
 2. Numeric skill can be improved.
@@ -62,18 +73,22 @@ incrementing along the z-axis.
 5. Skill cannot be given an invalid type of value.
 6. Skill cannot be given a value not in its allowed options.
 7. Skill cannot be changed more than allowed.
-8. [FTB Quest] Quest basic skill task can be completed and rewards a basic skill.
-9. [FTB Quest] Quest numeric skill task can be completed and rewards an improvement to a numeric skill.
-10. [FTB Quest] Quest tiered skill task can be completed and rewards a degradation to a tiered skill.
-11. [FTB Quest] Quest specialized skill task can be completed and rewards a specialized skill.
-12. Cannot hold item.
-13. Cannot wear item in Dimension.
-14. Cannot use any item from a mod namespace in Biome.
-15. Cannot cause damage with an item from a tag.
-16. Cannot identify item in a chest/inventory.
-17. [Curios/Trinkets] Cannot wear item.
-18. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item.
-19. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
+
+10. [FTB Quest] Quest basic skill task can be completed and rewards a basic skill.
+11. [FTB Quest] Quest numeric skill task can be completed and rewards an improvement to a numeric skill.
+12. [FTB Quest] Quest tiered skill task can be completed and rewards a degradation to a tiered skill.
+13. [FTB Quest] Quest specialized skill task can be completed and rewards a specialized skill.
+
+20. Cannot hold item.
+21. Cannot wear item in Dimension.
+22. Cannot use any item from a mod namespace in Biome. 
+23. Cannot cause damage with an item from a tag. // TODO: reset function not working
+24. Cannot identify item in a chest/inventory.
+
+30. [Curios/Trinkets] Cannot wear item.
+31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item.
+
+40. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
 20. Cannot craft a blocked recipe using a crafting table.
 21. Cannot craft a blocked recipe using a furnace.
 22. Cannot craft a blocked recipe using a smoker.

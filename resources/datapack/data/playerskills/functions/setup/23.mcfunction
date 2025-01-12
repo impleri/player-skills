@@ -14,35 +14,35 @@ execute at @e[tag=setup,limit=1] run setblock ~4 ~ ~-4 minecraft:redstone_lamp r
 execute at @e[tag=setup,limit=1] run setblock ~-4 ~ ~4 minecraft:redstone_lamp replace
 execute at @e[tag=setup,limit=1] run setblock ~-4 ~ ~-4 minecraft:redstone_lamp replace
 
-execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~ minecraft:diamond_block replace
+execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~ minecraft:sea_lantern replace
 execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~ minecraft:gold_block replace
-execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~ minecraft:repeating_command_block[facing=down]{ auto: 0b, Command: "/function playerskills:timer/15" } replace
+execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~ minecraft:repeating_command_block[facing=down]{ auto: 0b, Command: "/function playerskills:timer/23" } replace
 
 execute at @e[tag=setup,limit=1] run setblock ~-2 ~-1 ~-2 minecraft:netherite_block replace
 
-execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~-2 minecraft:command_block[facing=down]{ auto: 0b, Command: "/scoreboard players reset test_15 test_time" }
-execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_15,limit=1] at @s run function playerskills:action/start" }
-execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute at @e[tag=test_15,limit=1] run function playerskills:test/15" }
+execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~-2 minecraft:command_block[facing=down]{ auto: 0b, Command: "/scoreboard players reset test_23 test_time" }
+execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_23,limit=1] at @s run function playerskills:action/start" }
+execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute at @e[tag=test_23,limit=1] run function playerskills:test/23" }
 execute at @e[tag=setup,limit=1] run setblock ~ ~ ~-2 minecraft:stone_button[face=floor]
 execute at @e[tag=setup,limit=1] run setblock ~ ~ ~-3 oak_sign[rotation=0]{ Text2: '{"text":"Start","bold":true,"color":"dark_blue"}' } replace
 
-execute at @e[tag=setup,limit=1] run setblock ~2 ~-1 ~ minecraft:command_block[facing=down]{ auto: 0b, Command: "/execute as @e[tag=test_15,limit=1] at @s run function playerskills:action/fail" }
+execute at @e[tag=setup,limit=1] run setblock ~2 ~-1 ~ minecraft:command_block[facing=down]{ auto: 0b, Command: "/execute as @e[tag=test_23,limit=1] at @s run function playerskills:action/fail" }
 execute at @e[tag=setup,limit=1] run setblock ~2 ~ ~ minecraft:stone_button[face=floor,facing=east]
 execute at @e[tag=setup,limit=1] run setblock ~3 ~ ~ oak_sign[rotation=4]{ Text2: '{"text":"Fail","bold":true,"color":"dark_red"}' } replace
 
-execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~2 minecraft:command_block[facing=down]{ auto: 0b, Command: "/execute as @e[tag=test_15,limit=1] at @s run function playerskills:action/reset" }
-execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_15,limit=1] at @s run function playerskills:reset/15" }
+execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~2 minecraft:command_block[facing=down]{ auto: 0b, Command: "/execute as @e[tag=test_23,limit=1] at @s run function playerskills:action/reset" }
+execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_23,limit=1] at @s run function playerskills:reset/23" }
 execute at @e[tag=setup,limit=1] run setblock ~ ~ ~2 minecraft:stone_button[face=floor]
 execute at @e[tag=setup,limit=1] run setblock ~ ~ ~3 oak_sign[rotation=8]{ Text2: '{"text":"Reset","bold":true,"color":"black"}' } replace
 
-execute at @e[tag=setup,limit=1] run setblock ~-2 ~-1 ~ minecraft:command_block[facing=down]{ auto: 0b, Command: "/execute as @e[tag=test_15,limit=1] at @s run function playerskills:action/succeed" }
+execute at @e[tag=setup,limit=1] run setblock ~-2 ~-1 ~ minecraft:command_block[facing=down]{ auto: 0b, Command: "/execute as @e[tag=test_23,limit=1] at @s run function playerskills:action/succeed" }
 execute at @e[tag=setup,limit=1] run setblock ~-2 ~ ~ minecraft:stone_button[face=floor,facing=east]
-execute at @e[tag=setup,limit=1] run setblock ~-3 ~ ~ oak_sign[rotation=15]{ Text2: '{"text":"Pass","bold":true,"color":"dark_green"}' } replace
+execute at @e[tag=setup,limit=1] run setblock ~-3 ~ ~ oak_sign[rotation=12]{ Text2: '{"text":"Pass","bold":true,"color":"dark_green"}' } replace
 
-execute at @e[tag=setup,limit=1] run summon minecraft:armor_stand ~ ~ ~ { Tags: ["test", "test_15"], Small: 1b, Invisible: 1b, Invulnerable: 1b }
+execute at @e[tag=setup,limit=1] run summon minecraft:armor_stand ~ ~ ~ { Tags: ["test", "test_23"], Small: 1b, Invisible: 1b, Invulnerable: 1b }
 execute at @e[tag=setup,limit=1] run setblock ~-1 ~ ~-1 oak_sign[rotation=14]{ Text1: '{"text":"Item","bold":true}', Text3: '{"text": "causes damage"}' } replace
 
-execute as @e[tag=test_15,limit=1] at @s run function playerskills:reset/15
+execute as @e[tag=test_23,limit=1] at @s run function playerskills:reset/23
 
-execute at @e[tag=setup,limit=1] run teleport @e[tag=setup,limit=1] ~10 ~ ~
+execute at @e[tag=setup,limit=1] run teleport @e[tag=setup,limit=1] ~16 ~ ~
 scoreboard players add something test 1

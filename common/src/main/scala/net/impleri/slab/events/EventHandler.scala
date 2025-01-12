@@ -2,6 +2,7 @@ package net.impleri.slab.events
 
 import dev.architectury.event.CompoundEventResult
 import dev.architectury.event.EventResult
+import net.impleri.playerskills.utils.PlayerSkillsLogger
 import net.minecraft.world.item.ItemStack
 
 trait EventHandler {
@@ -45,8 +46,8 @@ trait CompoundEventHandler[T] {
     expected: Boolean = false,
   ): CompoundEventResult[T] =
     received match {
-      case Some(value) if value == expected => CompoundEventResult.interruptFalse(response.getOrElse(null.asInstanceOf[T]))
-      case _ => CompoundEventResult.pass()
+      case Some(value) if value == expected => fail(response.getOrElse(null.asInstanceOf[T]))
+      case _ => skip
     }
 }
 

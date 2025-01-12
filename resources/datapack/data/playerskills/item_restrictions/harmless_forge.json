@@ -1,6 +1,6 @@
 {
-  "item": "#forge:tools/swords",
-  "harnful": false,
+  "item": "#forge:swords",
+  "harmful": false,
   "unless": {
     "skill": "playerskills:item_test",
     "value": 1

@@ -29,4 +29,6 @@ object Coordinates {
   def apply(blockPos: BlockPos) = new Coordinates(blockPos.getX, blockPos.getY, blockPos.getZ)
 
   def apply(vec: Vec3) = new Coordinates(vec.x, vec.y, vec.z)
+
+  type Vanilla = Vec3
 }

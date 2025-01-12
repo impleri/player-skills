@@ -74,6 +74,7 @@ case class ServerStateContainer(
         globalState.RESTRICTIONS,
       ),
     getNetHandler,
+
   )
 
   private val INTERNAL = InternalEvents(
