@@ -82,20 +82,21 @@ incrementing along the z-axis. Each test occupies a single chunk.
 20. Cannot hold item.
 21. Cannot wear item in Dimension.
 22. Cannot use any item from a mod namespace in Biome. 
-23. Cannot cause damage with an item from a tag. // TODO: reset function not working
-24. Cannot identify item in a chest/inventory.
+23. Cannot cause damage with an item from a tag.
+24. Cannot identify item in a chest/inventory (single-player only without KubeJS or CraftTweaker).
 
 30. [Curios/Trinkets] Cannot wear item.
 31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item.
 
 40. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
-20. Cannot craft a blocked recipe using a crafting table.
-21. Cannot craft a blocked recipe using a furnace.
-22. Cannot craft a blocked recipe using a smoker.
-23. Cannot craft a blocked recipe using a blast furnace.
-24. Cannot craft a blocked recipe using a smithing table.
-25. Cannot craft a blocked recipe using a stonecutter.
-26. Cannot craft a blocked recipe using an anvil.
-27. Cannot craft a blocked recipe using a brewing stand.
-28. [JEI/REI] Cannot view a blocked recipe for an item.
-29. [JEI/REI] Item does not show up in JEI/REI if all recipes for it are blocked.
+41. Cannot craft a blocked recipe using a crafting table.
+42. Cannot craft a blocked recipe using a furnace.
+43. Cannot craft a blocked recipe using a smoker.
+44. Cannot craft a blocked recipe using a blast furnace.
+45. Cannot craft a blocked recipe using a smithing table.
+46. Cannot craft a blocked recipe using a stonecutter.
+47. Cannot craft a blocked recipe using an anvil.
+48. Cannot craft a blocked recipe using a brewing stand.
+
+50. [JEI/REI] Cannot view a blocked recipe for an item.
+51. [JEI/REI] Item does not show up in JEI/REI if all recipes for it are blocked.
