@@ -1,4 +1,6 @@
 {
-  "commands.slab.fill_biomes": "Biomes have been changed",
+  "commands.slab.argument.missing": "Could not find an %s argument named %s",
+  "commands.slab.error.parsing": "Could not parse %s argument %s: %s",
+  "commands.slab.fill_biomes_success": "Changed biome to %s for chunk containing %s",
   "commands.slab.fill_biomes_failed": "Failed to change biomes"
 }

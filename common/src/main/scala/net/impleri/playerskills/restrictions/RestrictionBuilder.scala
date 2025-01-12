@@ -36,7 +36,7 @@ trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsB
   protected def restrict(data: (String, C)): Unit = {
     val (resourceName, builder) = data
 
-    logger.info(s"Saving restriction ${builder.name} for ${builder.getTarget}")
+    logger.debug(s"Saving restriction ${builder.name} for ${builder.getTarget}")
 
     TargetResource.create(
       builder.getTarget,
@@ -83,7 +83,7 @@ trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsB
   ): Unit =
     for {
       reg <- registry.toList
-      _ = logger.info(s"Creating restriction for ${tag.location} namespace")
+      _ = logger.info(s"Creating restriction for ${tag.location} tag")
       value <- reg.matchingTag(tag)
     } yield restrictOne(value, builder)
 

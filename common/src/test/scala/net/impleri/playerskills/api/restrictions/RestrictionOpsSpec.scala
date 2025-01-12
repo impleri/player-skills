@@ -66,9 +66,9 @@ class RestrictionOpsSpec extends BaseSpec {
     mockRestriction.targets(mockTargetName) returns true
 
     val testDimension = mock[ResourceLocation]
-    mockRestriction.isAllowedDimension(testDimension) returns true
+    mockRestriction.isApplicableDimension(testDimension) returns true
     val testBiome = mock[Biome]
-    mockRestriction.isAllowedBiome(testBiome) returns true
+    mockRestriction.isApplicableBiome(testBiome) returns true
 
     mockRegistry.entries returns List(mockRestriction)
 
@@ -86,8 +86,8 @@ class RestrictionOpsSpec extends BaseSpec {
     mockRestriction.isType(testType) returns true
     mockRestriction.targets(mockTargetName) returns true
 
-    mockRestriction.isAllowedDimension(*) wasNever called
-    mockRestriction.isAllowedBiome(*) wasNever called
+    mockRestriction.isApplicableDimension(*) wasNever called
+    mockRestriction.isApplicableBiome(*) wasNever called
 
     mockRegistry.entries returns List(mockRestriction)
 
@@ -106,9 +106,9 @@ class RestrictionOpsSpec extends BaseSpec {
     mockRestriction.targets(mockTargetName) returns true
 
     val testDimension = mock[ResourceLocation]
-    mockRestriction.isAllowedDimension(testDimension) returns true
+    mockRestriction.isApplicableDimension(testDimension) returns true
     val testBiome = mock[Biome]
-    mockRestriction.isAllowedBiome(testBiome) returns true
+    mockRestriction.isApplicableBiome(testBiome) returns true
 
     mockRegistry.entries returns List(mockRestriction)
 
@@ -126,9 +126,9 @@ class RestrictionOpsSpec extends BaseSpec {
     mockRestriction.targets(mockTargetName) returns false
 
     val testDimension = mock[ResourceLocation]
-    mockRestriction.isAllowedDimension(testDimension) returns true
+    mockRestriction.isApplicableDimension(testDimension) returns true
     val testBiome = mock[Biome]
-    mockRestriction.isAllowedBiome(testBiome) returns true
+    mockRestriction.isApplicableBiome(testBiome) returns true
 
     mockRegistry.entries returns List(mockRestriction)
 
@@ -146,10 +146,10 @@ class RestrictionOpsSpec extends BaseSpec {
     mockRestriction.targets(mockTargetName) returns true
 
     val testDimension = mock[ResourceLocation]
-    mockRestriction.isAllowedDimension(testDimension) returns false
+    mockRestriction.isApplicableDimension(testDimension) returns false
 
     val testBiome = mock[Biome]
-    mockRestriction.isAllowedBiome(testBiome) returns true
+    mockRestriction.isApplicableBiome(testBiome) returns true
 
     mockRegistry.entries returns List(mockRestriction)
 
@@ -167,10 +167,10 @@ class RestrictionOpsSpec extends BaseSpec {
     mockRestriction.targets(mockTargetName) returns true
 
     val testDimension = mock[ResourceLocation]
-    mockRestriction.isAllowedDimension(testDimension) returns true
+    mockRestriction.isApplicableDimension(testDimension) returns true
 
     val testBiome = mock[Biome]
-    mockRestriction.isAllowedBiome(testBiome) returns false
+    mockRestriction.isApplicableBiome(testBiome) returns false
 
     mockRegistry.entries returns List(mockRestriction)
 

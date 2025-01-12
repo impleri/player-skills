@@ -92,7 +92,7 @@ class Player(override val underlying: Player.Vanilla)
       message.sendTo(underlying.asInstanceOf[ServerPlayer])
     }
 
-  private def sendPacket(packet: Packet[_]): Unit =
+  private[slab] def sendPacket(packet: Packet[_]): Unit =
     getServerConnection.foreach(_.send(packet))
 
   def sendEmptyContainerSlot(menu: ContainerMenu.Any): Unit =

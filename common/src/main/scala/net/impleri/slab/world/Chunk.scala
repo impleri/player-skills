@@ -1,10 +1,18 @@
 package net.impleri.slab.world
 
-import net.minecraft.world.level.biome.Climate
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
+import net.minecraft.world.level.biome.{Climate, FixedBiomeSource}
 import net.minecraft.world.level.chunk.{ChunkAccess, LevelChunk}
+import net.minecraft.world.level.lighting.LevelLightEngine
 
 case class Chunk[T <: Chunk.BaseVanilla](underlying: T) {
   private[slab] def pos = underlying.getPos
+
+  private[slab] def toUpdatePacket(lightEngine: LevelLightEngine): Option[ClientboundLevelChunkWithLightPacket] =
+    underlying match {
+      case c: Chunk.Vanilla => Option(new ClientboundLevelChunkWithLightPacket(c, lightEngine, null, null, true))
+      case _ => None
+    }
 
   private def handleUpdate(f: => Unit): Chunk[T] = {
     f
@@ -16,7 +24,7 @@ case class Chunk[T <: Chunk.BaseVanilla](underlying: T) {
   def setBiome(biome: Biome, climateSampler: Climate.Sampler): Chunk[T] =
     handleUpdate {
       underlying.fillBiomesFromNoise(
-        biome.asSource,
+        new FixedBiomeSource(biome.toHolder),
         climateSampler,
       )
     }

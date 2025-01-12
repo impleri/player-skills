@@ -4,11 +4,14 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.tree.LiteralCommandNode
 import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.commands.{BaseCommand, Command, CommandAction, CommandSegment, CommandString, CoordinatesArgument, ResourceLocationArgument}
-import net.impleri.slab.registry.BuiltinRegistry
+import net.impleri.slab.logging.Logger
+import net.impleri.slab.registry.BiomeTag
+import net.impleri.slab.world.Level
 
+import scala.jdk.StreamConverters._
 import scala.util.chaining.scalaUtilChainingOps
 
-case class FillBiomeCommand() extends BaseCommand {
+case class FillBiomeCommand(logger: Option[Logger] = None) extends BaseCommand {
   override def register(
     dispatcher: CommandDispatcher[Command.Source],
   ): LiteralCommandNode[Command.Source] =
@@ -16,34 +19,31 @@ case class FillBiomeCommand() extends BaseCommand {
 
   override def command: CommandString =
     CommandString("fillbiome")
-      .requireAdmin()
+      .requireMod()
       .option(
-        CoordinatesArgument(FillBiomeCommand.fromArgument).option(
-          CoordinatesArgument(FillBiomeCommand.toArgument).option(
-            ResourceLocationArgument(FillBiomeCommand.biomeArgument).executes(CommandAction(handler))
-          ),
+        CoordinatesArgument(FillBiomeCommand.posArgument).option(
+          ResourceLocationArgument(FillBiomeCommand.biomeArgument)
+            .executes(CommandAction(handler).message())
         ),
       )
       .asInstanceOf[CommandString]
 
   private def handler: CommandAction.Callback = context =>
     {
+      val level = Level(context.getSource.getLevel)
       val message = for {
-        fromCoords <- CoordinatesArgument.getValue(FillBiomeCommand.fromArgument, context)
-        toCoords <- CoordinatesArgument.getValue(FillBiomeCommand.toArgument, context)
+        coords <- CoordinatesArgument.getValue(FillBiomeCommand.posArgument, context)
         biomeName <- ResourceLocationArgument.getValue(FillBiomeCommand.biomeArgument, context)
-        biome <- BuiltinRegistry.BIOME.get(biomeName)
-        player <- CommandAction.getPlayer(context, skipArgument = true)
-        level <- player.level
+        biome <- level.getBiome(biomeName)
         climateSampler <- level.getClimateSampler
-        chunks = level.getChunksBetween(fromCoords, toCoords)
+        chunk <- level.getChunk(coords.toPosition)
       } yield {
-        chunks.foreach {
-          _.setBiome(biome, climateSampler)
-            .pipe(level.updateChunk)
-        }
+        chunk.setBiome(biome, climateSampler)
+          .pipe(level.updateChunk)
 
-        TranslatableText("commands.slab.fill_biomes")
+        level.save()
+
+        TranslatableText("commands.slab.fill_biomes_success", biome.toString, coords.toPosition.toString)
       }
 
       message.toRight(TranslatableText("commands.slab.fill_biomes_failed"))
@@ -53,7 +53,6 @@ case class FillBiomeCommand() extends BaseCommand {
 }
 
 object FillBiomeCommand {
-  private final val fromArgument: String = "from"
-  private final val toArgument: String = "to"
+  private final val posArgument: String = "pos"
   private final val biomeArgument: String = "biome"
 }

@@ -1,5 +1,5 @@
 {
-  "item": "@naturescompass",
+  "item": "minecraft:flint_and_steel",
   "usable": false,
   "biomes": {
     "include": [

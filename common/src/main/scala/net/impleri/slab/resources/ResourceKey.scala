@@ -2,6 +2,7 @@ package net.impleri.slab.resources
 
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.world.Biome
+import net.minecraft.core.{Registry => McRegistry}
 import net.minecraft.resources.{ResourceKey => McResourceKey}
 
 import scala.util.chaining.scalaUtilChainingOps
@@ -44,6 +45,6 @@ object ResourceKey {
       .pipe(new ResourceKey(_))
 
   lazy val BIOME_REGISTRY: Registry[Biome.Vanilla] = ResourceKey(
-    Registry.BIOME_REGISTRY,
+    McRegistry.BIOME_REGISTRY,
   )
 }

@@ -24,6 +24,8 @@ case class Item(
     with IsIngredient {
   def asString: String = name.fold("nothing")(_.toString)
 
+  override def toString: String = asString
+
   override val name: Option[ResourceLocation] = registry.getKey(this)
 
   def getStack: ItemStack = stack.getOrElse(new ItemStack(underlying, quantity))
@@ -69,7 +71,7 @@ object Item {
   def apply(entity: ItemEntity): Item = apply(entity.getItem)
 
   def apply(name: ResourceLocation): Option[Item] =
-    Registry.Items.get(name)
+    Registry.Items.find(name)
 
   def apply(item: MCItem, tag: CompoundTag): Item = {
     val stack = new ItemStack(item)

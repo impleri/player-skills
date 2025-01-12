@@ -19,7 +19,7 @@ case class BeforeUseItem(
         for {
           item <- player.getItemInHand(hand).filterNot(_.isDefault)
           usable = itemRestrictionOps.isUsable(player, item, None)
-        } yield logEvent(player, s"use ${item.name}")(usable)
+        } yield logEvent(player, s"use $item")(usable)
       }
 
   upstream.onRightClickItem(handler)

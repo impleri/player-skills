@@ -17,20 +17,11 @@ case class BeforeUseItemBlock(
 ) extends EventHandler with EventLogging {
   private[bindings] val handler: InteractionEvents.OnClickBlock =
     (player: Player, pos: Option[Position], hand: Hand, _: Direction) =>
-      //    val blockState = BlockRestrictions.getBlockState(pos, player.getLevel())
-      //    val replacement = BlockRestrictions.getReplacement(player, blockState, pos)
-      //    val blockName = BlockRestrictions.getName(replacement)
-      //
-      //    if (!BlockRestrictions.isUsable(player, replacement, pos)) {
-      //      PlayerSkillsLogger.BLOCKS.debug("${player.handle} cannot interact with block $blockName")
-      //      return EventResult.interruptFalse()
-      //    }
-
       failOn {
         for {
           item <- player.getItemInHand(hand).filterNot(_.isDefault)
           usable = itemRestrictionOps.isUsable(player, item, pos)
-        } yield logEvent(player, s"interact with block using ${item.name}")(usable)
+        } yield logEvent(player, s"interact with block using $item")(usable)
       }
 
   upstream.onLeftClickBlock(handler)

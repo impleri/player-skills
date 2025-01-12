@@ -25,12 +25,7 @@ case class BeforeInteractEntity(
           entity <- entityOpt
           item <- player.getItemInHand(hand).filterNot(_.isDefault)
           usable = itemRestrictionOps.isUsable(player, item, None)
-        } yield logEvent(player, s"interact with entity ${entity.mobTypeName} using ${item.name}")(usable)
-          //    val mobType = MobRestrictions.getName(entity.type)
-          //    if (!MobRestrictions.canInteractWith(entity.type, player)) {
-          //      PlayerSkillsLogger.MOBS.debug("${player.handle} cannot interact with entity $mobType")
-          //      return EventResult.interruptFalse()
-          //    }
+        } yield logEvent(player, s"interact with entity $entity using $item")(usable)
       }
   }
 

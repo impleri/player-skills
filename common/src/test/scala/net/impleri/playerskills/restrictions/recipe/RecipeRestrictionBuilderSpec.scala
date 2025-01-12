@@ -50,7 +50,7 @@ class RecipeRestrictionBuilderSpec extends BaseSpec {
     val mockRecipeType = mock[RecipeType.Any]
     val targetRecipeType = ResourceLocation("skillstest", "recipe_type").get
     mockRecipeTarget.recipeType returns targetRecipeType
-    mockRegistry.get(targetRecipeType) returns Option(mockRecipeType)
+    mockRegistry.find(targetRecipeType) returns Option(mockRecipeType)
 
     mockServerState.SERVER returns Option(mockServer)
     mockServer.getRecipeManager returns mockManager

@@ -48,7 +48,7 @@ case class RecipeRestrictionBuilder(
     builder: RecipeConditions,
   ): Unit =
     for {
-      recipeType <- recipeTypeRegistry.get(target.recipeType)
+      recipeType <- recipeTypeRegistry.find(target.recipeType)
     } yield restrictRecipes(recipeType, target, builder)
 
   override protected def restrictString(

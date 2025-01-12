@@ -59,7 +59,7 @@ class RestrictionSpec extends BaseSpec {
     val excludeDimensions = Seq(otherDimension)
 
     TestRestriction(includeDimensions = includeDimensions, excludeDimensions = excludeDimensions)
-      .isAllowedDimension(givenDimension.get) should be(true)
+      .isApplicableDimension(givenDimension.get) should be(true)
   }
 
   it should "return true if the given parameter is in the include list and the exclude list is empty" in {
@@ -67,7 +67,7 @@ class RestrictionSpec extends BaseSpec {
     val includeDimensions = Seq(testDimension)
 
     TestRestriction(includeDimensions = includeDimensions)
-      .isAllowedDimension(givenDimension.get) should be(true)
+      .isApplicableDimension(givenDimension.get) should be(true)
   }
 
   it should "return true if the given parameter is not in the exclude list and the include list is empty" in {
@@ -75,14 +75,14 @@ class RestrictionSpec extends BaseSpec {
     val excludeDimensions = Seq(otherDimension)
 
     TestRestriction(excludeDimensions = excludeDimensions)
-      .isAllowedDimension(givenDimension.get) should be(true)
+      .isApplicableDimension(givenDimension.get) should be(true)
   }
 
   it should "return true if the both the include list and the exclude list are empty" in {
     val givenDimension = ResourceLocation(testDimension)
 
     TestRestriction()
-      .isAllowedDimension(givenDimension.get) should be(true)
+      .isApplicableDimension(givenDimension.get) should be(true)
   }
 
   it should "return false if the given parameter is in the include list and in the exclude list" in {
@@ -90,7 +90,7 @@ class RestrictionSpec extends BaseSpec {
     val includeDimensions = Seq(testDimension)
     val excludeDimensions = Seq(testDimension)
     TestRestriction(includeDimensions = includeDimensions, excludeDimensions = excludeDimensions)
-      .isAllowedDimension(givenDimension.get) should be(false)
+      .isApplicableDimension(givenDimension.get) should be(false)
   }
 
   it should "return false if the given parameter is not in the include list" in {
@@ -98,7 +98,7 @@ class RestrictionSpec extends BaseSpec {
     val excludeDimensions = Seq("skillstest:overworld")
     val givenDimension = ResourceLocation(testDimension)
     TestRestriction(includeDimensions = includeDimensions, excludeDimensions = excludeDimensions)
-      .isAllowedDimension(givenDimension.get) should be(false)
+      .isApplicableDimension(givenDimension.get) should be(false)
   }
 
   "Restriction.isAllowedBiome" should "return true if the given parameter is in the include list and not in the exclude list" in {
@@ -110,7 +110,7 @@ class RestrictionSpec extends BaseSpec {
     givenBiome.isNamed(ResourceLocation(testBiome).get) returns true
 
     TestRestriction(includeBiomes = includeBiomes, excludeBiomes = excludeBiomes)
-      .isAllowedBiome(givenBiome) should be(true)
+      .isApplicableBiome(givenBiome) should be(true)
   }
 
   it should "return true if the given parameter is in the include list and the exclude list is empty" in {
@@ -121,7 +121,7 @@ class RestrictionSpec extends BaseSpec {
     givenBiome.isNamed(ResourceLocation(testBiome).get) returns true
 
     TestRestriction(includeBiomes = includeBiomes)
-      .isAllowedBiome(givenBiome) should be(true)
+      .isApplicableBiome(givenBiome) should be(true)
   }
 
   it should "return true if the given parameter is not in the exclude list and the include list is empty" in {
@@ -132,7 +132,7 @@ class RestrictionSpec extends BaseSpec {
     givenBiome.isNamed(ResourceLocation(otherBiome).get) returns false
 
     TestRestriction(excludeBiomes = excludeBiomes)
-      .isAllowedBiome(givenBiome) should be(true)
+      .isApplicableBiome(givenBiome) should be(true)
   }
 
   it should "return true if the both the include list and the exclude list are empty" in {
@@ -140,7 +140,7 @@ class RestrictionSpec extends BaseSpec {
     givenBiome.name returns ResourceLocation(testBiome)
 
     TestRestriction()
-      .isAllowedBiome(givenBiome) should be(true)
+      .isApplicableBiome(givenBiome) should be(true)
   }
 
   it should "return false if the given parameter is in the include list and in the exclude list" in {
@@ -152,7 +152,7 @@ class RestrictionSpec extends BaseSpec {
     val includeBiomes = Seq(testBiome)
     val excludeBiomes = Seq(testBiome)
     TestRestriction(includeBiomes = includeBiomes, excludeBiomes = excludeBiomes)
-      .isAllowedBiome(givenBiome) should be(false)
+      .isApplicableBiome(givenBiome) should be(false)
   }
 
   it should "return false if the given parameter is not in the include list" in {
@@ -163,6 +163,6 @@ class RestrictionSpec extends BaseSpec {
 
     val includeBiomes = Seq(otherBiome)
 
-    TestRestriction(includeBiomes = includeBiomes).isAllowedBiome(givenBiome) should be(false)
+    TestRestriction(includeBiomes = includeBiomes).isApplicableBiome(givenBiome) should be(false)
   }
 }

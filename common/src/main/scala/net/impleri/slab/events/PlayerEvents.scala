@@ -53,12 +53,6 @@ case class PlayerEvents(
   private val onAttackEvent: Event[PlayerEvent.AttackEntity] =
     PlayerEvent.ATTACK_ENTITY,
 ) extends ResultHandler {
-  private def withServerPlayer(p: ServerPlayer): Option[Player] =
-    Option(p).map(Player(_))
-
-  private def withPlayer(p: McPlayer): Option[Player] =
-    Option(p).map(Player(_))
-
   def onJoin(handler: PlayerEvents.OnJoinOrQuit): Unit =
     onJoinEvent.register((rawPlayer: ServerPlayer) =>
       for {

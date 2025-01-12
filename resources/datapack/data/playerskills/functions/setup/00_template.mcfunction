@@ -16,7 +16,7 @@ execute at @e[tag=setup,limit=1] run setblock ~4 ~ ~-4 minecraft:redstone_lamp r
 execute at @e[tag=setup,limit=1] run setblock ~-4 ~ ~4 minecraft:redstone_lamp replace
 execute at @e[tag=setup,limit=1] run setblock ~-4 ~ ~-4 minecraft:redstone_lamp replace
 
-execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~ minecraft:diamond_block replace
+execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~ minecraft:sea_lantern replace
 execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~ minecraft:gold_block replace
 execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~ minecraft:repeating_command_block[facing=down]{ auto: 0b, Command: "/function playerskills:timer/ID" } replace
 

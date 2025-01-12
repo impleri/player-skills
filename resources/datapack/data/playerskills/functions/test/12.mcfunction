@@ -1,4 +1,4 @@
-# Cannot hold item
+# [FTB Quest] Quest tiered skill task can be completed and rewards a degradation to a tiered skill
 
-skills improve @p[limit=1] playerskills:item_test
-say You should not be able to hold the item in the chest until item_test is at least 2.0
+skills set @p[limit=1] playerskills:ten_test beta
+say You should have the tiered reward downgraded to delta
