@@ -7,6 +7,7 @@ summon minecraft:armor_stand 8 128 8 { Tags: ["setup"], Invisible: 1b, Invulnera
 say Starting Nether Testaforming process
 
 function playerskills:nether/setup/21
+function playerskills:nether/setup/30
 
 say Done Testaforming Nether process
 

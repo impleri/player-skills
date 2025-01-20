@@ -34,6 +34,7 @@ function playerskills:setup/22
 function playerskills:setup/23
 function playerskills:setup/24
 function playerskills:setup/30
+function playerskills:setup/31
 
 say Done Testaforming Overworld process
 
@@ -53,4 +54,4 @@ scoreboard players set 9_moment test_time 1800
 
 execute as @p[limit=1] in minecraft:the_nether run tp 8 128 8
 
-say Execute "/function playerskills:nether_run"
+say Execute "/function playerskills:nether/setup"

@@ -80,6 +80,10 @@ object Item {
     Item(stack)
   }
 
+  def fromVanilla(item: MCItem): Item = {
+    new Item(item)
+  }
+
   /** Parse
     *
     * Creates an Item facade using a string representation of item plus nbt if

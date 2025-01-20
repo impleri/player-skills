@@ -4,6 +4,7 @@ import net.impleri.playerskills.api.restrictions.RestrictionsOps
 import net.impleri.playerskills.api.restrictions.RestrictionType
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.entity.Player
 import net.impleri.slab.item.Item
 import net.impleri.slab.logging.Logger
@@ -52,6 +53,10 @@ class ItemRestrictionOps(
 }
 
 object ItemRestrictionOps {
+  final val UnknownItemId: String = "message.playerskills.unknown_item"
+
+  lazy val UnknownItem: TranslatableText = TranslatableText(UnknownItemId).red()
+
   def apply(
     registry: RestrictionRegistry = RestrictionRegistry(),
     logger: Logger = PlayerSkillsLogger.ITEMS,

@@ -194,7 +194,7 @@ Mob Restrictions are created using the `item_restrictions` grouping. In addition
 properties above, the schema exposes:
 
 - `item`: ***required*** String representation of the item. See above ID Parsing section for what values are allowed.
-- `identifiable`: Can this item be identified by a tooltip? (default value is `true`)
+- `identifiable`: Can this item be identified by an inventory tooltip? (default value is `true`)
 - `holdable`: Can this item be held in the player's inventory? (default value is `true`)
 - `wearable`: Can this item be equipped by the player as armor, trinket, or curio? (default value is `true`)
 - `usable`: Can this item be used as an item? This only applies if the item has a left- or right-click use in some way (

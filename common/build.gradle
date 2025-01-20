@@ -7,6 +7,7 @@ def ftbQuestsVersion = property("ftb_quests_version")
 def ftbTeamsVersion = property("ftb_teams_version")
 def reiVersion = property("rei_version")
 def jeiVersion = property("jei_version")
+def wthitVersion = property("wthit_version")
 
 dependencies {
   modImplementation "net.fabricmc:fabric-loader:$fabricLoaderVersion"
@@ -22,4 +23,6 @@ dependencies {
   modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin:$reiVersion"
 
   modCompileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
+//  modCompileOnly "mcp.mobius.waila:wthit-api:fabric-${wthitVersion}"
+
 }

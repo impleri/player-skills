@@ -5,9 +5,13 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "mixins.crafting.MixinCraftingMenu",
+    "mixins.item.MixinItemStack",
     "mixins.item.MixinRecipeManager"
   ],
-  "client": [],
+  "client": [
+    "mixins.item.MixinItem",
+    "mixins.item.MixinItemStackClient"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
