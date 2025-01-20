@@ -10,6 +10,8 @@ def ftbTeamsVersion = property("ftb_teams_version")
 def reiVersion = property("rei_version")
 def jeiVersion = property("jei_version")
 def trinketsVersion = property("trinkets_version")
+def badpacketsVersion = property("badpackets_version")
+def wthitVersion = property("wthit_version")
 
 unifiedPublishing {
   project {
@@ -55,6 +57,9 @@ dependencies {
   modCompileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
   modCompileOnly "mezz.jei:jei-$minecraftVersion-fabric-api:$jeiVersion"
   modRuntimeOnly "mezz.jei:jei-$minecraftVersion-fabric:$jeiVersion"
+
+//  modRuntimeOnly "mcp.mobius.waila:wthit:fabric-${wthitVersion}"
+//  modRuntimeOnly "lol.bai:badpackets:fabric-${badpacketsVersion}"
 
   // Temporarily add this dependency until we can update to 1.20 which has the fix to bundle it correctly for trinkets
   modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.0-beta.1"

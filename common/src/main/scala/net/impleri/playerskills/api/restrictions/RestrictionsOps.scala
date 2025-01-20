@@ -71,9 +71,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
       .map(getFieldValue)
       .exists(!_) // We only care if there's a $value = false
 
-    // We purposely change the log level to reduce noise in the logs
-    val logMessage = s"Does ${player.handle} have $fieldName restrictions with $target in $actualDimension/$actualBiome? $hasRestrictions"
-    if (hasRestrictions) logger.debug(logMessage) else logger.trace(logMessage)
+    logger.trace(s"Does ${player.handle} have $fieldName restrictions with $target in $actualDimension/$actualBiome? $hasRestrictions")
 
     // Invert the value so that true = player can
     !hasRestrictions

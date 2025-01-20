@@ -3,6 +3,7 @@ package net.impleri.playerskills.client.restrictions
 import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.restrictions.item.ItemRestrictionOps
 import net.impleri.playerskills.utils.PlayerSkillsLogger
+import net.impleri.slab.chat.TranslatableText
 import net.impleri.slab.client.Client
 import net.impleri.slab.item.Item
 import net.impleri.slab.logging.Logger
@@ -28,4 +29,10 @@ case class ItemRestrictionOpsClient(
 
   def isHarmful(item: Item, pos: Option[Position]): Boolean =
     maybeCan(isHarmful(_, item, pos))
+}
+
+object ItemRestrictionOpsClient {
+  final val UnknownItemId: String = "message.playerskills.unknown_item"
+
+  lazy val UnknownItem: TranslatableText = TranslatableText(UnknownItemId).red()
 }

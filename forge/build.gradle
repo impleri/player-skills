@@ -1,4 +1,5 @@
 def minecraftVersion = property("minecraft_version")
+def minecraftMajorVersion = property("minecraft_major_version")
 def scalaVersion = property("scala_version")
 def slpVersion = property("slp_build")
 def forgeVersion = property("forge_version")
@@ -10,6 +11,10 @@ def ftbTeamsVersion = property("ftb_teams_version")
 def reiVersion = property("rei_version")
 def jeiVersion = property("jei_version")
 def curiosVersion = property("curios_version")
+def badpacketsVersion = property("badpackets_version")
+def wthitVersion = property("wthit_version")
+def topVersion = property("top_version")
+def jadeVersion = property("jade_version")
 
 unifiedPublishing {
   project {
@@ -51,6 +56,16 @@ dependencies {
   compileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
   compileOnly "mezz.jei:jei-$minecraftVersion-forge-api:$jeiVersion"
   modImplementation "mezz.jei:jei-$minecraftVersion-forge:$jeiVersion"
+
+//  modRuntimeOnly "mcp.mobius.waila:wthit:forge-$wthitVersion"
+//  modRuntimeOnly "lol.bai:badpackets:forge-$badpacketsVersion"
+
+//  modImplementation "curse.maven:jade-324717:$jadeVersion"
+
+
+//  modApi("mcjty.theoneprobe:theoneprobe:$minecraftMajorVersion-$topVersion"){
+//    exclude group: "net.minecraftforge", module: "forge"
+//  }
 
   compileOnly "top.theillusivec4.curios:curios-forge:$minecraftVersion-$curiosVersion:api"
   modRuntimeOnly "top.theillusivec4.curios:curios-forge:$minecraftVersion-$curiosVersion"

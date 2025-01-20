@@ -86,7 +86,7 @@ incrementing along the z-axis. Each test occupies a single chunk.
 24. Cannot identify item in a chest/inventory (single-player only without KubeJS or CraftTweaker).
 
 30. [Curios/Trinkets] Cannot wear item.
-31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item.
+31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item. -- Not yet working
 
 40. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
 41. Cannot craft a blocked recipe using a crafting table.

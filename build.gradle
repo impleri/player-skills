@@ -147,7 +147,28 @@ allprojects {
         includeGroup "top.theillusivec4.curios"
       }
     }
-
+//    maven {
+//      name = "Badasintended Mods"
+//      url = uri("https://maven2.bai.lol")
+//      content {
+//        includeGroup "lol.bai"
+//        includeGroup "mcp.mobius.waila"
+//      }
+//    }
+//    maven { // TOP
+//      name = "tterrag maven"
+//      url = uri("https://maven.k-4u.nl/")
+//      content {
+//        includeGroup "mcjty.theoneprobe"
+//      }
+//    }
+//    maven {
+//      name = "CurseMaven"
+//      url = "https://www.cursemaven.com"
+//      content {
+//        includeGroup "curse.maven"
+//      }
+//    }
     maven {
       name = "Nexus Repository Manager"
       url = "https://oss.sonatype.org/content/repositories/snapshots"

@@ -1,0 +1,8 @@
+{
+  "playerskills:item": {
+    "entrypoints": {
+      "client": "net.impleri.playerskills.client.integrations.wthit.ItemRestrictionWailaPlugin"
+    },
+    "side": "client"
+  }
+}

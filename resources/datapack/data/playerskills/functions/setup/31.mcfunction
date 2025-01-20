@@ -18,6 +18,8 @@ execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~ minecraft:sea_lantern repl
 execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~ minecraft:gold_block replace
 execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~ minecraft:repeating_command_block[facing=down]{ auto: 0b, Command: "/function playerskills:timer/31" } replace
 
+execute at @e[tag=setup,limit=1] run setblock ~-2 ~-1 ~-2 minecraft:netherite_block replace
+
 execute at @e[tag=setup,limit=1] run setblock ~ ~-1 ~-2 minecraft:command_block[facing=down]{ auto: 0b, Command: "/scoreboard players reset test_31 test_time" }
 execute at @e[tag=setup,limit=1] run setblock ~ ~-2 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute as @e[tag=test_31,limit=1] at @s run function playerskills:action/start" }
 execute at @e[tag=setup,limit=1] run setblock ~ ~-3 ~-2 minecraft:chain_command_block[conditional=true,facing=down]{ auto: 1b, Command: "/execute at @e[tag=test_31,limit=1] run function playerskills:test/31" }
@@ -38,7 +40,7 @@ execute at @e[tag=setup,limit=1] run setblock ~-2 ~ ~ minecraft:stone_button[fac
 execute at @e[tag=setup,limit=1] run setblock ~-3 ~ ~ oak_sign[rotation=12]{ Text2: '{"text":"Pass","bold":true,"color":"dark_green"}' } replace
 
 execute at @e[tag=setup,limit=1] run summon minecraft:armor_stand ~ ~ ~ { Tags: ["test", "test_31"], Small: 1b, Invisible: 1b, Invulnerable: 1b }
-execute at @e[tag=setup,limit=1] run setblock ~-1 ~ ~-1 oak_sign[rotation=14]{ Text1: '{"text":"Item","bold":true}', Text2: '{"text": "is identifiable"}', , Text2: '{"text": "in world"}' } replace
+execute at @e[tag=setup,limit=1] run setblock ~-1 ~ ~-1 oak_sign[rotation=14]{ Text1: '{"text":"Item","bold":true}', Text2: '{"text": "is identifiable"}', Text3: '{"text": "in world"}' } replace
 
 execute as @e[tag=test_31,limit=1] at @s run function playerskills:reset/31
 
