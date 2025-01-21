@@ -99,9 +99,9 @@ incrementing along the z-axis. Each test occupies a single chunk.
 ### Item Restrictions Integrations
 
 30. [Curios/Trinkets] Cannot wear item.
-31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item. -- Not yet working
+31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item. (WIP)
 
-### Recipe Restrictions
+### Recipe Restrictions (WIP)
 
 40. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
 41. Cannot craft a blocked recipe using a crafting table.
@@ -113,7 +113,7 @@ incrementing along the z-axis. Each test occupies a single chunk.
 47. Cannot craft a blocked recipe using an anvil.
 48. Cannot craft a blocked recipe using a brewing stand.
 
-### Recipe Restrictions Integrations
+### Recipe Restrictions Integrations (WIP)
 
 50. [JEI/REI] Cannot view a blocked recipe for an item.
 51. [JEI/REI] Item does not show up in JEI/REI if all recipes for it are blocked.

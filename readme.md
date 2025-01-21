@@ -214,7 +214,7 @@ properties above, the schema exposes:
 
 ```
 
-### Recipe Restrictions Data
+### Recipe Restrictions Data (WIP)
 
 Mob Restrictions are created using the `recipe_restrictions` grouping. In addition to the shared facet and condition
 properties above, the schema exposes:
@@ -256,7 +256,7 @@ entries will be restricted.
 
 ```
 
-### Mob Restrictions Data
+### Mob Restrictions Data (WIP)
 
 Mob Restrictions are created using the `mob_restrictions` grouping. In addition to the shared facet and condition
 properties above, the schema exposes:
@@ -372,10 +372,13 @@ public class ExampleMod {
 
 ```
 
-`SkillType`s are available in both the logical server and the logical client sides
-via `net.impleri.playerskills.api.SkillType` static methods. Post-modification `Skill`s are only available on the server
-side via `net.impleri.playerskills.server.api.Skill` static methods. Validating a player's skills (`can`) can be done on
-both client (`net.impleri.playerskills.client.PlayerClient`) and server (`net.impleri.playerskills.api.Player`).
+`SkillType`s are available in both the logical server and the logical client sides via `net.impleri.playerskills.StateContainer`
+accessible via `net.impleri.playerskills.PlayerSkills.STATE.SKILL_TYPE_OPS`. Registered `Skill`s are likewise accessible
+in the `StateContainer` via `net.impleri.playerskills.PlayerSkills.STATE.SKILL_OPS`, but these will differ between 
+client and server because only the logical server tracks injected modifications. However, the logical client does keep
+the local players's skills sync in the `ClientStateContainer` (`net.impleri.playerskills.client.PlayerSkillsClient.STATE.SKILLS`).
+Validating a player's skills (`can`) can be done on server (`net.impleri.playerskills.server.PlayerSkillsServer.STATE.PLAYER_OPS`);
+it can be done in the logical client, but it is slightly more convoluted at the moment.
 
 Any manipulation to those skills (`set`) can only happen on the server side. It should be noted that the API layer does
 have the convenience methods (e.g. `improve`, `degrade`).
