@@ -1,0 +1,13 @@
+{
+  "recipe": {
+    "type": "minecraft:crafting",
+    "output": "minecraft:paper",
+    "ingredients": ["minecraft:sugar_cane"],
+    "allowOtherIngredients": false
+  },
+  "producible": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

@@ -20,19 +20,19 @@ case class ItemRestrictionDataLoader(
   override val skillOps: SkillOps = Skill(),
   override val skillTypeOps: SkillTypeOps = SkillType(),
   override val playerOps: Player = Player(),
-  override val logger: Logger = PlayerSkillsLogger.ITEMS,
+  override val logger: Logger = PlayerSkillsLogger.PARSE,
 ) extends RestrictionDataLoader("item_restrictions") {
   override protected def parseRestriction(
     name: ResourceLocation,
     jsonElement: JsonObject,
   ): Unit =
     ItemRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
-      .tap(_ => logger.debug(s"Parsing JSON for $name"))
+      .tap(logLoading(name))
       .tap(_.parse(jsonElement))
-      .tap(logger.debugP(b => s"Created item builder for ${b.target} as $name (is valid? ${b.isValid})"))
+      .tap(logBuilder("item", name))
       .pipe(Option(_))
       .filter(_.isValid)
-      .foreach(builder => itemRestrictionBuilder.add(name.toString, builder))
+      .foreach(itemRestrictionBuilder.add(name.toString))
 
   override def save(): Unit = itemRestrictionBuilder.commit()
 }

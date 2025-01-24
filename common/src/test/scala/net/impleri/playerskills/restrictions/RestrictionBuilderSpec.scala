@@ -2,7 +2,7 @@ package net.impleri.playerskills.restrictions
 
 import net.impleri.playerskills.BaseSpec
 import net.impleri.playerskills.api.restrictions.Restriction
-import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
+import net.impleri.playerskills.restrictions.conditions.{RestrictionConditionsBuilder, SingleTargetRestriction}
 import net.impleri.slab.block.Block
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
@@ -19,12 +19,12 @@ class RestrictionBuilderSpec extends BaseSpec {
   private val mockRegistryKey = mock[ResourceKey.VanillaRegistry[Block.Vanilla]]
 
   private case class TestConditionBuilder(
-      target: String = "target",
+      testTarget: String = "target",
     override val name: ResourceLocation = testName,
-  ) extends RestrictionConditionsBuilder {
+  ) extends RestrictionConditionsBuilder with SingleTargetRestriction[String] {
     override def isValid: Boolean = true
 
-    override def getTarget: String = target
+    override def getTarget: String = testTarget
   }
 
   private case class TestRestrictionBuilder(override val singleAsString: Boolean = false)
@@ -58,7 +58,7 @@ class RestrictionBuilderSpec extends BaseSpec {
     val targetName = ResourceLocation("skillstest", "item").get
 
     mockRegistry.matchingNamespace(restrictionName) returns List(targetName)
-    testUnit.add(restrictionId, conditionBuilder)
+    testUnit.add(restrictionId)(conditionBuilder)
 
     testUnit.restrictions(restrictionId) shouldBe conditionBuilder
 
@@ -81,7 +81,7 @@ class RestrictionBuilderSpec extends BaseSpec {
     val targetName = ResourceLocation("skillstest", "item").get
 
     mockRegistry.matchingTag(*) returns List(targetName)
-    testUnit.add(restrictionId, conditionBuilder)
+    testUnit.add(restrictionId)(conditionBuilder)
 
     testUnit.restrictions(restrictionId) shouldBe conditionBuilder
     testUnit.commit()
@@ -95,7 +95,7 @@ class RestrictionBuilderSpec extends BaseSpec {
     val conditionBuilder = TestConditionBuilder(restrictionName)
     val targetName = ResourceLocation("skillstest", "item").get
 
-    testUnit.add(restrictionId, conditionBuilder)
+    testUnit.add(restrictionId)(conditionBuilder)
 
     testUnit.restrictions(restrictionId) shouldBe conditionBuilder
     testUnit.commit()
@@ -108,7 +108,7 @@ class RestrictionBuilderSpec extends BaseSpec {
     val restrictionName = "skillstest:item"
     val conditionBuilder = TestConditionBuilder(restrictionName)
 
-    testUnit.add(restrictionId, conditionBuilder)
+    testUnit.add(restrictionId)(conditionBuilder)
 
     testUnit.restrictions(restrictionId) shouldBe conditionBuilder
     testUnit.commit()

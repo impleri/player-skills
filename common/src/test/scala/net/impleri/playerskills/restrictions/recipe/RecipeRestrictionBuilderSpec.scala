@@ -38,7 +38,7 @@ class RecipeRestrictionBuilderSpec extends BaseSpec {
   "RecipeRestrictionBuilder.add" should "adds a new value to the internal restrictions map" in {
     testUnit.restrictions.isEmpty shouldBe true
 
-    testUnit.add(testBuilder)
+    testUnit.add("test")(testBuilder)
 
     testUnit.restrictions.isEmpty shouldBe false
     testUnit.restrictions.values.toList.contains(testBuilder) shouldBe true

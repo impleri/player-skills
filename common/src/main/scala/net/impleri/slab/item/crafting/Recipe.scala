@@ -11,7 +11,6 @@ import java.util.{List => JavaList}
 import java.util.Optional
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
-import scala.util.chaining.scalaUtilChainingOps
 
 case class Recipe[T <: Recipe.AnyVanilla](override val underlying: T)
     extends ResourceWrapper[T]
@@ -21,12 +20,14 @@ case class Recipe[T <: Recipe.AnyVanilla](override val underlying: T)
 
   def getType: RecipeType.Any = RecipeType(underlying.getType)
 
-  def getResult: Item.VanillaStack = underlying.getResultItem
+  private def getTypeString: String = getType.name.fold("unknown")(_.path).capitalize
 
-  def getResultItem: Item = getResult.pipe(Item(_))
+  def getResult: Item.VanillaStack = underlying.getResultItem
 
   def getIngredients: List[Item.VanillaIngredient] =
     underlying.getIngredients.asScala.toList
+
+  override def toString: String = s"${getTypeString}Recipe[$getResultItem]{$getIngredientItems}"
 }
 
 object Recipe {

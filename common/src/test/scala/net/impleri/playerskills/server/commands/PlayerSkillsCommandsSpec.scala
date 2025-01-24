@@ -9,7 +9,6 @@ import net.impleri.playerskills.restrictions.RestrictionRegistry
 import net.impleri.playerskills.server.api.{Player => PlayerOps}
 import net.impleri.playerskills.server.api.TeamOps
 import net.impleri.slab.entity.Player
-import net.impleri.slab.logging.Logger
 import net.impleri.slab.resources.ResourceLocation
 import net.minecraft.commands.CommandSourceStack
 
@@ -21,7 +20,6 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
   private val playerOpsMock: PlayerOps = mock[PlayerOps]
   private val teamOpsMock: TeamOps = mock[TeamOps]
   private val restrictionsMock: RestrictionRegistry = mock[RestrictionRegistry]
-  private val loggerMock: Logger = mock[Logger]
 
   private val testUnit: PlayerSkillsCommands = new PlayerSkillsCommands(
     skillOpsMock,
@@ -29,11 +27,6 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     playerOpsMock,
     teamOpsMock,
     restrictionsMock,
-    loggerMock,
-    loggerMock,
-    loggerMock,
-    loggerMock,
-    loggerMock,
   )
 
   "PlayerSkillsCommands.register" should "register all of the commands" in {
@@ -41,24 +34,6 @@ class PlayerSkillsCommandsSpec extends BaseSpec {
     testUnit.register(dispatcher)
 
     dispatcher.register(*) wasCalled once
-  }
-
-  "DebugCommands.toggleDebug" should "proxy logger.toggleDebug call" in {
-    loggerMock.toggleDebug() returns true
-
-    val response = testUnit.toggleDebug("Test label", loggerMock)
-
-    response.value.asString.contains("debug_enabled") should be(true)
-  }
-
-  it should "proxy logger.toggleDebug call with disabled message" in {
-    val loggerMock = mock[Logger]
-
-    loggerMock.toggleDebug() returns false
-
-    val response = testUnit.toggleDebug("Test label", loggerMock)
-
-    response.value.asString.contains("debug_disabled") should be(true)
   }
 
   "ListAcquiredCommand.listOwnSkills" should "return acquired skills as strings" in {

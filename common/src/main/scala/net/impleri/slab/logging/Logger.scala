@@ -47,6 +47,8 @@ class Logger(modId: String, private val prefix: String) {
 
   def errorP[T](f: T => String)(value: T): Unit = error(f(value))
 
+  def errorT[T](message: String): T => Unit = (_: T) => error(message)
+
   def warn(message: String): Unit = instance.warn(addPrefix(message))
 
   def warn(error: Throwable, message: String = ""): Unit =
@@ -54,19 +56,27 @@ class Logger(modId: String, private val prefix: String) {
 
   def warnP[T](f: T => String)(value: T): Unit = warn(f(value))
 
+  def warnT[T](message: String): T => Unit = (_: T) => warn(message)
+
   def info(message: String): Unit = instance.info(addPrefix(message))
 
   def infoP[T](f: T => String)(value: T): Unit = info(f(value))
+
+  def infoT[T](message: String): T => Unit = (_: T) => info(message)
 
   def debug(message: String): Unit = if (debugEnabled) info(s"[DEBUG] $message")
   else instance.debug(addPrefix(message))
 
   def debugP[T](f: T => String)(value: T): Unit = debug(f(value))
 
+  def debugT[T](message: String): T => Unit = (_: T) => debug(message)
+
   def trace(message: String): Unit = if (traceEnabled) info(s"[TRACE] $message")
   else instance.debug(addPrefix(message))
 
   def traceP[T](f: T => String)(value: T): Unit = trace(f(value))
+
+  def traceT[T](message: String): T => Unit = (_: T) => trace(message)
 }
 
 object Logger {

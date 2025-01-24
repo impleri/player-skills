@@ -11,7 +11,7 @@ import net.impleri.slab.world.Position
 case class RecipeRestrictionOpsClient(
   r: RestrictionRegistry = RestrictionRegistry(),
   protected val client: Client = Client(),
-  l: Logger = PlayerSkillsLogger.ITEMS,
+  l: Logger = PlayerSkillsLogger.RECIPES,
 ) extends RecipeRestrictionOps(r, l)
     with RestrictionOpsClient {
   def isProducible(recipe: Recipe.Any, pos: Option[Position]): Boolean =

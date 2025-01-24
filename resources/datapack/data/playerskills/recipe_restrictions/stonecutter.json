@@ -1,0 +1,12 @@
+{
+  "recipe": {
+    "type": "minecraft:stonecutting",
+    "output": "minecraft:granite_slab",
+    "ingredients": ["minecraft:granite"]
+  },
+  "producible": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

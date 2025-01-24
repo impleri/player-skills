@@ -101,17 +101,16 @@ incrementing along the z-axis. Each test occupies a single chunk.
 30. [Curios/Trinkets] Cannot wear item.
 31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item. (WIP)
 
-### Recipe Restrictions (WIP)
+### Recipe Restrictions
 
 40. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
 41. Cannot craft a blocked recipe using a crafting table.
 42. Cannot craft a blocked recipe using a furnace.
-43. Cannot craft a blocked recipe using a smoker.
-44. Cannot craft a blocked recipe using a blast furnace.
-45. Cannot craft a blocked recipe using a smithing table.
-46. Cannot craft a blocked recipe using a stonecutter.
-47. Cannot craft a blocked recipe using an anvil.
-48. Cannot craft a blocked recipe using a brewing stand.
+43. Cannot craft a blocked recipe using a blast furnace.
+44. Cannot craft a blocked recipe using a campfire.
+45. Cannot craft a blocked recipe using a smoker.
+46. Cannot craft a blocked recipe using a smithing table.
+47. Cannot craft a blocked recipe using a stonecutter.
 
 ### Recipe Restrictions Integrations (WIP)
 

@@ -1,0 +1,14 @@
+{
+  "recipe": {
+    "type": "minecraft:blasting",
+    "output": "minecraft:gold_ingot",
+    "ingredients": [
+      "minecraft:raw_gold"
+    ]
+  },
+  "producible": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

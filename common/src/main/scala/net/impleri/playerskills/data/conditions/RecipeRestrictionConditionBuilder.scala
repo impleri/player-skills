@@ -19,14 +19,14 @@ case class RecipeRestrictionConditionBuilder(
   protected val skillOps: SkillOps = Skill(),
   protected val skillTypeOps: SkillTypeOps = SkillType(),
   protected val playerOps: Player = Player(),
-  protected val logger: Logger = PlayerSkillsLogger.ITEMS,
+  protected val logger: Logger = PlayerSkillsLogger.RECIPES,
 ) extends RestrictionConditionsBuilder
     with MultiTargetParser[RecipeTarget]
     with RecipeConditions {
-  private def parseRecipe(element: JsonElement): Seq[RecipeTarget] = {
+  private def parseRecipe(element: JsonElement): Option[RecipeTarget] = {
     val el = element.getAsJsonObject
 
-    parseString(el, "type", Option("crafting"))
+    parseString(el, "type", Option("minecraft:crafting"))
       .flatMap(ResourceLocation(_))
       .filter(Registry.RecipeTypes.isValid)
       .map(
@@ -34,9 +34,9 @@ case class RecipeRestrictionConditionBuilder(
           _,
           parseString(el, "output"),
           parseArray(el, "ingredients", castAsString),
+          parseBoolean(el, "allowOtherIngredients").getOrElse(true),
         ),
       )
-      .toSeq
   }
 
   override def parseRestriction(jsonElement: JsonObject): Unit = {
