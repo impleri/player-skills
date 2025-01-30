@@ -9,6 +9,8 @@ case class CraftingContainer(override val underlying: CraftingContainer.Vanilla)
     extends ResourceWrapper[CraftingContainer.Vanilla] {
   override val name: Option[ResourceLocation] = None
 
+  override def toString: String = name.fold("None")(_.toString)
+
   def getCraftingRecipe(server: Server): Option[Recipe.Any] =
     server.getRecipeManager
       .getRecipeFor[CraftingContainer.Vanilla, Recipe.Vanilla[

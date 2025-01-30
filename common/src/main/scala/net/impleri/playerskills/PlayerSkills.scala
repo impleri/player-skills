@@ -33,7 +33,7 @@ object PlayerSkills {
     registerTypes()
 
   private def devDebug() = {
-    PlayerSkillsLogger.RECIPES.toggleDebug(true)
+    PlayerSkillsLogger.RECIPES.toggleDebug()
   }
 
   private def registerTypes(): Unit = {

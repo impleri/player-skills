@@ -16,6 +16,7 @@ public abstract class MixinItemStackClient {
 
   @Inject(method = "getHoverName", at = @At(value = "RETURN"), cancellable = true)
   private void playerSkills$getHoverName(CallbackInfoReturnable<Component> cir) {
+    net.impleri.playerskills.utils.PlayerSkillsLogger.ITEMS().info("Getting hover name for " + getItem().toString());
     var item = net.impleri.slab.item.Item.fromVanilla(getItem());
     var nameOpt = net.impleri.playerskills.facades.item.ItemStackClient.handleGetHoverName(item);
     if (nameOpt.nonEmpty()) {
@@ -25,6 +26,7 @@ public abstract class MixinItemStackClient {
 
   @Inject(method = "getDescriptionId", at = @At(value = "RETURN"), cancellable = true)
   private void playerSkills$getDescriptionId(CallbackInfoReturnable<String> cir) {
+    net.impleri.playerskills.utils.PlayerSkillsLogger.ITEMS().info("Getting description id for " + getItem().toString());
     var item = net.impleri.slab.item.Item.fromVanilla(getItem());
     var nameOpt = net.impleri.playerskills.facades.item.ItemStackClient.handleGetDescriptionId(item);
     if (nameOpt.nonEmpty()) {
@@ -34,6 +36,7 @@ public abstract class MixinItemStackClient {
 
   @Inject(method = "getDisplayName", at = @At(value = "RETURN"), cancellable = true)
   private void playerSkills$getDisplayName(CallbackInfoReturnable<Component> cir) {
+    net.impleri.playerskills.utils.PlayerSkillsLogger.ITEMS().info("Getting display name for " + getItem().toString());
     var item = net.impleri.slab.item.Item.fromVanilla(getItem());
     var nameOpt = net.impleri.playerskills.facades.item.ItemStackClient.handleGetHoverName(item);
     if (nameOpt.nonEmpty()) {

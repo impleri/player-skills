@@ -90,7 +90,7 @@ incrementing along the z-axis. Each test occupies a single chunk.
 
 ### Item Restrictions
 
-20. Cannot hold item.
+20. Cannot hold item. 
 21. Cannot wear item in Dimension.
 22. Cannot use any item from a mod namespace in Biome. 
 23. Cannot cause damage with an item from a tag.
@@ -102,13 +102,13 @@ incrementing along the z-axis. Each test occupies a single chunk.
 31. [TheOneProbe/WTHIT/Jade] Cannot identify in-world item. (WIP)
 
 ### Recipe Restrictions
-
+TODO: Do the tests!
 40. Cannot craft a blocked recipe using inventory screen 2x2 crafting grid.
 41. Cannot craft a blocked recipe using a crafting table.
 42. Cannot craft a blocked recipe using a furnace.
 43. Cannot craft a blocked recipe using a blast furnace.
-44. Cannot craft a blocked recipe using a campfire.
-45. Cannot craft a blocked recipe using a smoker.
+44. Cannot craft a blocked recipe using a smoker.
+45. Cannot craft a blocked recipe using a campfire.
 46. Cannot craft a blocked recipe using a smithing table.
 47. Cannot craft a blocked recipe using a stonecutter.
 

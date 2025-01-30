@@ -64,6 +64,8 @@ class Server(
 }
 
 object Server {
+  type Vanilla = MinecraftServer
+
   def apply(server: MinecraftServer, resourcePath: String = ""): Server =
     new Server(server, resourcePath)
 

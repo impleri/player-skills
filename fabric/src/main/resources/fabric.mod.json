@@ -44,7 +44,10 @@
       "net.impleri.playerskills.integrations.rei.PlayerSkillsReiPlugin"
     ]
   },
-  "mixins": [],
+  "mixins": [
+    "playerskills-common.mixins.json",
+    "playerskills-fabric.mixins.json"
+  ],
   "depends": {
     "fabric": "*",
     "fabric-language-scala": "*",

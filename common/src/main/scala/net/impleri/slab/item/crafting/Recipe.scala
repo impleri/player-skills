@@ -1,16 +1,13 @@
 package net.impleri.slab.item.crafting
 
-import com.mojang.datafixers.util.Pair
+import net.impleri.playerskills.extensions.recipe.UpgradeIngredients
 import net.impleri.slab.item.Item
 import net.impleri.slab.resources.ResourceLocation
 import net.impleri.slab.resources.ResourceWrapper
 import net.minecraft.world.item.crafting.{Recipe => McRecipe}
 import net.minecraft.world.Container
 
-import java.util.{List => JavaList}
-import java.util.Optional
 import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
 
 case class Recipe[T <: Recipe.AnyVanilla](override val underlying: T)
     extends ResourceWrapper[T]
@@ -25,7 +22,10 @@ case class Recipe[T <: Recipe.AnyVanilla](override val underlying: T)
   def getResult: Item.VanillaStack = underlying.getResultItem
 
   def getIngredients: List[Item.VanillaIngredient] =
-    underlying.getIngredients.asScala.toList
+    underlying match {
+      case sr: UpgradeIngredients=> sr.getRecipeIngredients.asScala.toList
+      case r: Recipe.AnyVanilla => r.getIngredients.asScala.toList
+    }
 
   override def toString: String = s"${getTypeString}Recipe[$getResultItem]{$getIngredientItems}"
 }
@@ -38,23 +38,5 @@ object Recipe {
 
   type Any = Recipe[AnyVanilla]
 
-  def fromVanillaOpt[C <: BaseContainer, T <: Vanilla[C]](
-    underlying: Optional[T],
-  ): Option[Recipe[T]] =
-    underlying.toScala.map(Recipe(_))
-
-  def fromVanilla[C <: BaseContainer, T <: Vanilla[C]](
-    underlying: T,
-  ): Option[Recipe[T]] =
-    Option(underlying).map(Recipe(_))
-
-  def fromVanillaPair[C <: BaseContainer, T <: Vanilla[C]](
-    value: Optional[Pair[ResourceLocation.Vanilla, T]],
-  ): Option[Recipe[T]] =
-    value.toScala.map(_.getSecond).map(Recipe(_))
-
-  def fromVanillaList[C <: BaseContainer, T <: Vanilla[C]](
-    values: JavaList[T],
-  ): Seq[Recipe[T]] =
-    values.asScala.flatMap(fromVanilla[C, T]).toSeq
+  def fromVanilla(underlying: AnyVanilla): Option[Any] = Option(underlying).map(Recipe(_))
 }
