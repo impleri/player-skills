@@ -21,15 +21,7 @@ public abstract class MixinItemStack {
 
   @Inject(method = "getTooltipLines", at = @At(value = "RETURN"), cancellable = true)
   private void playerSkills$getTooltipLines(@Nullable Player player, TooltipFlag tooltipFlag, CallbackInfoReturnable<List<Component>> cir) {
-    var item = net.impleri.slab.item.Item.fromVanilla(getItem());
-    var playerOpt = net.impleri.slab.entity.Player.fromVanilla(player);
-    net.impleri.playerskills.utils.PlayerSkillsLogger.ITEMS().info(
-      "Getting " + item.toString() + " item tooltips for " + playerOpt.fold(
-        () -> "unknown player",
-        net.impleri.slab.entity.Player::toString
-      )
-    );
-    var replacement = net.impleri.playerskills.facades.item.ItemStack.handleGetTooltipLines(playerOpt, item);
+    var replacement = net.impleri.playerskills.facades.item.ServerItem.handleGetTooltipLines(player, getItem());
 
     if (replacement.nonEmpty()) {
       cir.setReturnValue(replacement.get());

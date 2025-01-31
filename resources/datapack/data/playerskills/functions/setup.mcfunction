@@ -43,6 +43,8 @@ function playerskills:setup/44
 function playerskills:setup/45
 function playerskills:setup/46
 function playerskills:setup/47
+function playerskills:setup/50
+function playerskills:setup/51
 
 say Done Testaforming Overworld process
 

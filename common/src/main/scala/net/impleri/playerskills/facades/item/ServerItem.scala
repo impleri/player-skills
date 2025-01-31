@@ -8,10 +8,11 @@ import net.impleri.slab.item.Item
 
 import scala.jdk.CollectionConverters._
 
-object ItemStack {
-  def handleGetTooltipLines(playerOpt: Option[Player], item: Item): Option[java.util.List[Message.VanillaBase]] = {
+object ServerItem {
+  def handleGetTooltipLines(playerV: Player.Vanilla, itemV: Item.Vanilla): Option[java.util.List[Message.VanillaBase]] = {
     for {
-      player <- playerOpt
+      player <- Player.fromVanilla(playerV)
+      item <- Option(itemV).map(Item.fromVanilla)
       isIdentifiable = PlayerSkills.STATE.ITEM_RESTRICTIONS.isIdentifiable(player, item)
       _ <- Option(isIdentifiable).filterNot(identity)
     } yield List(ItemRestrictionOps.UnknownItem.output).asJava

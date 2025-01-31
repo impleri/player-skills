@@ -10,11 +10,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinItem {
   @Inject(method = "getDescriptionId()Ljava/lang/String;", at = @At(value = "HEAD"), cancellable = true)
   private void playerSkills$getDescriptionId(CallbackInfoReturnable<String> cir) {
-    var item = net.impleri.slab.item.Item.fromVanilla((Item) ((Object) this));
-    net.impleri.playerskills.utils.PlayerSkillsLogger.ITEMS().info("Getting item description for " + item.toString());
-    var nameOpt = net.impleri.playerskills.facades.item.ItemStackClient.handleGetDescriptionId(item);
+    var nameOpt = net.impleri.playerskills.facades.item.ClientItem.getRestrictedName((Item) ((Object) this));
     if (nameOpt.nonEmpty()) {
-      cir.setReturnValue(nameOpt.get());
+      cir.setReturnValue(nameOpt.get().output().getString());
     }
   }
 }

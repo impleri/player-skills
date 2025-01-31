@@ -9,3 +9,7 @@ case class BrewingRecipe(private val data: RawBrew) extends IsRecipe {
 
   def getIngredients = List(data.input, data.ingredient)
 }
+
+object BrewingRecipe {
+  type Vanilla = RawBrew
+}

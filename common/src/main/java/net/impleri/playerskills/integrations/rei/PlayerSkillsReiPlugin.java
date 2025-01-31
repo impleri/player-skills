@@ -6,6 +6,7 @@ import net.impleri.playerskills.PlayerSkills;
 import net.impleri.playerskills.client.PlayerSkillsClient;
 import net.impleri.playerskills.client.restrictions.RecipeRestrictionOpsClient;
 import net.impleri.playerskills.restrictions.RestrictionRegistry;
+import net.impleri.playerskills.utils.PlayerSkillsLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -22,6 +23,6 @@ public class PlayerSkillsReiPlugin implements REIClientPlugin {
 
   @Override
   public void registerDisplays(DisplayRegistry registry) {
-    registry.registerVisibilityPredicate(SkillsDisplayVisibility.apply(registry, restrictions, recipeOps, null));
+    registry.registerVisibilityPredicate(RecipeRestrictionsPredicate.apply(registry, restrictions, recipeOps, PlayerSkillsLogger.RECIPES()));
   }
 }

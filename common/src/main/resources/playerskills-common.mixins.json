@@ -4,9 +4,12 @@
   "package": "net.impleri.playerskills.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "item.MixinItemStack",
     "recipe.MixinUpgradeRecipe"
   ],
   "client": [
+    "item.MixinItem",
+    "item.MixinItemStackClient",
     "recipe.MixinRecipeCollection",
     "recipe.MixinRecipeBook",
     "recipe.MixinRecipeManager"

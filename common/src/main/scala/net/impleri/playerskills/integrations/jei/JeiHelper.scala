@@ -12,6 +12,7 @@ import net.impleri.slab.client.events.RecipeEvents
 import net.impleri.slab.item.crafting.Recipe
 import net.impleri.slab.logging.Logger
 
+import scala.collection.View
 import scala.util.chaining.scalaUtilChainingOps
 
 case class JeiPluginState(
@@ -44,17 +45,18 @@ case class JeiHelper(
     val current = state.hiddenRecipes
 
     val toShow = if (forced) current else nextHidden.diff(current)
-    toShow.groupBy(_.getType.toString).pipe(jeiRuntime.showRecipes)
+    toShow.groupBy(_.getType.name).pipe(jeiRuntime.showRecipes)
 
     val toHide = if (forced) nextHidden else current.diff(nextHidden)
-    toHide.groupBy(_.getType.toString).pipe(jeiRuntime.hideRecipes)
+    toHide.groupBy(_.getType.name).pipe(jeiRuntime.hideRecipes)
   }
 
   def refresh(forced: Boolean = false): Unit =
-    restrictionRegistry.entries
+    restrictionRegistry.entries.view
       .filter(_.isType(RestrictionType.Recipe))
-      .asInstanceOf[List[RecipeRestriction]]
+      .asInstanceOf[View[RecipeRestriction]]
       .map(_.target)
+      .toSeq
       .tap(n => state.execute(refreshHiddenRecipes(n, forced)))
       .pipe(n => state.copy(hiddenRecipes = n))
       .pipe(upsert)
