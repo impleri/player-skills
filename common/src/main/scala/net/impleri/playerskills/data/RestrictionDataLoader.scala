@@ -2,10 +2,7 @@ package net.impleri.playerskills.data
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import net.impleri.playerskills.data.utils.BiomeFacetParser
-import net.impleri.playerskills.data.utils.ConditionDataParser
-import net.impleri.playerskills.data.utils.DimensionFacetParser
-import net.impleri.playerskills.data.utils.JsonDataParser
+import net.impleri.playerskills.data.utils.{BiomeFacetParser, ConditionDataParser, DimensionFacetParser, JsonDataParser, RestrictionParserLogging}
 import net.impleri.slab.resources.JsonResourceReloadListener
 import net.impleri.slab.resources.ResourceLocation
 
@@ -14,7 +11,8 @@ abstract class RestrictionDataLoader(group: String)
     with JsonDataParser
     with BiomeFacetParser
     with DimensionFacetParser
-    with ConditionDataParser {
+    with ConditionDataParser
+    with RestrictionParserLogging {
   protected def parseRestriction(
     name: ResourceLocation,
     jsonElement: JsonObject,
@@ -22,11 +20,8 @@ abstract class RestrictionDataLoader(group: String)
 
   override def parse(
     data: Map[ResourceLocation, JsonElement],
-  ): Unit = {
+  ): Unit =
     data.foreach(t => parseRestriction(t._1, t._2.getAsJsonObject))
-
-    save()
-  }
 
   protected def save(): Unit
 }

@@ -1,4 +1,4 @@
-package net.impleri.playerskills.mixins.crafting;
+package net.impleri.playerskills.mixins.recipe;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -15,17 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinCraftingMenu {
   @Inject(method = "slotChangedCraftingGrid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/crafting/CraftingRecipe;assemble(Lnet/minecraft/world/Container;)Lnet/minecraft/world/item/ItemStack;"), cancellable = true)
   private static void playerSkills$onGetRecipeFor(AbstractContainerMenu abstractContainerMenu, Level level, Player player, CraftingContainer craftingContainer, ResultContainer resultContainer, CallbackInfo ci) {
-    if (!level.isClientSide) {
-      var playerOpt = net.impleri.slab.entity.Player.fromVanilla(player);
-      var serverOpt = net.impleri.slab.server.Server.fromLevel(level, "");
-      var containerOpt = net.impleri.slab.item.crafting.CraftingContainer.fromVanilla(craftingContainer);
-      var menuOpt = net.impleri.slab.menu.ContainerMenu.fromVanilla(abstractContainerMenu);
-
-      var canCraft = net.impleri.playerskills.facades.item.CraftingMenuHandler.handleGetRecipeFor(playerOpt, serverOpt, containerOpt, menuOpt);
-
-      if (!canCraft) {
+      if (!net.impleri.playerskills.facades.recipe.ServerRecipeHandler.handleGetRecipeFor(player, level, craftingContainer, abstractContainerMenu)) {
         ci.cancel();
       }
-    }
   }
 }

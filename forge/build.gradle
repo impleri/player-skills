@@ -35,6 +35,15 @@ unifiedPublishing {
   }
 }
 
+loom {
+  forge {
+    mixinConfigs = [
+      "playerskills-common.mixins.json",
+      "playerskills-forge.mixins.json"
+    ]
+  }
+}
+
 dependencies {
   // The language loader. You can put the jar to the mods dir instead of declaring in `build.gradle`.
   // This file is needed as the scala library will not be loaded in dev environment due to change of classpath by Forge.

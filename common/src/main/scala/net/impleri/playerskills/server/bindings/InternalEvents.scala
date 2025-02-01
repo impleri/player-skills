@@ -7,8 +7,6 @@ import net.impleri.playerskills.StateContainer
 import net.impleri.playerskills.data.SkillsDataLoader
 import net.impleri.playerskills.data.restrictions.ItemRestrictionDataLoader
 import net.impleri.playerskills.data.restrictions.RecipeRestrictionDataLoader
-import net.impleri.playerskills.restrictions.item.ItemRestrictionBuilder
-import net.impleri.playerskills.restrictions.recipe.RecipeRestrictionBuilder
 import net.impleri.slab.resources.ReloadListeners
 import net.impleri.slab.resources.ResourceManager
 import net.impleri.slab.resources.SimpleReloadListener

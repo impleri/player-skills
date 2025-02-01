@@ -18,25 +18,25 @@
   "entrypoints": {
     "main": [
       {
-        "adapter": "scala",
+        "adapter": "kotori_scala",
         "value": "net.impleri.playerskills.fabric.PlayerSkillsFabric"
       }
     ],
     "client": [
       {
-        "adapter": "scala",
+        "adapter": "kotori_scala",
         "value": "net.impleri.playerskills.client.fabric.PlayerSkillsClientFabric"
       }
     ],
     "server": [
       {
-        "adapter": "scala",
+        "adapter": "kotori_scala",
         "value": "net.impleri.playerskills.server.fabric.PlayerSkillsServerFabric"
       }
     ],
     "jei_mod_plugin": [
       {
-        "adapter": "scala",
+        "adapter": "kotori_scala",
         "value": "net.impleri.playerskills.integrations.jei.PlayerSkillsJeiPlugin"
       }
     ],
@@ -44,10 +44,13 @@
       "net.impleri.playerskills.integrations.rei.PlayerSkillsReiPlugin"
     ]
   },
-  "mixins": [],
+  "mixins": [
+    "playerskills-common.mixins.json",
+    "playerskills-fabric.mixins.json"
+  ],
   "depends": {
     "fabric": "*",
-    "fabric-language-scala": "*",
+    "kotori_scala": "*",
     "minecraft": "1.19.2",
     "architectury": ">=6.2.0"
   },

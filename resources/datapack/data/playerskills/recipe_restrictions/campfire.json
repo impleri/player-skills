@@ -1,0 +1,14 @@
+{
+  "recipe": {
+    "type": "minecraft:campfire_cooking",
+    "output": "minecraft:cooked_beef",
+    "ingredients": [
+      "minecraft:beef"
+    ]
+  },
+  "producible": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

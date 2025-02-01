@@ -2,7 +2,7 @@ package net.impleri.playerskills.restrictions
 
 import net.impleri.playerskills.api.restrictions.Restriction
 import net.impleri.playerskills.api.restrictions.TargetResource
-import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
+import net.impleri.playerskills.restrictions.conditions.{RestrictionConditionsBuilder, TargetedRestriction}
 import net.impleri.slab.logging.Logger
 import net.impleri.slab.registry.Registry
 import net.impleri.slab.registry.Tag
@@ -12,7 +12,7 @@ import net.impleri.slab.resources.ResourceWrapper
 
 import scala.util.chaining.scalaUtilChainingOps
 
-trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsBuilder] {
+trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsBuilder with TargetedRestriction] {
   protected def registry: Option[Registry[T, U]] = None
 
   protected def logger: Logger
@@ -25,7 +25,7 @@ trait RestrictionBuilder[T <: ResourceWrapper[U], U, C <: RestrictionConditionsB
     ResourceKey(r.name)
   }
 
-  def add(restrictionName: String, builder: C): Unit =
+  def add(restrictionName: String)(builder: C): Unit =
     restrictions += restrictionName -> builder
 
   def commit(): Unit = {

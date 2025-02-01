@@ -6,13 +6,13 @@ import net.impleri.playerskills.data.utils.BiomeFacetParser
 import net.impleri.playerskills.data.utils.ConditionDataParser
 import net.impleri.playerskills.data.utils.DimensionFacetParser
 import net.impleri.playerskills.data.utils.JsonDataParser
-import net.impleri.playerskills.restrictions.conditions.{RestrictionConditionsBuilder => ParentBuilder}
-import net.impleri.playerskills.restrictions.conditions.MultiTargetRestriction
-import net.impleri.playerskills.restrictions.conditions.SingleTargetRestriction
+import net.impleri.playerskills.restrictions.conditions.{MultiTargetRestriction, SingleTargetRestriction, RestrictionConditionsBuilder => ParentBuilder}
 import net.impleri.slab.entity.Player
 
+sealed trait TargetedParser extends JsonDataParser
+
 trait SingleTargetParser[T]
-    extends JsonDataParser
+    extends TargetedParser
     with SingleTargetRestriction[T] {
   protected[conditions] def getTarget(
     raw: JsonObject,
@@ -22,7 +22,7 @@ trait SingleTargetParser[T]
 }
 
 trait MultiTargetParser[T]
-    extends JsonDataParser
+    extends TargetedParser
     with MultiTargetRestriction[T] {
   protected[conditions] def getTarget(
     raw: JsonObject,
@@ -39,6 +39,7 @@ trait RestrictionConditionsBuilder
     with BiomeFacetParser
     with DimensionFacetParser
     with ConditionDataParser {
+  this: TargetedParser =>
   def parse(
     jsonElement: JsonObject,
   ): Unit = {

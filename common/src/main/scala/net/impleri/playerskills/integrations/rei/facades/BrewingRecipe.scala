@@ -5,9 +5,11 @@ import net.impleri.slab.item.crafting.IsRecipe
 import net.impleri.slab.item.Item
 
 case class BrewingRecipe(private val data: RawBrew) extends IsRecipe {
-  override def getResult = data.output
+  def getResult = data.output
 
-  override def getResultItem = Item(getResult)
+  def getIngredients = List(data.input, data.ingredient)
+}
 
-  override def getIngredients = List(data.input, data.ingredient)
+object BrewingRecipe {
+  type Vanilla = RawBrew
 }

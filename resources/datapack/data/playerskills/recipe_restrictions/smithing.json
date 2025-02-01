@@ -1,0 +1,12 @@
+{
+  "recipe": {
+    "type": "minecraft:smithing",
+    "output": "minecraft:netherite_axe",
+    "ingredients": ["minecraft:diamond_axe"]
+  },
+  "producible": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

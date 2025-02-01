@@ -26,7 +26,7 @@ class RecipeRestrictionOps(
 object RecipeRestrictionOps {
   def apply(
     registry: RestrictionRegistry = RestrictionRegistry(),
-    logger: Logger = PlayerSkillsLogger.RESTRICTIONS,
+    logger: Logger = PlayerSkillsLogger.RECIPES,
   ): RecipeRestrictionOps =
     new RecipeRestrictionOps(registry, logger)
 }

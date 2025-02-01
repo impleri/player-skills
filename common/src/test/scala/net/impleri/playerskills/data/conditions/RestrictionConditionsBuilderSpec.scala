@@ -29,7 +29,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
     override val skillTypeOps: SkillTypeOps = mockSkillTypeOps,
     override val playerOps: PlayerOps = mockPlayerOps,
     override val logger: Logger = mockLogger,
-  ) extends RestrictionConditionsBuilder {
+  ) extends RestrictionConditionsBuilder with SingleTargetParser[String] {
     override def isValid: Boolean = true
 
     override def getTarget: String = "target"

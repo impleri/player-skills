@@ -1,7 +1,7 @@
 package net.impleri.playerskills.restrictions
 
 import net.impleri.playerskills.BaseSpec
-import net.impleri.playerskills.restrictions.conditions.RestrictionConditionsBuilder
+import net.impleri.playerskills.restrictions.conditions.{RestrictionConditionsBuilder, SingleTargetRestriction}
 import net.impleri.slab.entity.Player
 import net.impleri.slab.resources.ResourceLocation
 
@@ -10,7 +10,7 @@ class RestrictionConditionsBuilderSpec extends BaseSpec {
 
   private case class TestConditionBuilder(
     override val name: ResourceLocation = testName,
-  ) extends RestrictionConditionsBuilder {
+  ) extends RestrictionConditionsBuilder with SingleTargetRestriction[String] {
     override def isValid: Boolean = true
 
     override def getTarget: String = "target"

@@ -35,6 +35,16 @@ function playerskills:setup/23
 function playerskills:setup/24
 function playerskills:setup/30
 function playerskills:setup/31
+function playerskills:setup/40
+function playerskills:setup/41
+function playerskills:setup/42
+function playerskills:setup/43
+function playerskills:setup/44
+function playerskills:setup/45
+function playerskills:setup/46
+function playerskills:setup/47
+function playerskills:setup/50
+function playerskills:setup/51
 
 say Done Testaforming Overworld process
 

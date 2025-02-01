@@ -20,17 +20,19 @@ case class RecipeRestrictionDataLoader(
   override val skillOps: SkillOps = Skill(),
   override val skillTypeOps: SkillTypeOps = SkillType(),
   override val playerOps: Player = Player(),
-  override val logger: Logger = PlayerSkillsLogger.ITEMS,
+  override val logger: Logger = PlayerSkillsLogger.PARSE,
 ) extends RestrictionDataLoader("recipe_restrictions") {
   override protected def parseRestriction(
     name: ResourceLocation,
     jsonElement: JsonObject,
   ): Unit =
     RecipeRestrictionConditionBuilder(name, skillOps, skillTypeOps, playerOps)
+      .tap(logLoading(name))
       .tap(_.parse(jsonElement))
+      .tap(logBuilder("recipe", name))
       .pipe(Option(_))
       .filter(_.isValid)
-      .foreach(recipeRestrictionBuilder.add)
+      .foreach(recipeRestrictionBuilder.add(name.toString))
 
   override def save(): Unit = recipeRestrictionBuilder.commit()
 }

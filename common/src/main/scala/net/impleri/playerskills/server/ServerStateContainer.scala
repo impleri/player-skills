@@ -104,6 +104,12 @@ case class ServerStateContainer(
     PLAYERS.changeStorage(STORAGE)
     logger.info("Resyncing players after server change")
     resync(playerList)
+    SERVER.foreach(_ => loadRestrictions())
+  }
+
+  private def loadRestrictions(): Unit = {
+    itemRestrictions.save()
+    recipeRestrictions.save()
   }
 
   private[server] def onReload(

@@ -1,0 +1,14 @@
+{
+  "recipe": {
+    "type": "minecraft:smoking",
+    "output": "minecraft:cooked_cod",
+    "ingredients": [
+      "minecraft:cod"
+    ]
+  },
+  "producible": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

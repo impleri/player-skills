@@ -48,7 +48,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
       .asInstanceOf[View[R]]
       .tap(logger.traceP(rs => s"Found ${rs.size} restrictions for $target affecting $player"))
 
-  private def IsAllowedTo(
+  private def isAllowedTo(
     player: Player,
     target: ResourceLocation,
     getFieldValue: R => Boolean,
@@ -89,7 +89,7 @@ trait RestrictionsOps[T <: ResourceWrapper[U], U, R <: Restriction[T, U]]
   ): Boolean =
     (player.asOption, target.name) match {
       case (Some(p), Some(t)) =>
-        IsAllowedTo(
+        isAllowedTo(
           p.asPlayer,
           t,
           getFieldValue,

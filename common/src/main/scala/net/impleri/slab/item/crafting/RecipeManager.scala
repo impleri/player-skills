@@ -12,6 +12,12 @@ case class RecipeManager(override val underlying: RecipeManager.Vanilla)
     extends ResourceWrapper[RecipeManager.Vanilla] {
   override val name: Option[ResourceLocation] = None
 
+  def find(key: ResourceLocation): Option[Recipe.Any] =
+    underlying
+      .byKey(key.value)
+      .toScala
+      .map(Recipe(_))
+
   def getRecipeFor[C <: Recipe.BaseContainer, T <: Recipe.Vanilla[C]](
     recipeType: RecipeType.Any,
     container: C,

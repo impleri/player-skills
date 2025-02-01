@@ -13,7 +13,13 @@ case class RecipeTarget(
   recipeType: ResourceLocation,
   output: Option[String] = None,
   ingredients: Seq[String] = Seq.empty,
+  allowOtherIngredients: Boolean = true,
 ) {
+  override def toString: String = {
+    val outputString = getOutputItem.fold("")(v => s"[$v]")
+    val inputs = getIngredients.mkString("{", ", ", "}")
+    s"$recipeType$outputString$inputs"
+  }
   private[recipe] def castRecipeContents(
     input: Seq[String],
   ): Seq[IsIngredient] = {
@@ -31,9 +37,16 @@ case class RecipeTarget(
   private[recipe] lazy val getIngredients: Seq[IsIngredient] =
     castRecipeContents(ingredients)
 
+  private def matchesIngredients(recipeIngredients: Seq[Item]): Boolean = {
+    val ingredients = getIngredients
+    val usesAllIngredients = ingredients.every(_.inList(recipeIngredients))
+    if (allowOtherIngredients) usesAllIngredients
+    else recipeIngredients.every(i => ingredients.exists(_.inList(Seq(i))))
+  }
+
   def matches(recipe: Recipe.Any): Boolean = {
     getOutputItem.exists(recipe.getResultItem.matches) &&
-    getIngredients.every(_.inList(recipe.getIngredientItems))
+    matchesIngredients(recipe.getIngredientItems)
   }
 }
 
@@ -42,7 +55,7 @@ object RecipeTarget {
     targetResource match {
       case ns: TargetResource.Namespace =>
         Option(ResourceNamespace(ns.target))
-      case s: TargetResource.Single => Item.parse(s.target.toString)
+      case s: TargetResource.Single => Item(s.target)
       case s: TargetResource.SingleString => Item.parse(s.target)
       case t: TargetResource.Tag[_, _] => Option(ItemTag(t.target))
       case _ => None

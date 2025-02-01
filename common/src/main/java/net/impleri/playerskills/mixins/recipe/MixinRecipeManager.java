@@ -1,4 +1,4 @@
-package net.impleri.playerskills.mixins.item;
+package net.impleri.playerskills.mixins.recipe;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,31 +20,36 @@ import java.util.Optional;
 public class MixinRecipeManager {
   @Inject(method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;", at = @At(value = "RETURN"), cancellable = true)
   public <C extends Container, T extends Recipe<C>> void playerSkills$onGetRecipeFor(RecipeType<T> recipeType, C container, Level level, CallbackInfoReturnable<Optional<T>> cir) {
-    var recipeOpt = net.impleri.slab.item.crafting.Recipe.fromVanillaOpt(cir.getReturnValue());
-
-    if (!net.impleri.playerskills.facades.item.RecipeManagerHandler.handleOnGetRecipe(recipeOpt)) {
+    if (!net.impleri.playerskills.facades.recipe.ClientRecipeHandler.handleOnGetRecipe((Optional<Recipe<?>>) cir.getReturnValue())) {
       cir.setReturnValue(Optional.empty());
     }
   }
 
   @Inject(method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;Lnet/minecraft/resources/ResourceLocation;)Ljava/util/Optional;", at = @At(value = "RETURN"), cancellable = true)
   public <C extends Container, T extends Recipe<C>> void playerSkills$onGetSpecificRecipeFor(RecipeType<T> recipeType, C container, Level level, ResourceLocation resourceLocation, CallbackInfoReturnable<Optional<Pair<ResourceLocation, T>>> cir) {
-    var recipeOpt = net.impleri.slab.item.crafting.Recipe.fromVanillaPair(cir.getReturnValue());
-
-    if (!net.impleri.playerskills.facades.item.RecipeManagerHandler.handleOnGetRecipe(recipeOpt)) {
+    if (!net.impleri.playerskills.facades.recipe.ClientRecipeHandler.handleOnGetRecipePair((Optional<Pair<ResourceLocation, Recipe<?>>>) (Object) cir.getReturnValue())) {
       cir.setReturnValue(Optional.empty());
     }
   }
 
   @Inject(method = "getRecipesFor", at = @At(value = "RETURN"), cancellable = true)
   public <C extends Container, T extends Recipe<C>> void playerSkills$onGetRecipesFor(RecipeType<T> recipeType, C container, Level level, CallbackInfoReturnable<List<T>> cir) {
-    var values = net.impleri.slab.item.crafting.Recipe.fromVanillaList(cir.getReturnValue());
-
-    if (values.isEmpty()) {
-      return;
+    if (recipeType.toString().equals("smithing")) {
+      net.impleri.playerskills.utils.PlayerSkillsLogger.RECIPES().enableDebug(true);
     }
 
-    var recipes = net.impleri.playerskills.facades.item.RecipeManagerHandler.handleOnGetRecipes(values);
+    var recipes = net.impleri.playerskills.facades.recipe.ClientRecipeHandler.handleOnGetRecipes((List<Recipe<?>>) cir.getReturnValue());
+
+    if (recipeType.toString().equals("smithing")) {
+      net.impleri.playerskills.utils.PlayerSkillsLogger.RECIPES().enableDebug(false);
+    }
+
     cir.setReturnValue((List<T>) recipes);
+  }
+
+  @Inject(method = "getRecipes", at = @At(value = "RETURN"), cancellable = true)
+  public <C extends Container, T extends Recipe<C>> void playerSkills$onGetRecipes(CallbackInfoReturnable<Collection<T>> cir) {
+    var recipes = net.impleri.playerskills.facades.recipe.ClientRecipeHandler.handleOnGetRecipes((List<Recipe<?>>) cir.getReturnValue().stream().toList());
+    cir.setReturnValue((Collection<T>) recipes);
   }
 }

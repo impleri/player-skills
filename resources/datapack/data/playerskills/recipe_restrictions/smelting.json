@@ -1,0 +1,14 @@
+{
+  "recipe": {
+    "type": "minecraft:smelting",
+    "output": "minecraft:iron_ingot",
+    "ingredients": [
+      "minecraft:raw_iron"
+    ]
+  },
+  "producible": false,
+  "unless": {
+    "skill": "playerskills:item_test",
+    "value": 1
+  }
+}

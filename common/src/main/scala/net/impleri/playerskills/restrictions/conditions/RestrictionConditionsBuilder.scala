@@ -2,22 +2,28 @@ package net.impleri.playerskills.restrictions.conditions
 
 import net.impleri.slab.resources.ResourceLocation
 
-trait SingleTargetRestriction[T] {
-  var target: Option[T] = None
+sealed trait TargetedRestriction {
+  def isValid: Boolean
 
-  def isValid: Boolean =
-    target.nonEmpty
-
-  def getTarget: String = target.fold("")(_.toString)
+  def getTarget: String
 }
 
-trait MultiTargetRestriction[T] {
+trait SingleTargetRestriction[T] extends TargetedRestriction {
+  var target: Option[T] = None
+
+  override def isValid: Boolean =
+    target.nonEmpty
+
+  override def getTarget: String = target.fold("")(_.toString)
+}
+
+trait MultiTargetRestriction[T] extends TargetedRestriction {
   var targets: Seq[T] = Seq.empty
 
-  def isValid: Boolean =
+  override def isValid: Boolean =
     targets.nonEmpty
 
-  def getTarget: String = targets.map(_.toString).mkString(", ")
+  override def getTarget: String = targets.map(_.toString).mkString(", ")
 }
 
 trait RestrictionConditionsBuilder
@@ -25,8 +31,4 @@ trait RestrictionConditionsBuilder
     with DimensionConditions
     with PlayerConditions {
   def name: ResourceLocation
-
-  def isValid: Boolean
-
-  def getTarget: String
 }

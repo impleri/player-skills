@@ -14,10 +14,9 @@ import scala.util.chaining.scalaUtilChainingOps
 
 case class RecipeRestrictionBuilder(
   protected val serverState: ServerStateContainer = ServerStateContainer(),
-  protected val restrictionRegistry: RestrictionRegistry =
-    RestrictionRegistry(),
+  protected val restrictionRegistry: RestrictionRegistry = RestrictionRegistry(),
   protected val recipeTypeRegistry: Registry.RECIPE_TYPE = Registry.RecipeTypes,
-  override val logger: Logger = PlayerSkillsLogger.ITEMS,
+  override val logger: Logger = PlayerSkillsLogger.RECIPES,
 ) extends RestrictionBuilder[Recipe.Any, Recipe.AnyVanilla, RecipeConditions] {
   override val singleAsString = true
 
@@ -27,10 +26,7 @@ case class RecipeRestrictionBuilder(
   ): Unit =
     RecipeRestriction(recipe, builder)
       .tap(restrictionRegistry.add)
-      .tap(logRestriction(
-      recipe.name.fold(s"${recipe.getResultItem.name}")(_.asString),
-        _,
-    ))
+      .tap(logRestriction(recipe.toString, _))
 
   private def restrictRecipes[R <: Recipe.BaseVanilla](
     recipeType: RecipeType.Any,
@@ -67,7 +63,4 @@ case class RecipeRestrictionBuilder(
     for {
       target <- data._2.targets
     } yield restrictTarget(target, data._2)
-
-  def add(builder: RecipeConditions): Unit =
-    restrictions += s"recipe-${restrictions.size}" -> builder
 }
