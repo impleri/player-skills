@@ -47,7 +47,7 @@ case class RecipeRestrictionsPredicate(
         val isRestricted = getRestrictedRecipes.exists(_ == r)
 
         if (isRestricted) {
-          logger.info(s"Restricted REI from showing $r")
+          logger.debug(s"Restricted REI from showing $r")
         }
 
         // Invert so the isRestricted means is not allowed

@@ -29,7 +29,6 @@ case class JeiRuntime(private val runtime: IJeiRuntime) {
   ): Unit =
     for {
       (typeName, recipes) <- recipesByType
-      _ = PlayerSkillsLogger.RECIPES.info(s"Processing ${recipes.size} JEI recipes for $typeName")
       recipeType <- getType(typeName)
       recipeValues = recipes.map(_.value).asJavaCollection
     } yield f(recipeType.asInstanceOf[RecipeType[T]], recipeValues.asInstanceOf[util.Collection[T]])

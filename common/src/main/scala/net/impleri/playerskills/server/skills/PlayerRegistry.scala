@@ -114,9 +114,9 @@ case class PlayerRegistry(
       .toMap
       .partition(_._2.contains(true))
       .tap(p =>
-        if (p._1.nonEmpty)
+        if (p._2.nonEmpty)
           logger.warn(
-            s"Could not save player data for: ${p._1.keys.mkString(",")}",
+            s"Could not save player data for: ${p._2.keys.mkString(",")}",
           ),
       )
       ._2
